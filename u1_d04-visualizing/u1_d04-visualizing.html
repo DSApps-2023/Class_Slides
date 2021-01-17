@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Visualizing in the Tidyverse</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Giora Simchoni" />
+    <meta name="date" content="2021-01-17" />
+    <script src="u1_d04-visualizing_files/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+    <script src="u1_d04-visualizing_files/plotly-binding-4.9.3/plotly.js"></script>
+    <script src="u1_d04-visualizing_files/typedarray-0.1/typedarray.min.js"></script>
+    <script src="u1_d04-visualizing_files/jquery-3.5.1/jquery.min.js"></script>
+    <link href="u1_d04-visualizing_files/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+    <script src="u1_d04-visualizing_files/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+    <link href="u1_d04-visualizing_files/plotly-htmlwidgets-css-1.57.1/plotly-htmlwidgets.css" rel="stylesheet" />
+    <script src="u1_d04-visualizing_files/plotly-main-1.57.1/plotly-latest.min.js"></script>
+    <head>
+      <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
+      <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
+    </head>
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+## Visualizing in the Tidyverse
+
+### Applications of Data Science - Class 4
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### 2021-01-17
+
+---
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;
+  &lt;span&gt;
+    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;/a&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+---
+
+
+
+class: section-slide
+
+# Welcome to `ggplot2`
+
+#### Heavily inspired by datascienceinabox.org / @minebocek
+---
+
+## `ggplot()`
+
+- **ggplot2** is tidyverse's data visualization package
+- The `gg` in "ggplot2" stands for Grammar of Graphics
+- It is inspired by the book [Grammar of Graphics](https://www.springer.com/gp/book/9780387245447) by Leland Wilkinson
+- A grammar of graphics is a tool that enables us to concisely describe the components of a graphic
+
+&lt;center&gt;&lt;img src = "images/grammar-of-graphics.png" style="width: 50%"&gt;&lt;/center&gt;
+
+---
+
+### Remember the Force, Luke!
+
+
+```r
+sw_tables &lt;- read_rds("../data/sw_tables.rds")
+characters &lt;- sw_tables$characters
+planets &lt;- sw_tables$planets
+films &lt;- sw_tables$films
+
+glimpse(characters)
+```
+
+```
+## Rows: 173
+## Columns: 14
+## $ character_id &lt;int&gt; 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, ...
+## $ name         &lt;chr&gt; "Luke Skywalker", "Luke Skywalker", "Luke Skywalker", ...
+## $ gender       &lt;chr&gt; "male", "male", "male", "male", "male", NA, NA, NA, NA...
+## $ homeworld_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 8, 8, 8, 8, 8, 8, ...
+## $ height       &lt;dbl&gt; 172, 172, 172, 172, 172, 167, 167, 167, 167, 167, 167,...
+## $ mass         &lt;dbl&gt; 77, 77, 77, 77, 77, 75, 75, 75, 75, 75, 75, 32, 32, 32...
+## $ hair_color   &lt;chr&gt; "blond", "blond", "blond", "blond", "blond", NA, NA, N...
+## $ skin_color   &lt;chr&gt; "fair", "fair", "fair", "fair", "fair", "gold", "gold"...
+## $ eye_color    &lt;chr&gt; "blue", "blue", "blue", "blue", "blue", "yellow", "yel...
+## $ birth_year   &lt;dbl&gt; 19.0, 19.0, 19.0, 19.0, 19.0, 112.0, 112.0, 112.0, 112...
+## $ film_id      &lt;dbl&gt; 1, 2, 3, 6, 7, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, ...
+## $ species      &lt;list&gt; ["http://swapi.co/api/species/1/", "http://swapi.co/a...
+## $ vehicles     &lt;list&gt; [&lt;"http://swapi.co/api/vehicles/14/", "http://swapi.c...
+## $ starships    &lt;list&gt; [&lt;"http://swapi.co/api/starships/12/", "http://swapi....
+```
+
+---
+
+What are the functions doing the plotting? What is the dataset being plotted? 
+Which variable is on the x-axis and which variable is on the y-axis? What does the warning mean?
+
+
+```r
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  labs(title = "Mass vs. Height of Starwars characters",
+       x = "Height (cm)", y = "Weight (kg)")
+```
+
+&lt;pre style="color: red;"&gt;&lt;code&gt;## Warning: Removed 36 rows containing missing values (geom_point).
+&lt;/code&gt;&lt;/pre&gt;&lt;img src="images/Mass-Height1-1.png" width="70%" /&gt;
+
+---
+
+What does `geom_smooth()` do? What else changed between the previous plot and this one?
+
+
+```r
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+* geom_smooth() +
+  labs(title = "Mass vs. Height of Starwars characters",
+       x = "Height (cm)", y = "Weight (kg)")
+```
+
+&lt;img src="images/Mass-Height2-1.png" width="70%" /&gt;
+
+---
+
+## Who dis!
+
+- `ggplot()` is the main function in ggplot2 and plots are constructed in layers
+- The structure of the code for plots can often be summarized as
+
+```r
+ggplot + 
+  geom_xxx
+```
+
+or, more precisely
+
+```r
+ggplot(data = [dataset], mapping = aes(x = [x-variable], y = [y-variable])) +
+   geom_xxx() +
+   other options
+```
+
+- To use ggplot2 functions, first load tidyverse
+
+```r
+library(tidyverse)
+```
+- For help with the ggplot2, see [ggplot2.tidyverse.org](http://ggplot2.tidyverse.org/)
+
+---
+
+## Mass vs. Height
+
+
+```r
+ggplot(characters, aes(height, mass)) + geom_point()
+```
+
+&lt;img src="images/Ggplot2-1.png" width="70%" /&gt;
+
+How would you describe this relationship? What other variables would help us understand data points that don't follow the overall trend? Who is the not so tall but really chubby character?
+
+---
+
+## Jabba!
+
+&lt;img src = "images/JabbaPlot-1.png" style="width: 90%"&gt;
+
+---
+
+### But seriously, Luke
+
+&lt;center&gt;&lt;img src = "images/luke-skywalker.png" style="width: 90%"&gt;&lt;/center&gt;
+
+---
+
+## Additional variables
+
+We can map additional variables to various features of the plot:
+
+- aesthetics
+    - shape
+    - colour
+    - size
+    - alpha (transparency)
+- faceting: small multiples displaying different subsets
+
+---
+class: section-slide
+
+# Aesthetics
+
+---
+
+## Aesthetics options
+
+Visual characteristics of plotting characters that can be **mapped to a specific variable**
+in the data are
+
+- `color`
+- `fill`
+- `size`
+- `shape`
+- `alpha` (transparency)
+
+---
+
+### Mass vs. Height + Gender
+
+
+```r
+ggplot(data = characters,
+       mapping = aes(x = height, y = mass, color = gender)) +
+  geom_point()
+```
+
+&lt;img src="images/Ggplot3-1.png" width="70%" /&gt;
+
+---
+
+### Mass vs. Height + Gender + Birth Year
+
+Let's map the size to `birth_year`:
+
+
+```r
+ggplot(data = characters,
+       mapping = aes(x = height, y = mass, color = gender, 
+*                    size = birth_year)) +
+  geom_point()
+```
+
+&lt;img src="images/Aes1-1.png" width="70%" /&gt;
+
+---
+
+### Mass vs. Height + Gender
+
+Let's now increase the size of all points **not** based on the values of a 
+variable in the data:
+
+
+```r
+ggplot(data = characters,
+       mapping = aes(x = height, y = mass, color = gender)) +
+* geom_point(size = 2)
+```
+
+&lt;img src="images/Aes2-1.png" width="70%" /&gt;
+
+---
+
+## Aesthetics Summary
+
+- Continuous variable are measured on a continuous scale
+- Discrete variables are measured (or often counted) on a discrete scale
+
+aesthetics    | discrete                 | continuous
+------------- | ------------------------ | ------------
+color         | rainbow of colors        | gradient
+size          | discrete steps           | linear mapping between radius and value
+shape         | different shape for each | shouldn't (and doesn't) work
+
+- Use aesthetics for mapping features of a plot to a variable, define the 
+features in the geom for customization **not** mapped to a variable
+
+---
+class: section-slide
+
+# Faceting
+
+---
+
+### Faceting options
+
+- Smaller plots that display different subsets of the data
+- Useful for exploring conditional relationships and large data
+
+
+```r
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+* facet_grid(. ~ gender) +
+  geom_point() +
+  labs(title = "Mass vs. Height of Starwars characters",
+*      subtitle = "Faceted by Gender",
+       x = "Height (cm)", y = "Weight (kg)")
+```
+
+&lt;img src="images/Facet1-1.png" width="100%" /&gt;
+
+---
+
+### Many ways to facet
+
+
+
+```r
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  facet_grid(gender ~ .)
+```
+
+&lt;img src="images/Facet2-1.png" width="50%" /&gt;
+
+---
+
+
+```r
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  facet_wrap(. ~ gender, scales = "free")
+```
+
+&lt;img src="images/Facet3-1.png" width="100%" /&gt;
+
+---
+
+
+```r
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  facet_wrap(~ eye_color)
+```
+
+&lt;img src="images/Facet4-1.png" width="60%" /&gt;
+
+---
+
+## Facet summary
+
+- `facet_grid()`: 
+    - 2d grid
+    - `rows ~ cols`
+    - use `.` for no split
+- `facet_wrap()`: 1d ribbon wrapped into 2d
+
+---
+class: section-slide
+
+# Take Control
+
+---
+
+
+
+
+```r
+okcupid_lgbt_relig &lt;- okcupid %&gt;%
+  group_by(religion2) %&gt;%
+  summarise(pct_lgbt = mean(orientation %in% c("gay", "bisexual"))) %&gt;%
+  mutate(religion = fct_reorder(religion2, desc(pct_lgbt)))
+
+okcupid_lgbt_relig
+```
+
+```
+## # A tibble: 7 x 3
+##   religion2 pct_lgbt religion 
+##   &lt;chr&gt;        &lt;dbl&gt; &lt;fct&gt;    
+## 1 atheist     0.152  atheist  
+## 2 buddhist    0.210  buddhist 
+## 3 christian   0.0974 christian
+## 4 hindu       0.0778 hindu    
+## 5 jewish      0.117  jewish   
+## 6 muslim      0.101  muslim   
+## 7 NA          0.146  NA
+```
+
+---
+
+
+```r
+okcupid_lgbt_relig %&gt;%
+  ggplot(aes(religion, pct_lgbt)) +
+  geom_bar(stat="identity")
+```
+
+&lt;img src="images/Control2-1.png" width="60%" /&gt;
+
+.font80percent[Meh.]
+
+---
+
+## Pimp my plot
+
+
+```r
+p &lt;- ggplot(okcupid_lgbt_relig, aes(religion, pct_lgbt)) +
+  geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+  labs(x = "", y = "",
+       title = "OkCupid: %Reported LGBTQ+ by Religion") +
+  theme(text = element_text(size = 14, color = "#163f59", family = "mono"),
+        axis.text.y = element_text(size = 14)) +
+  scale_y_continuous(breaks = seq(0.05, 0.2, 0.05),
+                     labels=scales::percent_format(accuracy = 1)) +
+  coord_flip()
+p
+```
+
+---
+
+## Pimp my plot
+
+&lt;img src="images/Control4-1.png" width="100%" /&gt;
+
+---
+
+## Annotate, Add lines
+
+
+```r
+p + geom_hline(yintercept = 0.139, lty = 2, color = "#163f59") +
+  annotate("text", x = 5, y = 0.139 + 0.03, label = "Overall %",
+           color = "#163f59", family = "mono") +
+  annotate(geom = "curve", x = 5, y = 0.15, xend = 4, yend = 0.139 + 0.001, 
+    curvature = .3, arrow = arrow(length = unit(2, "mm")), color = "#163f59")
+```
+
+&lt;img src="images/Control5-1.png" width="90%" /&gt;
+
+---
+class: section-slide
+
+# Themes
+
+---
+
+
+```r
+p + theme_classic()
+```
+
+&lt;img src="images/Themes1-1.png" width="100%" /&gt;
+---
+
+
+```r
+p + theme_light()
+```
+
+&lt;img src="images/Themes2-1.png" width="100%" /&gt;
+
+---
+
+
+```r
+p + theme_dark()
+```
+
+&lt;img src="images/Themes3-1.png" width="100%" /&gt;
+
+---
+
+
+```r
+p + theme_linedraw()
+```
+
+&lt;img src="images/Themes4-1.png" width="100%" /&gt;
+
+---
+
+
+```r
+library(tvthemes)
+# import_simpsons()
+extrafont::loadfonts(device="win")
+
+p + theme_simpsons(title.font = "Akbar",
+                 text.font = "Akbar",
+                 axis.text.size = 12)
+```
+
+&lt;img src="images/Themes5-1.png" width="100%" /&gt;
+
+---
+
+
+```r
+ggplot(okcupid_lgbt_relig, aes(religion, pct_lgbt)) +
+  geom_bar(aes(fill = pct_lgbt), stat="identity", alpha=.6, width=.4) +
+  labs(x = "", y = "", title = "This was supposed to be GoT...") +
+  scale_y_continuous(breaks = seq(0.05, 0.2, 0.05), labels=scales::percent_format(accuracy = 1)) +
+  coord_flip() +
+  scale_fill_westeros(palette = "Tyrell", type = "continuous") + theme_minimal() +
+  theme(text = element_text(family = "Cinzel", size = 12),
+        title = element_text(family = "Cinzel", size = 14)) + guides(fill=FALSE)
+```
+
+&lt;img src="images/Themes6-1.png" width="100%" /&gt;
+
+---
+class: section-slide
+
+# Common Plots à la GG
+
+---
+
+## Line Plot
+
+
+```r
+library(hrbrthemes)
+
+characters %&gt;%
+  group_by(film_id) %&gt;%
+  summarise(n_char = n_distinct(character_id)) %&gt;%
+  ggplot(aes(film_id, n_char)) +
+* geom_line(lwd = 2) +
+  labs(x = "", y = "No. of Characters",
+       title = "Star Wars Films No. of Unique Characters") +
+  scale_x_continuous(breaks = 1:7, labels = films$title) +
+  theme_ipsum(base_family = "Roboto Condensed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+---
+
+&lt;img src="images/Line2-1.png" width="100%" /&gt;
+
+---
+
+## Histogram
+
+
+```r
+library(scales)
+
+sex_names &lt;- list(
+  "m" = "men",
+  "f" = "women"
+)
+
+sex_labeller &lt;- function(variable, value){
+  return(sex_names[value])
+}
+
+p2 &lt;- okcupid %&gt;%
+  ggplot(aes(income)) +
+  facet_wrap(. ~ sex, labeller = sex_labeller) +
+  scale_x_log10(breaks = trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  labs(x = "", y = "", title = "OkCupid: Annual Income Dist. by Gender",
+       caption = "Income is presented as log10(Income)") +
+  theme_ipsum(base_family = "Roboto Condensed")
+
+*p2 + geom_histogram()
+```
+---
+
+&lt;img src="images/Hist2-1.png" width="100%" /&gt;
+
+---
+
+## Density Plot
+
+
+```r
+p2 + geom_density()
+```
+
+&lt;img src="images/Dens-1.png" width="100%" /&gt;
+
+---
+
+## Box Plot
+
+
+```r
+p3 &lt;- okcupid %&gt;%
+  sample_n(5000) %&gt;%
+  ggplot(aes(sex, income)) +
+  scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  labs(x = "", y = "", title = "OkCupid: Annual Income Dist. by Gender",
+       caption = "Income is presented as log10(Income)") +
+  scale_x_discrete(labels = c("women", "men")) +
+  theme_ipsum(base_family = "Roboto Condensed")
+
+*p3 + geom_boxplot()
+```
+
+---
+
+&lt;img src="images/Boxplot1-1.png" width="80%" /&gt;
+
+---
+
+## Violin Plot
+
+
+```r
+p3 + geom_violin(fill = "darkgreen", alpha = 0.6)
+```
+
+&lt;img src="images/Violin-1.png" width="80%" /&gt;
+
+---
+
+## Swarm Plot
+
+
+```r
+p3 + ggbeeswarm::geom_quasirandom(aes(color = sex)) + guides(color=FALSE)
+```
+
+&lt;img src="images/Swarm-1.png" width="80%" /&gt;
+---
+
+## Bar Plot
+
+
+```r
+p + theme_ipsum(base_family = "Roboto Condensed")
+```
+
+&lt;img src="images/Bar-1.png" width="100%" /&gt;
+---
+
+## Segmented Bar Plots: Counts
+
+
+
+```r
+p4 &lt;- ggplot(
+  okcupid %&gt;%
+    mutate(orientation = recode(orientation, "gay" = "lgbt", "bisexual" = "lgbt"),
+           religion = fct_relevel(religion2,
+                                  count(okcupid, religion2, sort = TRUE)$religion2)),
+  aes(religion, fill = orientation)
+  ) +
+  labs(x = "", y = "",
+       title = "OkCupid: Orientation by Religion") +
+  scale_y_continuous(breaks = seq(0, 25000, 5000)) +
+  coord_flip() +
+  theme_ipsum(base_family = "Roboto Condensed") + theme(text = element_text(size = 14))
+```
+
+---
+
+
+```r
+p4 + geom_bar(alpha=.6, width=.4)
+```
+
+&lt;img src="images/Bar-Segmented2-1.png" width="100%" /&gt;
+
+---
+
+## Segmented Bar Plots: Proportions
+
+
+```r
+p4 + geom_bar(position = "fill", alpha=.6, width=.4)
+```
+
+&lt;img src="images/Bar-Segmented3-1.png" width="100%" /&gt;
+
+.font80percent[
+Hoping you can see why this is worse than our original plot.
+]
+---
+
+## Mosaic Plots
+
+
+```r
+library(ggmosaic)
+
+okcupid %&gt;%
+  mutate(orientation = recode(orientation, "gay" = "lgbt", "bisexual" = "lgbt"),
+         religion = fct_relevel(religion2, count(okcupid, religion2, sort = TRUE)$religion2)) %&gt;%
+ggplot() +
+* geom_mosaic(aes(x = product(orientation, religion), fill=orientation)) +
+  labs(x = "", y = "", title = "OkCupid: Orientation by Religion") +
+  guides(fill=FALSE) +
+  theme_ipsum(base_family = "Roboto Condensed") +
+  theme(axis.text.y = element_text(size = 14),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, size = 12))
+```
+
+---
+
+&lt;img src="images/Mosaic2-1.png" width="100%" /&gt;
+
+---
+
+## Radar Chart
+
+
+```r
+okcupid %&gt;%
+  group_by(religion2) %&gt;%
+  summarise(drugs = mean(drugs %in% c("sometimes", "often"), na.rm = TRUE),
+            smokes = mean(smokes == "yes", na.rm = TRUE),
+            overweight = mean(body_type == "overweight", na.rm = TRUE),
+            drinks = mean(drinks %in% c("often", "very often", "desperately"))
+            ) -&gt; okcupid_radar
+okcupid_radar
+```
+
+```
+## # A tibble: 7 x 5
+##   religion2  drugs smokes overweight drinks
+##   &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;
+## 1 atheist   0.201  0.0473    0.0110  0.141 
+## 2 buddhist  0.160  0.0302    0.00494 0.0775
+## 3 christian 0.0649 0.0352    0.00994 0.0759
+## 4 hindu     0.0733 0.0236    0.00725 0.0689
+## 5 jewish    0.128  0.0197    0.00467 0.0607
+## 6 muslim    0.180  0.136     0.0155  0.115 
+## 7 NA        0.126  0.0427    0.00634 0.0911
+```
+
+---
+
+
+```r
+library(ggradar)
+
+ggradar(okcupid_radar,  grid.max = 0.201, grid.mid = 0.10, values.radar = c("0%", "10%", "20%"),
+        plot.title = "OkCupid: Health Indicators by Religion") + theme(plot.title = element_text(size = 18))
+```
+
+&lt;img src="images/Radar3-1.png" width="90%" /&gt;
+
+---
+
+## Sankey Diagram (Alluvial Plot)
+
+
+```r
+library(ggalluvial)
+
+g7 &lt;- c("canada", "france", "germany", "italy", "japan", "united_kingdom", "united_states_of_america")
+
+migration_2019 &lt;- read_rds("../data/migration.rds") %&gt;%
+  pivot_longer(cols = -c(1:4), names_to = "country_orig", values_to = "n_migrants") %&gt;%
+  filter(year == 2019) %&gt;%
+  filter_at(c("country_orig", "country_dest"), ~.x %in% g7) %&gt;%
+  mutate_at(c("country_orig", "country_dest"), ~case_when(.x == "united_kingdom" ~ "uk", .x == "united_states_of_america" ~ "usa", TRUE ~ .x)) %&gt;%
+  group_by(country_orig, country_dest) %&gt;%
+  summarise(n_migrants = sum(n_migrants))
+
+migration_2019 %&gt;% head(4)
+```
+
+```
+## # A tibble: 4 x 3
+## # Groups:   country_orig [1]
+##   country_orig country_dest n_migrants
+##   &lt;chr&gt;        &lt;chr&gt;             &lt;dbl&gt;
+## 1 canada       canada                0
+## 2 canada       france            28339
+## 3 canada       germany           18211
+## 4 canada       italy             25716
+```
+
+---
+
+
+```r
+ggplot(migration_2019,
+       aes(y = n_migrants, axis1 = country_orig, axis2 = country_dest)) +
+* geom_alluvium(aes(fill = country_orig)) +
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", infer.label = TRUE) +
+  scale_x_discrete(limits = c("Origin", "Destination"), expand = c(.05, .05)) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  guides(fill = FALSE) +
+  labs(y = "", title = "G7 Cross-Country Migration 2019") +
+  scale_y_comma() +
+  theme_ipsum(base_family = "Roboto Condensed")
+```
+
+---
+
+&lt;img src="images/Sankey3-1.png" width="100%" /&gt;
+
+---
+
+## Heatmap
+
+
+```r
+gender_age_height_drink &lt;- okcupid %&gt;%
+  mutate(age_group = case_when(
+    age &lt; 30 ~ "19-29",
+    age &lt; 40 ~ "30-39",
+    age &lt; 50 ~ "40-49",
+    age &lt; 60 ~ "50-59",
+    TRUE ~ "60+"),
+    height_group = case_when(
+      height_cm &lt; 150 ~ "149-",
+      height_cm &lt; 160 ~ "150-159",
+      height_cm &lt; 170 ~ "160-169",
+      height_cm &lt; 180 ~ "170-179",
+      height_cm &lt; 190 ~ "180-189",
+      TRUE ~ "190+")) %&gt;%
+  group_by(sex, age_group, height_group) %&gt;%
+  summarise(n = n(),
+            drinks = mean(drinks %in% c("often", "very often", "desperately")))
+```
+
+---
+
+
+```r
+gender_age_height_drink
+```
+
+```
+## # A tibble: 58 x 5
+## # Groups:   sex, age_group [10]
+##    sex   age_group height_group     n drinks
+##    &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;        &lt;int&gt;  &lt;dbl&gt;
+##  1 f     19-29     149-           163 0.0920
+##  2 f     19-29     150-159       1963 0.102 
+##  3 f     19-29     160-169       5620 0.110 
+##  4 f     19-29     170-179       3113 0.130 
+##  5 f     19-29     180-189        310 0.145 
+##  6 f     19-29     190+            19 0.474 
+##  7 f     30-39     149-            80 0.0625
+##  8 f     30-39     150-159       1293 0.0673
+##  9 f     30-39     160-169       4109 0.0810
+## 10 f     30-39     170-179       2231 0.0852
+## # ... with 48 more rows
+```
+
+---
+
+
+```r
+heat &lt;- ggplot(gender_age_height_drink, aes(age_group, height_group, fill = drinks)) +
+* geom_tile(aes(text = str_c(percent(drinks, 1), " of ", n, "    "))) +
+  facet_wrap(. ~ sex, labeller = sex_labeller) +
+  labs(x = "Age", y = "Height", title = "OkCupid: %Reported Drinking by Age and Height") +
+  scale_fill_gradient(labels = percent_format(accuracy = 1)) +
+  theme_ipsum(base_family = "Roboto Condensed")
+heat
+```
+
+&lt;img src="images/Heatmap2-1.png" width="100%" /&gt;
+
+---
+
+## An Actual Heat Map
+
+
+
+
+```r
+clean_country_name &lt;- function(name) {
+  str_replace_all(str_replace_all(str_to_lower(name), " |-", "_"), "'|,|\\(|\\)", "")
+}
+
+
+world &lt;- as_tibble(map_data("world"))
+
+world &lt;- world %&gt;%
+  mutate(region = clean_country_name(region))
+
+ggplot(world %&gt;%
+         left_join(migration_total, "region"),
+       aes(x = long, y = lat, group = group)) +
+  geom_polygon(aes(fill = n_migrants), colour = "white") +
+  scale_fill_gradient(labels = comma, name = "N Migrants", high = "#132B43", low = "#56B1F7") +
+  labs(x = "", y = "", title = "No. of Migrants by Country in 2019") +
+  theme_ipsum(base_family = "Roboto Condensed")
+```
+
+---
+
+&lt;img src="images/Heatmap5-1.png" width="100%" /&gt;
+
+---
+class: section-slide
+
+# Amazing Extensions
+
+---
+
+## `patchwork`
+
+
+```r
+library(patchwork)
+
+p1 &lt;- ggplot(okcupid %&gt;% filter(between(age, 18, 70))) +
+  geom_density(aes(age, fill = sex)) +
+  labs(y = "") +
+  guides(fill = FALSE) +
+  theme_ipsum(base_family = "Roboto Condensed")
+
+p2 &lt;- ggplot(okcupid %&gt;% filter(between(height_cm, 140, 200))) +
+  geom_density(aes(height_cm, fill = sex)) +
+  labs(y = "") +
+  guides(fill = FALSE) +
+  theme_ipsum(base_family = "Roboto Condensed")
+
+p3 &lt;- ggplot(okcupid) +
+  geom_mosaic(aes(x = product(sex, religion2), fill = sex)) +
+  labs(x = "", y = "") +
+  theme_ipsum(base_family = "Roboto Condensed") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+---
+
+Watch this:
+
+
+```r
+(p1 | p2) / p3
+```
+
+&lt;img src="images/Patchwork2-1.png" width="100%" /&gt;
+
+---
+
+## `plotly`
+
+Remember those heatmaps? They're now interactive!
+
+
+```r
+library(plotly)
+ggplotly(heat, tooltip = "text")
+```
+
+<div id="htmlwidget-eba9f7231ecb8d452918" style="width:100%;height:420px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-eba9f7231ecb8d452918">{"x":{"data":[{"x":[1,2,3,4,5],"y":[1,2,3,4,5,6],"z":[[0.194274028629857,0.131944444444444,0,0.351851851851852,0],[0.215090281315447,0.1420469193091,0.058641975308642,0.085972850678733,0.0608974358974359],[0.232898378805852,0.171087855926016,0.102947550931946,0.0699043414275203,0.053072625698324],[0.2739765142592,0.179789830170825,0.112561963486882,0.0628306878306878,0.0422222222222222],[0.306451612903226,0.240994419076611,0.158333333333333,0.0811965811965812,0.263888888888889],[1,0.791666666666667,0,0,null]],"text":[["9% of 163    ","6% of 80    ","0% of 39    ","17% of 12    ","0% of 9    "],["10% of 1963    ","7% of 1293    ","3% of 432    ","4% of 221    ","3% of 104    "],["11% of 5620    ","8% of 4109    ","5% of 1538    ","3% of 755    ","3% of 358    "],["13% of 3113    ","9% of 2231    ","5% of 919    ","3% of 336    ","2% of 150    "],["15% of 310    ","11% of 219    ","8% of 80    ","4% of 26    ","12% of 8    "],["47% of 19    ","38% of 8    ","0% of 1    ","0% of 1    ",null]],"colorscale":[[0,"#132B43"],[0.0422222222222222,"#16304A"],[0.053072625698324,"#16314B"],[0.058641975308642,"#17324C"],[0.0608974358974359,"#17324D"],[0.0628306878306878,"#17324D"],[0.0699043414275203,"#17334E"],[0.0811965811965812,"#183550"],[0.085972850678733,"#183551"],[0.102947550931946,"#193753"],[0.112561963486882,"#1A3855"],[0.131944444444444,"#1B3B58"],[0.1420469193091,"#1C3C5A"],[0.158333333333333,"#1D3E5D"],[0.171087855926016,"#1D405F"],[0.179789830170825,"#1E4160"],[0.194274028629857,"#1F4263"],[0.215090281315447,"#204566"],[0.232898378805852,"#214769"],[0.240994419076611,"#22486A"],[0.263888888888889,"#234B6E"],[0.2739765142592,"#244C70"],[0.306451612903226,"#265176"],[0.351851851851852,"#29567E"],[0.791666666666667,"#4793CE"],[1,"#56B1F7"]],"type":"heatmap","showscale":false,"autocolorscale":false,"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,2,3,4,5],"y":[1,2,3,4,5,6],"z":[[0.714285714285714,1,0,0,null],[0.288461538461538,0.171428571428571,0.428571428571429,0.375,0],[0.268896321070234,0.301354401805869,0.198606271777003,0.205882352941176,0.171428571428571],[0.332834806254249,0.283073367995378,0.257462686567164,0.184251968503937,0.169354838709677],[0.380520016508461,0.355424143556281,0.218091009988901,0.157185628742515,0.152073732718894],[0.390154298310066,0.428571428571429,0.293103448275862,0.290322580645161,0.206896551724138]],"text":[["24% of 21    ","33% of 6    ","0% of 2    ","0% of 3    ",null],["10% of 52    ","6% of 35    ","14% of 14    ","12% of 8    ","0% of 3    "],["9% of 1495    ","10% of 886    ","7% of 287    ","7% of 102    ","6% of 35    "],["11% of 7355    ","9% of 5193    ","9% of 1876    ","6% of 635    ","6% of 248    "],["13% of 7269    ","12% of 4904    ","7% of 1802    ","5% of 668    ","5% of 217    "],["13% of 1361    ","14% of 882    ","10% of 348    ","10% of 93    ","7% of 29    "]],"colorscale":[[0,"#132B43"],[0.152073732718894,"#193854"],[0.157185628742515,"#1A3855"],[0.169354838709677,"#1A3956"],[0.171428571428571,"#1A3956"],[0.184251968503937,"#1B3A58"],[0.198606271777003,"#1B3C59"],[0.205882352941176,"#1C3C5A"],[0.206896551724138,"#1C3C5A"],[0.218091009988901,"#1C3D5C"],[0.257462686567164,"#1E4160"],[0.268896321070234,"#1F4262"],[0.283073367995378,"#1F4363"],[0.288461538461538,"#1F4464"],[0.290322580645161,"#204464"],[0.293103448275862,"#204465"],[0.301354401805869,"#204566"],[0.332834806254249,"#214769"],[0.355424143556281,"#22496C"],[0.375,"#234B6E"],[0.380520016508461,"#244C6F"],[0.390154298310066,"#244D70"],[0.428571428571429,"#265075"],[0.714285714285714,"#336A98"],[1,"#4186BE"]],"type":"heatmap","showscale":false,"autocolorscale":false,"showlegend":false,"xaxis":"x2","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1],"y":[1],"name":"99_6e2654c95e9b5896290e8a02290f1d93","type":"scatter","mode":"markers","opacity":0,"hoverinfo":"skip","showlegend":false,"marker":{"color":[0,1],"colorscale":[[0,"#132B43"],[0.00334448160535117,"#132B44"],[0.00668896321070234,"#132C44"],[0.0100334448160535,"#142C45"],[0.0133779264214047,"#142D45"],[0.0167224080267559,"#142D46"],[0.020066889632107,"#142D46"],[0.0234113712374582,"#142E47"],[0.0267558528428094,"#152E47"],[0.0301003344481605,"#152F48"],[0.0334448160535117,"#152F48"],[0.0367892976588629,"#152F49"],[0.040133779264214,"#153049"],[0.0434782608695652,"#16304A"],[0.0468227424749164,"#16304A"],[0.0501672240802676,"#16314B"],[0.0535117056856187,"#16314B"],[0.0568561872909699,"#16324C"],[0.0602006688963211,"#17324D"],[0.0635451505016722,"#17324D"],[0.0668896321070234,"#17334E"],[0.0702341137123746,"#17334E"],[0.0735785953177257,"#17344F"],[0.0769230769230769,"#18344F"],[0.0802675585284281,"#183450"],[0.0836120401337793,"#183550"],[0.0869565217391304,"#183551"],[0.0903010033444816,"#183651"],[0.0936454849498328,"#193652"],[0.0969899665551839,"#193652"],[0.100334448160535,"#193753"],[0.103678929765886,"#193754"],[0.107023411371237,"#193854"],[0.110367892976589,"#1A3855"],[0.11371237458194,"#1A3955"],[0.117056856187291,"#1A3956"],[0.120401337792642,"#1A3956"],[0.123745819397993,"#1A3A57"],[0.127090301003344,"#1B3A57"],[0.130434782608696,"#1B3B58"],[0.133779264214047,"#1B3B59"],[0.137123745819398,"#1B3B59"],[0.140468227424749,"#1C3C5A"],[0.1438127090301,"#1C3C5A"],[0.147157190635451,"#1C3D5B"],[0.150501672240803,"#1C3D5B"],[0.153846153846154,"#1C3D5C"],[0.157190635451505,"#1D3E5C"],[0.160535117056856,"#1D3E5D"],[0.163879598662207,"#1D3F5D"],[0.167224080267559,"#1D3F5E"],[0.17056856187291,"#1D3F5F"],[0.173913043478261,"#1E405F"],[0.177257525083612,"#1E4060"],[0.180602006688963,"#1E4160"],[0.183946488294314,"#1E4161"],[0.187290969899666,"#1E4261"],[0.190635451505017,"#1F4262"],[0.193979933110368,"#1F4263"],[0.197324414715719,"#1F4363"],[0.20066889632107,"#1F4364"],[0.204013377926421,"#1F4464"],[0.207357859531773,"#204465"],[0.210702341137124,"#204465"],[0.214046822742475,"#204566"],[0.217391304347826,"#204566"],[0.220735785953177,"#214667"],[0.224080267558528,"#214668"],[0.22742474916388,"#214768"],[0.230769230769231,"#214769"],[0.234113712374582,"#214769"],[0.237458193979933,"#22486A"],[0.240802675585284,"#22486A"],[0.244147157190635,"#22496B"],[0.247491638795987,"#22496C"],[0.250836120401338,"#224A6C"],[0.254180602006689,"#234A6D"],[0.25752508361204,"#234A6D"],[0.260869565217391,"#234B6E"],[0.264214046822742,"#234B6E"],[0.267558528428094,"#244C6F"],[0.270903010033445,"#244C70"],[0.274247491638796,"#244C70"],[0.277591973244147,"#244D71"],[0.280936454849498,"#244D71"],[0.284280936454849,"#254E72"],[0.287625418060201,"#254E72"],[0.290969899665552,"#254F73"],[0.294314381270903,"#254F74"],[0.297658862876254,"#254F74"],[0.301003344481605,"#265075"],[0.304347826086956,"#265075"],[0.307692307692308,"#265176"],[0.311036789297659,"#265176"],[0.31438127090301,"#275277"],[0.317725752508361,"#275278"],[0.321070234113712,"#275278"],[0.324414715719064,"#275379"],[0.327759197324415,"#275379"],[0.331103678929766,"#28547A"],[0.334448160535117,"#28547B"],[0.337792642140468,"#28557B"],[0.341137123745819,"#28557C"],[0.344481605351171,"#28567C"],[0.347826086956522,"#29567D"],[0.351170568561873,"#29567D"],[0.354515050167224,"#29577E"],[0.357859531772575,"#29577F"],[0.361204013377926,"#2A587F"],[0.364548494983278,"#2A5880"],[0.367892976588629,"#2A5980"],[0.37123745819398,"#2A5981"],[0.374581939799331,"#2A5982"],[0.377926421404682,"#2B5A82"],[0.381270903010033,"#2B5A83"],[0.384615384615385,"#2B5B83"],[0.387959866220736,"#2B5B84"],[0.391304347826087,"#2C5C85"],[0.394648829431438,"#2C5C85"],[0.397993311036789,"#2C5D86"],[0.40133779264214,"#2C5D86"],[0.404682274247492,"#2C5D87"],[0.408026755852843,"#2D5E87"],[0.411371237458194,"#2D5E88"],[0.414715719063545,"#2D5F89"],[0.418060200668896,"#2D5F89"],[0.421404682274247,"#2E608A"],[0.424749163879599,"#2E608A"],[0.42809364548495,"#2E618B"],[0.431438127090301,"#2E618C"],[0.434782608695652,"#2E618C"],[0.438127090301003,"#2F628D"],[0.441471571906354,"#2F628D"],[0.444816053511706,"#2F638E"],[0.448160535117057,"#2F638F"],[0.451505016722408,"#30648F"],[0.454849498327759,"#306490"],[0.45819397993311,"#306590"],[0.461538461538462,"#306591"],[0.464882943143813,"#306592"],[0.468227424749164,"#316692"],[0.471571906354515,"#316693"],[0.474916387959866,"#316793"],[0.478260869565217,"#316794"],[0.481605351170569,"#326895"],[0.48494983277592,"#326895"],[0.488294314381271,"#326996"],[0.491638795986622,"#326996"],[0.494983277591973,"#326997"],[0.498327759197324,"#336A98"],[0.501672240802676,"#336A98"],[0.505016722408027,"#336B99"],[0.508361204013378,"#336B99"],[0.511705685618729,"#346C9A"],[0.51505016722408,"#346C9B"],[0.518394648829431,"#346D9B"],[0.521739130434783,"#346D9C"],[0.525083612040134,"#346E9D"],[0.528428093645485,"#356E9D"],[0.531772575250836,"#356E9E"],[0.535117056856187,"#356F9E"],[0.538461538461538,"#356F9F"],[0.54180602006689,"#3670A0"],[0.545150501672241,"#3670A0"],[0.548494983277592,"#3671A1"],[0.551839464882943,"#3671A1"],[0.555183946488294,"#3772A2"],[0.558528428093646,"#3772A3"],[0.561872909698997,"#3773A3"],[0.565217391304348,"#3773A4"],[0.568561872909699,"#3773A4"],[0.57190635451505,"#3874A5"],[0.575250836120401,"#3874A6"],[0.578595317725753,"#3875A6"],[0.581939799331104,"#3875A7"],[0.585284280936455,"#3976A8"],[0.588628762541806,"#3976A8"],[0.591973244147157,"#3977A9"],[0.595317725752508,"#3977A9"],[0.59866220735786,"#3978AA"],[0.602006688963211,"#3A78AB"],[0.605351170568562,"#3A79AB"],[0.608695652173913,"#3A79AC"],[0.612040133779264,"#3A79AC"],[0.615384615384615,"#3B7AAD"],[0.618729096989967,"#3B7AAE"],[0.622073578595318,"#3B7BAE"],[0.625418060200669,"#3B7BAF"],[0.62876254180602,"#3C7CB0"],[0.632107023411371,"#3C7CB0"],[0.635451505016722,"#3C7DB1"],[0.638795986622074,"#3C7DB1"],[0.642140468227425,"#3C7EB2"],[0.645484949832776,"#3D7EB3"],[0.648829431438127,"#3D7FB3"],[0.652173913043478,"#3D7FB4"],[0.655518394648829,"#3D7FB5"],[0.658862876254181,"#3E80B5"],[0.662207357859532,"#3E80B6"],[0.665551839464883,"#3E81B6"],[0.668896321070234,"#3E81B7"],[0.672240802675585,"#3F82B8"],[0.675585284280936,"#3F82B8"],[0.678929765886288,"#3F83B9"],[0.682274247491639,"#3F83BA"],[0.68561872909699,"#4084BA"],[0.688963210702341,"#4084BB"],[0.692307692307692,"#4085BB"],[0.695652173913043,"#4085BC"],[0.698996655518395,"#4086BD"],[0.702341137123746,"#4186BD"],[0.705685618729097,"#4186BE"],[0.709030100334448,"#4187BF"],[0.712374581939799,"#4187BF"],[0.71571906354515,"#4288C0"],[0.719063545150502,"#4288C1"],[0.722408026755853,"#4289C1"],[0.725752508361204,"#4289C2"],[0.729096989966555,"#438AC2"],[0.732441471571906,"#438AC3"],[0.735785953177257,"#438BC4"],[0.739130434782609,"#438BC4"],[0.74247491638796,"#438CC5"],[0.745819397993311,"#448CC6"],[0.749163879598662,"#448DC6"],[0.752508361204013,"#448DC7"],[0.755852842809364,"#448EC8"],[0.759197324414716,"#458EC8"],[0.762541806020067,"#458FC9"],[0.765886287625418,"#458FC9"],[0.769230769230769,"#458FCA"],[0.77257525083612,"#4690CB"],[0.775919732441471,"#4690CB"],[0.779264214046823,"#4691CC"],[0.782608695652174,"#4691CD"],[0.785953177257525,"#4792CD"],[0.789297658862876,"#4792CE"],[0.792642140468227,"#4793CF"],[0.795986622073579,"#4793CF"],[0.79933110367893,"#4894D0"],[0.802675585284281,"#4894D0"],[0.806020066889632,"#4895D1"],[0.809364548494983,"#4895D2"],[0.812709030100334,"#4896D2"],[0.816053511705686,"#4996D3"],[0.819397993311037,"#4997D4"],[0.822742474916388,"#4997D4"],[0.826086956521739,"#4998D5"],[0.82943143812709,"#4A98D6"],[0.832775919732441,"#4A99D6"],[0.836120401337793,"#4A99D7"],[0.839464882943144,"#4A9AD8"],[0.842809364548495,"#4B9AD8"],[0.846153846153846,"#4B9BD9"],[0.849498327759197,"#4B9BDA"],[0.852842809364548,"#4B9BDA"],[0.8561872909699,"#4C9CDB"],[0.859531772575251,"#4C9CDB"],[0.862876254180602,"#4C9DDC"],[0.866220735785953,"#4C9DDD"],[0.869565217391304,"#4D9EDD"],[0.872909698996655,"#4D9EDE"],[0.876254180602007,"#4D9FDF"],[0.879598662207358,"#4D9FDF"],[0.882943143812709,"#4DA0E0"],[0.88628762541806,"#4EA0E1"],[0.889632107023411,"#4EA1E1"],[0.892976588628763,"#4EA1E2"],[0.896321070234114,"#4EA2E3"],[0.899665551839465,"#4FA2E3"],[0.903010033444816,"#4FA3E4"],[0.906354515050167,"#4FA3E5"],[0.909698996655518,"#4FA4E5"],[0.91304347826087,"#50A4E6"],[0.916387959866221,"#50A5E7"],[0.919732441471572,"#50A5E7"],[0.923076923076923,"#50A6E8"],[0.926421404682274,"#51A6E8"],[0.929765886287625,"#51A7E9"],[0.933110367892977,"#51A7EA"],[0.936454849498328,"#51A8EA"],[0.939799331103679,"#52A8EB"],[0.94314381270903,"#52A9EC"],[0.946488294314381,"#52A9EC"],[0.949832775919732,"#52AAED"],[0.953177257525084,"#53AAEE"],[0.956521739130435,"#53ABEE"],[0.959866220735786,"#53ABEF"],[0.963210702341137,"#53ACF0"],[0.966555183946488,"#54ACF0"],[0.969899665551839,"#54ADF1"],[0.973244147157191,"#54ADF2"],[0.976588628762542,"#54AEF2"],[0.979933110367893,"#55AEF3"],[0.983277591973244,"#55AFF4"],[0.986622073578595,"#55AFF4"],[0.989966555183946,"#55B0F5"],[0.993311036789298,"#56B0F6"],[0.996655518394649,"#56B1F6"],[1,"#56B1F7"]],"colorbar":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"thickness":23.04,"title":"drinks","titlefont":{"color":"rgba(0,0,0,1)","family":"Roboto Condensed","size":15.2760481527605},"tickmode":"array","ticktext":["0%","10%","20%","30%","40%"],"tickvals":[0,0.211111111111111,0.422222222222222,0.633333333333333,0.844444444444445],"tickfont":{"color":"rgba(0,0,0,1)","family":"Roboto Condensed","size":12.2208385222084},"ticklen":2,"len":0.5}},"xaxis":"x","yaxis":"y","frame":null}],"layout":{"margin":{"t":122.268161062682,"r":39.8505603985056,"b":97.4678289746783,"l":109.090909090909},"font":{"color":"rgba(0,0,0,1)","family":"Roboto Condensed","size":15.2760481527605},"title":{"text":"<b> OkCupid: %Reported Drinking by Age and Height <\/b>","font":{"color":"rgba(0,0,0,1)","family":"Roboto Condensed","size":23.9103362391034},"x":0,"xref":"paper"},"xaxis":{"domain":[0,0.458857142857143],"automargin":true,"type":"linear","autorange":false,"range":[0.4,5.6],"tickmode":"array","ticktext":["19-29","30-39","40-49","50-59","60+"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["19-29","30-39","40-49","50-59","60+"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.81901203819012,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"Roboto Condensed","size":15.2760481527605},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(204,204,204,1)","gridwidth":0.265670402656704,"zeroline":false,"anchor":"y","title":"","hoverformat":".2f"},"annotations":[{"text":"Age","x":0.5,"y":-0.0447725790191544,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"Roboto Condensed","size":11.9551681195517},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"center","yanchor":"top","annotationType":"axis"},{"text":"Height","x":-0.0677815335349582,"y":0.5,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"Roboto Condensed","size":11.9551681195517},"xref":"paper","yref":"paper","textangle":-90,"xanchor":"right","yanchor":"center","annotationType":"axis"},{"text":"list(f = \"women\")","x":0.229428571428571,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(26,26,26,1)","family":"Roboto Condensed","size":15.9402241594022},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"center","yanchor":"bottom"},{"text":"list(m = \"men\")","x":0.770571428571429,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(26,26,26,1)","family":"Roboto Condensed","size":15.9402241594022},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"center","yanchor":"bottom"}],"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.4,6.6],"tickmode":"array","ticktext":["149-","150-159","160-169","170-179","180-189","190+"],"tickvals":[1,2,3,4,5,6],"categoryorder":"array","categoryarray":["149-","150-159","160-169","170-179","180-189","190+"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.81901203819012,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"Roboto Condensed","size":15.2760481527605},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(204,204,204,1)","gridwidth":0.265670402656704,"zeroline":false,"anchor":"x","title":"","hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":0.458857142857143,"y0":0,"y1":1},{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":0.458857142857143,"y0":0,"y1":28.1610626816106,"yanchor":1,"ysizemode":"pixel"},{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0.541142857142857,"x1":1,"y0":0,"y1":1},{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0.541142857142857,"x1":1,"y0":0,"y1":28.1610626816106,"yanchor":1,"ysizemode":"pixel"}],"xaxis2":{"type":"linear","autorange":false,"range":[0.4,5.6],"tickmode":"array","ticktext":["19-29","30-39","40-49","50-59","60+"],"tickvals":[1,2,3,4,5],"categoryorder":"array","categoryarray":["19-29","30-39","40-49","50-59","60+"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.81901203819012,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"Roboto Condensed","size":15.2760481527605},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"domain":[0.541142857142857,1],"gridcolor":"rgba(204,204,204,1)","gridwidth":0.265670402656704,"zeroline":false,"anchor":"y","title":"","hoverformat":".2f"},"showlegend":false,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"Roboto Condensed","size":12.2208385222084}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"ecc6472400f":{"text":{},"x":{},"y":{},"fill":{},"type":"heatmap"}},"cur_data":"ecc6472400f","visdat":{"ecc6472400f":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+
+---
+
+## `rayshader`
+
+Or rotatable 3D...
+
+
+```r
+library(rayshader)
+
+plot_gg(heat)
+```
+
+&lt;img src = "images/rayshader.png" style="width: 70%"&gt;
+
+---
+
+## `gganimate`
+
+Take a plot and make it better:
+
+
+```r
+library(gganimate)
+
+characters %&gt;%
+  group_by(film_id) %&gt;%
+  summarise(n_char = n_distinct(character_id)) %&gt;%
+  ggplot(aes(film_id, n_char)) +
+  geom_line(lwd = 2) +
+  geom_point(aes(group = seq_along(film_id)), size = 5) +
+  labs(x = "", y = "No. of Characters",
+       title = "No. of Unique Characters: {films$title[frame %/% 15 + 1]}") +
+  scale_x_continuous(breaks = 1:7, labels = films$title) +
+  theme_ipsum(base_family = "Roboto Condensed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+* transition_reveal(along = film_id) +
+  ease_aes("cubic-in-out")
+```
+
+---
+
+&lt;img src = "images/gganimate.gif" style="height: 50%"&gt;
+
+---
+
+## `magick`
+
+That Jabba Plot was NOT made by Photoshop...
+
+
+```r
+library(magick)
+
+jabba &lt;- image_read("images/jabba.png")
+fig &lt;- image_graph(width = 2400, height = 1200, res = 300)
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point(size = 1.5) + 
+  labs(title = "Mass vs. Height of Starwars characters",
+       x = "Height (cm)", y = "Weight (kg)")
+fig %&gt;% image_composite(jabba, offset = "+1000+30")
+```
+
+&lt;img src="images/JabbaPlot-1.png" width="50%" /&gt;
+
+---
+
+
+## `tidygraph` + `ggraph`
+
+
+```r
+library(tidygraph)
+
+characters_2_plus &lt;- characters %&gt;%
+  add_count(name) %&gt;%
+  filter(n &gt; 1) %&gt;%
+  select(name, film_id) %&gt;%
+  mutate(id = group_indices(., name)) # for some reason 1:n ID
+
+nodes &lt;- characters_2_plus %&gt;%
+  count(id, name)
+
+edges &lt;- characters_2_plus %&gt;%
+  inner_join(characters_2_plus, "film_id") %&gt;%
+  rename(from = id.x,
+         to = id.y) %&gt;%
+  count(from, to) %&gt;%
+  rename(weight = n) %&gt;%
+  filter(from != to)
+  
+graph &lt;- tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+```
+
+---
+
+
+```r
+library(ggraph)
+ggraph(graph, layout = "fr") + 
+  geom_edge_fan(aes(alpha = weight), show.legend = FALSE) + 
+  geom_node_point(aes(size = n), color = "lightblue") +
+  geom_node_label(aes(label = name), color = "blue", repel = TRUE, fill = "white", size = 3) +
+  theme(panel.background = element_rect(fill="white", colour = "white")) +
+  labs(size = "N Films", title = "Star Wars: Characters Network", caption = "An Edge between two characters means they appeared in the same film \nEdge transparency means how many films")
+```
+
+&lt;img src="images/Ggraph-1.png" width="100%" /&gt;
+
+---
+
+## `ggwithimages`
+
+
+```r
+library(ggwithimages)
+  
+annapurna &lt;- png::readPNG(system.file("extdata", "annapurna.png", package = "ggwithimages"))
+sky &lt;- png::readPNG(system.file("extdata", "sky.png", package = "ggwithimages"))
+kathmandu_hourly_aqi &lt;- readr::read_csv(system.file("extdata", "kathmandu_hourly_aqi.csv", package = "ggwithimages"))
+
+ggplot(kathmandu_hourly_aqi, aes(hour, aqi)) +
+  geom_line_with_image(annapurna, sky) +
+  labs(title = "Air Quality Index in the Thamel, Kathmandu, Nepal",
+       subtitle = "Measured in PM2.5 by the US Embassy in Kathmandu",
+       y = "Hourly Mean AQI [PM2.5]",
+       x = "Hour") +
+  ylim(c(50, 200)) +
+  theme_ipsum(base_family = "Roboto Condensed")
+```
+
+---
+
+&lt;img src="images/Ggwithimages2-1.png" width="100%" /&gt;
+
+---
+
+## `brickr`...
+
+
+```r
+library(brickr)
+
+okcupid %&gt;%
+  count(religion2) %&gt;%
+  filter(religion2 != "NA") %&gt;%
+  mutate(religion =
+           fct_relevel(religion2, c("atheist", "christian", "jewish", "buddhist", "hindu", "muslim"))) %&gt;%
+  ggplot(aes(religion, n)) +
+  geom_brick_col(aes(fill = religion)) +
+  scale_fill_brick() +
+  coord_brick() +
+  theme_brick()
+```
+
+(Though this was available only on v0.2.0 😭)
+---
+
+.pull-left[
+
+
+&lt;img src = "images/Brickr2-1.png" style = "width: 100%"&gt;
+]
+
+.pull-right[
+And... it can get a lot more fun:
+
+&lt;img src = "images/golden_girls.png" style = "width: 100%"&gt;
+
+Get the legos you need with `build_instructions()` 😯
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="../libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

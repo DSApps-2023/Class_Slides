@@ -1,0 +1,1083 @@
+---
+title: "Visualizing in the Tidyverse"
+subtitle: "Applications of Data Science"
+author: "Giora Simchoni"
+institute: "Stat. and OR Department, TAU"
+date: "`r Sys.Date()`"
+output_dir: "images"
+output:
+  xaringan::moon_reader:
+    css: "../slides.css"
+    seal: false
+    chakra: "../libs/remark-latest.min.js"
+    includes:
+      in_header: "../header.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+## Visualizing in the Tidyverse
+
+### Applications of Data Science - Class 4
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### `r Sys.Date()`
+
+---
+```{r child = "../setup.Rmd"}
+```
+
+```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+class: section-slide
+
+# Welcome to `ggplot2`
+
+#### Heavily inspired by datascienceinabox.org / @minebocek
+---
+
+## `ggplot()`
+
+- **ggplot2** is tidyverse's data visualization package
+- The `gg` in "ggplot2" stands for Grammar of Graphics
+- It is inspired by the book [Grammar of Graphics](https://www.springer.com/gp/book/9780387245447) by Leland Wilkinson
+- A grammar of graphics is a tool that enables us to concisely describe the components of a graphic
+
+<center><img src = "images/grammar-of-graphics.png" style="width: 50%"></center>
+
+---
+
+### Remember the Force, Luke!
+
+```{r Characters}
+sw_tables <- read_rds("../data/sw_tables.rds")
+characters <- sw_tables$characters
+planets <- sw_tables$planets
+films <- sw_tables$films
+
+glimpse(characters)
+```
+
+---
+
+What are the functions doing the plotting? What is the dataset being plotted? 
+Which variable is on the x-axis and which variable is on the y-axis? What does the warning mean?
+
+```{r Mass-Height1, fig.asp=0.62, out.width="70%"}
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  labs(title = "Mass vs. Height of Starwars characters",
+       x = "Height (cm)", y = "Weight (kg)")
+```
+
+---
+
+What does `geom_smooth()` do? What else changed between the previous plot and this one?
+
+```{r Mass-Height2, fig.asp=0.62, out.width="70%", warning=FALSE, message=FALSE}
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  geom_smooth() + #<<
+  labs(title = "Mass vs. Height of Starwars characters",
+       x = "Height (cm)", y = "Weight (kg)")
+```
+
+---
+
+## Who dis!
+
+- `ggplot()` is the main function in ggplot2 and plots are constructed in layers
+- The structure of the code for plots can often be summarized as
+```{r Ggplot0, eval = FALSE}
+ggplot + 
+  geom_xxx
+```
+
+or, more precisely
+```{r Ggplot1, eval = FALSE}
+ggplot(data = [dataset], mapping = aes(x = [x-variable], y = [y-variable])) +
+   geom_xxx() +
+   other options
+```
+
+- To use ggplot2 functions, first load tidyverse
+```{r, eval=FALSE}
+library(tidyverse)
+```
+- For help with the ggplot2, see [ggplot2.tidyverse.org](http://ggplot2.tidyverse.org/)
+
+---
+
+## Mass vs. Height
+
+```{r Ggplot2, fig.asp=0.62, out.width="70%", warning=FALSE}
+ggplot(characters, aes(height, mass)) + geom_point()
+```
+
+How would you describe this relationship? What other variables would help us understand data points that don't follow the overall trend? Who is the not so tall but really chubby character?
+
+---
+
+## Jabba!
+
+<img src = "images/JabbaPlot-1.png" style="width: 90%">
+
+---
+
+### But seriously, Luke
+
+<center><img src = "images/luke-skywalker.png" style="width: 90%"></center>
+
+---
+
+## Additional variables
+
+We can map additional variables to various features of the plot:
+
+- aesthetics
+    - shape
+    - colour
+    - size
+    - alpha (transparency)
+- faceting: small multiples displaying different subsets
+
+---
+class: section-slide
+
+# Aesthetics
+
+---
+
+## Aesthetics options
+
+Visual characteristics of plotting characters that can be **mapped to a specific variable**
+in the data are
+
+- `color`
+- `fill`
+- `size`
+- `shape`
+- `alpha` (transparency)
+
+---
+
+### Mass vs. Height + Gender
+
+```{r Ggplot3, fig.asp=0.62, out.width="70%", warning=FALSE}
+ggplot(data = characters,
+       mapping = aes(x = height, y = mass, color = gender)) +
+  geom_point()
+```
+
+---
+
+### Mass vs. Height + Gender + Birth Year
+
+Let's map the size to `birth_year`:
+
+```{r Aes1, fig.asp=0.62, out.width="70%", warning=FALSE}
+ggplot(data = characters,
+       mapping = aes(x = height, y = mass, color = gender, 
+                     size = birth_year)) + #<<
+  geom_point()
+```
+
+---
+
+### Mass vs. Height + Gender
+
+Let's now increase the size of all points **not** based on the values of a 
+variable in the data:
+
+```{r Aes2, fig.asp=0.62, out.width="70%", warning=FALSE}
+ggplot(data = characters,
+       mapping = aes(x = height, y = mass, color = gender)) +
+  geom_point(size = 2) #<<
+```
+
+---
+
+## Aesthetics Summary
+
+- Continuous variable are measured on a continuous scale
+- Discrete variables are measured (or often counted) on a discrete scale
+
+aesthetics    | discrete                 | continuous
+------------- | ------------------------ | ------------
+color         | rainbow of colors        | gradient
+size          | discrete steps           | linear mapping between radius and value
+shape         | different shape for each | shouldn't (and doesn't) work
+
+- Use aesthetics for mapping features of a plot to a variable, define the 
+features in the geom for customization **not** mapped to a variable
+
+---
+class: section-slide
+
+# Faceting
+
+---
+
+### Faceting options
+
+- Smaller plots that display different subsets of the data
+- Useful for exploring conditional relationships and large data
+
+```{r Facet1, warning=FALSE, fig.asp=0.35, out.width="100%"}
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  facet_grid(. ~ gender) + #<<
+  geom_point() +
+  labs(title = "Mass vs. Height of Starwars characters",
+       subtitle = "Faceted by Gender",  #<<
+       x = "Height (cm)", y = "Weight (kg)")
+```
+
+---
+
+### Many ways to facet
+
+
+```{r Facet2, warning=FALSE, out.width="50%"}
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  facet_grid(gender ~ .)
+```
+
+---
+
+```{r Facet3, warning=FALSE, fig.asp=0.35, out.width="100%"}
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  facet_wrap(. ~ gender, scales = "free")
+```
+
+---
+
+```{r Facet4, warning=FALSE, out.width="60%"}
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point() +
+  facet_wrap(~ eye_color)
+```
+
+---
+
+## Facet summary
+
+- `facet_grid()`: 
+    - 2d grid
+    - `rows ~ cols`
+    - use `.` for no split
+- `facet_wrap()`: 1d ribbon wrapped into 2d
+
+---
+class: section-slide
+
+# Take Control
+
+---
+
+```{r Control0, echo=FALSE}
+okcupid <- read_csv("~/okcupid.csv.zip", col_types = cols())
+okcupid <- okcupid %>%
+  mutate(height_cm = height * 2.54,
+         income = ifelse(income == -1, NA, income),
+         religion2 = case_when(
+           str_detect(religion, "agnosticism") | str_detect(religion, "atheism") ~ "atheist",
+           str_detect(religion, "buddhism") ~ "buddhist",
+           str_detect(religion, "christianity") | str_detect(religion, "catholicism") ~ "christian",
+           str_detect(religion, "judaism") ~ "jewish",
+           str_detect(religion, "hinduism") ~ "hindu",
+           str_detect(religion, "islam") ~ "muslim",
+           TRUE ~ "NA"))
+```
+
+```{r Control1, out.width="60%"}
+okcupid_lgbt_relig <- okcupid %>%
+  group_by(religion2) %>%
+  summarise(pct_lgbt = mean(orientation %in% c("gay", "bisexual"))) %>%
+  mutate(religion = fct_reorder(religion2, desc(pct_lgbt)))
+
+okcupid_lgbt_relig
+```
+
+---
+
+```{r Control2, out.width="60%"}
+okcupid_lgbt_relig %>%
+  ggplot(aes(religion, pct_lgbt)) +
+  geom_bar(stat="identity")
+```
+
+.font80percent[Meh.]
+
+---
+
+## Pimp my plot
+
+```{r Control3, eval = FALSE}
+p <- ggplot(okcupid_lgbt_relig, aes(religion, pct_lgbt)) +
+  geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+  labs(x = "", y = "",
+       title = "OkCupid: %Reported LGBTQ+ by Religion") +
+  theme(text = element_text(size = 14, color = "#163f59", family = "mono"),
+        axis.text.y = element_text(size = 14)) +
+  scale_y_continuous(breaks = seq(0.05, 0.2, 0.05),
+                     labels=scales::percent_format(accuracy = 1)) +
+  coord_flip()
+p
+```
+
+---
+
+## Pimp my plot
+
+```{r Control4, out.width="100%", fig.asp = 0.5, echo=FALSE}
+p <- ggplot(okcupid_lgbt_relig, aes(religion, pct_lgbt)) +
+  geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4) +
+  labs(x = "", y = "",
+       title = "OkCupid: %Reported LGBTQ+ by Religion") +
+  theme(text = element_text(size = 14, color = "#163f59",
+                            family = "mono"),
+        axis.text.y = element_text(size = 14)) +
+  scale_y_continuous(breaks = seq(0.05, 0.2, 0.05),
+                     labels=scales::percent_format(accuracy = 1)) +
+  coord_flip()
+p
+```
+
+---
+
+## Annotate, Add lines
+
+```{r Control5, out.width="90%", fig.asp = 0.5}
+p + geom_hline(yintercept = 0.139, lty = 2, color = "#163f59") +
+  annotate("text", x = 5, y = 0.139 + 0.03, label = "Overall %",
+           color = "#163f59", family = "mono") +
+  annotate(geom = "curve", x = 5, y = 0.15, xend = 4, yend = 0.139 + 0.001, 
+    curvature = .3, arrow = arrow(length = unit(2, "mm")), color = "#163f59")
+```
+
+---
+class: section-slide
+
+# Themes
+
+---
+
+```{r Themes1, out.width="100%", fig.asp = 0.5}
+p + theme_classic()
+```
+---
+
+```{r Themes2, out.width="100%", fig.asp = 0.5}
+p + theme_light()
+```
+
+---
+
+```{r Themes3, out.width="100%", fig.asp = 0.5}
+p + theme_dark()
+```
+
+---
+
+```{r Themes4, out.width="100%", fig.asp = 0.5}
+p + theme_linedraw()
+```
+
+---
+
+```{r Themes5, out.width="100%", fig.asp = 0.5, message=FALSE}
+library(tvthemes)
+# import_simpsons()
+extrafont::loadfonts(device="win")
+
+p + theme_simpsons(title.font = "Akbar",
+                 text.font = "Akbar",
+                 axis.text.size = 12)
+```
+
+---
+
+```{r Themes6, out.width="100%", fig.asp = 0.5, message=FALSE}
+ggplot(okcupid_lgbt_relig, aes(religion, pct_lgbt)) +
+  geom_bar(aes(fill = pct_lgbt), stat="identity", alpha=.6, width=.4) +
+  labs(x = "", y = "", title = "This was supposed to be GoT...") +
+  scale_y_continuous(breaks = seq(0.05, 0.2, 0.05), labels=scales::percent_format(accuracy = 1)) +
+  coord_flip() +
+  scale_fill_westeros(palette = "Tyrell", type = "continuous") + theme_minimal() +
+  theme(text = element_text(family = "Cinzel", size = 12),
+        title = element_text(family = "Cinzel", size = 14)) + guides(fill=FALSE)
+```
+
+---
+class: section-slide
+
+# Common Plots à la GG
+
+---
+
+## Line Plot
+
+```{r Line1, eval=FALSE}
+library(hrbrthemes)
+
+characters %>%
+  group_by(film_id) %>%
+  summarise(n_char = n_distinct(character_id)) %>%
+  ggplot(aes(film_id, n_char)) +
+  geom_line(lwd = 2) + #<<
+  labs(x = "", y = "No. of Characters",
+       title = "Star Wars Films No. of Unique Characters") +
+  scale_x_continuous(breaks = 1:7, labels = films$title) +
+  theme_ipsum(base_family = "Roboto Condensed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+---
+
+```{r Line2, out.width="100%", fig.asp=0.6, message=FALSE, echo=FALSE}
+library(hrbrthemes)
+
+characters %>%
+  group_by(film_id) %>%
+  summarise(n_char = n_distinct(character_id)) %>%
+  ggplot(aes(film_id, n_char)) +
+  geom_line(lwd = 2) +
+  labs(x = "", y = "No. of Characters",
+       title = "Star Wars Films No. of Unique Characters") +
+  scale_x_continuous(breaks = 1:7, labels = films$title) +
+  theme_ipsum(base_family = "Roboto Condensed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+---
+
+## Histogram
+
+```{r Hist, out.width="100%", fig.asp=0.6, eval=FALSE}
+library(scales)
+
+sex_names <- list(
+  "m" = "men",
+  "f" = "women"
+)
+
+sex_labeller <- function(variable, value){
+  return(sex_names[value])
+}
+
+p2 <- okcupid %>%
+  ggplot(aes(income)) +
+  facet_wrap(. ~ sex, labeller = sex_labeller) +
+  scale_x_log10(breaks = trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  labs(x = "", y = "", title = "OkCupid: Annual Income Dist. by Gender",
+       caption = "Income is presented as log10(Income)") +
+  theme_ipsum(base_family = "Roboto Condensed")
+
+p2 + geom_histogram() #<<
+```
+---
+
+```{r Hist2, out.width="100%", fig.asp=0.5, echo=FALSE, warning=FALSE, message=FALSE}
+library(scales)
+
+sex_names <- list(
+  "m" = "men",
+  "f" = "women"
+)
+
+sex_labeller <- function(variable, value){
+  return(sex_names[value])
+}
+
+p2 <- okcupid %>%
+  ggplot(aes(income)) +
+  facet_wrap(. ~ sex, labeller = sex_labeller) +
+  scale_x_log10(breaks = trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  labs(x = "", y = "", title = "OkCupid: Annual Income Dist. by Gender",
+       caption = "Income is presented as log10(Income)") +
+  theme_ipsum(base_family = "Roboto Condensed")
+
+p2 + geom_histogram()
+```
+
+---
+
+## Density Plot
+
+```{r Dens, out.width="100%", fig.asp=0.5, warning=FALSE, message=FALSE}
+p2 + geom_density()
+```
+
+---
+
+## Box Plot
+
+```{r Boxplot, eval=FALSE}
+p3 <- okcupid %>%
+  sample_n(5000) %>%
+  ggplot(aes(sex, income)) +
+  scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  labs(x = "", y = "", title = "OkCupid: Annual Income Dist. by Gender",
+       caption = "Income is presented as log10(Income)") +
+  scale_x_discrete(labels = c("women", "men")) +
+  theme_ipsum(base_family = "Roboto Condensed")
+
+p3 + geom_boxplot() #<<
+```
+
+---
+
+```{r Boxplot1, out.width="80%", fig.asp = 0.7, warning=FALSE, message=FALSE, echo=FALSE}
+p3 <- okcupid %>%
+  sample_n(5000) %>%
+  ggplot(aes(sex, income)) +
+  scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x),
+                labels = trans_format("log10", math_format(10^.x))) +
+  labs(x = "", y = "", title = "OkCupid: Annual Income Dist. by Gender",
+       caption = "Income is presented as log10(Income)") +
+  scale_x_discrete(labels = c("women", "men")) +
+  theme_ipsum(base_family = "Roboto Condensed")
+
+p3 + geom_boxplot()
+```
+
+---
+
+## Violin Plot
+
+```{r Violin, out.width="80%", fig.asp = 0.7, warning=FALSE, message=FALSE}
+p3 + geom_violin(fill = "darkgreen", alpha = 0.6)
+```
+
+---
+
+## Swarm Plot
+
+```{r Swarm, out.width="80%", fig.asp = 0.7, warning=FALSE, message=FALSE}
+p3 + ggbeeswarm::geom_quasirandom(aes(color = sex)) + guides(color=FALSE)
+```
+---
+
+## Bar Plot
+
+```{r Bar, out.width="100%", fig.asp = 0.5}
+p + theme_ipsum(base_family = "Roboto Condensed")
+```
+---
+
+## Segmented Bar Plots: Counts
+
+
+```{r Bar-Segmented1}
+p4 <- ggplot(
+  okcupid %>%
+    mutate(orientation = recode(orientation, "gay" = "lgbt", "bisexual" = "lgbt"),
+           religion = fct_relevel(religion2,
+                                  count(okcupid, religion2, sort = TRUE)$religion2)),
+  aes(religion, fill = orientation)
+  ) +
+  labs(x = "", y = "",
+       title = "OkCupid: Orientation by Religion") +
+  scale_y_continuous(breaks = seq(0, 25000, 5000)) +
+  coord_flip() +
+  theme_ipsum(base_family = "Roboto Condensed") + theme(text = element_text(size = 14))
+```
+
+---
+
+```{r Bar-Segmented2, out.width="100%", fig.asp = 0.5}
+p4 + geom_bar(alpha=.6, width=.4)
+```
+
+---
+
+## Segmented Bar Plots: Proportions
+
+```{r Bar-Segmented3, out.width="100%", fig.asp = 0.5}
+p4 + geom_bar(position = "fill", alpha=.6, width=.4)
+```
+
+.font80percent[
+Hoping you can see why this is worse than our original plot.
+]
+---
+
+## Mosaic Plots
+
+```{r Mosaic, eval=FALSE}
+library(ggmosaic)
+
+okcupid %>%
+  mutate(orientation = recode(orientation, "gay" = "lgbt", "bisexual" = "lgbt"),
+         religion = fct_relevel(religion2, count(okcupid, religion2, sort = TRUE)$religion2)) %>%
+ggplot() +
+  geom_mosaic(aes(x = product(orientation, religion), fill=orientation)) +#<<
+  labs(x = "", y = "", title = "OkCupid: Orientation by Religion") +
+  guides(fill=FALSE) +
+  theme_ipsum(base_family = "Roboto Condensed") +
+  theme(axis.text.y = element_text(size = 14),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, size = 12))
+```
+
+---
+
+```{r Mosaic2, echo=FALSE, out.width="100%", fig.asp = 0.7}
+library(ggmosaic)
+
+okcupid %>%
+  mutate(orientation = recode(orientation, "gay" = "lgbt", "bisexual" = "lgbt"),
+         religion = fct_relevel(religion2, count(okcupid, religion2, sort = TRUE)$religion2)) %>%
+ggplot() +
+  geom_mosaic(aes(x = product(orientation, religion), fill=orientation)) +
+  labs(x = "", y = "", title = "OkCupid: Orientation by Religion") +
+  guides(fill=FALSE) +
+  theme_ipsum(base_family = "Roboto Condensed") +
+  theme(axis.text.y = element_text(size = 14),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, size = 12))
+```
+
+---
+
+## Radar Chart
+
+```{r Radar}
+okcupid %>%
+  group_by(religion2) %>%
+  summarise(drugs = mean(drugs %in% c("sometimes", "often"), na.rm = TRUE),
+            smokes = mean(smokes == "yes", na.rm = TRUE),
+            overweight = mean(body_type == "overweight", na.rm = TRUE),
+            drinks = mean(drinks %in% c("often", "very often", "desperately"))
+            ) -> okcupid_radar
+okcupid_radar
+```
+
+---
+
+```{r Radar3, out.width="90%", fig.asp=0.7}
+library(ggradar)
+
+ggradar(okcupid_radar,  grid.max = 0.201, grid.mid = 0.10, values.radar = c("0%", "10%", "20%"),
+        plot.title = "OkCupid: Health Indicators by Religion") + theme(plot.title = element_text(size = 18))
+```
+
+---
+
+## Sankey Diagram (Alluvial Plot)
+
+```{r Sankey, warning=FALSE}
+library(ggalluvial)
+
+g7 <- c("canada", "france", "germany", "italy", "japan", "united_kingdom", "united_states_of_america")
+
+migration_2019 <- read_rds("../data/migration.rds") %>%
+  pivot_longer(cols = -c(1:4), names_to = "country_orig", values_to = "n_migrants") %>%
+  filter(year == 2019) %>%
+  filter_at(c("country_orig", "country_dest"), ~.x %in% g7) %>%
+  mutate_at(c("country_orig", "country_dest"), ~case_when(.x == "united_kingdom" ~ "uk", .x == "united_states_of_america" ~ "usa", TRUE ~ .x)) %>%
+  group_by(country_orig, country_dest) %>%
+  summarise(n_migrants = sum(n_migrants))
+
+migration_2019 %>% head(4)
+```
+
+---
+
+```{r Sankey2, eval=FALSE}
+ggplot(migration_2019,
+       aes(y = n_migrants, axis1 = country_orig, axis2 = country_dest)) +
+  geom_alluvium(aes(fill = country_orig)) + #<<
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", infer.label = TRUE) +
+  scale_x_discrete(limits = c("Origin", "Destination"), expand = c(.05, .05)) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  guides(fill = FALSE) +
+  labs(y = "", title = "G7 Cross-Country Migration 2019") +
+  scale_y_comma() +
+  theme_ipsum(base_family = "Roboto Condensed")
+```
+
+---
+
+```{r Sankey3, echo=FALSE, out.width="100%", fig.asp=0.8, warning=FALSE}
+ggplot(migration_2019,
+       aes(y = n_migrants, axis1 = country_orig, axis2 = country_dest)) +
+  geom_alluvium(aes(fill = country_orig)) + #<<
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", infer.label = TRUE) +
+  scale_x_discrete(limits = c("Origin", "Destination"), expand = c(.05, .05)) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  guides(fill = FALSE) +
+  labs(y = "", title = "G7 Cross-Country Migration 2019") +
+  scale_y_comma() +
+  theme_ipsum(base_family = "Roboto Condensed")
+```
+
+---
+
+## Heatmap
+
+```{r Heatmap}
+gender_age_height_drink <- okcupid %>%
+  mutate(age_group = case_when(
+    age < 30 ~ "19-29",
+    age < 40 ~ "30-39",
+    age < 50 ~ "40-49",
+    age < 60 ~ "50-59",
+    TRUE ~ "60+"),
+    height_group = case_when(
+      height_cm < 150 ~ "149-",
+      height_cm < 160 ~ "150-159",
+      height_cm < 170 ~ "160-169",
+      height_cm < 180 ~ "170-179",
+      height_cm < 190 ~ "180-189",
+      TRUE ~ "190+")) %>%
+  group_by(sex, age_group, height_group) %>%
+  summarise(n = n(),
+            drinks = mean(drinks %in% c("often", "very often", "desperately")))
+```
+
+---
+
+```{r Heatmap-Data}
+gender_age_height_drink
+```
+
+---
+
+```{r Heatmap2, out.width="100%", fig.asp=0.5, warning=FALSE, message=FALSE}
+heat <- ggplot(gender_age_height_drink, aes(age_group, height_group, fill = drinks)) +
+  geom_tile(aes(text = str_c(percent(drinks, 1), " of ", n, "    "))) + #<<
+  facet_wrap(. ~ sex, labeller = sex_labeller) +
+  labs(x = "Age", y = "Height", title = "OkCupid: %Reported Drinking by Age and Height") +
+  scale_fill_gradient(labels = percent_format(accuracy = 1)) +
+  theme_ipsum(base_family = "Roboto Condensed")
+heat
+```
+
+---
+
+## An Actual Heat Map
+
+```{r Heatmeap3, echo=FALSE}
+migration_total <- read_rds("../data/migration.rds") %>%
+  pivot_longer(cols = -c(1:4), names_to = "country_orig", values_to = "n_migrants") %>%
+  filter(year == 2019) %>%
+  group_by(country_orig) %>%
+  summarise(n_migrants = sum(n_migrants)) %>%
+  rename(region = country_orig) %>%
+  mutate(region = case_when(region == "united_kingdom" ~ "uk",
+                            region == "united_states_of_america" ~ "usa",
+                            region == "russian_federation" ~ "russia",
+                            region == "iran_islamic_republic_of" ~ "iran",
+                            region == "venezuela_bolivarian_republic_of" ~ "venezuela",
+                            region == "syrian_arab_republic" ~ "syria",
+                            region == "united_republic_of_tanzania" ~ "tanzania",
+                            region == "republic_of_korea" ~ "south_korea",
+                            region == "dem._peoples_republic_of_korea" ~ "north_korea",
+                            region == "bolivia_plurinational_state_of" ~ "bolivia",
+                            region == "czechia" ~ "czech_republic",
+                            region == "côte_divoire" ~ "ivory_coast",
+                            region == "viet_nam" ~ "vietnam",
+                            TRUE ~ region))
+
+```
+
+```{r Heatmap4, out.width="100%", fig.asp=0.7, eval=FALSE}
+clean_country_name <- function(name) {
+  str_replace_all(str_replace_all(str_to_lower(name), " |-", "_"), "'|,|\\(|\\)", "")
+}
+
+
+world <- as_tibble(map_data("world"))
+
+world <- world %>%
+  mutate(region = clean_country_name(region))
+
+ggplot(world %>%
+         left_join(migration_total, "region"),
+       aes(x = long, y = lat, group = group)) +
+  geom_polygon(aes(fill = n_migrants), colour = "white") +
+  scale_fill_gradient(labels = comma, name = "N Migrants", high = "#132B43", low = "#56B1F7") +
+  labs(x = "", y = "", title = "No. of Migrants by Country in 2019") +
+  theme_ipsum(base_family = "Roboto Condensed")
+```
+
+---
+
+```{r Heatmap5, out.width="100%", fig.asp=0.7, echo=FALSE}
+clean_country_name <- function(name) {
+  str_replace_all(str_replace_all(str_to_lower(name), " |-", "_"), "'|,|\\(|\\)", "")
+}
+
+
+world <- as_tibble(map_data("world"))
+
+world <- world %>%
+  mutate(region = clean_country_name(region))
+
+ggplot(world %>%
+         left_join(migration_total, "region"),
+       aes(x = long, y = lat, group = group)) +
+  geom_polygon(aes(fill = n_migrants), colour = "white") +
+  scale_fill_gradient(labels = comma, name = "N Migrants", high = "#132B43", low = "#56B1F7") +
+  labs(x = "", y = "", title = "No. of Migrants by Country in 2019") +
+  theme_ipsum(base_family = "Roboto Condensed")
+```
+
+---
+class: section-slide
+
+# Amazing Extensions
+
+---
+
+## `patchwork`
+
+```{r Patchwork, warning=FALSE, message=FALSE}
+library(patchwork)
+
+p1 <- ggplot(okcupid %>% filter(between(age, 18, 70))) +
+  geom_density(aes(age, fill = sex)) +
+  labs(y = "") +
+  guides(fill = FALSE) +
+  theme_ipsum(base_family = "Roboto Condensed")
+
+p2 <- ggplot(okcupid %>% filter(between(height_cm, 140, 200))) +
+  geom_density(aes(height_cm, fill = sex)) +
+  labs(y = "") +
+  guides(fill = FALSE) +
+  theme_ipsum(base_family = "Roboto Condensed")
+
+p3 <- ggplot(okcupid) +
+  geom_mosaic(aes(x = product(sex, religion2), fill = sex)) +
+  labs(x = "", y = "") +
+  theme_ipsum(base_family = "Roboto Condensed") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+---
+
+Watch this:
+
+```{r Patchwork2, out.width="100%", fig.asp=0.7}
+(p1 | p2) / p3
+```
+
+---
+
+## `plotly`
+
+Remember those heatmaps? They're now interactive!
+
+```{r Plotly, message=FALSE, dpi=100, out.width="100%", fig.asp=0.6}
+library(plotly)
+ggplotly(heat, tooltip = "text")
+```
+
+---
+
+## `rayshader`
+
+Or rotatable 3D...
+
+```{r Rayshader, eval=FALSE}
+library(rayshader)
+
+plot_gg(heat)
+```
+
+<img src = "images/rayshader.png" style="width: 70%">
+
+---
+
+## `gganimate`
+
+Take a plot and make it better:
+
+```{r Gganimate, eval=FALSE}
+library(gganimate)
+
+characters %>%
+  group_by(film_id) %>%
+  summarise(n_char = n_distinct(character_id)) %>%
+  ggplot(aes(film_id, n_char)) +
+  geom_line(lwd = 2) +
+  geom_point(aes(group = seq_along(film_id)), size = 5) +
+  labs(x = "", y = "No. of Characters",
+       title = "No. of Unique Characters: {films$title[frame %/% 15 + 1]}") +
+  scale_x_continuous(breaks = 1:7, labels = films$title) +
+  theme_ipsum(base_family = "Roboto Condensed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  transition_reveal(along = film_id) + #<<
+  ease_aes("cubic-in-out")
+```
+
+---
+
+<img src = "images/gganimate.gif" style="height: 50%">
+
+---
+
+## `magick`
+
+That Jabba Plot was NOT made by Photoshop...
+
+```{r JabbaPlot, warning=FALSE, message=FALSE, fig.asp=0.5, out.width="50%"}
+library(magick)
+
+jabba <- image_read("images/jabba.png")
+fig <- image_graph(width = 2400, height = 1200, res = 300)
+ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point(size = 1.5) + 
+  labs(title = "Mass vs. Height of Starwars characters",
+       x = "Height (cm)", y = "Weight (kg)")
+fig %>% image_composite(jabba, offset = "+1000+30")
+```
+
+---
+
+
+## `tidygraph` + `ggraph`
+
+```{r Ggraph1, message=FALSE, warning=FALSE}
+library(tidygraph)
+
+characters_2_plus <- characters %>%
+  add_count(name) %>%
+  filter(n > 1) %>%
+  select(name, film_id) %>%
+  mutate(id = group_indices(., name)) # for some reason 1:n ID
+
+nodes <- characters_2_plus %>%
+  count(id, name)
+
+edges <- characters_2_plus %>%
+  inner_join(characters_2_plus, "film_id") %>%
+  rename(from = id.x,
+         to = id.y) %>%
+  count(from, to) %>%
+  rename(weight = n) %>%
+  filter(from != to)
+  
+graph <- tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
+```
+
+---
+
+```{r Ggraph, out.width="100%", fig.asp=0.6}
+library(ggraph)
+ggraph(graph, layout = "fr") + 
+  geom_edge_fan(aes(alpha = weight), show.legend = FALSE) + 
+  geom_node_point(aes(size = n), color = "lightblue") +
+  geom_node_label(aes(label = name), color = "blue", repel = TRUE, fill = "white", size = 3) +
+  theme(panel.background = element_rect(fill="white", colour = "white")) +
+  labs(size = "N Films", title = "Star Wars: Characters Network", caption = "An Edge between two characters means they appeared in the same film \nEdge transparency means how many films")
+```
+
+---
+
+## `ggwithimages`
+
+```{r Ggwithimages, eval=FALSE}
+library(ggwithimages)
+  
+annapurna <- png::readPNG(system.file("extdata", "annapurna.png", package = "ggwithimages"))
+sky <- png::readPNG(system.file("extdata", "sky.png", package = "ggwithimages"))
+kathmandu_hourly_aqi <- readr::read_csv(system.file("extdata", "kathmandu_hourly_aqi.csv", package = "ggwithimages"))
+
+ggplot(kathmandu_hourly_aqi, aes(hour, aqi)) +
+  geom_line_with_image(annapurna, sky) +
+  labs(title = "Air Quality Index in the Thamel, Kathmandu, Nepal",
+       subtitle = "Measured in PM2.5 by the US Embassy in Kathmandu",
+       y = "Hourly Mean AQI [PM2.5]",
+       x = "Hour") +
+  ylim(c(50, 200)) +
+  theme_ipsum(base_family = "Roboto Condensed")
+```
+
+---
+
+```{r Ggwithimages2, echo=FALSE, out.width="100%", fig.asp=0.7, warning=FALSE, message=FALSE}
+library(ggwithimages)
+  
+annapurna <- png::readPNG(system.file("extdata", "annapurna.png", package = "ggwithimages"))
+sky <- png::readPNG(system.file("extdata", "sky.png", package = "ggwithimages"))
+kathmandu_hourly_aqi <- readr::read_csv(system.file("extdata", "kathmandu_hourly_aqi.csv", package = "ggwithimages"))
+
+ggplot(kathmandu_hourly_aqi, aes(hour, aqi)) +
+  geom_line_with_image(annapurna, sky) +
+  labs(title = "Air Quality Index in the Thamel, Kathmandu, Nepal",
+       subtitle = "Measured in PM2.5 by the US Embassy in Kathmandu",
+       y = "Hourly Mean AQI [PM2.5]",
+       x = "Hour") +
+  ylim(c(50, 200)) +
+  theme_ipsum(base_family = "Roboto Condensed")
+```
+
+---
+
+## `brickr`...
+
+```{r Brickr, eval=FALSE}
+library(brickr)
+
+okcupid %>%
+  count(religion2) %>%
+  filter(religion2 != "NA") %>%
+  mutate(religion =
+           fct_relevel(religion2, c("atheist", "christian", "jewish", "buddhist", "hindu", "muslim"))) %>%
+  ggplot(aes(religion, n)) +
+  geom_brick_col(aes(fill = religion)) +
+  scale_fill_brick() +
+  coord_brick() +
+  theme_brick()
+```
+
+(Though this was available only on v0.2.0 `r emo::ji("sad")`)
+---
+
+.pull-left[
+```{r Brickr2, out.width="100%", echo=FALSE, eval=FALSE}
+library(brickr)
+
+okcupid %>%
+  count(religion2) %>%
+  filter(religion2 != "NA") %>%
+  mutate(religion =
+           fct_relevel(religion2, c("atheist", "christian", "jewish", "buddhist", "hindu", "muslim"))) %>%
+  ggplot(aes(religion, n)) +
+  geom_brick_col(aes(fill = religion)) +
+  scale_fill_brick() +
+  coord_brick() +
+  theme_brick()
+```
+
+<img src = "images/Brickr2-1.png" style = "width: 100%">
+]
+
+.pull-right[
+And... it can get a lot more fun:
+
+<img src = "images/golden_girls.png" style = "width: 100%">
+
+Get the legos you need with `build_instructions()` `r emo::ji("surprised")`
+]
