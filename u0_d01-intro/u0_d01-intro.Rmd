@@ -175,4 +175,4 @@ class: center, middle
   <img src="images/nadia.gif"/>
 </p>
 
-Go to: http://bit.ly/dsapps2021_tidy
+Go to: http://bit.ly/dsapps2021_tidyverse
