@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Tidy Data Wrangling - Part B</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Giora Simchoni" />
+    <meta name="date" content="2021-01-17" />
+    <head>
+      <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
+      <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
+    </head>
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+## Tidy Data Wrangling - Part B
+
+### Applications of Data Science - Class 3
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### 2021-01-17
+
+---
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;
+  &lt;span&gt;
+    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;/a&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+---
+
+
+
+class: section-slide
+
+# Joining Tables
+
+---
+class: section-slide
+
+# Detour: The Starwars Dataset(s)
+
+---
+
+## The Starwars Dataset(s)
+
+&lt;img src = "images/starwars_db_schema.png" style="width: 100%"&gt;
+
+
+```r
+sw_tables &lt;- read_rds("../data/sw_tables.rds")
+characters &lt;- sw_tables$characters
+planets &lt;- sw_tables$planets
+films &lt;- sw_tables$films
+```
+
+.insight[
+💡 What are the advantages/disadvantages of storing data in such a way?
+]
+---
+
+
+```r
+glimpse(characters)
+```
+
+```
+## Rows: 173
+## Columns: 14
+## $ character_id &lt;int&gt; 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, ...
+## $ name         &lt;chr&gt; "Luke Skywalker", "Luke Skywalker", "Luke Skywalker", ...
+## $ gender       &lt;chr&gt; "male", "male", "male", "male", "male", NA, NA, NA, NA...
+## $ homeworld_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 8, 8, 8, 8, 8, 8, ...
+## $ height       &lt;dbl&gt; 172, 172, 172, 172, 172, 167, 167, 167, 167, 167, 167,...
+## $ mass         &lt;dbl&gt; 77, 77, 77, 77, 77, 75, 75, 75, 75, 75, 75, 32, 32, 32...
+## $ hair_color   &lt;chr&gt; "blond", "blond", "blond", "blond", "blond", NA, NA, N...
+## $ skin_color   &lt;chr&gt; "fair", "fair", "fair", "fair", "fair", "gold", "gold"...
+## $ eye_color    &lt;chr&gt; "blue", "blue", "blue", "blue", "blue", "yellow", "yel...
+## $ birth_year   &lt;dbl&gt; 19.0, 19.0, 19.0, 19.0, 19.0, 112.0, 112.0, 112.0, 112...
+## $ film_id      &lt;dbl&gt; 1, 2, 3, 6, 7, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, ...
+## $ species      &lt;list&gt; ["http://swapi.co/api/species/1/", "http://swapi.co/a...
+## $ vehicles     &lt;list&gt; [&lt;"http://swapi.co/api/vehicles/14/", "http://swapi.c...
+## $ starships    &lt;list&gt; [&lt;"http://swapi.co/api/starships/12/", "http://swapi....
+```
+
+---
+
+
+```r
+glimpse(planets)
+```
+
+```
+## Rows: 61
+## Columns: 10
+## $ planet_id       &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, ...
+## $ name            &lt;chr&gt; "Tatooine", "Alderaan", "Yavin IV", "Hoth", "Dagoba...
+## $ rotation_period &lt;dbl&gt; 23, 24, 24, 23, 23, 12, 18, 26, 24, 27, 30, 27, 36,...
+## $ orbital_period  &lt;dbl&gt; 304, 364, 4818, 549, 341, 5110, 402, 312, 368, 463,...
+## $ diameter        &lt;dbl&gt; 10465, 12500, 10200, 7200, 8900, 118000, 4900, 1212...
+## $ climate         &lt;chr&gt; "arid", "temperate", "temperate, tropical", "frozen...
+## $ gravity         &lt;chr&gt; "1 standard", "1 standard", "1 standard", "1.1 stan...
+## $ terrain         &lt;chr&gt; "desert", "grasslands, mountains", "jungle, rainfor...
+## $ surface_water   &lt;dbl&gt; 1.0, 40.0, 8.0, 100.0, 8.0, 0.0, 8.0, 12.0, NA, 100...
+## $ population      &lt;dbl&gt; 2.0e+05, 2.0e+09, 1.0e+03, NA, NA, 6.0e+06, 3.0e+07...
+```
+
+
+```r
+glimpse(films)
+```
+
+```
+## Rows: 7
+## Columns: 7
+## $ film_id       &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7
+## $ title         &lt;chr&gt; "A New Hope", "The Empire Strikes Back", "Return of t...
+## $ episode_id    &lt;int&gt; 4, 5, 6, 1, 2, 3, 7
+## $ opening_crawl &lt;chr&gt; "It is a period of civil war.\r\nRebel spaceships, st...
+## $ director      &lt;chr&gt; "George Lucas", "Irvin Kershner", "Richard Marquand",...
+## $ producer      &lt;chr&gt; "Gary Kurtz, Rick McCallum", "Gary Kutz, Rick McCallu...
+## $ release_date  &lt;chr&gt; "1977-05-25", "1980-05-17", "1983-05-25", "1999-05-19...
+```
+
+---
+class: section-slide
+
+# End of Detour
+
+---
+
+#### Q: Which characters appear in SW films directed by George Lucas?
+
+
+```r
+unique(
+  characters$name[
+    characters$film_id %in%
+      films$film_id[films$director == "George Lucas"]
+    ]
+  )
+
+# or dplyr approach:
+characters %&gt;%
+    filter(film_id %in% (films %&gt;%
+                           filter(director=="George Lucas") %&gt;%
+                           pull(film_id))) %&gt;%
+    pull(name) %&gt;%
+    unique()
+```
+
+First problem with this approach: code gets messier and messier, prone to bugs and hard to debug.
+---
+
+#### Q: Which characters, whose homeworld is Alderaan, appear in SW films directed by George Lucas?
+
+
+```r
+unique(
+  characters$name[
+    characters$film_id %in%
+      films$film_id[films$director == "George Lucas"] &amp;
+    characters$homeworld_id ==
+      planets$planet_id[planets$name == "Alderaan"]
+  ]
+)
+
+# or dplyr approach:
+characters %&gt;%
+    filter(film_id %in% (films %&gt;%
+                           filter(director=="George Lucas") %&gt;%
+                           pull(film_id)),
+           homeworld_id == (planets %&gt;%
+                              filter(name == "Alderaan") %&gt;%
+                              pull(planet_id))) %&gt;%
+    pull(name) %&gt;%
+    unique()
+
+# [1] "Leia Organa"         "Bail Prestor Organa" "Raymus Antilles"
+```
+
+---
+
+#### Now imagine these two tables
+
+`lines`: each film, each scene, each minute, each character, the line
+
+
+```r
+lines &lt;- tibble::tribble(
+  ~film_id, ~scene_id, ~minute_id, ~character_id,                           ~line,
+         1,         1,          1,            23,                "blah blah blah",
+         1,         1,          2,            15,           "something something",
+         1,         1,          2,            23, "something something to you to",
+         1,         1,          3,            15,                              NA,
+         1,         1,          3,            23,                              NA,
+         1,         1,          4,             8,             "whatever whatever"
+  )
+```
+
+`locations`: for each film, each scene, each minute, its location
+
+
+```r
+locations &lt;- tibble::tribble(
+  ~film_id, ~scene_id, ~minute_id,            ~location,
+         1,         1,          1,          "spaceship",
+         1,         1,          2, "Alderaan, outdoors",
+         1,         1,          3,          "spaceship",
+         1,         1,          4,                "bar"
+  )
+```
+
+---
+
+#### Q: Which characters say "something" in a bar?
+
+- filter only `lines` which contain "something"
+- filter only "bar" `locations` and then...
+- if the two filtered tables match on film, scene and minute...
+- we take the unique characters
+- but how do we match? `for` loop*?
+
+➡️ Clearly, second problem with this approach: it doesn't generalize well to more complex scenarios, where we need to match on multiple criteria
+
+And third problem: speed .font80percent[(but only in a complex scenario!)]
+
+.font80percent[&amp;#42; There *is* a way without using a for loop, without joining, still not recommended.]
+
+---
+
+## `inner_join()`
+
+(Inner) Joining two tables:
+
+
+```r
+characters %&gt;%
+  inner_join(films) %&gt;%
+  select(character_id, name, film_id, title, director) %&gt;%
+  head(7)
+```
+
+```
+## Joining, by = "film_id"
+```
+
+```
+## # A tibble: 7 x 5
+##   character_id name           film_id title                   director        
+##          &lt;int&gt; &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;                   &lt;chr&gt;           
+## 1            1 Luke Skywalker       1 A New Hope              George Lucas    
+## 2            1 Luke Skywalker       2 The Empire Strikes Back Irvin Kershner  
+## 3            1 Luke Skywalker       3 Return of the Jedi      Richard Marquand
+## 4            1 Luke Skywalker       6 Revenge of the Sith     George Lucas    
+## 5            1 Luke Skywalker       7 The Force Awakens       J. J. Abrams    
+## 6            2 C-3PO                1 A New Hope              George Lucas    
+## 7            2 C-3PO                2 The Empire Strikes Back Irvin Kershner
+```
+
+---
+
+(Inner) Joining multiple tables:
+
+
+```r
+characters %&gt;%
+  inner_join(films) %&gt;%
+  inner_join(planets, by = c("homeworld_id" = "planet_id")) %&gt;%
+  select(character_id, name.x, film_id, title, director, name.y, climate) %&gt;% head(7)
+```
+
+```
+## Joining, by = "film_id"
+```
+
+```
+## # A tibble: 7 x 7
+##   character_id name.x      film_id title            director     name.y  climate
+##          &lt;int&gt; &lt;chr&gt;         &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt;        &lt;chr&gt;   &lt;chr&gt;  
+## 1            1 Luke Skywa~       1 A New Hope       George Lucas Tatooi~ arid   
+## 2            1 Luke Skywa~       2 The Empire Stri~ Irvin Kersh~ Tatooi~ arid   
+## 3            1 Luke Skywa~       3 Return of the J~ Richard Mar~ Tatooi~ arid   
+## 4            1 Luke Skywa~       6 Revenge of the ~ George Lucas Tatooi~ arid   
+## 5            1 Luke Skywa~       7 The Force Awake~ J. J. Abrams Tatooi~ arid   
+## 6            2 C-3PO             1 A New Hope       George Lucas Tatooi~ arid   
+## 7            2 C-3PO             2 The Empire Stri~ Irvin Kersh~ Tatooi~ arid
+```
+
+---
+
+(Inner) Joining on multiple keys:
+
+
+```r
+lines %&gt;%
+  inner_join(locations, by = c("film_id", "scene_id", "minute_id"))
+```
+
+```
+## # A tibble: 6 x 6
+##   film_id scene_id minute_id character_id line                   location       
+##     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;                  &lt;chr&gt;          
+## 1       1        1         1           23 blah blah blah         spaceship      
+## 2       1        1         2           15 something something    Alderaan, outd~
+## 3       1        1         2           23 something something t~ Alderaan, outd~
+## 4       1        1         3           15 &lt;NA&gt;                   spaceship      
+## 5       1        1         3           23 &lt;NA&gt;                   spaceship      
+## 6       1        1         4            8 whatever whatever      bar
+```
+
+.insight[
+💡 The base R function for joining is `merge()` which tends to be slower.
+]
+
+---
+
+## What would `inner_join()` do?
+
+Q: Which characters appear in SW films directed by George Lucas?
+
+
+```r
+# naive
+characters %&gt;%
+  inner_join(films, by = "film_id") %&gt;%
+  filter(director == "George Lucas") %&gt;%
+  pull(name) %&gt;%
+  unique()
+
+# smarter
+characters %&gt;%
+  inner_join(films %&gt;% filter(director == "George Lucas"),
+             by = "film_id") %&gt;%
+  pull(name) %&gt;%
+  unique()
+```
+
+.insight[
+💡 What else could you do to make `inner_join`'s life easier?
+]
+---
+
+## What would `inner_join()` do?
+
+Q: Which characters, whose homeworld is Alderaan, appear in SW films directed by George Lucas?
+
+
+```r
+characters %&gt;%
+  inner_join(films %&gt;% filter(director == "George Lucas"),
+             by = "film_id") %&gt;%
+  inner_join(planets %&gt;% filter(name == "Alderaan"),
+             by = c("homeworld_id" = "planet_id"),
+                    suffix = c("_char", "_planet")) %&gt;%
+  pull(name_char) %&gt;%
+  unique()
+```
+
+```
+## [1] "Leia Organa"         "Bail Prestor Organa" "Raymus Antilles"
+```
+
+---
+
+### Note of caution: Join is not always faster!
+
+
+```r
+baseR_no_join &lt;- function() {
+  unique(characters$name[characters$film_id %in% films$film_id[films$director == "George Lucas"]])
+}
+
+baseR_with_join &lt;- function() {
+  unique(merge(characters, films[films$director == "George Lucas", ], by = "film_id")$name)
+}
+
+dplyr_no_join &lt;- function() {
+  characters %&gt;%
+    filter(film_id %in% (films %&gt;%
+                           filter(director=="George Lucas") %&gt;%
+                           pull(film_id))) %&gt;%
+    pull(name) %&gt;%
+    unique()
+}
+
+dplyr_with_join &lt;- function() {
+  characters %&gt;%
+    inner_join(films %&gt;% filter(director=="George Lucas"), by = "film_id") %&gt;%
+    pull(name) %&gt;%
+    unique()
+}
+```
+
+---
+
+
+```r
+library(microbenchmark)
+res &lt;- microbenchmark(baseR_no_join(), baseR_with_join(),
+                      dplyr_no_join(), dplyr_with_join(), times = 20)
+autoplot(res)
+```
+
+&lt;img src="images/Join-Slow2-1.png" width="50%" /&gt;
+
+---
+
+### So when does it shine?
+
+- See [this](https://stackoverflow.com/q/59183599/4095235) StackOverflow question and answer for a good example*
+- But in general: when data gets bigger, when multiple keys are involved
+
+.font80percent[&amp;#42; Yes, I know, I answered my own question, 🤦]
+
+### Other types of Joins?
+
+Definitely, read [here](https://stat545.com/join-cheatsheet.html), [here](https://r4ds.had.co.nz/relational-data.html) and [here](https://rstudio-education.github.io/tidyverse-cookbook/transform-tables.html#joins) about:
+- `left_join()`
+- `right_join()`
+- `full_join()`
+- `anti_join()`
+- `semi_join()`
+
+---
+
+## All Joins
+
+&lt;img src = "images/joins_explained1.png" style="width: 90%"&gt;
+
+.font80percent[
+Source: [The Tidyverse Cookbook](https://rstudio-education.github.io/tidyverse-cookbook/transform-tables.html#joins)
+]
+---
+
+## All Joins
+
+&lt;img src = "images/joins_explained2.png" style="width: 90%"&gt;
+
+.font80percent[
+Source: [The Tidyverse Cookbook](https://rstudio-education.github.io/tidyverse-cookbook/transform-tables.html#joins)
+]
+---
+class: section-slide
+
+# Tidying Tables
+
+---
+class: section-slide
+
+# Detour: The Migration Dataset
+
+---
+
+## The Migration Dataset
+
+- Straight from the [UN, Dept. of Economic and Social Affairs, Population Division](https://www.un.org/en/development/desa/population/index.asp)
+- "Monitoring global population trends"
+- For each country, how many (men, women and total) migrated to each country
+- In 1990, 1995, 2000, 2005, 2010, 2015, 2019
+- How would *you* give access to these data?
+
+---
+
+### You want dirty data? Well dirty data costs!
+
+&lt;img src = "images/migration_excel.png" style="width: 100%"&gt;
+
+---
+
+### What's untidy about the migration Excel file?
+
+- It's an Excel file 😠
+- Multiple sheets
+- Color coded, font coded (bold), space coded!
+- Logo, free text in header lines
+- Merged cells
+- French letters (anything but [A-Za-z] can break code)
+- Spaces, parentheses in column names
+- Different `NA` values: "..", "-"
+- Variable "country_dest" contains sub-total and totals for categories, continents...
+- Variable "country_orig" violates Tidy rule no. 1: not in its own column
+
+---
+
+### "Today Only, The Landlord Went Nuts!"
+
+- ~~It's an Excel file 😠~~
+- ~~Multiple sheets~~
+- ~~Color coded, font coded (bold), space coded!~~
+- ~~Logo, free text in header lines~~
+- ~~Merged cells~~
+- ~~French letters (anything but [A-Za-z] can break code)~~
+- ~~Spaces, parentheses in column names~~
+- ~~Different `NA` values: "..", "-"~~
+- ~~Variable "country_dest" contains sub-total and totals for categories, continents...~~
+- Variable "country_orig" violates Tidy rule no. 1: not in its own column
+
+---
+
+## The much nicer `migration` table
+
+
+```r
+migration &lt;- read_rds("../data/migration.rds")
+
+migration
+```
+
+```
+## # A tibble: 3,248 x 236
+##    gender  year  code country_dest afghanistan albania algeria american_samoa
+##    &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt;
+##  1 men     1990   108 burundi                0       0       0              0
+##  2 men     1990   174 comoros                0       0       0              0
+##  3 men     1990   262 djibouti               0       0       0              0
+##  4 men     1990   232 eritrea                0       0       0              0
+##  5 men     1990   231 ethiopia               0       0       0              0
+##  6 men     1990   404 kenya                  0       0       0              0
+##  7 men     1990   450 madagascar             0       0       0              0
+##  8 men     1990   454 malawi                 0       0       0              0
+##  9 men     1990   480 mauritius              0       0       0              0
+## 10 men     1990   175 mayotte                0       0       0              0
+## # ... with 3,238 more rows, and 228 more variables: andorra &lt;dbl&gt;,
+## #   angola &lt;dbl&gt;, anguilla &lt;dbl&gt;, antigua_and_barbuda &lt;dbl&gt;, argentina &lt;dbl&gt;,
+## #   armenia &lt;dbl&gt;, aruba &lt;dbl&gt;, australia &lt;dbl&gt;, austria &lt;dbl&gt;,
+## #   azerbaijan &lt;dbl&gt;, bahamas &lt;dbl&gt;, bahrain &lt;dbl&gt;, bangladesh &lt;dbl&gt;,
+## #   barbados &lt;dbl&gt;, belarus &lt;dbl&gt;, belgium &lt;dbl&gt;, belize &lt;dbl&gt;, benin &lt;dbl&gt;,
+## #   bermuda &lt;dbl&gt;, bhutan &lt;dbl&gt;, bolivia_plurinational_state_of &lt;dbl&gt;,
+## #   bonaire_sint_eustatius_and_saba &lt;dbl&gt;, bosnia_and_herzegovina &lt;dbl&gt;,
+## #   botswana &lt;dbl&gt;, brazil &lt;dbl&gt;, british_virgin_islands &lt;dbl&gt;,
+## #   brunei_darussalam &lt;dbl&gt;, bulgaria &lt;dbl&gt;, burkina_faso &lt;dbl&gt;, burundi &lt;dbl&gt;,
+## #   cabo_verde &lt;dbl&gt;, cambodia &lt;dbl&gt;, cameroon &lt;dbl&gt;, canada &lt;dbl&gt;,
+## #   cayman_islands &lt;dbl&gt;, central_african_republic &lt;dbl&gt;, chad &lt;dbl&gt;,
+## #   channel_islands &lt;dbl&gt;, chile &lt;dbl&gt;, china &lt;dbl&gt;, china_hong_kong_sar &lt;dbl&gt;,
+## #   china_macao_sar &lt;dbl&gt;, colombia &lt;dbl&gt;, comoros &lt;dbl&gt;, congo &lt;dbl&gt;,
+## #   cook_islands &lt;dbl&gt;, costa_rica &lt;dbl&gt;, côte_divoire &lt;dbl&gt;, croatia &lt;dbl&gt;,
+## #   cuba &lt;dbl&gt;, curaçao &lt;dbl&gt;, cyprus &lt;dbl&gt;, czechia &lt;dbl&gt;,
+## #   dem._peoples_republic_of_korea &lt;dbl&gt;,
+## #   democratic_republic_of_the_congo &lt;dbl&gt;, denmark &lt;dbl&gt;, djibouti &lt;dbl&gt;,
+## #   dominica &lt;dbl&gt;, dominican_republic &lt;dbl&gt;, ecuador &lt;dbl&gt;, egypt &lt;dbl&gt;,
+## #   el_salvador &lt;dbl&gt;, equatorial_guinea &lt;dbl&gt;, eritrea &lt;dbl&gt;, estonia &lt;dbl&gt;,
+## #   eswatini &lt;dbl&gt;, ethiopia &lt;dbl&gt;, falkland_islands_malvinas &lt;dbl&gt;,
+## #   faroe_islands &lt;dbl&gt;, fiji &lt;dbl&gt;, finland &lt;dbl&gt;, france &lt;dbl&gt;,
+## #   french_guiana &lt;dbl&gt;, french_polynesia &lt;dbl&gt;, gabon &lt;dbl&gt;, gambia &lt;dbl&gt;,
+## #   georgia &lt;dbl&gt;, germany &lt;dbl&gt;, ghana &lt;dbl&gt;, gibraltar &lt;dbl&gt;, greece &lt;dbl&gt;,
+## #   greenland &lt;dbl&gt;, grenada &lt;dbl&gt;, guadeloupe &lt;dbl&gt;, guam &lt;dbl&gt;,
+## #   guatemala &lt;dbl&gt;, guinea &lt;dbl&gt;, guinea_bissau &lt;dbl&gt;, guyana &lt;dbl&gt;,
+## #   haiti &lt;dbl&gt;, holy_see &lt;dbl&gt;, honduras &lt;dbl&gt;, hungary &lt;dbl&gt;, iceland &lt;dbl&gt;,
+## #   india &lt;dbl&gt;, indonesia &lt;dbl&gt;, iran_islamic_republic_of &lt;dbl&gt;, iraq &lt;dbl&gt;,
+## #   ireland &lt;dbl&gt;, isle_of_man &lt;dbl&gt;, ...
+```
+
+---
+
+## It's not right, but it's Ok:
+
+- How many men immigrated from Russia to Israel in 1990?
+
+
+```r
+migration %&gt;%
+  filter(country_dest == "israel", year == 1990, gender == "men") %&gt;%
+  pull(russian_federation)
+```
+
+```
+## [1] 80450
+```
+
+- How many men immigrated from Israel to Russia in 1990?
+
+
+```r
+migration %&gt;%
+  filter(country_dest == "russian_federation", year == 1990, gender == "men") %&gt;%
+  pull(israel)
+```
+
+```
+## [1] 1395
+```
+
+---
+
+## It would have been much nicer to have:
+
+
+```r
+migration %&gt;%
+  filter(country_orig == "israel", country_dest == "russian_fedration",
+         year == 1990, gender == "men") %&gt;%
+  pull(n_migrants)
+```
+
+Then we could put in a (simpler) function and call the opposite:
+
+
+```r
+get_1way_migration &lt;- function(orig, dest, gen, .year) {
+  migration %&gt;%
+  filter(country_orig == orig, country_dest == dest,
+         year == .year, gender == gen) %&gt;%
+  pull(n_migrants)
+}
+
+get_1way_migration("russian_federation", "israel")
+```
+
+---
+class: section-slide
+
+# End of Detour
+
+---
+
+## `pivot_longer()`
+
+
+```r
+migration_long &lt;- migration %&gt;%
+  pivot_longer(cols = -c(1:4),
+               names_to = "country_orig",
+               values_to = "n_migrants")
+
+migration_long
+```
+
+```
+## # A tibble: 753,536 x 6
+##    gender  year  code country_dest country_orig        n_migrants
+##    &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;                    &lt;dbl&gt;
+##  1 men     1990   108 burundi      afghanistan                  0
+##  2 men     1990   108 burundi      albania                      0
+##  3 men     1990   108 burundi      algeria                      0
+##  4 men     1990   108 burundi      american_samoa               0
+##  5 men     1990   108 burundi      andorra                      0
+##  6 men     1990   108 burundi      angola                       0
+##  7 men     1990   108 burundi      anguilla                     0
+##  8 men     1990   108 burundi      antigua_and_barbuda          0
+##  9 men     1990   108 burundi      argentina                    0
+## 10 men     1990   108 burundi      armenia                      0
+## # ... with 753,526 more rows
+```
+
+---
+
+## What sorcery is this?
+
+&lt;img src = "images/pivot_longer_explained.png" style="width: 100%"&gt;
+
+.font80percent[Source: [The Carpentries](http://swcarpentry.github.io/r-novice-gapminder/14-tidyr/index.html)]
+
+---
+
+## `pivot_wider()`
+
+
+```r
+migration_wide &lt;- migration_long %&gt;%
+  pivot_wider(id_cols = 1:4,
+              names_from = country_orig,
+              values_from = n_migrants)
+
+migration_wide
+```
+
+```
+## # A tibble: 3,248 x 236
+##    gender  year  code country_dest afghanistan albania algeria american_samoa
+##    &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt;
+##  1 men     1990   108 burundi                0       0       0              0
+##  2 men     1990   174 comoros                0       0       0              0
+##  3 men     1990   262 djibouti               0       0       0              0
+##  4 men     1990   232 eritrea                0       0       0              0
+##  5 men     1990   231 ethiopia               0       0       0              0
+##  6 men     1990   404 kenya                  0       0       0              0
+##  7 men     1990   450 madagascar             0       0       0              0
+##  8 men     1990   454 malawi                 0       0       0              0
+##  9 men     1990   480 mauritius              0       0       0              0
+## 10 men     1990   175 mayotte                0       0       0              0
+## # ... with 3,238 more rows, and 228 more variables: andorra &lt;dbl&gt;,
+## #   angola &lt;dbl&gt;, anguilla &lt;dbl&gt;, antigua_and_barbuda &lt;dbl&gt;, argentina &lt;dbl&gt;,
+## #   armenia &lt;dbl&gt;, aruba &lt;dbl&gt;, australia &lt;dbl&gt;, austria &lt;dbl&gt;,
+## #   azerbaijan &lt;dbl&gt;, bahamas &lt;dbl&gt;, bahrain &lt;dbl&gt;, bangladesh &lt;dbl&gt;,
+## #   barbados &lt;dbl&gt;, belarus &lt;dbl&gt;, belgium &lt;dbl&gt;, belize &lt;dbl&gt;, benin &lt;dbl&gt;,
+## #   bermuda &lt;dbl&gt;, bhutan &lt;dbl&gt;, bolivia_plurinational_state_of &lt;dbl&gt;,
+## #   bonaire_sint_eustatius_and_saba &lt;dbl&gt;, bosnia_and_herzegovina &lt;dbl&gt;,
+## #   botswana &lt;dbl&gt;, brazil &lt;dbl&gt;, british_virgin_islands &lt;dbl&gt;,
+## #   brunei_darussalam &lt;dbl&gt;, bulgaria &lt;dbl&gt;, burkina_faso &lt;dbl&gt;, burundi &lt;dbl&gt;,
+## #   cabo_verde &lt;dbl&gt;, cambodia &lt;dbl&gt;, cameroon &lt;dbl&gt;, canada &lt;dbl&gt;,
+## #   cayman_islands &lt;dbl&gt;, central_african_republic &lt;dbl&gt;, chad &lt;dbl&gt;,
+## #   channel_islands &lt;dbl&gt;, chile &lt;dbl&gt;, china &lt;dbl&gt;, china_hong_kong_sar &lt;dbl&gt;,
+## #   china_macao_sar &lt;dbl&gt;, colombia &lt;dbl&gt;, comoros &lt;dbl&gt;, congo &lt;dbl&gt;,
+## #   cook_islands &lt;dbl&gt;, costa_rica &lt;dbl&gt;, côte_divoire &lt;dbl&gt;, croatia &lt;dbl&gt;,
+## #   cuba &lt;dbl&gt;, curaçao &lt;dbl&gt;, cyprus &lt;dbl&gt;, czechia &lt;dbl&gt;,
+## #   dem._peoples_republic_of_korea &lt;dbl&gt;,
+## #   democratic_republic_of_the_congo &lt;dbl&gt;, denmark &lt;dbl&gt;, djibouti &lt;dbl&gt;,
+## #   dominica &lt;dbl&gt;, dominican_republic &lt;dbl&gt;, ecuador &lt;dbl&gt;, egypt &lt;dbl&gt;,
+## #   el_salvador &lt;dbl&gt;, equatorial_guinea &lt;dbl&gt;, eritrea &lt;dbl&gt;, estonia &lt;dbl&gt;,
+## #   eswatini &lt;dbl&gt;, ethiopia &lt;dbl&gt;, falkland_islands_malvinas &lt;dbl&gt;,
+## #   faroe_islands &lt;dbl&gt;, fiji &lt;dbl&gt;, finland &lt;dbl&gt;, france &lt;dbl&gt;,
+## #   french_guiana &lt;dbl&gt;, french_polynesia &lt;dbl&gt;, gabon &lt;dbl&gt;, gambia &lt;dbl&gt;,
+## #   georgia &lt;dbl&gt;, germany &lt;dbl&gt;, ghana &lt;dbl&gt;, gibraltar &lt;dbl&gt;, greece &lt;dbl&gt;,
+## #   greenland &lt;dbl&gt;, grenada &lt;dbl&gt;, guadeloupe &lt;dbl&gt;, guam &lt;dbl&gt;,
+## #   guatemala &lt;dbl&gt;, guinea &lt;dbl&gt;, guinea_bissau &lt;dbl&gt;, guyana &lt;dbl&gt;,
+## #   haiti &lt;dbl&gt;, holy_see &lt;dbl&gt;, honduras &lt;dbl&gt;, hungary &lt;dbl&gt;, iceland &lt;dbl&gt;,
+## #   india &lt;dbl&gt;, indonesia &lt;dbl&gt;, iran_islamic_republic_of &lt;dbl&gt;, iraq &lt;dbl&gt;,
+## #   ireland &lt;dbl&gt;, isle_of_man &lt;dbl&gt;, ...
+```
+
+---
+
+### Where is this going to?
+.font80percent[
+
+```r
+get_1way_migration &lt;- function(.country_dest, .country_orig) {
+  migration_long %&gt;%
+    filter(country_dest == .country_dest, country_orig == .country_orig) %&gt;%
+    group_by(year) %&gt;%
+    tally(n_migrants) %&gt;%
+    mutate(direction = str_c(.country_orig, " to ", .country_dest))
+}
+get_2way_migration &lt;- function(country_a, country_b) {
+  a2b &lt;- get_1way_migration(country_b, country_a)
+  b2a &lt;- get_1way_migration(country_a, country_b)
+  bind_rows(a2b, b2a)
+}
+
+get_2way_migration("israel", "russian_federation") %&gt;%
+  ggplot(aes(year, n)) + geom_line() +
+  geom_point(color = "orange", size = 5) +
+  labs(x = "", y = "", title = "Israel-Russia Yearly No. of immigrants") +
+  theme_dark() +
+  facet_wrap(~direction, scales = "free", labeller = labeller(direction = rus_isr_names)) +
+  scale_y_continuous(labels = scales::comma_format()) +
+  theme(axis.text = element_text(size = 12, hjust=0.9, family = "mono"),
+        strip.text.x = element_text(size = 14, family = "mono"),
+        plot.title = element_text(hjust = 0.5, size = 18, family = "mono"))
+```
+]
+
+---
+
+&lt;img src="images/Where-Is-This-Going-To2-1.png" width="100%" /&gt;
+
+---
+
+## Some more useful Tidying up verbs
+
+Remember?
+
+
+```r
+table3 &lt;- read_rds("../data/tidy_tables.rds")$table3
+
+table3
+```
+
+```
+## # A tibble: 315 x 3
+##    religion      yob pct_straight
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;       
+##  1 atheist      1950 26/29       
+##  2 buddhist     1950 6/6         
+##  3 christian    1950 28/32       
+##  4 hindu        1950 0/0         
+##  5 jewish       1950 21/24       
+##  6 muslim       1950 0/0         
+##  7 unspecified  1950 71/76       
+##  8 atheist      1951 31/33       
+##  9 buddhist     1951 11/11       
+## 10 christian    1951 23/24       
+## # ... with 305 more rows
+```
+
+---
+
+## `separate()`
+
+
+```r
+table3_tidy &lt;- table3 %&gt;%
+  separate(pct_straight, into = c("straight", "total"), sep = "/")
+
+table3_tidy
+```
+
+```
+## # A tibble: 315 x 4
+##    religion      yob straight total
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;
+##  1 atheist      1950 26       29   
+##  2 buddhist     1950 6        6    
+##  3 christian    1950 28       32   
+##  4 hindu        1950 0        0    
+##  5 jewish       1950 21       24   
+##  6 muslim       1950 0        0    
+##  7 unspecified  1950 71       76   
+##  8 atheist      1951 31       33   
+##  9 buddhist     1951 11       11   
+## 10 christian    1951 23       24   
+## # ... with 305 more rows
+```
+
+---
+
+## `unite()`
+
+(Though see a much more generalizable approach with `purrr`)
+
+
+```r
+table3_tidy %&gt;%
+  unite(col = "pct_straight", straight, total, sep = "/")
+```
+
+```
+## # A tibble: 315 x 3
+##    religion      yob pct_straight
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;       
+##  1 atheist      1950 26/29       
+##  2 buddhist     1950 6/6         
+##  3 christian    1950 28/32       
+##  4 hindu        1950 0/0         
+##  5 jewish       1950 21/24       
+##  6 muslim       1950 0/0         
+##  7 unspecified  1950 71/76       
+##  8 atheist      1951 31/33       
+##  9 buddhist     1951 11/11       
+## 10 christian    1951 23/24       
+## # ... with 305 more rows
+```
+
+---
+class: section-slide
+
+# Iteration without looping
+
+---
+
+## Fun fact: you're already not-looping!
+
+- Say you want the lengths of all of these strings:
+
+
+```r
+strings_vec &lt;- c("I'm feeling fine", "I'm perfectly OK",
+                 "Nothing is wrong!")
+```
+
+- Do you `for` loop?
+
+
+```r
+strings_len &lt;- numeric(length(strings_vec))
+for (i in seq_along(strings_vec)) {
+  strings_len[i] &lt;- nchar(strings_vec[i])
+}
+strings_len
+```
+
+```
+## [1] 16 16 17
+```
+
+---
+
+- No, you use R's vectorized functions nature:
+
+
+```r
+nchar(strings_vec)
+```
+
+```
+## [1] 16 16 17
+```
+
+- In case you were wondering:
+
+
+
+```r
+microbenchmark(nchar_loop(), nchar_vectorized())
+```
+
+```
+## Unit: nanoseconds
+##                expr  min   lq  mean median   uq     max neval
+##        nchar_loop() 3100 3200 47010   3200 3300 4369600   100
+##  nchar_vectorized()  900 1000 13788   1000 1100 1252900   100
+```
+
+- So why should iterating through a `data.frame` columns or rows be any different?
+
+---
+
+## The problem:
+
+
+```r
+okcupid &lt;- read_csv("~/okcupid.csv.zip", col_types = cols())
+okcupid %&gt;% select(essay0:essay2) %&gt;% head(3)
+```
+
+```
+## # A tibble: 3 x 3
+##   essay0                     essay1                    essay2                   
+##   &lt;chr&gt;                      &lt;chr&gt;                     &lt;chr&gt;                    
+## 1 "about me:&lt;br /&gt;\n&lt;br /&gt;\~ "currently working as an~ "making people laugh.&lt;br~
+## 2 "i am a chef: this is wha~ "dedicating everyday to ~ "being silly. having rid~
+## 3 "i'm not ashamed of much,~ "i make nerdy software f~ "improvising in differen~
+```
+
+- I want to apply some transformation to one or more columns (say the length of each `essay` question for each user)
+- I want to apply some transformation to one or more rows (say the average length of all `essay` questions for each user)
+
+- BTW, you can always use a `for` loop, see how it is done [here](https://r4ds.had.co.nz/iteration.html#for-loops)
+
+---
+
+## The `apply` family
+
+- There *is* a solution in base R
+  - `apply()`
+  - `sapply()`
+  - `lapply()`
+  - `tapply()`
+  - `vapply()`
+  - `mapply()`
+- What do you think is the issue with these? See [this](https://stackoverflow.com/questions/45101045/why-use-purrrmap-instead-of-lapply).
+
+---
+
+## I don't `for`, I `purrr`
+
+The `purrr` package provides a set of functions to make iteration easier:
+
+- No boilerplate code for looping --&gt; less looping bugs
+- Focus on the function, the action, not the plumbing
+- Generally faster (implemented in C)
+- Definitely more clear, concise and elegant code
+
+TBH, I'm addicted 😢
+
+---
+
+## You get a `map()`, you get a `map()`!
+
+
+| Single | Two | Multiple | Returns | Of |
+|---------------|-------------|------|--------|-------|
+| `map()`      | `map2()` | `pmap()` | `list` | `?`|
+| `map_lgl()`      | `map2_lgl()`      |   `pmap_lgl()` |`vector`| `logical` |
+| `map_chr()`      | `map2_chr()`      |   `pmap_chr()` |`vector`| `character` |
+| `map_int()`      | `map2_int()`      |   `pmap_int()` |`vector`| `integer` |
+| `map_dbl()`      | `map2_dbl()`      |   `pmap_dbl()` |`vector`| `double` |
+| `map_dfr()` | `map2_dfr()`      |    `pmap_dfr()` | `tibble` | `?` |
+
+Where "Single" means "single vector/column input", "Two" means "two vectors/columns input" etc.
+
+.font80percent[(Tip of the iceberg really, I want you to survive this slide)]
+
+---
+
+### Example1: Vectorizing a Function
+
+Take a clearly not-vectorized function:
+
+
+```r
+my_func &lt;- function(x) {
+  if (x %% 2 == 0) return("even")
+  "odd"
+}
+
+my_func(10)
+```
+
+```
+## [1] "even"
+```
+
+```r
+my_func(1:5)
+```
+
+&lt;pre style="color: red;"&gt;&lt;code&gt;## Warning in if (x%%2 == 0) return("even"): the condition has length &gt; 1 and only
+## the first element will be used
+&lt;/code&gt;&lt;/pre&gt;
+
+```
+## [1] "odd"
+```
+
+.insight[
+💡 This is a silly example, do you know how to easily vectorize this function?
+]
+
+---
+
+`map()` will always return a list:
+
+
+```r
+map(1:3, my_func)
+```
+
+```
+## [[1]]
+## [1] "odd"
+## 
+## [[2]]
+## [1] "even"
+## 
+## [[3]]
+## [1] "odd"
+```
+
+```r
+1:3 %&gt;% map(my_func)
+```
+
+```
+## [[1]]
+## [1] "odd"
+## 
+## [[2]]
+## [1] "even"
+## 
+## [[3]]
+## [1] "odd"
+```
+
+---
+
+`map_chr()` will always return a vector of `character`:
+
+
+```r
+map_chr(1:3, my_func)
+```
+
+```
+## [1] "odd"  "even" "odd"
+```
+
+```r
+1:3 %&gt;% map_chr(my_func)
+```
+
+```
+## [1] "odd"  "even" "odd"
+```
+
+But here is the beautiful thing:
+
+
+```r
+my_func_vectorized &lt;- function(vec) map_chr(vec, my_func)
+
+my_func_vectorized(1:3)
+```
+
+```
+## [1] "odd"  "even" "odd"
+```
+
+Look Ma, no loops!
+
+---
+
+### Example2: Complex `mutate()`
+
+Manager: Add me a column, for each OkCupid user, whether he/she's above average height.
+
+
+
+
+```r
+is_above_average_height &lt;- function(sex, height_cm) {
+  if (sex == "m") height_cm &gt; 180 else height_cm &gt; 165
+}
+
+okcupid &lt;- okcupid %&gt;%
+  mutate(is_tall = map2_lgl(sex, height_cm, is_above_average_height))
+
+okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;%
+  group_by(sex) %&gt;% sample_n(3)
+```
+
+```
+## # A tibble: 6 x 3
+## # Groups:   sex [2]
+##   sex   height_cm is_tall
+##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
+## 1 f          160. FALSE  
+## 2 f          173. TRUE   
+## 3 f          170. TRUE   
+## 4 m          190. TRUE   
+## 5 m          173. FALSE  
+## 6 m          188. TRUE
+```
+
+.font80percent[This specific example might not be *that* bad with `ifelse()`, what will you do with 5 variables?]
+
+---
+
+### Example2: You could even supply args
+
+
+```r
+is_above_average_height &lt;- function(sex, height_cm, men_avg, women_avg) {
+  if(sex == "m") height_cm &gt; men_avg else height_cm &gt; women_avg
+}
+
+okcupid &lt;- okcupid %&gt;%
+  mutate(is_tall = map2_lgl(sex, height_cm, is_above_average_height,
+                            men_avg = 180, women_avg = 165))
+
+okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;% group_by(sex) %&gt;% sample_n(3)
+```
+
+```
+## # A tibble: 6 x 3
+## # Groups:   sex [2]
+##   sex   height_cm is_tall
+##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
+## 1 f          183. TRUE   
+## 2 f          163. FALSE  
+## 3 f          160. FALSE  
+## 4 m          175. FALSE  
+## 5 m          175. FALSE  
+## 6 m          163. FALSE
+```
+
+---
+
+### Example2: Anonymous Functions
+
+
+```r
+okcupid &lt;- okcupid %&gt;%
+  mutate(is_tall = map2_lgl(sex, height_cm,
+                            function(x, y) if(x == "m") y &gt; 180 else y &gt; 165))
+```
+
+Heck, you can even:
+
+
+```r
+okcupid &lt;- okcupid %&gt;%
+  mutate(is_tall = map2_lgl(sex, height_cm,
+                            ~{if(.x == "m") .y &gt; 180 else .y &gt; 165}))
+```
+
+.insight[
+💡 There's a thin line between elegance and unreadable undebuggable bragging.
+]
+---
+
+### Example 3: Remember our problem?
+
+For each `essay` column, add a column with its length:
+
+
+```r
+okcupid %&gt;%
+  mutate_at(vars(essay0:essay9), list("len" = str_length)) %&gt;%
+  select(starts_with("essay")) %&gt;%
+  head(3)
+```
+
+```
+## # A tibble: 3 x 20
+##   essay0 essay1 essay2 essay3 essay4 essay5 essay6 essay7 essay8 essay9
+##   &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt; 
+## 1 "abou~ "curr~ "maki~ "the ~ "book~ "food~ duali~ "tryi~ "i am~ "you ~
+## 2 "i am~ "dedi~ "bein~  &lt;NA&gt;  "i am~ "deli~ &lt;NA&gt;    &lt;NA&gt;  "i am~  &lt;NA&gt; 
+## 3 "i'm ~ "i ma~ "impr~ "my l~ "okay~ "move~ &lt;NA&gt;   "view~ "when~ "you ~
+## # ... with 10 more variables: essay0_len &lt;int&gt;, essay1_len &lt;int&gt;,
+## #   essay2_len &lt;int&gt;, essay3_len &lt;int&gt;, essay4_len &lt;int&gt;, essay5_len &lt;int&gt;,
+## #   essay6_len &lt;int&gt;, essay7_len &lt;int&gt;, essay8_len &lt;int&gt;, essay9_len &lt;int&gt;
+```
+
+`purrr` not needed, like I said, you've already been non-looping!
+
+---
+
+### Example 3: Input multiple columns
+
+~~For each user, compute the average `essay` length:~~
+
+Wait, before that, for each user compute the average of the 3 first `essay`s:
+
+
+```r
+mean_length_3essay &lt;- function(x, y, z) {
+  mean(str_length(c(x, y, z)), na.rm = TRUE)
+}
+
+okcupid %&gt;%
+  mutate(essay3_avglen = pmap_dbl(
+    list(essay0, essay1, essay2),
+    mean_length_3essay)) %&gt;%
+  select(essay0:essay2, essay3_avglen) %&gt;%
+  head(2)
+```
+
+```
+## # A tibble: 2 x 4
+##   essay0                essay1                essay2               essay3_avglen
+##   &lt;chr&gt;                 &lt;chr&gt;                 &lt;chr&gt;                        &lt;dbl&gt;
+## 1 "about me:&lt;br /&gt;\n&lt;b~ "currently working a~ "making people laug~          557.
+## 2 "i am a chef: this i~ "dedicating everyday~ "being silly. havin~          280.
+```
+
+---
+
+OK now, for each user, compute the average `essay` length:
+
+
+```r
+mean_length_essay &lt;- function(...) {
+  mean(str_length(c(...)), na.rm = TRUE)
+}
+
+okcupid %&gt;%
+  mutate(essay_avglen = pmap_dbl(
+    select(., starts_with("essay")),
+    mean_length_essay)) %&gt;%
+  select(essay0:essay3, essay_avglen) %&gt;%
+  head(3)
+```
+
+```
+## # A tibble: 3 x 5
+##   essay0           essay1           essay2          essay3          essay_avglen
+##   &lt;chr&gt;            &lt;chr&gt;            &lt;chr&gt;           &lt;chr&gt;                  &lt;dbl&gt;
+## 1 "about me:&lt;br /~ "currently work~ "making people~ "the way i loo~         264.
+## 2 "i am a chef: t~ "dedicating eve~ "being silly. ~  &lt;NA&gt;                   241.
+## 3 "i'm not ashame~ "i make nerdy s~ "improvising i~ "my large jaw ~         612
+```
+
+---
+
+### Example4: Output multiple columns
+
+
+```r
+essay0_features &lt;- function(essay0) {
+ contains_love &lt;- str_detect(essay0, "love")
+ contains_obama &lt;- str_detect(essay0, "obama")
+ contains_rel &lt;- str_detect(essay0, "relationship")
+ list(
+   essay0_love = contains_love,
+   essay0_obama = contains_obama,
+   essay0_ser_rel = contains_rel
+ )
+}
+
+okcupid %&gt;% select(essay0) %&gt;% map_dfc(essay0_features)
+```
+
+```
+## # A tibble: 59,946 x 3
+##    essay0_love essay0_obama essay0_ser_rel
+##    &lt;lgl&gt;       &lt;lgl&gt;        &lt;lgl&gt;         
+##  1 TRUE        FALSE        FALSE         
+##  2 TRUE        FALSE        FALSE         
+##  3 TRUE        FALSE        FALSE         
+##  4 FALSE       FALSE        FALSE         
+##  5 FALSE       FALSE        FALSE         
+##  6 TRUE        FALSE        FALSE         
+##  7 TRUE        FALSE        FALSE         
+##  8 NA          NA           NA            
+##  9 NA          NA           NA            
+## 10 TRUE        FALSE        FALSE         
+## # ... with 59,936 more rows
+```
+
+```r
+# or: map_dfc(okcupid$essay0, essay0_features)
+```
+
+---
+
+Or if you want those features as additional columns, you could bind them with `bind_cols()`:
+
+
+```r
+okcupid %&gt;%
+  bind_cols(
+    okcupid %&gt;% select(essay0) %&gt;% map_dfc(essay0_features)
+  ) %&gt;%
+  select(age, sex, starts_with("essay0"))
+```
+
+```
+## # A tibble: 59,946 x 6
+##      age sex   essay0                    essay0_love essay0_obama essay0_ser_rel
+##    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;                     &lt;lgl&gt;       &lt;lgl&gt;        &lt;lgl&gt;         
+##  1    22 m     "about me:&lt;br /&gt;\n&lt;br /&gt;~ TRUE        FALSE        FALSE         
+##  2    35 m     "i am a chef: this is wh~ TRUE        FALSE        FALSE         
+##  3    38 m     "i'm not ashamed of much~ TRUE        FALSE        FALSE         
+##  4    23 m     "i work in a library and~ FALSE       FALSE        FALSE         
+##  5    29 m     "hey how's it going? cur~ FALSE       FALSE        FALSE         
+##  6    29 m     "i'm an australian livin~ TRUE        FALSE        FALSE         
+##  7    32 f     "life is about the littl~ TRUE        FALSE        FALSE         
+##  8    31 f      &lt;NA&gt;                     NA          NA           NA            
+##  9    24 f      &lt;NA&gt;                     NA          NA           NA            
+## 10    37 m     "my names jake.&lt;br /&gt;\ni~ TRUE        FALSE        FALSE         
+## # ... with 59,936 more rows
+```
+
+---
+
+## Dealing with failure
+
+
+```r
+my_func("a")
+```
+
+&lt;pre style="color: red;"&gt;&lt;code&gt;## Error in x%%2: non-numeric argument to binary operator
+&lt;/code&gt;&lt;/pre&gt;
+
+Silly example, but:
+
+(a) When dealing with big data expect the unexpected (input)
+
+(b) You don't want your app to crash
+
+Look at: `safely()`, `quietly()` and `possibly()` which wrap your code nicely and protect you from the unexpected (crash).
+
+---
+
+### My favorite: `possibly()`
+
+
+```r
+my_func_safe &lt;- possibly(my_func, otherwise = NA)
+
+my_func_safe("a")
+```
+
+```
+## [1] NA
+```
+
+```r
+map_chr(list(1, 2, "3", 4), my_func_safe)
+```
+
+```
+## [1] "odd"  "even" NA     "even"
+```
+
+.insight[
+💡 See a more realistic example when we talk about Web Scraping
+]
+
+.insight[
+💡 What would `map_chr(c(1, 2, "3", 4), my_func_safe)` return?
+]
+---
+
+## `walk()`, `walk2()`, `pwalk()`
+
+You don't always need to *return* anything, you just wanna loop
+
+
+```r
+walk(1:10, ~print("Hey Girrrl"))
+```
+
+```
+## [1] "Hey Girrrl"
+## [1] "Hey Girrrl"
+## [1] "Hey Girrrl"
+## [1] "Hey Girrrl"
+## [1] "Hey Girrrl"
+## [1] "Hey Girrrl"
+## [1] "Hey Girrrl"
+## [1] "Hey Girrrl"
+## [1] "Hey Girrrl"
+## [1] "Hey Girrrl"
+```
+
+---
+
+
+```r
+plot_norm &lt;- function(mu, sd) {
+  plot(density(rnorm(100, mu, sd)),
+       main = str_c("mu: ", mu, ", sd: ", sd))
+}
+
+par(mfcol = c(1, 2))
+walk2(c(0, 10), c(1, 0.1), plot_norm)
+```
+
+&lt;img src="images/Walk2-1.png" width="80%" /&gt;
+
+---
+
+### In the words of Hadley
+
+&gt; Once you master these functions, you’ll find it takes much less time to solve iteration problems.
+
+&lt;br&gt;
+
+&gt; But you should never feel bad about using a for loop instead of a map function.
+
+&lt;br&gt;
+
+&gt; The important thing is that you solve the problem that you’re working on, not write the most concise and elegant code.
+
+&lt;br&gt;
+
+&gt; Some people will tell you to avoid for loops because they are slow. They’re wrong!
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="../libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
