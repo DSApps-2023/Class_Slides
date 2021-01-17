@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Tidy Data Wrangling - Part A</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Giora Simchoni" />
+    <meta name="date" content="2021-01-17" />
+    <head>
+      <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
+      <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
+    </head>
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+## Tidy Data Wrangling - Part A
+
+### Applications of Data Science - Class 2
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### 2021-01-17
+
+---
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;
+  &lt;span&gt;
+    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;/a&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+---
+
+
+
+class: section-slide
+
+# `dplyr`: Basic Data Verbs
+
+---
+
+# Basic Data Verbs
+
+- `filter()` rows based on one or more conditions
+- `mutate()` one or more columns, usually based on existing columns
+- `select()` the column(s) you want
+- `arrange()` rows by one or more columns order
+- `summarize()` or `summarise()` that single quantity off a column
+- `pull()` a column as a vector, don't want it as a column no more
+
+And the much beloved `group_by()`: do *whatever* by groups of one or more variables.
+
+---
+## Read in the data
+
+
+```r
+library(tidyverse)
+
+okcupid &lt;- read_csv("~/okcupid.csv.zip")
+```
+
+.font80percent[Reminder:]
+
+
+```r
+dim(okcupid)
+```
+
+```
+## [1] 59946    31
+```
+
+```r
+colnames(okcupid)
+```
+
+```
+##  [1] "age"         "body_type"   "diet"        "drinks"      "drugs"      
+##  [6] "education"   "essay0"      "essay1"      "essay2"      "essay3"     
+## [11] "essay4"      "essay5"      "essay6"      "essay7"      "essay8"     
+## [16] "essay9"      "ethnicity"   "height"      "income"      "job"        
+## [21] "last_online" "location"    "offspring"   "orientation" "pets"       
+## [26] "religion"    "sex"         "sign"        "smokes"      "speaks"     
+## [31] "status"
+```
+
+---
+
+## `mutate()`
+
+Add a column `height_cm`, the `height` in centimeters:
+
+
+```r
+okcupid &lt;- okcupid %&gt;%
+  mutate(height_cm = 2.54 * height)
+```
+
+.insight[
+💡 if you also load the `magrittr` package you could do:
+
+`okcupid %&lt;&gt;% mutate(height_cm = 2.54 * height)`
+]
+
+---
+
+## `filter()` and `select()`
+
+Filter only women, select only age and height:
+
+
+```r
+okcupid %&gt;%
+  filter(sex == "f") %&gt;%
+  select(age, height)
+```
+
+```
+## # A tibble: 24,117 x 2
+##      age height
+##    &lt;dbl&gt;  &lt;dbl&gt;
+##  1    32     65
+##  2    31     65
+##  3    24     67
+##  4    30     66
+##  5    29     62
+##  6    39     65
+##  7    26     64
+##  8    27     67
+##  9    22     67
+## 10    27     64
+## # ... with 24,107 more rows
+```
+
+---
+
+Same but income over 100K, and select all essay questions:
+
+
+```r
+okcupid %&gt;%
+  filter(sex == "f", income &gt; 100000) %&gt;%
+  select(starts_with("essay"))
+```
+
+```
+## # A tibble: 208 x 10
+##    essay0  essay1  essay2  essay3  essay4  essay5  essay6  essay7  essay8 essay9
+##    &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; 
+##  1 "i lov~ "being~ "scraw~ "my bi~ "music~ "veget~ "makin~ "kicki~ "wow,~ "if y~
+##  2 "i'm s~ "curre~ "eatin~ "my po~ "pride~ "nothi~ "my ne~ "eatin~ "i'm ~ "you ~
+##  3 "welco~ "piano~ "singi~ "my he~ "books~ "touch~ "diffe~  &lt;NA&gt;    &lt;NA&gt;  "you ~
+##  4 "pureb~ "by da~ "being~ "my ha~ "to st~ "- wat~ "my ne~ "i try~ "ummm~ "you ~
+##  5 "i was~ "chick~ "using~ "lips ~ "armag~ "lust,~ "enter~ "makin~  &lt;NA&gt;  "you ~
+##  6 "hello~ "i tal~ "anyth~ "my as~ "book:~ "my gu~ "every~ "i wor~  &lt;NA&gt;  "if y~
+##  7 "life'~ "i'm j~ "getti~ "its b~ "otis ~ "1. so~ "the w~ "oh ma~ "i do~ "if y~
+##  8 "every~ "livin~ "being~ "my ey~ "dubst~ "dirty~ "how t~ "recov~ "i lo~ "you ~
+##  9 "love ~ "daily~ "i am ~ "my sm~ "love ~ "masca~ "if i ~  &lt;NA&gt;   "i am~  &lt;NA&gt; 
+## 10 "&lt;b&gt;ph~ "i am ~ "pissi~ "my sm~ "book:~ "my do~ "who p~ "total~ "my d~ "if y~
+## # ... with 198 more rows
+```
+
+---
+
+Same but using a range of columns:
+
+
+```r
+okcupid %&gt;%
+  filter(sex == "f", income &gt; 100000) %&gt;%
+  select(essay0:essay9)
+```
+
+```
+## # A tibble: 208 x 10
+##    essay0  essay1  essay2  essay3  essay4  essay5  essay6  essay7  essay8 essay9
+##    &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; 
+##  1 "i lov~ "being~ "scraw~ "my bi~ "music~ "veget~ "makin~ "kicki~ "wow,~ "if y~
+##  2 "i'm s~ "curre~ "eatin~ "my po~ "pride~ "nothi~ "my ne~ "eatin~ "i'm ~ "you ~
+##  3 "welco~ "piano~ "singi~ "my he~ "books~ "touch~ "diffe~  &lt;NA&gt;    &lt;NA&gt;  "you ~
+##  4 "pureb~ "by da~ "being~ "my ha~ "to st~ "- wat~ "my ne~ "i try~ "ummm~ "you ~
+##  5 "i was~ "chick~ "using~ "lips ~ "armag~ "lust,~ "enter~ "makin~  &lt;NA&gt;  "you ~
+##  6 "hello~ "i tal~ "anyth~ "my as~ "book:~ "my gu~ "every~ "i wor~  &lt;NA&gt;  "if y~
+##  7 "life'~ "i'm j~ "getti~ "its b~ "otis ~ "1. so~ "the w~ "oh ma~ "i do~ "if y~
+##  8 "every~ "livin~ "being~ "my ey~ "dubst~ "dirty~ "how t~ "recov~ "i lo~ "you ~
+##  9 "love ~ "daily~ "i am ~ "my sm~ "love ~ "masca~ "if i ~  &lt;NA&gt;   "i am~  &lt;NA&gt; 
+## 10 "&lt;b&gt;ph~ "i am ~ "pissi~ "my sm~ "book:~ "my do~ "who p~ "total~ "my d~ "if y~
+## # ... with 198 more rows
+```
+
+.insight[
+💡 Many, many such gifts, see [`tidyselect`](https://tidyselect.r-lib.org/reference/select_helpers.html)
+]
+
+---
+
+## `summarize()`
+
+Find the average height of women
+
+
+```r
+okcupid %&gt;%
+  filter(sex == "f") %&gt;%
+  summarize(avg_height = mean(height_cm, na.rm = TRUE))
+```
+
+```
+## # A tibble: 1 x 1
+##   avg_height
+##        &lt;dbl&gt;
+## 1       165.
+```
+
+Notice we got a `tibble`. We could either `pull` this single number:
+
+
+```r
+okcupid %&gt;%
+  filter(sex == "f") %&gt;%
+  summarize(avg_height = mean(height_cm, na.rm = TRUE)) %&gt;%
+  pull()
+```
+
+```
+## [1] 165.3638
+```
+
+---
+
+Or pull the vector of heights first, then calculate their mean:
+
+
+```r
+okcupid %&gt;%
+  filter(sex == "f") %&gt;%
+  pull(height_cm) %&gt;%
+  mean(na.rm = TRUE)
+```
+
+```
+## [1] 165.3638
+```
+
+Amazingly, this would also work:
+
+
+```r
+mean(pull(filter(okcupid, sex == "f"), height_cm), na.rm = TRUE)
+```
+
+```
+## [1] 165.3638
+```
+
+---
+
+## `group_by()`
+
+But why settle for women only?
+
+
+```r
+okcupid %&gt;%
+  group_by(sex) %&gt;%
+  summarize(avg_height = mean(height_cm, na.rm = TRUE))
+```
+
+```
+## # A tibble: 2 x 2
+##   sex   avg_height
+##   &lt;chr&gt;      &lt;dbl&gt;
+## 1 f           165.
+## 2 m           179.
+```
+
+And you might want to consider `rename()`ing sex!
+
+
+```r
+okcupid %&gt;%
+  group_by(sex) %&gt;%
+  summarize(avg_height = mean(height_cm, na.rm = TRUE)) %&gt;%
+  rename(gender = sex)
+```
+
+---
+
+Group by multiple variables, get more summaries, arrange by descending average height:
+
+
+```r
+okcupid %&gt;%
+  group_by(sex, status) %&gt;%
+  summarize(avg_height = mean(height_cm, na.rm = TRUE),
+            med_height = median(height_cm, na.rm = TRUE),
+            n = n()) %&gt;%
+  arrange(-med_height)
+```
+
+```
+## # A tibble: 10 x 5
+## # Groups:   sex [2]
+##    sex   status         avg_height med_height     n
+##    &lt;chr&gt; &lt;chr&gt;               &lt;dbl&gt;      &lt;dbl&gt; &lt;int&gt;
+##  1 m     available            179.       180.  1209
+##  2 m     married              179.       180.   175
+##  3 m     seeing someone       179.       178.  1061
+##  4 m     single               179.       178. 33378
+##  5 m     unknown              177.       177.     6
+##  6 f     available            166.       166.   656
+##  7 f     married              166.       165.   135
+##  8 f     seeing someone       165.       165.  1003
+##  9 f     single               165.       165. 22319
+## 10 f     unknown              161.       159.     4
+```
+
+---
+
+## Pro tip: `count()`
+
+When all you want is, well, `count`, no need to `group_by`:
+
+
+```r
+okcupid %&gt;% count(body_type, sort = TRUE)
+```
+
+```
+## # A tibble: 13 x 2
+##    body_type          n
+##    &lt;chr&gt;          &lt;int&gt;
+##  1 average        14652
+##  2 fit            12711
+##  3 athletic       11819
+##  4 &lt;NA&gt;            5296
+##  5 thin            4711
+##  6 curvy           3924
+##  7 a little extra  2629
+##  8 skinny          1777
+##  9 full figured    1009
+## 10 overweight       444
+## 11 jacked           421
+## 12 used up          355
+## 13 rather not say   198
+```
+
+---
+
+## Pro tip: `add_count()`
+
+Add count without first creating an initial table, joining etc.:
+
+
+```r
+okcupid %&gt;%
+  mutate(id = row_number()) %&gt;%
+  select(id, body_type, sex) %&gt;%
+  add_count(body_type, name = "n_bt") %&gt;%
+  filter(n_bt &gt; 10000) %&gt;%
+  head(5)
+```
+
+```
+## # A tibble: 5 x 4
+##      id body_type sex    n_bt
+##   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;
+## 1     2 average   m     14652
+## 2     5 athletic  m     11819
+## 3     6 average   m     14652
+## 4     7 fit       f     12711
+## 5     8 average   f     14652
+```
+
+---
+
+class: section-slide
+
+# Beyond Basics
+
+---
+
+## A simple answer to the religion question?
+
+
+```r
+okcupid %&gt;% count(religion)
+```
+
+```
+## # A tibble: 46 x 2
+##    religion                                      n
+##    &lt;chr&gt;                                     &lt;int&gt;
+##  1 agnosticism                                2724
+##  2 agnosticism and laughing about it          2496
+##  3 agnosticism and somewhat serious about it   642
+##  4 agnosticism and very serious about it       314
+##  5 agnosticism but not too serious about it   2636
+##  6 atheism                                    2175
+##  7 atheism and laughing about it              2074
+##  8 atheism and somewhat serious about it       848
+##  9 atheism and very serious about it           570
+## 10 atheism but not too serious about it       1318
+## # ... with 36 more rows
+```
+
+---
+
+## Recoding with `case_when()`
+
+
+```r
+okcupid &lt;- okcupid %&gt;% mutate(religion2 = case_when(
+  str_detect(religion, "agnosticism") | str_detect(religion, "atheism") ~ "atheist",
+  str_detect(religion, "buddhism") ~ "buddhist",
+  str_detect(religion, "christianity") | str_detect(religion, "catholicism") ~ "christian",
+  str_detect(religion, "judaism") ~ "jewish",
+  str_detect(religion, "hinduism") ~ "hindu",
+  str_detect(religion, "islam") ~ "muslim",
+  TRUE ~ "NA"))
+
+okcupid %&gt;% count(religion2, sort = TRUE)
+```
+
+```
+## # A tibble: 7 x 2
+##   religion2     n
+##   &lt;chr&gt;     &lt;int&gt;
+## 1 NA        27969
+## 2 atheist   15797
+## 3 christian 10545
+## 4 jewish     3098
+## 5 buddhist   1948
+## 6 hindu       450
+## 7 muslim      139
+```
+
+---
+
+### Getting extreme observations with `top_n()` and `top_frac()`
+
+
+```r
+okcupid %&gt;%
+  select(sex, age) %&gt;%
+  group_by(sex) %&gt;%
+  top_n(3, age)
+```
+
+```
+## # A tibble: 33 x 2
+## # Groups:   sex [2]
+##    sex     age
+##    &lt;chr&gt; &lt;dbl&gt;
+##  1 f       110
+##  2 m        69
+##  3 m        69
+##  4 m        69
+##  5 m        69
+##  6 m        69
+##  7 m        69
+##  8 m        69
+##  9 m        69
+## 10 m        69
+## # ... with 23 more rows
+```
+
+---
+
+Unfortunately `top_n` does not deal with ties, could use `slice` for that:
+
+
+```r
+okcupid %&gt;%
+  select(sex, age) %&gt;%
+  group_by(sex) %&gt;%
+  top_n(3, age) %&gt;%
+  slice(1:3)
+```
+
+```
+## # A tibble: 6 x 2
+## # Groups:   sex [2]
+##   sex     age
+##   &lt;chr&gt; &lt;dbl&gt;
+## 1 f       110
+## 2 f        69
+## 3 f        69
+## 4 m        69
+## 5 m        69
+## 6 m        69
+```
+
+.insight[
+💡 Or use `rank()`
+]
+
+---
+
+### Remove duplicates with `distinct()`
+
+
+```r
+okcupid %&gt;%
+  filter(diet == "kosher") %&gt;%
+  distinct(body_type, drugs)
+```
+
+```
+## # A tibble: 7 x 2
+##   body_type      drugs
+##   &lt;chr&gt;          &lt;chr&gt;
+## 1 fit            &lt;NA&gt; 
+## 2 &lt;NA&gt;           never
+## 3 used up        &lt;NA&gt; 
+## 4 fit            never
+## 5 skinny         never
+## 6 a little extra never
+## 7 jacked         never
+```
+
+.insight[
+💡 `distinct()` is much more powerful than `unique()`, see `?distinct`.
+
+To count number of distinct obs look at `n_distinct()`
+]
+
+---
+
+### The `_at()`, `_if()` and `_all()` families
+
+Many of the verbs we've seen come with these suffixes:
+
+
+```r
+okcupid %&gt;%
+  select_if(is.numeric)
+```
+
+```
+## # A tibble: 59,946 x 4
+##      age height income height_cm
+##    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;
+##  1    22     75     -1      190.
+##  2    35     70  80000      178.
+##  3    38     68     -1      173.
+##  4    23     71  20000      180.
+##  5    29     66     -1      168.
+##  6    29     67     -1      170.
+##  7    32     65     -1      165.
+##  8    31     65     -1      165.
+##  9    24     67     -1      170.
+## 10    37     65     -1      165.
+## # ... with 59,936 more rows
+```
+
+Do you see something strange?
+
+---
+
+Take care of those missing observations for me without breaking the pipe:
+
+
+```r
+okcupid %&gt;%
+  na_if(-1) %&gt;%
+  select_if(is.numeric)
+```
+
+```
+## # A tibble: 59,946 x 4
+##      age height income height_cm
+##    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;
+##  1    22     75     NA      190.
+##  2    35     70  80000      178.
+##  3    38     68     NA      173.
+##  4    23     71  20000      180.
+##  5    29     66     NA      168.
+##  6    29     67     NA      170.
+##  7    32     65     NA      165.
+##  8    31     65     NA      165.
+##  9    24     67     NA      170.
+## 10    37     65     NA      165.
+## # ... with 59,936 more rows
+```
+
+---
+
+Transform all my numeric columns with `log`:
+
+
+```r
+okcupid %&gt;%
+  na_if(-1) %&gt;%
+  select_if(is.numeric) %&gt;%
+  mutate_all(log)
+```
+
+```
+## # A tibble: 59,946 x 4
+##      age height income height_cm
+##    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;
+##  1  3.09   4.32  NA         5.25
+##  2  3.56   4.25  11.3       5.18
+##  3  3.64   4.22  NA         5.15
+##  4  3.14   4.26   9.90      5.19
+##  5  3.37   4.19  NA         5.12
+##  6  3.37   4.20  NA         5.14
+##  7  3.47   4.17  NA         5.11
+##  8  3.43   4.17  NA         5.11
+##  9  3.18   4.20  NA         5.14
+## 10  3.61   4.17  NA         5.11
+## # ... with 59,936 more rows
+```
+
+.insight[
+💡 Also see `mutate_if()`
+]
+
+---
+
+Same but add `sqrt` and keep original columns:
+
+
+```r
+okcupid %&gt;%
+  na_if(-1) %&gt;%
+  select_if(is.numeric) %&gt;%
+  mutate_all(list(logged = log, sqrted = sqrt))
+```
+
+```
+## # A tibble: 59,946 x 12
+##      age height income height_cm age_logged height_logged income_logged
+##    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;
+##  1    22     75     NA      190.       3.09          4.32         NA   
+##  2    35     70  80000      178.       3.56          4.25         11.3 
+##  3    38     68     NA      173.       3.64          4.22         NA   
+##  4    23     71  20000      180.       3.14          4.26          9.90
+##  5    29     66     NA      168.       3.37          4.19         NA   
+##  6    29     67     NA      170.       3.37          4.20         NA   
+##  7    32     65     NA      165.       3.47          4.17         NA   
+##  8    31     65     NA      165.       3.43          4.17         NA   
+##  9    24     67     NA      170.       3.18          4.20         NA   
+## 10    37     65     NA      165.       3.61          4.17         NA   
+## # ... with 59,936 more rows, and 5 more variables: height_cm_logged &lt;dbl&gt;,
+## #   age_sqrted &lt;dbl&gt;, height_sqrted &lt;dbl&gt;, income_sqrted &lt;dbl&gt;,
+## #   height_cm_sqrted &lt;dbl&gt;
+```
+
+---
+
+Same but take care of zeros under `log`:
+
+
+```r
+okcupid %&gt;%
+  na_if(-1) %&gt;%
+  select_if(is.numeric) %&gt;%
+  mutate_all(list(logged = function(x) log(x + 1), sqrted = sqrt))
+```
+
+```
+## # A tibble: 59,946 x 12
+##      age height income height_cm age_logged height_logged income_logged
+##    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;
+##  1    22     75     NA      190.       3.14          4.33         NA   
+##  2    35     70  80000      178.       3.58          4.26         11.3 
+##  3    38     68     NA      173.       3.66          4.23         NA   
+##  4    23     71  20000      180.       3.18          4.28          9.90
+##  5    29     66     NA      168.       3.40          4.20         NA   
+##  6    29     67     NA      170.       3.40          4.22         NA   
+##  7    32     65     NA      165.       3.50          4.19         NA   
+##  8    31     65     NA      165.       3.47          4.19         NA   
+##  9    24     67     NA      170.       3.22          4.22         NA   
+## 10    37     65     NA      165.       3.64          4.19         NA   
+## # ... with 59,936 more rows, and 5 more variables: height_cm_logged &lt;dbl&gt;,
+## #   age_sqrted &lt;dbl&gt;, height_sqrted &lt;dbl&gt;, income_sqrted &lt;dbl&gt;,
+## #   height_cm_sqrted &lt;dbl&gt;
+```
+
+---
+
+Same but select only non-negative columns:
+
+
+```r
+is_non_negative &lt;- function(x) is.numeric(x) &amp;&amp; (is.na(x) || x &gt;= 0)
+
+okcupid %&gt;%
+  na_if(-1) %&gt;%
+  select_if(is_non_negative) %&gt;%
+  mutate_all(list(logged = function(x) log(x + 1), sqrted = sqrt))
+```
+
+```
+## # A tibble: 59,946 x 12
+##      age height income height_cm age_logged height_logged income_logged
+##    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;
+##  1    22     75     NA      190.       3.14          4.33         NA   
+##  2    35     70  80000      178.       3.58          4.26         11.3 
+##  3    38     68     NA      173.       3.66          4.23         NA   
+##  4    23     71  20000      180.       3.18          4.28          9.90
+##  5    29     66     NA      168.       3.40          4.20         NA   
+##  6    29     67     NA      170.       3.40          4.22         NA   
+##  7    32     65     NA      165.       3.50          4.19         NA   
+##  8    31     65     NA      165.       3.47          4.19         NA   
+##  9    24     67     NA      170.       3.22          4.22         NA   
+## 10    37     65     NA      165.       3.64          4.19         NA   
+## # ... with 59,936 more rows, and 5 more variables: height_cm_logged &lt;dbl&gt;,
+## #   age_sqrted &lt;dbl&gt;, height_sqrted &lt;dbl&gt;, income_sqrted &lt;dbl&gt;,
+## #   height_cm_sqrted &lt;dbl&gt;
+```
+
+---
+
+On second thought `log` would probably be appropriate just for `income` and `height_cm` (not really, just for demo):
+
+
+```r
+okcupid %&gt;%
+  na_if(-1) %&gt;%
+  mutate_at(c("income", "height_cm"),
+            list(logged = function(x) log(x + 1), sqrted = sqrt)) %&gt;%
+  select(ends_with("logged"), ends_with("sqrted"))
+```
+
+```
+## # A tibble: 59,946 x 4
+##    income_logged height_cm_logged income_sqrted height_cm_sqrted
+##            &lt;dbl&gt;            &lt;dbl&gt;         &lt;dbl&gt;            &lt;dbl&gt;
+##  1         NA                5.25           NA              13.8
+##  2         11.3              5.19          283.             13.3
+##  3         NA                5.16           NA              13.1
+##  4          9.90             5.20          141.             13.4
+##  5         NA                5.13           NA              12.9
+##  6         NA                5.14           NA              13.0
+##  7         NA                5.11           NA              12.8
+##  8         NA                5.11           NA              12.8
+##  9         NA                5.14           NA              13.0
+## 10         NA                5.11           NA              12.8
+## # ... with 59,936 more rows
+```
+
+---
+
+## Dealing with `NA`s
+
+You've already seen `na_if()`. We could simply, always, keep those `NA`s in income:
+
+
+```r
+okcupid &lt;- okcupid %&gt;%
+  mutate(income = ifelse(income == -1, NA, income))
+```
+
+Or:
+
+
+```r
+okcupid &lt;- okcupid %&gt;%
+  mutate(income = na_if(income, -1))
+```
+
+Dropping `NA`s with, well, `drop_na()`:
+
+
+```r
+okcupid_no_nas &lt;- okcupid %&gt;% drop_na()
+```
+
+---
+
+Replacing `NA`s with, well, `replace_na()`:
+
+
+```r
+okcupid_back_to_minus1 &lt;- okcupid %&gt;% replace_na(list(income = -1))
+```
+
+Could be useful for imputing `NA`s, say the median:
+
+
+```r
+okcupid_na_income_imputed &lt;- okcupid %&gt;%
+  replace_na(list(income = median(.$income, na.rm = TRUE)))
+```
+
+---
+
+### Sampling with `sample_n()` and `sample_frac()`
+
+
+```r
+okcupid %&gt;% select(drugs, age, income, sex) %&gt;%
+  group_by(drugs) %&gt;%
+  sample_n(3, replace = TRUE)
+```
+
+```
+## # A tibble: 12 x 4
+## # Groups:   drugs [4]
+##    drugs       age income sex  
+##    &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;
+##  1 never        22     NA m    
+##  2 never        36     NA f    
+##  3 never        52     NA m    
+##  4 often        30  30000 f    
+##  5 often        21     NA m    
+##  6 often        26     NA m    
+##  7 sometimes    33     NA m    
+##  8 sometimes    32  50000 m    
+##  9 sometimes    28     NA f    
+## 10 &lt;NA&gt;         35     NA f    
+## 11 &lt;NA&gt;         27     NA m    
+## 12 &lt;NA&gt;         29     NA m
+```
+
+---
+class: section-slide
+
+# Put it in a function
+
+---
+
+### Compose a function which would accept an unquoted variable
+
+
+```r
+count_var_for_gender &lt;- function(var, gender) {
+  okcupid %&gt;%
+    filter(sex == gender) %&gt;%
+    count({{var}}, sort = TRUE)
+}
+
+count_var_for_gender(body_type, "f") %&gt;% head(9)
+```
+
+```
+## # A tibble: 9 x 2
+##   body_type          n
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 average         5620
+## 2 fit             4431
+## 3 curvy           3811
+## 4 &lt;NA&gt;            2703
+## 5 thin            2469
+## 6 athletic        2309
+## 7 full figured     870
+## 8 a little extra   821
+## 9 skinny           601
+```
+
+---
+### Making a `data.frame` function pipeable
+
+
+```r
+transform_all_my_numerics &lt;- function(df, transformation) {
+  df %&gt;% mutate_if(is.numeric, transformation)
+}
+
+okcupid %&gt;%
+  transform_all_my_numerics(log) %&gt;%
+  select_if(is.numeric)
+```
+
+```
+## # A tibble: 59,946 x 4
+##      age height income height_cm
+##    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;
+##  1  3.09   4.32  NA         5.25
+##  2  3.56   4.25  11.3       5.18
+##  3  3.64   4.22  NA         5.15
+##  4  3.14   4.26   9.90      5.19
+##  5  3.37   4.19  NA         5.12
+##  6  3.37   4.20  NA         5.14
+##  7  3.47   4.17  NA         5.11
+##  8  3.43   4.17  NA         5.11
+##  9  3.18   4.20  NA         5.14
+## 10  3.61   4.17  NA         5.11
+## # ... with 59,936 more rows
+```
+
+---
+
+### `invisible()`
+
+If your function does not return a `data.frame` make it!
+
+
+```r
+print_n_rows &lt;- function(df) {
+  cat("number of rows: ", nrow(df), "\n")
+  invisible(df)
+}
+
+okcupid %&gt;%
+  filter(sex == "m", body_type %in% c("fit", "thin", "skinny")) %&gt;%
+  print_n_rows() %&gt;%
+  summarise(mean_height = mean(height_cm, trim = 0.025))
+```
+
+```
+## number of rows:  11698
+```
+
+```
+## # A tibble: 1 x 1
+##   mean_height
+##         &lt;dbl&gt;
+## 1        179.
+```
+
+---
+
+Or even better:
+
+
+```r
+filter_and_print &lt;- function(df, ...) {
+  df_filtered &lt;- df %&gt;% filter(...)
+  cat("number of rows: ", nrow(df_filtered), "\n")
+  df_filtered
+}
+
+okcupid %&gt;%
+  filter_and_print(sex == "m", body_type %in% c("fit", "thin", "skinny")) %&gt;%
+  summarise(mean_height = mean(height_cm, trim = 0.025))
+```
+
+```
+## number of rows:  11698
+```
+
+```
+## # A tibble: 1 x 1
+##   mean_height
+##         &lt;dbl&gt;
+## 1        179.
+```
+
+
+.insight[
+💡 for better living see `glue::glue("number of rows: {nrow(df)}")`
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="../libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
