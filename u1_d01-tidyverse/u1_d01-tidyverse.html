@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>The Tidyverse</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Giora Simchoni" />
+    <meta name="date" content="2021-01-17" />
+    <head>
+      <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
+      <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
+    </head>
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+## The Tidyverse
+
+### Applications of Data Science - Class 1
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### 2021-01-17
+
+---
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;
+  &lt;span&gt;
+    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;/a&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+---
+
+
+
+class: section-slide
+
+# I don't need to know about wrangling data, I get by.
+
+---
+
+# So, what's wrong with Excel?
+
+(MS Excel is one amazing software. But it lacks:)
+
+- Structure (or rather, structure is up to the user)
+- Types to variables
+- Automization (you could learn VBA Excel, but the horror)
+- Reproducibility
+- Open Source
+- Extensibility
+- Speed and Scale
+- Modeling (there *is* a t-test, but the horror)
+
+[MS Excel might be the most dangerous software on the planet](https://www.forbes.com/sites/timworstall/2013/02/13/microsofts-excel-might-be-the-most-dangerous-software-on-the-planet/#667084f5633d) (Tim Worstall, Forbes)
+
+---
+
+# So, what's wrong with base R?
+
+(Base R is one amazing software. But it lacks:)
+
+- Consistency:
+  - Function names
+  - Function arguments names
+  - Function arguments order
+  - Function return types (sometimes the same function!)
+- Meaningful errors and warnings
+- Good choices of default values to arguments
+- Speed
+- Good and easy visualizations
+- One other thing
+
+---
+
+### (In) Consistency - Example 1: Strings
+
+.font80percent[
+
+```r
+# split a string by pattern: strsplit(string, pattern)
+strsplit("Who dis?", " ")
+```
+
+```
+## [[1]]
+## [1] "Who"  "dis?"
+```
+
+
+```r
+# find if a pattern exists in a string: grepl(pattern, string)
+grepl("di", "Who dis?")
+```
+
+```
+## [1] TRUE
+```
+
+
+```r
+# substitute a pattern in a string: sub(pattern, replace, string)
+sub("di", "thi", "Who dis?")
+```
+
+```
+## [1] "Who this?"
+```
+
+
+```r
+# length of a string: nchar(string); length of object: length(obj)
+c(nchar("Who dis?"), length("Who dis?"))
+```
+
+```
+## [1] 8 1
+```
+]
+
+---
+
+### (In) Consistency - Example 2: Models
+
+
+```r
+n &lt;- 10000
+x1 &lt;- runif(n)
+x2 &lt;- runif(n)
+t &lt;- 1 + 2 * x1 + 3 * x2
+y &lt;- rbinom(n, 1, 1 / (1 + exp(-t)))
+```
+
+
+```r
+glm(y ~ x1 + x2, family = "binomial")
+```
+
+
+```r
+glmnet(as.matrix(cbind(x1, x2)), as.factor(y), family = "binomial")
+```
+
+
+```r
+randomForest(as.factor(y) ~ x1 + x2)
+```
+
+
+
+```r
+gbm(y ~ x1 + x2, data = data.frame(x1 = x1, x2 = x2, y = y))
+```
+
+😱
+
+---
+
+### (Un) Meaningful Errors - Example
+
+
+```r
+df &lt;- data.frame(Education = 1:5, Ethnicity = c(2, 4, 5, 2, 1))
+table(df$Eduction, df$Ethnicity)
+```
+
+&lt;pre style="color: red;"&gt;&lt;code&gt;## Error in table(df$Eduction, df$Ethnicity): all arguments must have the same
+length
+&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+### (Bad) Default Values - Example
+
+![](images/bad_args_table.png)
+
+
+```r
+# In R 3.6... in R 4.0 this was fixed!
+df &lt;- read.csv("../data/bad_args_test.csv")
+df$col3
+```
+
+
+```
+## [1] a b c d
+## Levels: a b c d
+```
+
+
+```r
+df &lt;- read.csv("../data/bad_args_test.csv", stringsAsFactors = FALSE)
+df$col3
+```
+
+```
+## [1] "a" "b" "c" "d"
+```
+
+---
+
+### (No) Speed - Example
+
+
+```r
+file_path &lt;- "../data/mediocre_file.csv"
+df &lt;- read.csv(file_path)
+dim(df)
+```
+
+```
+## [1] 9180   14
+```
+
+
+```r
+library(microbenchmark)
+
+microbenchmark(
+  read_base = read.csv(file_path),
+  read_tidy = read_csv(file_path, col_types = cols()),
+  read_dt = data.table::fread(file_path),
+  times = 10)
+```
+
+```
+## Unit: milliseconds
+##       expr     min      lq     mean   median      uq     max neval
+##  read_base 36.1814 38.1108 39.64073 39.82625 40.3441 43.9001    10
+##  read_tidy 21.1448 21.3808 26.21267 23.54210 24.8280 54.7686    10
+##    read_dt  7.6557  8.1275 13.17762  8.54930  9.6413 53.8746    10
+```
+
+---
+class: section-slide
+
+# Detour: The OKCupid Dataset
+
+---
+
+## The OKCupid Dataset
+
+- ~60K active OKCupid users scraped on June 2012
+- 35K Male, 25K Female (less awareness for non-binary back then)
+- Answers to questions like:
+  - Body Type
+  - Diet
+  - Substance Abuse
+  - Education
+  - Do you like pets?
+  - Open questions, e.g. "On a typical Friday night I am..."
+  - And the more boring demographic details like age, height, location, sign, religion etc.
+- See [here](https://github.com/rudeboybert/JSE_OkCupid/blob/master/okcupid_codebook.txt) for the full codebook
+
+---
+class: section-slide
+
+# End of Detour
+
+---
+
+### (Not) Good Vizualizations - Example
+
+
+
+.font80percent[
+
+```r
+okcupid &lt;- read_csv("~/okcupid.csv.zip", col_types = cols())
+okcupid$income[okcupid$income == -1] &lt;- NA
+okcupid$height_cm &lt;- okcupid$height * 2.54
+```
+
+
+```r
+plot(okcupid$height_cm, log10(okcupid$income + 1),
+     col = c("red", "green")[as.factor(okcupid$sex)])
+```
+
+&lt;img src="images/Viz-Base-1.png" width="40%" /&gt;
+]
+
+---
+
+
+```r
+ggplot(okcupid, aes(height_cm, log10(income + 1), color = sex)) +
+  geom_point()
+```
+
+&lt;pre style="color: red;"&gt;&lt;code&gt;## Warning: Removed 48442 rows containing missing values (geom_point).
+&lt;/code&gt;&lt;/pre&gt;&lt;img src="images/Viz-Tidy-1.png" width="50%" /&gt;
+
+---
+
+## One other thing
+
+Manager: "Give me the average income of women respondents above age 30 grouped by sexual orientation!"
+
+You:
+
+
+```r
+mean_bi &lt;- mean(okcupid$income[okcupid$sex == "f" &amp; okcupid$age &gt; 30 &amp; okcupid$orientation == "bisexual"], na.rm = TRUE)
+mean_gay &lt;- mean(okcupid$income[okcupid$sex == "f" &amp; okcupid$age &gt; 30 &amp; okcupid$orientation == "gay"], na.rm = TRUE)
+mean_straight &lt;- mean(okcupid$income[okcupid$sex == "f" &amp; okcupid$age &gt; 30 &amp; okcupid$orientation == "straight"], na.rm = TRUE)
+
+data.frame(orientation = c("bisexual", "gay", "straight"),
+           income_mean = c(mean_bi, mean_gay, mean_straight))
+```
+
+```
+##   orientation income_mean
+## 1    bisexual   133421.05
+## 2         gay    86489.36
+## 3    straight    85219.74
+```
+
+---
+
+Or the slightly better you:
+
+
+```r
+mean_income_function &lt;- function(orientation) {
+  mean(okcupid$income[okcupid$sex == "f" &amp; okcupid$age &gt; 30 &amp; okcupid$orientation == orientation], na.rm = TRUE)
+}
+
+mean_bi &lt;- mean_income_function("bisexual")
+mean_gay &lt;- mean_income_function("gay")
+mean_straight &lt;- mean_income_function("straight")
+
+data.frame(orientation = c("bisexual", "gay", "straight"),
+           income_mean = c(mean_bi, mean_gay, mean_straight))
+```
+
+```
+##   orientation income_mean
+## 1    bisexual   133421.05
+## 2         gay    86489.36
+## 3    straight    85219.74
+```
+
+---
+
+Or the even better you:
+
+
+```r
+orientations &lt;- c("bisexual", "gay", "straight")
+income_means &lt;- numeric(3)
+
+for (i in seq_along(orientations)) {
+  income_means[i] &lt;- mean_income_function(orientations[i])
+}
+
+data.frame(orientation = orientations, income_mean = income_means)
+```
+
+```
+##   orientation income_mean
+## 1    bisexual   133421.05
+## 2         gay    86489.36
+## 3    straight    85219.74
+```
+
+---
+
+Or the best you:
+
+
+```r
+okcupid_females_over30 &lt;- with(okcupid, okcupid[sex == "f" &amp; age &gt; 30, ])
+aggregate(okcupid_females_over30$income,
+          by = list(orientation = okcupid_females_over30$orientation),
+          FUN = mean, na.rm = TRUE)
+```
+
+```
+##   orientation         x
+## 1    bisexual 133421.05
+## 2         gay  86489.36
+## 3    straight  85219.74
+```
+
+&lt;br&gt;
+
+Manager: "What? Why would bisexual women have a higher income than straight or gay women? Could you add the median, trimmed mean, standard error and n?"
+
+You: 😱
+
+---
+class: section-slide
+
+# The Tidyverse
+
+---
+
+## What *is* The Tidyverse?
+
+&gt; The [tidyverse](https://www.tidyverse.org/) is an opinionated collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structures.
+
+- `tibble`: the `data.frame` re-imagined
+- `readr`: importing/exporting (mostly rectangular) data for humans
+- `dplyr` + `tidyr`: a grammar of data manipulation
+- `purrr`: functional programming in R
+- `stringr`: string manipulation
+- `ggplot2`: a grammar of graphics
+
+---
+
+The above can all be installed and loaded under the `tidyverse` package:
+
+
+```r
+library(tidyverse)
+```
+
+Many more:
+- `lubridate`: manipulating dates
+- `tidymodels`: tidy modeling/statistics
+- `rvest`: web scraping
+- `tidytext`: tidy text analysis (life saver)
+- `tidygraph` + `ggraph`: manipulating and plotting networks
+- `glue`: print like a boss
+- countless `gg` extensions (`ggmosaic`, `ggbeeswarm`, `gganimate`, `ggridges` etc.)
+
+---
+
+# What's so great about the Tidyverse?
+
+- Tidy Data
+- Consistentcy (in function names, args, return types, documentation)
+- The Pipe
+- Speed (C++ under the hood)
+- `ggplot2`
+- The Community
+
+---
+
+## Tidy Data
+
+- Each variable must have its own column.
+- Each observation must have its own row.
+- Each value must have its own cell.
+
+&lt;br&gt;
+
+&lt;img src="images/tidy_data.png" style="width: 90%" /&gt;
+
+---
+
+### Which one of these datasets is tidy? (I)
+
+
+
+
+```r
+table1
+```
+
+```
+## # A tibble: 315 x 4
+##    religion      yob n_straight n_total
+##    &lt;chr&gt;       &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;
+##  1 atheist      1950         26      29
+##  2 buddhist     1950          6       6
+##  3 christian    1950         28      32
+##  4 hindu        1950          0       0
+##  5 jewish       1950         21      24
+##  6 muslim       1950          0       0
+##  7 unspecified  1950         71      76
+##  8 atheist      1951         31      33
+##  9 buddhist     1951         11      11
+## 10 christian    1951         23      24
+## # ... with 305 more rows
+```
+
+---
+
+### Which one of these datasets is tidy? (II)
+
+
+```r
+table2
+```
+
+```
+## # A tibble: 630 x 4
+##    religion    yob type         n
+##    &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt;
+##  1 atheist    1950 straight    26
+##  2 atheist    1950 total       29
+##  3 buddhist   1950 straight     6
+##  4 buddhist   1950 total        6
+##  5 christian  1950 straight    28
+##  6 christian  1950 total       32
+##  7 hindu      1950 straight     0
+##  8 hindu      1950 total        0
+##  9 jewish     1950 straight    21
+## 10 jewish     1950 total       24
+## # ... with 620 more rows
+```
+
+---
+
+### Which one of these datasets is tidy? (III)
+
+
+```r
+table3
+```
+
+```
+## # A tibble: 315 x 3
+##    religion      yob pct_straight
+##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;       
+##  1 atheist      1950 26/29       
+##  2 buddhist     1950 6/6         
+##  3 christian    1950 28/32       
+##  4 hindu        1950 0/0         
+##  5 jewish       1950 21/24       
+##  6 muslim       1950 0/0         
+##  7 unspecified  1950 71/76       
+##  8 atheist      1951 31/33       
+##  9 buddhist     1951 11/11       
+## 10 christian    1951 23/24       
+## # ... with 305 more rows
+```
+
+---
+
+### Which one of these datasets is tidy? (IV)
+
+
+```r
+table4
+```
+
+```
+## # A tibble: 7 x 91
+##   religion n_total_1950 n_total_1951 n_total_1952 n_total_1953 n_total_1954
+##   &lt;chr&gt;           &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;
+## 1 atheist            29           33           34           37           40
+## 2 buddhist            6           11           14           16           11
+## 3 christi~           32           24           37           47           37
+## 4 hindu               0            0            0            1            1
+## 5 jewish             24           29           27           23           25
+## 6 muslim              0            0            0            0            0
+## 7 unspeci~           76           79           83           97           83
+## # ... with 85 more variables: n_total_1955 &lt;dbl&gt;, n_total_1956 &lt;dbl&gt;,
+## #   n_total_1957 &lt;dbl&gt;, n_total_1958 &lt;dbl&gt;, n_total_1959 &lt;dbl&gt;,
+## #   n_total_1960 &lt;dbl&gt;, n_total_1961 &lt;dbl&gt;, n_total_1962 &lt;dbl&gt;,
+## #   n_total_1963 &lt;dbl&gt;, n_total_1964 &lt;dbl&gt;, n_total_1965 &lt;dbl&gt;,
+## #   n_total_1966 &lt;dbl&gt;, n_total_1967 &lt;dbl&gt;, n_total_1968 &lt;dbl&gt;,
+## #   n_total_1969 &lt;dbl&gt;, n_total_1970 &lt;dbl&gt;, n_total_1971 &lt;dbl&gt;,
+## #   n_total_1972 &lt;dbl&gt;, n_total_1973 &lt;dbl&gt;, n_total_1974 &lt;dbl&gt;,
+## #   n_total_1975 &lt;dbl&gt;, n_total_1976 &lt;dbl&gt;, n_total_1977 &lt;dbl&gt;,
+## #   n_total_1978 &lt;dbl&gt;, n_total_1979 &lt;dbl&gt;, n_total_1980 &lt;dbl&gt;,
+## #   n_total_1981 &lt;dbl&gt;, n_total_1982 &lt;dbl&gt;, n_total_1983 &lt;dbl&gt;,
+## #   n_total_1984 &lt;dbl&gt;, n_total_1985 &lt;dbl&gt;, n_total_1986 &lt;dbl&gt;,
+## #   n_total_1987 &lt;dbl&gt;, n_total_1988 &lt;dbl&gt;, n_total_1989 &lt;dbl&gt;,
+## #   n_total_1990 &lt;dbl&gt;, n_total_1991 &lt;dbl&gt;, n_total_1992 &lt;dbl&gt;,
+## #   n_total_1993 &lt;dbl&gt;, n_total_1994 &lt;dbl&gt;, n_straight_1950 &lt;dbl&gt;,
+## #   n_straight_1951 &lt;dbl&gt;, n_straight_1952 &lt;dbl&gt;, n_straight_1953 &lt;dbl&gt;,
+## #   n_straight_1954 &lt;dbl&gt;, n_straight_1955 &lt;dbl&gt;, n_straight_1956 &lt;dbl&gt;,
+## #   n_straight_1957 &lt;dbl&gt;, n_straight_1958 &lt;dbl&gt;, n_straight_1959 &lt;dbl&gt;,
+## #   n_straight_1960 &lt;dbl&gt;, n_straight_1961 &lt;dbl&gt;, n_straight_1962 &lt;dbl&gt;,
+## #   n_straight_1963 &lt;dbl&gt;, n_straight_1964 &lt;dbl&gt;, n_straight_1965 &lt;dbl&gt;,
+## #   n_straight_1966 &lt;dbl&gt;, n_straight_1967 &lt;dbl&gt;, n_straight_1968 &lt;dbl&gt;,
+## #   n_straight_1969 &lt;dbl&gt;, n_straight_1970 &lt;dbl&gt;, n_straight_1971 &lt;dbl&gt;,
+## #   n_straight_1972 &lt;dbl&gt;, n_straight_1973 &lt;dbl&gt;, n_straight_1974 &lt;dbl&gt;,
+## #   n_straight_1975 &lt;dbl&gt;, n_straight_1976 &lt;dbl&gt;, n_straight_1977 &lt;dbl&gt;,
+## #   n_straight_1978 &lt;dbl&gt;, n_straight_1979 &lt;dbl&gt;, n_straight_1980 &lt;dbl&gt;,
+## #   n_straight_1981 &lt;dbl&gt;, n_straight_1982 &lt;dbl&gt;, n_straight_1983 &lt;dbl&gt;,
+## #   n_straight_1984 &lt;dbl&gt;, n_straight_1985 &lt;dbl&gt;, n_straight_1986 &lt;dbl&gt;,
+## #   n_straight_1987 &lt;dbl&gt;, n_straight_1988 &lt;dbl&gt;, n_straight_1989 &lt;dbl&gt;,
+## #   n_straight_1990 &lt;dbl&gt;, n_straight_1991 &lt;dbl&gt;, n_straight_1992 &lt;dbl&gt;,
+## #   n_straight_1993 &lt;dbl&gt;, n_straight_1994 &lt;dbl&gt;
+```
+
+---
+
+### Why Tidy?
+
+&gt; Happy families are all alike; every unhappy family is unhappy in its own way. (Leo Tolstoy)
+
+&lt;br&gt;
+
+&gt; It allows R’s vectorised nature to shine. (Hadley Wickham)
+
+---
+
+### A Tidy dataset will be much easier to transform
+
+
+```r
+table1$pct_straight = table1$n_straight / table1$n_total
+table1
+```
+
+```
+## # A tibble: 315 x 5
+##    religion      yob n_straight n_total pct_straight
+##    &lt;chr&gt;       &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;
+##  1 atheist      1950         26      29        0.897
+##  2 buddhist     1950          6       6        1    
+##  3 christian    1950         28      32        0.875
+##  4 hindu        1950          0       0      NaN    
+##  5 jewish       1950         21      24        0.875
+##  6 muslim       1950          0       0      NaN    
+##  7 unspecified  1950         71      76        0.934
+##  8 atheist      1951         31      33        0.939
+##  9 buddhist     1951         11      11        1    
+## 10 christian    1951         23      24        0.958
+## # ... with 305 more rows
+```
+
+---
+
+### A Tidy dataset will be much easier to plot
+
+
+```r
+ggplot(table1, aes(x = yob, y = pct_straight, color = religion)) +
+  geom_smooth(method = "loess", formula = y ~ x, se = FALSE)
+```
+
+&lt;img src="images/Table1-Plot-1.png" width="50%" /&gt;
+
+---
+class: section-slide
+
+# Detour: The `tibble`
+
+---
+
+### The `tibble`: the `data.frame` re-imagined
+
+- Prints nicer:
+
+
+```r
+tib1 &lt;- tibble(day = lubridate::today() + runif(1e3) * 30,
+               type = sample(letters, 1e3, replace = TRUE),
+               quantity = sample(seq(0, 100, 10), 1e3, replace = TRUE))
+tib1
+```
+
+```
+## # A tibble: 1,000 x 3
+##    day        type  quantity
+##    &lt;date&gt;     &lt;chr&gt;    &lt;dbl&gt;
+##  1 2021-01-20 r           80
+##  2 2021-01-24 t           10
+##  3 2021-01-27 m           20
+##  4 2021-02-11 m           40
+##  5 2021-02-13 h           10
+##  6 2021-02-01 d           30
+##  7 2021-01-28 b           30
+##  8 2021-02-08 y          100
+##  9 2021-01-21 d           20
+## 10 2021-02-05 f           60
+## # ... with 990 more rows
+```
+
+---
+
+
+```r
+df1 &lt;- data.frame(day = lubridate::today() + runif(1e3) * 30,
+                  type = sample(letters, 1e3, replace = TRUE),
+                  quantity = sample(seq(0, 100, 10), 1e3, replace = TRUE))
+df1
+```
+
+```
+##             day type quantity
+## 1    2021-02-06    a       50
+## 2    2021-02-07    t        0
+## 3    2021-02-05    m      100
+## 4    2021-01-28    a       40
+## 5    2021-02-11    w       20
+## 6    2021-02-09    r        0
+## 7    2021-01-28    u       10
+## 8    2021-02-04    o       90
+## 9    2021-01-30    i       50
+## 10   2021-01-18    t       30
+## 11   2021-02-14    k       90
+## 12   2021-02-12    s       60
+## 13   2021-02-13    r       10
+## 14   2021-02-09    k       40
+## 15   2021-02-13    v       70
+## 16   2021-02-02    o       30
+## 17   2021-01-25    y      100
+## 18   2021-01-28    a       60
+## 19   2021-02-01    y       10
+## 20   2021-01-29    b       80
+## 21   2021-02-03    x       60
+## 22   2021-01-20    t       60
+## 23   2021-01-19    h       70
+## 24   2021-02-10    w       50
+## 25   2021-02-04    q       80
+## 26   2021-02-08    n       10
+## 27   2021-01-23    v       50
+## 28   2021-02-07    u       20
+## 29   2021-02-03    a       50
+## 30   2021-02-01    a       90
+## 31   2021-01-23    o       90
+## 32   2021-02-05    q        0
+## 33   2021-01-26    u       80
+## 34   2021-01-23    r       80
+## 35   2021-01-30    u       90
+## 36   2021-01-27    p       30
+## 37   2021-02-08    p       30
+## 38   2021-02-02    k       70
+## 39   2021-02-01    n       30
+## 40   2021-02-11    r       50
+## 41   2021-02-09    r       60
+## 42   2021-02-12    l       80
+## 43   2021-01-21    x       30
+## 44   2021-01-18    i       70
+## 45   2021-02-11    v       30
+## 46   2021-02-07    g       20
+## 47   2021-01-26    s       50
+## 48   2021-01-21    u       10
+## 49   2021-02-10    j       30
+## 50   2021-02-09    g       70
+## 51   2021-02-06    p       30
+## 52   2021-01-28    o       10
+## 53   2021-02-03    z       30
+## 54   2021-01-17    l       40
+## 55   2021-02-14    x       10
+## 56   2021-01-30    n      100
+## 57   2021-02-09    u       70
+## 58   2021-02-05    u       20
+## 59   2021-01-29    k       10
+## 60   2021-02-12    d       80
+## 61   2021-01-23    r       30
+## 62   2021-01-19    x       50
+## 63   2021-02-05    i       80
+## 64   2021-02-03    n       10
+## 65   2021-01-25    g       80
+## 66   2021-02-02    u       90
+## 67   2021-02-08    r        0
+## 68   2021-01-17    b       10
+## 69   2021-02-04    k       20
+## 70   2021-02-15    r       90
+## 71   2021-01-20    s      100
+## 72   2021-02-11    k       50
+## 73   2021-01-23    p      100
+## 74   2021-02-13    g       10
+## 75   2021-01-26    s       50
+## 76   2021-02-08    l        0
+## 77   2021-01-24    d        0
+## 78   2021-01-17    y      100
+## 79   2021-01-29    p       80
+## 80   2021-02-13    o      100
+## 81   2021-01-25    g       10
+## 82   2021-01-26    a       80
+## 83   2021-02-05    v       60
+## 84   2021-02-04    z       30
+## 85   2021-01-25    o       30
+## 86   2021-02-03    h       40
+## 87   2021-01-29    q       80
+## 88   2021-01-29    j      100
+## 89   2021-01-21    e       70
+## 90   2021-01-19    y        0
+## 91   2021-02-12    g       30
+## 92   2021-01-18    g       90
+## 93   2021-02-09    n       30
+## 94   2021-01-19    r       80
+## 95   2021-02-15    i       50
+## 96   2021-02-08    f       70
+## 97   2021-01-18    b       20
+## 98   2021-01-23    h       30
+## 99   2021-01-25    e        0
+## 100  2021-01-19    n       40
+## 101  2021-02-12    m       60
+## 102  2021-01-29    k       90
+## 103  2021-02-07    s       70
+## 104  2021-02-14    n        0
+## 105  2021-02-14    c       60
+## 106  2021-01-29    b       50
+## 107  2021-02-03    s       70
+## 108  2021-01-23    u       70
+## 109  2021-02-11    g       80
+## 110  2021-02-15    i       20
+## 111  2021-02-11    b       60
+## 112  2021-01-21    o       80
+## 113  2021-02-07    p      100
+## 114  2021-01-19    f       60
+## 115  2021-01-31    a       50
+## 116  2021-01-21    b       80
+## 117  2021-01-29    t        0
+## 118  2021-01-18    t       30
+## 119  2021-02-09    g       70
+## 120  2021-02-12    u      100
+## 121  2021-01-19    n       90
+## 122  2021-02-08    p       60
+## 123  2021-01-19    j       50
+## 124  2021-01-19    n       50
+## 125  2021-02-03    r       60
+## 126  2021-02-13    w       40
+## 127  2021-02-06    b       30
+## 128  2021-02-06    m       70
+## 129  2021-02-13    d       60
+## 130  2021-02-07    g       50
+## 131  2021-01-28    i       70
+## 132  2021-02-04    c       30
+## 133  2021-02-14    o       10
+## 134  2021-02-12    p        0
+## 135  2021-01-28    l       90
+## 136  2021-02-13    s       50
+## 137  2021-01-31    b       20
+## 138  2021-01-18    i        0
+## 139  2021-02-01    m       40
+## 140  2021-01-20    i        0
+## 141  2021-02-05    b       60
+## 142  2021-02-11    b       60
+## 143  2021-01-26    d      100
+## 144  2021-01-26    t       80
+## 145  2021-02-13    a       30
+## 146  2021-01-20    x       60
+## 147  2021-02-05    l       60
+## 148  2021-01-21    u       30
+## 149  2021-02-10    l       50
+## 150  2021-02-09    j      100
+## 151  2021-02-09    m       70
+## 152  2021-01-22    r       90
+## 153  2021-01-17    s       60
+## 154  2021-01-31    h       70
+## 155  2021-02-01    i       20
+## 156  2021-01-31    q      100
+## 157  2021-02-12    z       90
+## 158  2021-02-15    f       90
+## 159  2021-02-01    p        0
+## 160  2021-01-19    o       40
+## 161  2021-01-22    a       20
+## 162  2021-02-10    q       90
+## 163  2021-01-23    b        0
+## 164  2021-01-28    z       70
+## 165  2021-02-08    a       20
+## 166  2021-01-23    c       90
+## 167  2021-01-17    o       60
+## 168  2021-02-01    l       30
+## 169  2021-02-03    v       20
+## 170  2021-02-06    d        0
+## 171  2021-02-10    l        0
+## 172  2021-02-02    h       60
+## 173  2021-02-09    f        0
+## 174  2021-02-09    a        0
+## 175  2021-01-23    p       50
+## 176  2021-02-14    s       80
+## 177  2021-02-09    y       30
+## 178  2021-02-02    p       30
+## 179  2021-02-12    u        0
+## 180  2021-02-10    v       10
+## 181  2021-02-12    p       20
+## 182  2021-01-24    z      100
+## 183  2021-01-25    j       60
+## 184  2021-01-20    v       50
+## 185  2021-01-21    l       90
+## 186  2021-01-20    r       40
+## 187  2021-01-30    b       30
+## 188  2021-01-20    t       90
+## 189  2021-01-29    l       10
+## 190  2021-01-23    a       70
+## 191  2021-01-22    m       50
+## 192  2021-02-03    e       40
+## 193  2021-01-20    x        0
+## 194  2021-02-03    h       80
+## 195  2021-02-15    y        0
+## 196  2021-02-08    l       80
+## 197  2021-01-26    z       60
+## 198  2021-01-22    a       80
+## 199  2021-01-18    x       60
+## 200  2021-01-30    u       70
+## 201  2021-02-05    d       50
+## 202  2021-02-10    l       60
+## 203  2021-01-24    w       50
+## 204  2021-02-03    g       10
+## 205  2021-02-04    n       60
+## 206  2021-01-24    f        0
+## 207  2021-02-12    a       30
+## 208  2021-01-18    z       20
+## 209  2021-02-07    k       40
+## 210  2021-02-06    s       40
+## 211  2021-01-30    y       90
+## 212  2021-02-14    l       50
+## 213  2021-02-14    l       20
+## 214  2021-02-01    u       20
+## 215  2021-02-01    f       80
+## 216  2021-02-14    i       60
+## 217  2021-02-03    n       10
+## 218  2021-01-19    o       20
+## 219  2021-01-31    q      100
+## 220  2021-02-13    z       10
+## 221  2021-02-01    p       90
+## 222  2021-02-02    a       90
+## 223  2021-01-29    n       30
+## 224  2021-01-23    j        0
+## 225  2021-02-01    c       20
+## 226  2021-01-25    e       30
+## 227  2021-01-27    h      100
+## 228  2021-01-28    p       60
+## 229  2021-02-05    c       80
+## 230  2021-02-02    c      100
+## 231  2021-02-15    z        0
+## 232  2021-01-20    t       70
+## 233  2021-02-12    z      100
+## 234  2021-02-06    u       60
+## 235  2021-01-25    y       30
+## 236  2021-01-29    g       20
+## 237  2021-02-03    j      100
+## 238  2021-01-19    n       80
+## 239  2021-01-25    m        0
+## 240  2021-02-04    b       90
+## 241  2021-02-04    i       10
+## 242  2021-02-02    z      100
+## 243  2021-01-25    m       50
+## 244  2021-02-14    m       90
+## 245  2021-01-25    r       40
+## 246  2021-01-20    p       30
+## 247  2021-02-01    p        0
+## 248  2021-02-08    c      100
+## 249  2021-02-12    k       40
+## 250  2021-01-28    k       70
+## 251  2021-01-26    l       70
+## 252  2021-01-23    z       60
+## 253  2021-01-23    t       50
+## 254  2021-01-30    f       10
+## 255  2021-02-05    w       70
+## 256  2021-01-31    k       80
+## 257  2021-02-12    g       80
+## 258  2021-01-20    y       90
+## 259  2021-02-08    z       40
+## 260  2021-01-18    o       80
+## 261  2021-01-31    r       20
+## 262  2021-02-11    x       30
+## 263  2021-02-04    x      100
+## 264  2021-01-23    x       10
+## 265  2021-01-18    n       10
+## 266  2021-01-25    o       10
+## 267  2021-02-12    p       80
+## 268  2021-01-22    g       80
+## 269  2021-02-02    o       30
+## 270  2021-01-24    u       30
+## 271  2021-02-11    v       50
+## 272  2021-02-02    b       10
+## 273  2021-01-22    r       70
+## 274  2021-02-15    u       30
+## 275  2021-01-18    s       90
+## 276  2021-01-18    a       80
+## 277  2021-01-18    l       60
+## 278  2021-01-21    j       50
+## 279  2021-02-07    n       20
+## 280  2021-01-24    p       10
+## 281  2021-02-11    l       50
+## 282  2021-01-23    x       30
+## 283  2021-01-30    p       80
+## 284  2021-02-02    v       90
+## 285  2021-01-26    a       60
+## 286  2021-02-06    d       70
+## 287  2021-02-13    p       20
+## 288  2021-02-09    u       50
+## 289  2021-01-23    w        0
+## 290  2021-01-17    b       40
+## 291  2021-01-17    a       40
+## 292  2021-01-25    s       20
+## 293  2021-02-01    z       50
+## 294  2021-01-17    g       30
+## 295  2021-02-01    z       40
+## 296  2021-01-19    s        0
+## 297  2021-02-10    h       70
+## 298  2021-02-11    b       60
+## 299  2021-01-25    q       40
+## 300  2021-01-22    f       20
+## 301  2021-01-29    e       20
+## 302  2021-02-05    d       20
+## 303  2021-02-10    d        0
+## 304  2021-01-20    f       80
+## 305  2021-02-02    m       50
+## 306  2021-02-02    s       70
+## 307  2021-02-13    q       40
+## 308  2021-01-22    p      100
+## 309  2021-02-06    w       70
+## 310  2021-01-30    p        0
+## 311  2021-01-20    j       20
+## 312  2021-02-12    q       70
+## 313  2021-02-12    i       90
+## 314  2021-02-09    z       80
+## 315  2021-02-10    q       10
+## 316  2021-01-21    o      100
+## 317  2021-01-23    g       10
+## 318  2021-02-06    c       20
+## 319  2021-01-17    i        0
+## 320  2021-02-07    g       80
+## 321  2021-01-31    x        0
+## 322  2021-02-11    w       20
+## 323  2021-01-26    u        0
+## 324  2021-01-28    l       40
+## 325  2021-01-20    h       80
+## 326  2021-01-29    n       50
+## 327  2021-02-06    z       60
+## 328  2021-02-03    r      100
+## 329  2021-02-12    j       30
+## 330  2021-01-25    i       50
+## 331  2021-02-09    h       70
+## 332  2021-02-12    o       70
+## 333  2021-01-22    r       10
+## 334  2021-01-23    r       60
+## 335  2021-01-26    y       70
+## 336  2021-02-15    q       70
+## 337  2021-01-18    y       80
+## 338  2021-02-05    w       60
+## 339  2021-01-25    c       10
+## 340  2021-01-23    f       80
+## 341  2021-01-26    b      100
+## 342  2021-01-31    k       60
+## 343  2021-02-02    n       50
+## 344  2021-01-20    a       80
+## 345  2021-02-07    d       70
+## 346  2021-01-31    m       60
+## 347  2021-01-21    d       20
+## 348  2021-01-22    g       80
+## 349  2021-02-11    i       30
+## 350  2021-02-02    v       30
+## 351  2021-01-20    m       70
+## 352  2021-01-28    r       40
+## 353  2021-02-06    a       90
+## 354  2021-02-04    m       20
+## 355  2021-02-06    k       50
+## 356  2021-02-11    s      100
+## 357  2021-02-10    l       90
+## 358  2021-02-05    a       90
+## 359  2021-01-25    j       60
+## 360  2021-01-30    s       50
+## 361  2021-01-20    l       30
+## 362  2021-01-23    b      100
+## 363  2021-01-19    y       70
+## 364  2021-01-29    u       80
+## 365  2021-02-12    l       40
+## 366  2021-02-15    l       10
+## 367  2021-01-30    t      100
+## 368  2021-01-18    m       50
+## 369  2021-02-10    b       90
+## 370  2021-01-27    u      100
+## 371  2021-02-09    q        0
+## 372  2021-02-08    g      100
+## 373  2021-01-31    o       10
+## 374  2021-01-21    a       40
+## 375  2021-02-03    w       50
+## 376  2021-01-30    f       90
+## 377  2021-02-15    g       10
+## 378  2021-01-30    l       60
+## 379  2021-01-18    z      100
+## 380  2021-01-18    x       50
+## 381  2021-02-12    b       80
+## 382  2021-01-19    q       40
+## 383  2021-02-01    w       40
+## 384  2021-01-20    g      100
+## 385  2021-02-13    f       90
+## 386  2021-01-19    p       10
+## 387  2021-02-13    l       20
+## 388  2021-02-07    v       30
+## 389  2021-01-20    a       30
+## 390  2021-02-13    s       70
+## 391  2021-01-21    e       30
+## 392  2021-01-26    z       70
+## 393  2021-01-26    a       80
+## 394  2021-01-17    f       50
+## 395  2021-01-26    u       10
+## 396  2021-01-17    r       70
+## 397  2021-02-13    x       90
+## 398  2021-02-03    d       20
+## 399  2021-02-14    p        0
+## 400  2021-01-17    x       80
+## 401  2021-01-23    z       20
+## 402  2021-01-23    f       90
+## 403  2021-01-22    m       50
+## 404  2021-02-08    a       60
+## 405  2021-02-07    q       70
+## 406  2021-02-04    x       70
+## 407  2021-01-23    e       10
+## 408  2021-02-14    v       40
+## 409  2021-02-12    k       90
+## 410  2021-01-26    m       40
+## 411  2021-01-17    x      100
+## 412  2021-01-17    e       30
+## 413  2021-02-05    t        0
+## 414  2021-02-08    s      100
+## 415  2021-01-30    b        0
+## 416  2021-02-01    y        0
+## 417  2021-02-14    k       80
+## 418  2021-01-30    a       90
+## 419  2021-02-07    l       80
+## 420  2021-01-20    a       30
+## 421  2021-02-04    k       20
+## 422  2021-01-23    d       60
+## 423  2021-02-03    j       80
+## 424  2021-01-22    l        0
+## 425  2021-01-24    c       50
+## 426  2021-02-03    h       20
+## 427  2021-01-27    g       50
+## 428  2021-01-19    r       60
+## 429  2021-01-22    w       90
+## 430  2021-02-09    c       30
+## 431  2021-01-24    j       10
+## 432  2021-02-08    m       90
+## 433  2021-02-05    v      100
+## 434  2021-01-24    y       30
+## 435  2021-01-20    z       10
+## 436  2021-01-28    d       90
+## 437  2021-02-05    q        0
+## 438  2021-01-21    o        0
+## 439  2021-01-24    o        0
+## 440  2021-01-31    r       40
+## 441  2021-01-26    p      100
+## 442  2021-02-15    y       20
+## 443  2021-01-19    v       10
+## 444  2021-02-07    t       30
+## 445  2021-01-18    c       40
+## 446  2021-01-28    t      100
+## 447  2021-01-29    b      100
+## 448  2021-02-07    b       70
+## 449  2021-02-13    h       90
+## 450  2021-01-28    o       20
+## 451  2021-02-03    a       20
+## 452  2021-02-11    p        0
+## 453  2021-02-04    y       20
+## 454  2021-01-21    u       90
+## 455  2021-02-09    k       10
+## 456  2021-01-23    a       40
+## 457  2021-01-18    h       70
+## 458  2021-02-14    e       50
+## 459  2021-02-09    n      100
+## 460  2021-01-21    z       60
+## 461  2021-02-11    n       30
+## 462  2021-01-23    p       70
+## 463  2021-01-27    s       40
+## 464  2021-01-28    j       80
+## 465  2021-01-20    m       50
+## 466  2021-01-23    v       80
+## 467  2021-01-30    m       30
+## 468  2021-01-23    m       80
+## 469  2021-01-25    b       70
+## 470  2021-01-19    c       90
+## 471  2021-02-01    e       30
+## 472  2021-01-31    x       70
+## 473  2021-02-02    g       30
+## 474  2021-02-05    v      100
+## 475  2021-02-11    b       10
+## 476  2021-02-01    u       30
+## 477  2021-02-12    y       70
+## 478  2021-01-30    w       90
+## 479  2021-02-15    r       70
+## 480  2021-02-10    u       20
+## 481  2021-02-12    w       80
+## 482  2021-01-23    q       10
+## 483  2021-02-15    t       70
+## 484  2021-01-27    q       70
+## 485  2021-02-03    t       30
+## 486  2021-02-09    a       80
+## 487  2021-02-10    j       30
+## 488  2021-02-12    z       40
+## 489  2021-01-20    n      100
+## 490  2021-01-23    d       10
+## 491  2021-01-30    p        0
+## 492  2021-02-09    s       30
+## 493  2021-01-17    n       10
+## 494  2021-01-31    g        0
+## 495  2021-02-06    i       10
+## 496  2021-02-03    f       30
+## 497  2021-02-14    q       90
+## 498  2021-02-09    x       20
+## 499  2021-01-26    g       60
+## 500  2021-02-09    u       40
+## 501  2021-02-04    k       70
+## 502  2021-02-02    v      100
+## 503  2021-02-08    b        0
+## 504  2021-02-01    o       40
+## 505  2021-01-27    y       70
+## 506  2021-01-17    o      100
+## 507  2021-01-24    y       40
+## 508  2021-01-25    o       70
+## 509  2021-01-23    h       90
+## 510  2021-02-09    d       80
+## 511  2021-02-13    w      100
+## 512  2021-02-10    y       80
+## 513  2021-01-17    k       80
+## 514  2021-02-01    i       80
+## 515  2021-01-23    z       60
+## 516  2021-01-25    e        0
+## 517  2021-01-27    a       80
+## 518  2021-01-21    f        0
+## 519  2021-01-21    j        0
+## 520  2021-02-09    i       70
+## 521  2021-02-14    u      100
+## 522  2021-01-31    i       90
+## 523  2021-01-22    v       20
+## 524  2021-02-06    d       20
+## 525  2021-02-05    v       40
+## 526  2021-01-30    i      100
+## 527  2021-01-21    x       90
+## 528  2021-01-26    f       60
+## 529  2021-01-24    k       90
+## 530  2021-02-07    u       10
+## 531  2021-02-04    i       50
+## 532  2021-02-12    b       50
+## 533  2021-02-12    g      100
+## 534  2021-01-28    s       50
+## 535  2021-01-30    i       70
+## 536  2021-01-31    t       60
+## 537  2021-02-07    k       10
+## 538  2021-01-30    x       50
+## 539  2021-02-13    s       30
+## 540  2021-02-04    y        0
+## 541  2021-02-08    d       70
+## 542  2021-01-29    o        0
+## 543  2021-02-13    m       70
+## 544  2021-01-19    a       10
+## 545  2021-01-29    j       90
+## 546  2021-01-31    n       80
+## 547  2021-02-01    u        0
+## 548  2021-02-11    z       40
+## 549  2021-01-22    e       10
+## 550  2021-01-25    s       80
+## 551  2021-01-21    d       20
+## 552  2021-02-04    l       70
+## 553  2021-01-22    h       30
+## 554  2021-01-28    t       70
+## 555  2021-01-28    f       30
+## 556  2021-02-01    v       60
+## 557  2021-02-09    y       30
+## 558  2021-01-22    l       90
+## 559  2021-01-25    y       60
+## 560  2021-01-20    g      100
+## 561  2021-02-05    x       60
+## 562  2021-01-24    f       60
+## 563  2021-02-03    c       70
+## 564  2021-01-24    h       70
+## 565  2021-02-10    y       40
+## 566  2021-01-20    u       40
+## 567  2021-01-18    c       10
+## 568  2021-02-03    h       20
+## 569  2021-02-08    x       70
+## 570  2021-02-01    w       30
+## 571  2021-01-31    s       10
+## 572  2021-01-25    p       50
+## 573  2021-02-04    v       20
+## 574  2021-02-01    v      100
+## 575  2021-01-27    l      100
+## 576  2021-01-28    e        0
+## 577  2021-02-04    i      100
+## 578  2021-01-27    i       10
+## 579  2021-01-18    c       10
+## 580  2021-01-20    c       60
+## 581  2021-01-20    w       30
+## 582  2021-01-22    l       40
+## 583  2021-01-23    g       40
+## 584  2021-01-22    r       80
+## 585  2021-01-21    u       50
+## 586  2021-01-22    z      100
+## 587  2021-01-23    z       60
+## 588  2021-02-13    p        0
+## 589  2021-02-14    z        0
+## 590  2021-01-30    m       70
+## 591  2021-01-20    l        0
+## 592  2021-01-23    c      100
+## 593  2021-01-26    o       70
+## 594  2021-02-11    z       60
+## 595  2021-01-18    s       70
+## 596  2021-02-11    h        0
+## 597  2021-01-20    g       80
+## 598  2021-02-06    a        0
+## 599  2021-02-09    n       90
+## 600  2021-01-27    c        0
+## 601  2021-02-01    v       90
+## 602  2021-02-09    b      100
+## 603  2021-02-13    x        0
+## 604  2021-02-15    p       30
+## 605  2021-01-25    q       10
+## 606  2021-01-27    m        0
+## 607  2021-01-22    m       20
+## 608  2021-01-23    m       50
+## 609  2021-02-04    g       80
+## 610  2021-01-25    e      100
+## 611  2021-02-04    e       80
+## 612  2021-02-10    m       30
+## 613  2021-02-14    p        0
+## 614  2021-02-08    s       90
+## 615  2021-01-22    c       70
+## 616  2021-02-03    y       60
+## 617  2021-01-26    k       10
+## 618  2021-02-13    t       90
+## 619  2021-01-23    w       30
+## 620  2021-01-17    w        0
+## 621  2021-02-07    v        0
+## 622  2021-02-06    o       30
+## 623  2021-02-11    m        0
+## 624  2021-01-25    u       60
+## 625  2021-02-05    u       80
+## 626  2021-02-08    v      100
+## 627  2021-01-28    l       60
+## 628  2021-01-17    g       90
+## 629  2021-01-27    w       50
+## 630  2021-02-08    r        0
+## 631  2021-02-05    d       90
+## 632  2021-02-07    w      100
+## 633  2021-01-24    x       10
+## 634  2021-02-05    o       30
+## 635  2021-02-09    u       10
+## 636  2021-01-18    f       90
+## 637  2021-01-31    l       80
+## 638  2021-02-04    w       50
+## 639  2021-01-27    s       70
+## 640  2021-01-17    p       10
+## 641  2021-02-08    e        0
+## 642  2021-01-17    g       40
+## 643  2021-01-21    h       20
+## 644  2021-01-17    h      100
+## 645  2021-02-07    y      100
+## 646  2021-01-20    f        0
+## 647  2021-02-14    n       20
+## 648  2021-02-11    w       30
+## 649  2021-01-23    t       70
+## 650  2021-02-04    h       20
+## 651  2021-01-23    q       20
+## 652  2021-02-07    m        0
+## 653  2021-01-25    o       40
+## 654  2021-01-23    u      100
+## 655  2021-01-27    n      100
+## 656  2021-01-18    f       80
+## 657  2021-01-17    s       30
+## 658  2021-01-28    g       40
+## 659  2021-02-14    m       50
+## 660  2021-01-21    i      100
+## 661  2021-02-14    t       30
+## 662  2021-02-07    q       10
+## 663  2021-01-26    h       80
+## 664  2021-01-19    h       30
+## 665  2021-02-02    w        0
+## 666  2021-01-30    u       60
+## 667  2021-02-14    t       40
+## 668  2021-01-28    i        0
+## 669  2021-02-07    c       40
+## 670  2021-02-14    g       50
+## 671  2021-01-19    e       90
+## 672  2021-02-01    r       60
+## 673  2021-02-05    o       70
+## 674  2021-01-29    k       30
+## 675  2021-01-17    r       70
+## 676  2021-01-30    g       10
+## 677  2021-02-15    n       90
+## 678  2021-01-22    a      100
+## 679  2021-01-29    b       10
+## 680  2021-02-12    v       60
+## 681  2021-02-10    w       50
+## 682  2021-02-08    r       20
+## 683  2021-02-12    v       80
+## 684  2021-02-02    g       60
+## 685  2021-01-23    p       70
+## 686  2021-02-12    w       40
+## 687  2021-02-11    u       70
+## 688  2021-02-07    u       60
+## 689  2021-02-03    v      100
+## 690  2021-02-11    i       30
+## 691  2021-01-27    w       50
+## 692  2021-01-25    z        0
+## 693  2021-01-30    i       30
+## 694  2021-01-31    i        0
+## 695  2021-02-03    l       50
+## 696  2021-02-02    b       10
+## 697  2021-01-19    t      100
+## 698  2021-01-22    f      100
+## 699  2021-02-13    b       10
+## 700  2021-01-22    g       60
+## 701  2021-02-09    h       40
+## 702  2021-02-01    p        0
+## 703  2021-01-31    g      100
+## 704  2021-01-19    a       90
+## 705  2021-01-24    n       60
+## 706  2021-02-04    z       60
+## 707  2021-02-06    c       40
+## 708  2021-01-29    v       30
+## 709  2021-01-23    z       50
+## 710  2021-02-14    p       10
+## 711  2021-02-10    q       50
+## 712  2021-02-15    h       60
+## 713  2021-01-28    z      100
+## 714  2021-02-03    g       90
+## 715  2021-02-15    s        0
+## 716  2021-01-27    u       40
+## 717  2021-01-21    s       30
+## 718  2021-02-14    u       90
+## 719  2021-02-06    n       10
+## 720  2021-02-07    j       90
+## 721  2021-01-19    x       90
+## 722  2021-01-28    y      100
+## 723  2021-01-27    h      100
+## 724  2021-02-05    r      100
+## 725  2021-01-29    l      100
+## 726  2021-01-29    f       80
+## 727  2021-01-28    e       30
+## 728  2021-01-25    w        0
+## 729  2021-01-28    a       60
+## 730  2021-02-07    s       90
+## 731  2021-02-08    b      100
+## 732  2021-02-15    r       70
+## 733  2021-02-08    b       50
+## 734  2021-01-30    b       50
+## 735  2021-01-29    r       20
+## 736  2021-02-08    n       70
+## 737  2021-01-26    w       90
+## 738  2021-02-03    b       40
+## 739  2021-02-11    e        0
+## 740  2021-02-14    n       70
+## 741  2021-02-01    t      100
+## 742  2021-02-14    m       40
+## 743  2021-01-23    m        0
+## 744  2021-01-26    v      100
+## 745  2021-02-14    c       80
+## 746  2021-02-07    n       30
+## 747  2021-02-05    n        0
+## 748  2021-01-18    o      100
+## 749  2021-02-01    t       40
+## 750  2021-01-21    l      100
+## 751  2021-02-01    g       10
+## 752  2021-02-02    w       10
+## 753  2021-02-11    b        0
+## 754  2021-02-08    d       20
+## 755  2021-02-02    x       90
+## 756  2021-02-09    e       80
+## 757  2021-01-22    z       10
+## 758  2021-01-23    e       40
+## 759  2021-02-08    r       60
+## 760  2021-01-18    e       90
+## 761  2021-02-14    u      100
+## 762  2021-01-30    p       60
+## 763  2021-02-09    y       20
+## 764  2021-01-29    j       40
+## 765  2021-02-04    r       70
+## 766  2021-02-02    c       70
+## 767  2021-02-07    t       60
+## 768  2021-01-21    k       90
+## 769  2021-02-01    l        0
+## 770  2021-01-24    w       20
+## 771  2021-02-11    l       90
+## 772  2021-02-05    s       70
+## 773  2021-02-08    s       10
+## 774  2021-02-04    y       10
+## 775  2021-01-22    h       60
+## 776  2021-02-01    c       60
+## 777  2021-02-11    o      100
+## 778  2021-01-23    j       50
+## 779  2021-01-19    p       90
+## 780  2021-02-03    v       20
+## 781  2021-02-10    k       50
+## 782  2021-02-02    m       10
+## 783  2021-01-31    z       80
+## 784  2021-02-15    a       20
+## 785  2021-01-27    i      100
+## 786  2021-01-23    k        0
+## 787  2021-02-12    w       40
+## 788  2021-02-15    m       90
+## 789  2021-02-06    s       10
+## 790  2021-01-27    c       70
+## 791  2021-02-15    s       10
+## 792  2021-02-13    y      100
+## 793  2021-02-02    t       90
+## 794  2021-01-20    f       50
+## 795  2021-02-15    g       50
+## 796  2021-01-30    c       40
+## 797  2021-02-02    q       80
+## 798  2021-01-20    k       20
+## 799  2021-01-26    y       80
+## 800  2021-02-06    r       80
+## 801  2021-01-24    j        0
+## 802  2021-02-08    l       70
+## 803  2021-01-29    s       30
+## 804  2021-01-27    o       60
+## 805  2021-01-30    n       60
+## 806  2021-02-15    s       20
+## 807  2021-02-08    z       70
+## 808  2021-02-05    d       50
+## 809  2021-02-08    b       80
+## 810  2021-02-11    o       20
+## 811  2021-01-18    j      100
+## 812  2021-02-03    o       20
+## 813  2021-01-19    h       10
+## 814  2021-01-18    k       60
+## 815  2021-02-03    o       60
+## 816  2021-01-28    p       30
+## 817  2021-01-21    q       80
+## 818  2021-01-18    v       90
+## 819  2021-02-04    y       50
+## 820  2021-02-05    b       80
+## 821  2021-02-07    x       50
+## 822  2021-02-08    y       10
+## 823  2021-02-14    l       60
+## 824  2021-01-27    x       90
+## 825  2021-02-13    b       20
+## 826  2021-02-04    b       40
+## 827  2021-02-09    b       40
+## 828  2021-01-20    j       80
+## 829  2021-02-14    e       80
+## 830  2021-01-21    b        0
+## 831  2021-02-01    y       50
+## 832  2021-01-25    k      100
+## 833  2021-01-28    y       70
+## 834  2021-01-28    g       80
+## 835  2021-01-26    g       40
+## 836  2021-02-01    d       30
+## 837  2021-01-22    p       30
+## 838  2021-01-23    y       30
+## 839  2021-01-22    q       90
+## 840  2021-01-18    t      100
+## 841  2021-02-07    s       40
+## 842  2021-02-10    m       30
+## 843  2021-01-18    c        0
+## 844  2021-01-29    b       10
+## 845  2021-02-04    a      100
+## 846  2021-02-15    n       40
+## 847  2021-02-14    f      100
+## 848  2021-02-08    y       90
+## 849  2021-01-24    i       50
+## 850  2021-01-24    f       10
+## 851  2021-01-25    g        0
+## 852  2021-01-21    y       40
+## 853  2021-01-19    l       40
+## 854  2021-02-09    i       90
+## 855  2021-02-03    d      100
+## 856  2021-02-12    d       70
+## 857  2021-02-01    u       10
+## 858  2021-02-15    v       40
+## 859  2021-02-10    w       20
+## 860  2021-02-02    v       60
+## 861  2021-01-28    n       80
+## 862  2021-01-28    h       90
+## 863  2021-02-09    v       90
+## 864  2021-01-20    a       30
+## 865  2021-02-02    d       10
+## 866  2021-02-04    t       90
+## 867  2021-01-23    u       60
+## 868  2021-02-08    j       20
+## 869  2021-02-01    f       30
+## 870  2021-02-05    m        0
+## 871  2021-01-21    n       30
+## 872  2021-02-05    l       90
+## 873  2021-02-09    j       40
+## 874  2021-01-29    o       10
+## 875  2021-01-21    a       80
+## 876  2021-02-11    w       60
+## 877  2021-02-07    k        0
+## 878  2021-01-30    x       20
+## 879  2021-01-19    e       30
+## 880  2021-02-06    u       80
+## 881  2021-02-09    w       30
+## 882  2021-01-25    f       30
+## 883  2021-01-27    i       60
+## 884  2021-02-13    h       70
+## 885  2021-02-02    q       10
+## 886  2021-02-12    e       10
+## 887  2021-02-01    i       10
+## 888  2021-02-02    g       50
+## 889  2021-01-21    q       80
+## 890  2021-02-15    a       90
+## 891  2021-01-25    g       60
+## 892  2021-01-31    a       90
+## 893  2021-01-29    j        0
+## 894  2021-02-14    o       60
+## 895  2021-01-30    f       20
+## 896  2021-01-31    t      100
+## 897  2021-01-17    f       80
+## 898  2021-02-05    v       30
+## 899  2021-02-09    h       60
+## 900  2021-02-03    r        0
+## 901  2021-01-30    p       80
+## 902  2021-01-23    m       50
+## 903  2021-02-05    d       90
+## 904  2021-02-09    h       90
+## 905  2021-01-25    a       80
+## 906  2021-01-23    d       80
+## 907  2021-01-22    k       20
+## 908  2021-01-19    h        0
+## 909  2021-02-05    k       90
+## 910  2021-02-12    j       90
+## 911  2021-01-18    l       60
+## 912  2021-01-23    n       20
+## 913  2021-01-24    y       50
+## 914  2021-01-21    f       80
+## 915  2021-01-31    l       30
+## 916  2021-01-30    g       80
+## 917  2021-01-19    p       60
+## 918  2021-02-01    t       10
+## 919  2021-01-31    q       20
+## 920  2021-01-20    u       50
+## 921  2021-02-15    n       40
+## 922  2021-01-30    i       10
+## 923  2021-02-13    y       80
+## 924  2021-01-31    h       30
+## 925  2021-02-14    g       90
+## 926  2021-01-23    y      100
+## 927  2021-02-14    g       60
+## 928  2021-02-03    e      100
+## 929  2021-02-03    k        0
+## 930  2021-01-20    a       20
+## 931  2021-01-29    v       30
+## 932  2021-01-31    u      100
+## 933  2021-01-23    n        0
+## 934  2021-02-07    y       60
+## 935  2021-01-20    k       40
+## 936  2021-02-11    t       80
+## 937  2021-02-04    k       20
+## 938  2021-02-15    t       60
+## 939  2021-02-06    w       10
+## 940  2021-01-20    v       30
+## 941  2021-02-10    k       40
+## 942  2021-02-10    f       20
+## 943  2021-02-05    y       70
+## 944  2021-01-29    e       20
+## 945  2021-02-06    s       80
+## 946  2021-02-12    b       90
+## 947  2021-02-15    w       30
+## 948  2021-02-05    p       80
+## 949  2021-01-20    g       10
+## 950  2021-02-07    t       10
+## 951  2021-01-31    j       30
+## 952  2021-01-30    t       30
+## 953  2021-01-29    h       10
+## 954  2021-01-25    i       10
+## 955  2021-01-25    a       60
+## 956  2021-02-14    m       50
+## 957  2021-01-25    g      100
+## 958  2021-02-15    m        0
+## 959  2021-02-11    j       10
+## 960  2021-02-07    j       40
+## 961  2021-01-30    k       30
+## 962  2021-01-22    l       10
+## 963  2021-02-07    r       70
+## 964  2021-01-27    o       30
+## 965  2021-02-07    t       50
+## 966  2021-02-07    f       10
+## 967  2021-02-03    z       50
+## 968  2021-01-25    y      100
+## 969  2021-02-14    s       20
+## 970  2021-01-20    h       30
+## 971  2021-02-01    q       10
+## 972  2021-02-11    s       50
+## 973  2021-01-31    s       10
+## 974  2021-02-04    m       90
+## 975  2021-01-28    g       90
+## 976  2021-01-27    p       60
+## 977  2021-02-15    j      100
+## 978  2021-02-14    q        0
+## 979  2021-02-07    z       10
+## 980  2021-01-18    w       60
+## 981  2021-01-21    k       40
+## 982  2021-02-03    o       50
+## 983  2021-02-03    z       60
+## 984  2021-02-04    f       30
+## 985  2021-02-07    o       30
+## 986  2021-01-23    v       70
+## 987  2021-01-17    b       80
+## 988  2021-02-03    r       30
+## 989  2021-01-19    u       50
+## 990  2021-02-09    f        0
+## 991  2021-01-22    j       60
+## 992  2021-01-21    c       20
+## 993  2021-01-21    u        0
+## 994  2021-01-25    f       10
+## 995  2021-01-21    x       80
+## 996  2021-01-26    t       80
+## 997  2021-01-28    t       70
+## 998  2021-02-13    c       80
+## 999  2021-02-11    a       20
+## 1000 2021-01-27    r       10
+```
+
+---
+
+- Warns you when you make mistakes (!):
+
+
+```r
+tib1$quanitty
+```
+
+&lt;pre style="color: red;"&gt;&lt;code&gt;## Warning: Unknown or uninitialised column: `quanitty`.
+&lt;/code&gt;&lt;/pre&gt;
+
+```
+## NULL
+```
+
+
+```r
+df1$quanitty
+```
+
+```
+## NULL
+```
+
+---
+
+- Can also create via `tribble()`:
+
+
+```r
+tribble(
+  ~a, ~b, ~c,
+  "a", 1, 2.2,
+  "b", 2, 4.3,
+  "c", 3, 3.4
+)
+```
+
+```
+## # A tibble: 3 x 3
+##   a         b     c
+##   &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 a         1   2.2
+## 2 b         2   4.3
+## 3 c         3   3.4
+```
+
+---
+
+- Can build on top variables during creation:
+
+
+```r
+tibble(x = 1:5, y = x^2)
+```
+
+```
+## # A tibble: 5 x 2
+##       x     y
+##   &lt;int&gt; &lt;dbl&gt;
+## 1     1     1
+## 2     2     4
+## 3     3     9
+## 4     4    16
+## 5     5    25
+```
+
+
+```r
+data.frame(x = 1:5, y = x^2)
+```
+
+&lt;pre style="color: red;"&gt;&lt;code&gt;## Error in data.frame(x = 1:5, y = x^2): object 'x' not found
+&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+- Will never turn your strings into factors, will never change your column names:
+
+
+```r
+tib1 &lt;- readr::read_csv("../data/bad_args_test.csv", col_types = cols())
+colnames(tib1)
+```
+
+```
+## [1] "col1" "col2" "col3"
+```
+
+```r
+tib1$col3
+```
+
+```
+## [1] "a" "b" "c" "d"
+```
+
+
+```r
+df1 &lt;- read.csv("../data/bad_args_test.csv")
+colnames(df1)
+```
+
+```
+## [1] "ï..col1" "col2"    "col3"
+```
+
+```r
+df1$col3
+```
+
+```
+## [1] "a" "b" "c" "d"
+```
+
+---
+
+Though one ought to remember a `tibble` is still a `data.frame`:
+
+
+```r
+class(tib1)
+```
+
+```
+## [1] "spec_tbl_df" "tbl_df"      "tbl"         "data.frame"
+```
+
+
+```r
+class(df1)
+```
+
+```
+## [1] "data.frame"
+```
+
+---
+class: section-slide
+
+# End of Detour
+
+---
+
+## Consistency - Example: `stringr`
+
+&gt; a cohesive set of functions designed to make working with strings as easy as possible.
+
+
+```r
+strings_vec &lt;- c("I'm feeling fine", "I'm perfectly OK",
+                 "Nothing is wrong!")
+str_length(strings_vec)
+```
+
+```
+## [1] 16 16 17
+```
+
+```r
+str_c(strings_vec, collapse = ", ")
+```
+
+```
+## [1] "I'm feeling fine, I'm perfectly OK, Nothing is wrong!"
+```
+
+```r
+str_sub(strings_vec, 1, 3)
+```
+
+```
+## [1] "I'm" "I'm" "Not"
+```
+
+---
+
+
+```r
+str_detect(strings_vec, "I'm")
+```
+
+```
+## [1]  TRUE  TRUE FALSE
+```
+
+```r
+str_replace(strings_vec, "I'm", "You're")
+```
+
+```
+## [1] "You're feeling fine" "You're perfectly OK" "Nothing is wrong!"
+```
+
+```r
+str_split("Do you know regex?", " ")
+```
+
+```
+## [[1]]
+## [1] "Do"     "you"    "know"   "regex?"
+```
+
+```r
+str_extract(strings_vec, "[aeiou]")
+```
+
+```
+## [1] "e" "e" "o"
+```
+
+```r
+str_count(strings_vec, "[A-Z]")
+```
+
+```
+## [1] 1 3 1
+```
+
+---
+
+## The Pipe
+
+Remember you?
+
+
+```r
+mean_bi &lt;- mean(okcupid$income[okcupid$sex == "f" &amp; okcupid$age &gt; 30 &amp; okcupid$orientation == "bisexual"], na.rm = TRUE)
+mean_gay &lt;- mean(okcupid$income[okcupid$sex == "f" &amp; okcupid$age &gt; 30 &amp; okcupid$orientation == "gay"], na.rm = TRUE)
+mean_straight &lt;- mean(okcupid$income[okcupid$sex == "f" &amp; okcupid$age &gt; 30 &amp; okcupid$orientation == "straight"], na.rm = TRUE)
+
+data.frame(orientation = c("bisexual", "gay", "straight"),
+           income_mean = c(mean_bi, mean_gay, mean_straight))
+```
+
+```
+##   orientation income_mean
+## 1    bisexual   133421.05
+## 2         gay    86489.36
+## 3    straight    85219.74
+```
+
+---
+
+Doesn't this make much more sense?
+
+
+```r
+okcupid %&gt;%
+  filter(sex == "f", age &gt; 30) %&gt;%
+  group_by(orientation) %&gt;%
+  summarize(income_mean = mean(income, na.rm = TRUE))
+```
+
+```
+## # A tibble: 3 x 2
+##   orientation income_mean
+##   &lt;chr&gt;             &lt;dbl&gt;
+## 1 bisexual        133421.
+## 2 gay              86489.
+## 3 straight         85220.
+```
+
+- Read as:
+  - Take the OKCupid data,
+  - Filter only women above the age of 30,
+  - And for each group of sexual orientation,
+  - Give me the average income
+
+---
+
+- Make verbs, not nouns
+- Can always access the dataset last stage with "`.`":
+
+```r
+okcupid %&gt;%
+  filter(str_count(essay0) &gt; median(str_count(.$essay0), na.rm = T))
+```
+- Operates not just on data frames or tibbles:
+
+```r
+strings_vec %&gt;% str_to_title()
+```
+
+```
+## [1] "I'm Feeling Fine"  "I'm Perfectly Ok"  "Nothing Is Wrong!"
+```
+- No intermediate objects
+- Don't strive to make the longest possible pipe (though it is a fun experiment)
+- Tools exist for debugging
+
+---
+
+And, if you want to throw in the n, the median:
+
+
+```r
+okcupid %&gt;%
+  filter(sex == "f", age &gt; 30) %&gt;%
+  group_by(orientation) %&gt;%
+  summarize(income_mean = mean(income, na.rm = TRUE),
+            income_median = median(income, na.rm = TRUE),
+            n = n())
+```
+
+```
+## # A tibble: 3 x 4
+##   orientation income_mean income_median     n
+##   &lt;chr&gt;             &lt;dbl&gt;         &lt;dbl&gt; &lt;int&gt;
+## 1 bisexual        133421.         50000   652
+## 2 gay              86489.         40000   664
+## 3 straight         85220.         60000 10436
+```
+
+---
+
+And if you want this for the age as well:
+
+
+```r
+okcupid %&gt;%
+  filter(sex == "f", age &gt; 30) %&gt;%
+  group_by(orientation) %&gt;%
+  summarize_at(vars(income, age),
+               list(mean = mean, median = median), na.rm = TRUE)
+```
+
+```
+## # A tibble: 3 x 5
+##   orientation income_mean age_mean income_median age_median
+##   &lt;chr&gt;             &lt;dbl&gt;    &lt;dbl&gt;         &lt;dbl&gt;      &lt;dbl&gt;
+## 1 bisexual        133421.     37.8         50000         36
+## 2 gay              86489.     40.4         40000         38
+## 3 straight         85220.     40.7         60000         38
+```
+
+Now *this* is a language for Data Science.
+
+But we're getting ahead of ourselves.
+
+---
+
+## `ggplot2`
+
+&lt;img src="images/ave_mariah_ggridges.png" style="width: 80%" /&gt;
+
+.font80percent[
+[Ave Mariah / Giora Simchoni](http://giorasimchoni.com/2017/12/10/2017-12-10-ave-mariah/)
+]
+---
+
+## `ggplot2`
+
+&lt;img src="images/soviet_space_dogs.png" style="width: 50%" /&gt;
+
+.font80percent[
+[Soviet Space Dogs / David Smale](https://davidsmale.netlify.com/portfolio/soviet-space-dogs-part-2/)
+]
+---
+
+## `ggplot2`
+
+&lt;img src="images/tennisBig4.gif" style="width: 70%" /&gt;
+
+.font80percent[
+[Federer, Nadal, Djokovic and Murray, Love. / Giora Simchoni](http://giorasimchoni.com/2017/05/01/2017-05-01-federer-nadal-djokovic-and-murray-love/)
+]
+---
+
+## `ggplot2`
+
+&lt;img src="images/washington_heat.png" style="width: 40%" /&gt;
+
+.font80percent[
+[NYT-style urban heat island maps / Katie Jolly](https://www.katiejolly.io/blog/2019-08-28/nyt-urban-heat)
+]
+---
+
+## `ggplot2`
+
+&lt;img src="images/marriage_by_state.png" style="width: 90%" /&gt;
+
+.font80percent[
+[A map of marriage rates, state by state / Unkown](https://www.r-graph-gallery.com/328-hexbin-map-of-the-usa.html)
+]
+---
+
+## `ggplot2`
+
+&lt;img src="images/calendar_graph.png" style="width: 70%" /&gt;
+
+.font80percent[
+[Calendar-based graphics for visualizing people’s daily schedules / Earo Wang](https://pdf.earo.me/calendar-vis.pdf)
+]
+---
+
+## The Community
+
+.pull-left[
+- 100% Open Source on Github
+- Cheatsheet for everything
+- Documentation for humans, Packages websites, Webinars, Free Books (start with [R4DS](https://r4ds.had.co.nz/))
+- [Rstudio Community forum](https://community.rstudio.com/)
+- [RLadies](https://rladies.org/) worldwide branches .font80percent[(who will pick up the 🥊 and create RLadies TLV?)]
+- Very strong on Twitter [#rstats](https://twitter.com/search?q=%23rstats)
+]
+
+.pull-right[
+&lt;a href="https://rstudio.com/resources/cheatsheets/"&gt;&lt;img src="images/stringr_cheatsheet.png" style="width: 100%" /&gt;&lt;/a&gt;
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="../libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
