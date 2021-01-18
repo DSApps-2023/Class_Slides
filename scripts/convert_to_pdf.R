@@ -12,7 +12,7 @@ files_to_copy <- c(
 )
 
 # this should be run from parent Class_Slides directory
-unit_dir <- "u2_d05-models/"
+unit_dir <- "u3_d01-trees/"
 html_filename <- str_c(str_sub(unit_dir, 1, str_length(unit_dir) - 1), ".html")
 
 # copy files from parent directory to unit directory
