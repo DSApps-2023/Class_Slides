@@ -1,0 +1,898 @@
+---
+title: "Modeling in the Tidyverse"
+subtitle: "Applications of Data Science"
+author: "Giora Simchoni"
+institute: "Stat. and OR Department, TAU"
+date: "`r Sys.Date()`"
+output_dir: "images"
+output:
+  xaringan::moon_reader:
+    css: "../slides.css"
+    seal: false
+    chakra: "../libs/remark-latest.min.js"
+    includes:
+      in_header: "../header.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+## Modeling in the Tidyverse
+
+### Applications of Data Science - Class 5
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### `r Sys.Date()`
+
+---
+```{r child = "../setup.Rmd"}
+```
+
+```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+class: section-slide
+
+# The Problem
+
+---
+
+### Inconsistency, Inextensibility
+
+```{r GLM-Data}
+n <- 10000
+x1 <- runif(n)
+x2 <- runif(n)
+t <- 1 + 2 * x1 + 3 * x2
+y <- rbinom(n, 1, 1 / (1 + exp(-t)))
+```
+
+```{r GLM, eval=FALSE}
+glm(y ~ x1 + x2, family = "binomial")
+```
+
+```{r GLMNET, eval=FALSE}
+glmnet(as.matrix(cbind(x1, x2)), as.factor(y), family = "binomial")
+```
+
+```{r RF, eval=FALSE}
+randomForest(as.factor(y) ~ x1 + x2)
+```
+
+
+```{r GBM, eval=FALSE}
+gbm(y ~ x1 + x2, data = data.frame(x1 = x1, x2 = x2, y = y))
+```
+
+`r emo::ji("scream")`
+
+---
+
+### Compare this with `sklearn`
+
+```{python, eval=FALSE}
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier,
+  GradientBoostingClassifier
+
+LogisticRegression(penalty='none').fit(X, y)
+
+LogisticRegression(penalty='l2', C=0.001).fit(X, y)
+
+RandomForestClassifier(n_estimators=100).fit(X, y)
+
+GradientBoostingClassifier(n_estimators=100).fit(X, y)
+```
+
+---
+
+class: section-slide
+
+# Detour: A Regression Problem
+
+---
+
+### IPF-Lifts: Predicting Bench Lifting
+
+- Dataset was published as part of the [TidyTuesday](https://github.com/rfordatascience/tidytuesday) intiative
+- Comes from [Open Powerlifting](https://www.openpowerlifting.org/data)
+- [Wikipedia](https://en.wikipedia.org/wiki/Powerlifting): Powerlifting is a strength sport that consists of three attempts at maximal weight on three lifts: squat, bench press, and deadlift
+
+<img src="images/pl_bench.jpg" style="width: 70%" />
+
+---
+
+The raw data has over 40K rows: for each athlete, for each event, stats about athlete gender, age and weight, and the maximal weight lifted in the 3 types of Powerlifting.
+
+We will be predicting `best3bench_kg` based on a few predictors, no missing values:
+
+```{r, message=FALSE}
+library(lubridate)
+
+ipf_lifts <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-10-08/ipf_lifts.csv")
+
+ipf_lifts <- ipf_lifts %>%
+  drop_na(best3bench_kg, age) %>%
+  filter(between(age, 18, 100), best3bench_kg > 0, equipment != "Wraps") %>%
+  select(sex, event, equipment, age, division, bodyweight_kg, best3bench_kg, date, meet_name) %>%
+  drop_na() %>%
+  mutate(year = year(date), month = month(date),
+         dayofweek = wday(date)) %>%
+  select(-date) %>%
+  mutate_if(is.character, as.factor)
+
+dim(ipf_lifts)
+```
+
+---
+
+```{r}
+glimpse(ipf_lifts)
+```
+
+---
+
+See the dependent variable distribution:
+
+```{r Bench-Hist, message=FALSE, out.width="100%", fig.asp=0.5}
+ggplot(ipf_lifts, aes(best3bench_kg)) +
+  geom_histogram(fill = "red", alpha = 0.5) +
+  theme_classic()
+```
+
+---
+
+See it vs. say age, facetted by equipment:
+
+```{r Bench-Age-Equipment, message=FALSE, out.width="100%", fig.asp=0.5}
+ggplot(ipf_lifts, aes(age, best3bench_kg)) +
+  geom_point(color = "red", alpha = 0.5) +
+  facet_wrap(~ equipment) +
+  theme_classic()
+```
+
+---
+
+See it vs. year, by gender:
+
+```{r Bench-Year-Gender, message=FALSE, out.width="100%", fig.asp=0.5}
+ggplot(ipf_lifts, aes(factor(year), best3bench_kg, fill = sex)) +
+  geom_boxplot(outlier.alpha = 0.5) +
+  labs(fill = "", x = "", y = "") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+```
+
+---
+
+Maybe add $age^2$ and $year^2$ to make Linear Regression's life easier?
+
+```{r}
+ipf_lifts <- ipf_lifts %>%
+  mutate(age2 = age ^ 2, year2 = year ^2)
+```
+
+---
+
+class: section-slide
+
+# End of Detour
+
+---
+
+# WARNING
+
+.warning[
+`r emo::ji("bulb")` What you're about to see is not a good modeling/prediction flow. This is just an intro to tidy modeling. Some of the issues with how things are done here will be raised, some will have to wait till later in the course.
+]
+---
+
+class: section-slide
+
+# The Present Solution: `caret`
+
+---
+
+### Split Data
+
+```{r, message=FALSE, warning=FALSE}
+library(caret)
+
+train_idx <- createDataPartition(ipf_lifts$best3bench_kg,
+                                 p = 0.6, list = FALSE)
+
+ipf_tr <- ipf_lifts[train_idx, ]
+ipf_te <- ipf_lifts[-train_idx, ]
+
+library(glue)
+glue("train no. of rows: {nrow(ipf_tr)}
+     test no. of rows: {nrow(ipf_te)}")
+```
+
+Here you might consider some preprocessing.
+
+`caret` has some nice documentation [here](https://topepo.github.io/caret/index.html).
+
+---
+
+### Tuning and Modeling
+
+Define general methodology, e.g. 5-fold Cross-Validation:
+
+```{r, warning=FALSE}
+fit_control <- trainControl(method = "cv", number = 5)
+
+ridge_grid <- expand.grid(alpha=0, lambda = 10^seq(-3, 1, length = 50))
+lasso_grid <- expand.grid(alpha=1, lambda = 10^seq(-3, 1, length = 50))
+rf_grid <- expand.grid(splitrule = "variance",
+                       min.node.size = seq(10, 30, 10),
+                       mtry = seq(2, 10, 2))
+
+mod_ridge <- train(best3bench_kg ~ ., data = ipf_tr, method = "glmnet",
+                trControl = fit_control, tuneGrid = ridge_grid,
+                metric = "RMSE")
+
+mod_lasso <- train(best3bench_kg ~ ., data = ipf_tr, method = "glmnet",
+                trControl = fit_control, tuneGrid = lasso_grid,
+                metric = "RMSE")
+
+mod_rf <- train(best3bench_kg ~ ., data = ipf_tr, method = "ranger",
+                trControl = fit_control, tuneGrid = rf_grid,
+                num.trees = 50, metric = "RMSE")
+```
+
+---
+
+### Evaluating Models
+
+```{r}
+mod_ridge
+```
+
+---
+
+```{r}
+mod_lasso
+```
+
+---
+
+```{r}
+mod_rf
+```
+
+---
+
+```{r Ridge-CV, fig.asp=0.5, out.width="80%"}
+plot(mod_ridge)
+```
+
+---
+
+```{r Lasso-CV, fig.asp=0.5, out.width="80%"}
+plot(mod_lasso)
+```
+
+---
+
+```{r RF-CV, fig.asp=0.5, out.width="80%"}
+plot(mod_rf)
+```
+
+---
+
+### Comparing Models
+
+```{r}
+resamps <- resamples(list(Ridge = mod_ridge,
+                          Lasso = mod_lasso,
+                          RF = mod_rf))
+summary(resamps)
+```
+
+---
+
+```{r Caret-RMSE-Comp, fig.asp=0.5, out.width="100%"}
+dotplot(resamps, metric = "RMSE")
+```
+
+---
+
+### Predicting
+
+```{r}
+pred_ridge <- predict(mod_ridge, newdata = ipf_te)
+pred_lasso <- predict(mod_lasso, newdata = ipf_te)
+pred_rf <- predict(mod_rf, newdata = ipf_te)
+
+rmse_ridge <- RMSE(pred_ridge, ipf_te$best3bench_kg)
+rmse_lasso <- RMSE(pred_lasso, ipf_te$best3bench_kg)
+rmse_rf <- RMSE(pred_rf, ipf_te$best3bench_kg)
+
+glue("Test RMSE Ridge: {format(rmse_ridge, digits = 3)}
+     Test RMSE Lassoe: {format(rmse_lasso, digits = 3)}
+     Test RMSE RF: {format(rmse_rf, digits = 3)}")
+```
+
+.warning[
+`r emo::ji("warning")` Is using a "regular" regression model the natural approach for these data?
+
+Ask yourself what is this model good for, if at all `r emo::ji("surprise")`
+]
+
+---
+
+```{r Caret-Pred-vs-True, message=FALSE, warning=FALSE, fig.asp=0.5, out.width="100%"}
+bind_rows(
+  tibble(method = "Ridge", pred = pred_ridge, true = ipf_te$best3bench_kg),
+  tibble(method = "Lasso", pred = pred_lasso, true = ipf_te$best3bench_kg),
+  tibble(method = "RF", pred = pred_rf, true = ipf_te$best3bench_kg)) %>%
+  ggplot(aes(pred, true)) +
+  geom_point(color = "red", alpha = 0.5) +
+  geom_abline(slope = 1, intercept = 0) +
+  facet_wrap(~ method) +
+  theme_bw()
+```
+
+---
+
+class: section-slide
+
+# The Future Solution: `tidymodels`
+
+#### Inspired by [Julia Silge](https://juliasilge.com/blog/intro-tidymodels/)
+
+---
+
+### Packages under tidymodels
+
+- `parsnip`: tidy `caret`
+- `dials` and `tune`: specifying and tuning model parameters
+- `rsample`: sampling, data partitioning
+- `recipes`, `embed`, `themis`: preprocessing and creating model matrices
+- `infer`: tidy statistics
+- `yardstick`: measuring models performance
+- `broom`: convert models output into tidy tibbles
+
+And [more](https://www.tidymodels.org/).
+
+.warning[
+`r emo::ji("warning")` All `tidymodels` packages are under development!
+]
+
+---
+
+### Split Data
+
+The `initial_split()` function is from the `rsample` package:
+
+```{r, message=FALSE, warning=FALSE}
+library(tidymodels)
+
+ipf_split_obj <- ipf_lifts %>%
+  initial_split(prop = 0.6, strata = equipment)
+
+ipf_tr <- training(ipf_split_obj)
+ipf_te <- testing(ipf_split_obj)
+
+glue("train no. of rows: {nrow(ipf_tr)}
+     test no. of rows: {nrow(ipf_te)}")
+
+print(ipf_split_obj)
+```
+
+---
+
+### Preprocess .font80percent[(but we're not gonna use it)]
+
+The `recipe()` function is from the `recipes` package. It allows you to specify a python-like pipe you can later apply to any dataset, including all preprocessing steps:
+
+```{r}
+ipf_rec <- recipe(best3bench_kg ~ ., data = ipf_tr)
+ipf_rec
+```
+
+`recipes` contains more preprocessing [`step_`s](https://tidymodels.github.io/recipes/reference/index.html) than you imagine:
+
+```{r}
+ipf_rec <-  ipf_rec %>%
+  step_normalize(all_numeric())
+```
+
+---
+
+After you have your `recipe` you need to `prep()` materials...
+
+```{r}
+ipf_rec <- ipf_rec %>% prep(ipf_tr)
+
+ipf_rec
+```
+
+At this point our `recipe` has all necessary `sd` and `mean`s for numeric variables.
+
+---
+
+```{r}
+ipf_rec$var_info
+```
+
+---
+
+```{r}
+ipf_rec$levels$meet_name
+```
+
+---
+
+```{r}
+ipf_rec$steps[[1]]$means
+ipf_rec$steps[[1]]$sds
+```
+
+---
+
+And then we `bake()` (or [`juice()`](https://tidymodels.github.io/recipes/reference/juice.html)):
+
+```{r}
+ipf_tr2 <- ipf_rec %>% bake(ipf_tr)
+ipf_te2 <- ipf_rec %>% bake(ipf_te)
+
+glue("mean of age in orig training: {format(mean(ipf_tr$age), digits = 3)}, sd: {format(sd(ipf_tr$age), digits = 3)}
+     mean of age in baked training: {format(mean(ipf_tr2$age), digits = 0)}, sd: {format(sd(ipf_tr2$age), digits = 3)}")
+
+glue("mean of age in orig testing: {format(mean(ipf_te$age), digits = 3)}, sd: {format(sd(ipf_te$age), digits = 3)}
+     mean of age in baked testing: {format(mean(ipf_te2$age), digits = 0)}, sd: {format(sd(ipf_te2$age), digits = 3)}")
+```
+
+---
+
+Or you can do it all in a single pipe:
+
+```{r}
+ipf_rec <- recipe(best3bench_kg ~ ., data = ipf_tr) %>%
+  step_normalize(all_numeric()) %>%
+  prep(ipf_tr)
+
+ipf_tr2 <- ipf_rec %>% bake(ipf_tr)
+ipf_te2 <- ipf_rec %>% bake(ipf_te)
+
+glue("mean of age in orig training: {format(mean(ipf_tr$age), digits = 3)}, sd: {format(sd(ipf_tr$age), digits = 3)}
+     mean of age in baked training: {format(mean(ipf_tr2$age), digits = 0)}, sd: {format(sd(ipf_tr2$age), digits = 2)}")
+
+glue("mean of age in orig testing: {format(mean(ipf_te$age), digits = 3)}, sd: {format(sd(ipf_te$age), digits = 3)}
+     mean of age in baked testing: {format(mean(ipf_te2$age), digits = 0)}, sd: {format(sd(ipf_te2$age), digits = 3)}")
+```
+
+---
+
+#### Fast Forward 10 weeks from now...
+
+```{r, eval=FALSE}
+rec_int_topints <- recipe(pets ~ ., data = okcupid_tr) %>%
+  step_textfeature(essays, prefix = "t",
+                   extract_functions = my_text_funs) %>%
+  update_role(essays, new_role = "discarded") %>%
+  step_mutate_at(starts_with("t_"), fn = ~ifelse(is.na(.x), 0, .x)) %>%
+  step_log(income, starts_with("len_"), starts_with("t_"),
+           -t_essays_sent_bing, offset = 1) %>%
+  step_meanimpute(income) %>%
+  step_other(
+    all_nominal(), -has_role("discarded"), -all_outcomes(),
+    other = "all_else", threshold = 0.1) %>%
+  step_novel(
+    all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
+  step_modeimpute(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
+  step_dummy(all_nominal(), -all_outcomes(),
+             -has_role("discarded"), one_hot = FALSE) %>%
+  step_interact(topint_ints) %>%
+  step_nzv(all_numeric(), freq_cut = 99/1) %>%
+  step_upsample(pets, over_ratio = 1, seed = 42)
+```
+
+---
+
+### Modeling
+
+For now let us use the original `ipf_tr` data.
+
+Functions `linear_reg()` and `set_engine()` are from the `parsnip` package:
+
+```{r}
+mod_ridge_spec <- linear_reg(mixture = 0, penalty = 0.001) %>%
+  set_engine(engine = "glmnet")
+
+mod_ridge_spec
+```
+
+---
+
+```{r}
+mod_ridge <- mod_ridge_spec %>%
+  fit(best3bench_kg ~ ., data = ipf_tr)
+
+mod_ridge
+```
+
+---
+
+In a single pipe:
+
+```{r}
+mod_lasso <- linear_reg(mixture = 1, penalty = 0.001) %>%
+  set_engine(engine = "glmnet") %>%
+  fit(best3bench_kg ~ ., data = ipf_tr)
+
+mod_lasso
+```
+
+---
+
+Can also use `fit_xy()` a-la `sklearn`:
+
+```{r}
+mod_rf <- rand_forest(mode = "regression", mtry = 4, trees = 50, min_n = 30) %>%
+  set_engine("ranger") %>%
+  fit_xy(x = ipf_tr[, -7],
+         y = ipf_tr$best3bench_kg)
+
+mod_rf
+```
+
+---
+
+Notice how easy it is to get the model's results in a tidy way using the `tidy()` function:
+
+```{r, message=FALSE}
+tidy(mod_ridge)
+```
+
+---
+
+### Predicting
+
+```{r}
+results_test <- mod_ridge %>%
+  predict(new_data = ipf_te, penalty = 0.001) %>%
+  mutate(
+    truth = ipf_te$best3bench_kg,
+    method = "Ridge"
+  ) %>%
+  bind_rows(mod_lasso %>%
+    predict(new_data = ipf_te) %>%
+    mutate(
+      truth = ipf_te$best3bench_kg,
+      method = "Lasso"
+  )) %>%
+  bind_rows(mod_rf %>%
+    predict(new_data = ipf_te) %>%
+    mutate(
+      truth = ipf_te$best3bench_kg,
+      method = "RF"
+  ))
+
+dim(results_test)
+
+head(results_test)
+```
+
+---
+
+### Comparing Models
+
+The package `yardstick` has tons of performance [metrics](https://tidymodels.github.io/yardstick/articles/metric-types.html):
+
+```{r}
+results_test %>%
+  group_by(method) %>%
+  rmse(truth = truth, estimate = .pred)
+```
+
+---
+
+```{r Tidymodels-Pred-vs-True, message=FALSE, warning=FALSE, fig.asp=0.5, out.width="100%"}
+results_test %>%
+  ggplot(aes(.pred, truth)) +
+  geom_point(color = "red", alpha = 0.5) +
+  geom_abline(slope = 1, intercept = 0) +
+  facet_wrap(~ method) +
+  theme_bw()
+```
+
+---
+
+### Tuning
+
+Define your model spec, using `tune()` from the `tune` package for a parameter you wish to tune:
+
+```{r, message=FALSE, warning=FALSE}
+mod_rf_spec <- rand_forest(mode = "regression",
+                           mtry = tune(),
+                           min_n = tune(),
+                           trees = 100) %>%
+  set_engine("ranger")
+```
+
+---
+
+Define the `grid` on which you train your params, with the `dials` package:
+
+```{r}
+rf_grid <- grid_regular(mtry(range(2, 10)), min_n(range(10, 30)),
+                        levels = c(5, 3))
+
+rf_grid
+```
+
+---
+
+Split your data into a few folds for Cross Validation with `vfold_cv()` from the `rsample` package:
+
+```{r}
+cv_splits <- vfold_cv(ipf_tr, v = 5)
+
+cv_splits
+```
+
+---
+
+Now perform cross validation with `tune_grid()` from the `tune` package:
+
+```{r, eval=FALSE}
+tune_res <- tune_grid(mod_rf_spec,
+                      recipe(best3bench_kg ~ ., data = ipf_tr),
+                      resamples = cv_splits,
+                      grid = rf_grid,
+                      metrics = metric_set(rmse))
+tune_res
+```
+
+```{r echo=FALSE}
+tune_res <- read_rds("../data/ipf_rfmod_tune.rds")
+tune_res
+```
+
+---
+
+```{r}
+tune_res$.metrics[[1]]
+```
+
+---
+
+Collect the mean metric across folds:
+
+```{r}
+estimates <- collect_metrics(tune_res)
+
+estimates
+```
+
+---
+
+Choose best paramter:
+
+```{r Tidymodels-RMSE-Comp, fig.asp=0.5, out.width="100%"}
+estimates %>%
+  mutate(min_n = factor(min_n)) %>%
+  ggplot(aes(x = mtry, y = mean, color = min_n)) + 
+  geom_point() + 
+  geom_line() + 
+  labs(y = "Mean RMSE") +
+  theme_classic()
+```
+
+---
+
+There are of course also methods for helping us choose best params and final model.
+
+```{r}
+best_rmse <- tune_res %>% select_best(metric = "rmse")
+best_rmse
+```
+
+See also `?select_by_one_std_err`.
+
+```{r}
+mod_rf_final <- finalize_model(mod_rf_spec, best_rmse)
+mod_rf_final
+```
+
+---
+
+```{r}
+mod_rf_final %>%
+  fit(best3bench_kg ~ ., data = ipf_tr) %>%
+  predict(new_data = ipf_te) %>%
+  mutate(truth = ipf_te$best3bench_kg)
+```
+
+---
+
+class: section-slide
+
+# `infer`: Tidy Statistics
+
+---
+
+### Statistical Q1
+
+Is there a relation between men and women and the type of equipment they use in 2019? Assume observations are independent.
+
+```{r}
+sex_vs_equipment <- ipf_lifts %>%
+  filter(year == 2019) %>%
+  select(sex, equipment) %>%
+  table()
+
+sex_vs_equipment
+```
+
+```{r}
+prop.table(sex_vs_equipment, margin = 1)
+```
+
+---
+
+### Statistical Q2
+
+Is there a difference between men and women age in 2019? Assume observations are independent.
+
+```{r}
+ipf_lifts %>%
+  filter(year == 2019) %>%
+  group_by(sex) %>% summarise(avg = mean(age), sd = sd(age), n = n())
+```
+
+---
+
+### Same Problem!
+
+Varied interface, varied output.
+
+```{r}
+prop.test(sex_vs_equipment[,1], rowSums(sex_vs_equipment))
+```
+
+---
+
+```{r}
+t.test(age ~ sex, data = ipf_lifts %>% filter(year == 2019))
+```
+
+---
+
+### The `generics::tidy()` Approach
+
+(Also available when you load several other packages, like `broom` and `yardstick`)
+
+```{r}
+tidy(prop.test(sex_vs_equipment[,1], rowSums(sex_vs_equipment)))
+```
+
+```{r}
+tidy(t.test(age ~ sex, data = ipf_lifts %>% filter(year == 2019)))
+```
+
+---
+
+### The `infer` Approach
+
+> infer implements an expressive grammar to perform statistical inference that coheres with the tidyverse design framework
+
+4 main verbs for a typical flow:
+
+* `specify()` - dependent/independent variables, formula
+* `hypothesize()` - declare the null hypothesis
+* `generate()` - generate data reflecting the null hypothesis (the permutation/bootstrap approach)
+* `calculate()` - calculate a distribution of statistics from the generated data, from which you can extract conclusion based on a p-value for example
+
+---
+
+### `infer` Diff in Proportions Test
+
+Get the observed statistic (here manually in order to not confuse you, there *is* a way via `infer`):
+
+```{r}
+#    equipment
+# sex Raw Single-ply
+#   F 678        186
+#   M 854        287
+p_F <- sex_vs_equipment[1, 1] / (sum(sex_vs_equipment[1, ]))
+p_M <- sex_vs_equipment[2, 1] / (sum(sex_vs_equipment[2, ]))
+obs_diff <- p_F - p_M
+obs_diff
+```
+
+---
+
+Get distribution of the difference in proportions under null hypothesis
+
+```{r}
+diff_null_perm <- ipf_lifts %>%
+  filter(year == 2019) %>%
+  specify(equipment ~ sex, success = "Raw") %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 200, type = "permute") %>%
+  calculate(stat = "diff in props", order = c("F", "M"))
+
+diff_null_perm
+```
+
+---
+
+Visualize the permuted difference null distribution and the p-value
+
+```{r Diff-in-Props-Null, out.width="50%"}
+visualize(diff_null_perm) +
+  shade_p_value(obs_stat = obs_diff, direction = "two_sided")
+```
+
+---
+
+Get the actual p-value:
+
+```{r}
+diff_null_perm %>% 
+  get_p_value(obs_stat = obs_diff, direction = "two_sided")
+```
+
+---
+
+### `infer` t Test (independent samples)
+
+Get the observed statistic (here via `infer`):
+
+```{r}
+obs_t <- ipf_lifts %>%
+  filter(year == 2019) %>%
+  specify(age ~ sex) %>%
+  calculate(stat = "t", order = c("F", "M"))
+obs_t
+```
+
+
+---
+
+Get distribution of the t statistic under null hypothesis
+
+```{r}
+t_null_perm <- ipf_lifts %>%
+  filter(year == 2019) %>%
+  specify(age ~ sex) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 100, type = "permute") %>%
+  calculate(stat = "t", order = c("F", "M"))
+
+t_null_perm
+```
+
+---
+
+Visualize the permuted t statistic null distribution and the two-sided p-value
+
+```{r T-Null, out.width="50%"}
+visualize(t_null_perm) +
+  shade_p_value(obs_stat = obs_t, direction = "two_sided")
+```
+
+---
+
+Get the actual p-value:
+
+```{r}
+t_null_perm %>% 
+  get_p_value(obs_stat = obs_t, direction = "two_sided")
+```
