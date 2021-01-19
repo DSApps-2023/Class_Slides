@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Topics in Classification</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Giora Simchoni" />
+    <meta name="date" content="2021-01-19" />
+    <head>
+      <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
+      <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
+    </head>
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+## Topics in Classification
+
+### Applications of Data Science - Class 13
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### 2021-01-19
+
+---
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;
+  &lt;span&gt;
+    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;/a&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+---
+
+
+
+class: section-slide
+
+# Topics in Classification
+
+---
+
+# Life isn't perfect
+
+Let's tackle just a few issues:
+
+- Not enough labelled data and data labeling is expensive
+- Imbalanced Classes
+
+---
+
+class: section-slide
+
+# Active Learning
+
+---
+
+### Got Data?
+
+
+
+
+```r
+n &lt;- 20
+x1 &lt;- rnorm(n, 0, 1); x2 &lt;- rnorm(n, 0, 1)
+t &lt;- 2 - 4 * x1 + 3 * x2
+y &lt;- rbinom(n, 1, 1 / (1 + exp(-t)))
+glm_mod &lt;- glm(y ~ x1 + x2, family = "binomial")
+```
+
+&lt;img src="images/AL-LR-Example-1.png" width="50%" /&gt;
+
+---
+
+### Want more?
+
+&gt; The key idea behind *active learning* is that a machine learning algorithm can
+achieve greater accuracy with fewer training labels if it is allowed to choose the
+data from which it learns. An active learner may pose *queries*, usually in the form
+of unlabeled data instances to be labeled by an *oracle* (e.g., a human annotator).
+Active learning is well-motivated in many modern machine learning problems,
+where unlabeled data may be abundant or easily obtained, but labels are difficult,
+time-consuming, or expensive to obtain.
+
+([Settles, 2010](http://burrsettles.com/pub/settles.activelearning.pdf))
+
+&gt; You want data? Well data costs!
+
+(No one, ever)
+
+---
+
+### Where this is going
+
+&lt;img src="images/active_learning_plan.png" style="width: 90%" /&gt;
+
+---
+
+### Active Learning Scenarios
+
+1. **Membership Query Synthesis**: You get to choose which (maybe theoretical) points you'd want `\(y\)` labelled for.
+2. **Stream-Based Selective Sampling**: You get 1 point at a time and decide which ones you'd like to query and which to discard.
+3. **Pool-Based Sampling**: You have a large collecetion of unlabelled points at your disposal, you need to send the "best ones" for labelling
+
+&lt;img src="images/active_learning_scenarios.png" style="width: 70%" /&gt;
+
+---
+
+### Uncertainty Sampling
+
+.insight[
+💡 For a 2-class dataset, the observations your model is most uncertain of are...
+]
+
+&lt;img src="images/AL-LR-Example2-1.png" width="50%" /&gt;
+
+---
+
+### Uncertainty Sampling Measures
+
+Let `\(\hat{y}_i\)` be the predicted classes with `\(i\)`th highest score (probability), for observations `\(x\)` under some model `\(\theta\)`.
+
+So `\(\hat{y}_1 = \arg\max{P_{\theta}(y|x)}\)` are the actual predicted classes, `\(\hat{y}_2\)` are the second choices, etc.
+
+* Least Confidence: Choose those observations for which `\(P_{\theta}(\hat{y}_1|x)\)` is smallest:
+
+`\(x^*_{LC} = \arg\min{P_{\theta}(\hat{y}_1|x)}\)`
+
+.insight[
+💡 For a 2-class balanced dataset, this means...
+]
+
+---
+
+* Margin Sampling: Choose those observations for which the margin between the two highest scores is smallest:
+
+`\(x^*_M = \arg\min{P_{\theta}(\hat{y}_1|x) - P_{\theta}(\hat{y}_2|x)}\)`
+
+.insight[
+💡 For a 2-class balanced dataset, this means...
+]
+
+* Entropy: Choose the observations for which entropy is highest:
+
+`\(x^*_H = \arg\max-{\sum_i P_{\theta}(\hat{y}_i|x) \log[P_{\theta}(\hat{y}_i|x)]}\)`
+
+We will talk more about entropy in Neural Networks, let's minimize negative entropy.
+
+.insight[
+💡 For a 2-class balanced dataset, this means...
+]
+
+---
+
+### Example: The `spotify_songs` data from HW3
+
+
+```r
+spotify_songs &lt;- read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
+
+spotify_songs %&gt;% count(playlist_genre)
+```
+
+```
+## # A tibble: 6 x 2
+##   playlist_genre     n
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 edm             6043
+## 2 latin           5155
+## 3 pop             5507
+## 4 r&amp;b             5431
+## 5 rap             5746
+## 6 rock            4951
+```
+
+Let's try to classify the genre of a song!
+
+---
+
+We'll take only the 12 audio features as predictors, and choose each `track_id` once (remember each song appears a few times?):
+
+
+```r
+library(tidymodels)
+
+predictors &lt;- 12:23
+
+spotify_songs &lt;- spotify_songs %&gt;%
+  group_by(track_id) %&gt;%
+  slice_sample(n = 1) %&gt;%
+  ungroup() %&gt;%
+  distinct(track_name, .keep_all = TRUE) %&gt;%
+  select(track_id, track_name, track_artist, playlist_genre, predictors) %&gt;%
+  mutate(playlist_genre = recode(playlist_genre, "r&amp;b" = "rnb"))
+
+set.seed(76)
+sptfy_split_obj &lt;- spotify_songs %&gt;%
+  initial_split(prop = 0.8)
+sptfy_tr &lt;- training(sptfy_split_obj)
+sptfy_te &lt;- testing(sptfy_split_obj)
+```
+
+---
+
+Plot twist! We only have 20 songs from each genre!
+
+
+```r
+sptfy_tr_small &lt;- sptfy_tr %&gt;%
+  group_by(playlist_genre) %&gt;%
+  slice_sample(n = 20) %&gt;%
+  ungroup()
+
+sptfy_tr_small %&gt;% count(playlist_genre)
+```
+
+```
+## # A tibble: 6 x 2
+##   playlist_genre     n
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 edm               20
+## 2 latin             20
+## 3 pop               20
+## 4 rap               20
+## 5 rnb               20
+## 6 rock              20
+```
+
+Muhaha!
+
+---
+
+We'll also have a pool of songs to query, `sptfy_tr_large`:
+
+
+```r
+sptfy_tr_large &lt;- sptfy_tr %&gt;%
+  anti_join(sptfy_tr_small, by = "track_id")
+```
+
+We `bake()` the 3 datasets with the small sample params recipe:
+
+
+```r
+sptfy_rec &lt;- recipe(playlist_genre ~ ., data = sptfy_tr_small) %&gt;%
+  update_role(track_id, track_name, track_artist,
+              new_role = "id") %&gt;%
+  step_normalize(all_numeric(), -has_role("id")) %&gt;%
+  step_string2factor(playlist_genre) %&gt;%
+  prep(sptfy_tr_small, strings_as_factors = FALSE)
+
+sptfy_tr_small &lt;- juice(sptfy_rec)
+sptfy_tr_large &lt;- bake(sptfy_rec, new_data = sptfy_tr_large)
+sptfy_te &lt;- bake(sptfy_rec, new_data = sptfy_te)
+```
+
+---
+
+Let's build a simple GBT model:
+
+
+```r
+mod_spec &lt;- boost_tree(mode = "classification", trees = 100) %&gt;%
+  set_engine("xgboost", eval_metric = "mlogloss")
+
+mod_fit &lt;- mod_spec %&gt;%
+  fit(playlist_genre ~ ., data = sptfy_tr_small %&gt;%
+        select(-track_id, -track_name, -track_artist))
+
+mod_pred &lt;- mod_fit %&gt;%
+  predict(new_data = sptfy_tr_large, type = "prob")
+
+mod_pred
+```
+
+```
+## # A tibble: 18,641 x 6
+##    .pred_edm .pred_latin .pred_pop .pred_rap .pred_rnb .pred_rock
+##        &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+##  1   0.00584     0.0700    0.455     0.0115    0.320      0.137  
+##  2   0.00937     0.00305   0.00108   0.00127   0.00240    0.983  
+##  3   0.879       0.0547    0.0530    0.00402   0.00224    0.00673
+##  4   0.785       0.0578    0.0530    0.0146    0.0843     0.00502
+##  5   0.0553      0.198     0.200     0.205     0.186      0.155  
+##  6   0.00147     0.00447   0.0235    0.00335   0.947      0.0205 
+##  7   0.383       0.465     0.0421    0.0471    0.0517     0.0113 
+##  8   0.00190     0.185     0.00992   0.762     0.0281     0.0135 
+##  9   0.590       0.0594    0.0311    0.0977    0.213      0.00880
+## 10   0.0306      0.616     0.142     0.108     0.0985     0.00516
+## # ... with 18,631 more rows
+```
+
+---
+
+Test accuracy?
+
+
+```r
+mod_te_pred_class &lt;- mod_fit %&gt;%
+      predict(new_data = sptfy_te) %&gt;%
+      bind_cols(sptfy_te)
+
+mod_te_pred_class %&gt;%
+  accuracy(truth = playlist_genre, estimate = .pred_class)
+```
+
+```
+## # A tibble: 1 x 3
+##   .metric  .estimator .estimate
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy multiclass     0.387
+```
+
+
+
+
+Remember this model was built on 120 of almost 19K available unique songs!
+
+---
+
+Test Recall and Precision:
+
+
+```r
+mod_te_pred_class %&gt;%
+  group_by(playlist_genre) %&gt;%
+  accuracy(truth = playlist_genre, estimate = .pred_class) %&gt;%
+  select(playlist_genre, recall = .estimate) %&gt;%
+  bind_cols(
+    mod_te_pred_class %&gt;%
+      group_by(.pred_class) %&gt;%
+      accuracy(truth = playlist_genre, estimate = .pred_class) %&gt;%
+      select(precision = .estimate)
+  )
+```
+
+```
+## # A tibble: 6 x 3
+##   playlist_genre recall precision
+##   &lt;fct&gt;           &lt;dbl&gt;     &lt;dbl&gt;
+## 1 edm             0.586     0.625
+## 2 latin           0.252     0.259
+## 3 pop             0.274     0.243
+## 4 rap             0.357     0.532
+## 5 rnb             0.312     0.263
+## 6 rock            0.536     0.429
+```
+
+---
+
+Build a function which will take each row of predicted probs and return a list of 3 uncertainty metrics:
+
+
+```r
+uncertainty_lc &lt;- function(probs) {
+  max(probs)
+}
+
+uncertainty_m &lt;- function(probs) {
+  o &lt;- order(probs, decreasing = TRUE)
+  probs[o[1]] - probs[o[2]]
+}
+
+uncertainty_h &lt;- function(probs) {
+  sum(probs * log(probs + 0.000001))
+}
+
+uncertainty &lt;- function(...) {
+  probs &lt;- c(...)
+  list(
+    lc = uncertainty_lc(probs),
+    margin = uncertainty_m(probs),
+    entropy = uncertainty_h(probs)
+  )
+}
+```
+
+---
+
+
+```r
+mod_unc &lt;- mod_pred %&gt;% pmap_dfr(uncertainty)
+
+mod_unc
+```
+
+```
+## # A tibble: 18,641 x 3
+##       lc  margin entropy
+##    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1 0.455 0.135    -1.26 
+##  2 0.983 0.973    -0.109
+##  3 0.879 0.824    -0.497
+##  4 0.785 0.701    -0.807
+##  5 0.205 0.00491  -1.73 
+##  6 0.947 0.923    -0.272
+##  7 0.465 0.0814   -1.20 
+##  8 0.762 0.577    -0.736
+##  9 0.590 0.377    -1.19 
+## 10 0.616 0.474    -1.18 
+## # ... with 18,631 more rows
+```
+
+Obviously these are correlated:
+
+---
+
+.pull-left[
+
+
+```r
+mod_unc %&gt;% slice_sample(n = 1000) %&gt;%
+  ggplot(aes(lc, margin)) +
+  geom_point() +
+  theme_light() +
+  theme(text =
+          element_text(size = 14))
+```
+
+&lt;img src="images/AL-MR-Lc-Margin-1.png" width="100%" /&gt;
+
+]
+
+.pull-right[
+
+
+```r
+mod_unc %&gt;% slice_sample(n = 1000) %&gt;%
+  ggplot(aes(lc, entropy)) +
+  geom_point() +
+  theme_light() +
+  theme(text =
+          element_text(size = 14))
+```
+
+&lt;img src="images/AL-MR-Lc-Entropy-1.png" width="100%" /&gt;
+
+]
+
+---
+
+Which are the top 10 songs in terms of each metric the model is most curious about?
+
+
+```r
+sptfy_tr_large_with_unc &lt;- sptfy_tr_large %&gt;%
+  bind_cols(mod_unc) %&gt;%
+  select(track_name, track_artist, playlist_genre, lc, margin, entropy)
+
+sptfy_tr_large_with_unc %&gt;%
+  slice_min(lc, n = 10) %&gt;%
+  arrange(lc, track_name)
+```
+
+```
+## # A tibble: 10 x 6
+##    track_name                 track_artist  playlist_genre    lc  margin entropy
+##    &lt;chr&gt;                      &lt;chr&gt;         &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1 REPEAT (feat. Pistol Pete~ Jaecy         rap            0.201 6.66e-3   -1.77
+##  2 The Greatest               Sia           pop            0.204 1.22e-2   -1.78
+##  3 Taxi Voy                   j mena        latin          0.205 1.79e-2   -1.77
+##  4 Poison                     Bell Biv DeV~ rnb            0.205 4.91e-3   -1.73
+##  5 Super Human                Tobi          rap            0.216 8.70e-3   -1.77
+##  6 Any Time, Any Place        Janet Jackson rnb            0.217 1.11e-2   -1.77
+##  7 goodbye                    updog         pop            0.222 1.86e-2   -1.77
+##  8 Purple Eyes (feat. Phoebe~ The Knocks    pop            0.228 8.44e-4   -1.71
+##  9 Save Me (feat. Eneli) (fe~ Mahmut Orhan  edm            0.231 8.99e-3   -1.73
+## 10 Oh My Darling Don't Cry    Run The Jewe~ pop            0.233 9.54e-3   -1.71
+```
+
+---
+
+
+```r
+sptfy_tr_large_with_unc %&gt;%
+  slice_min(margin, n = 10) %&gt;%
+  arrange(margin, track_name)
+```
+
+```
+## # A tibble: 10 x 6
+##    track_name                 track_artist playlist_genre    lc   margin entropy
+##    &lt;chr&gt;                      &lt;chr&gt;        &lt;fct&gt;          &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
+##  1 Physical                   C'SAR        edm            0.440  2.93e-5   -1.13
+##  2 Last Child                 Aerosmith    rock           0.336  3.79e-5   -1.26
+##  3 Losing                     H.E.R.       rnb            0.371  8.41e-5   -1.40
+##  4 Saint-Tropez               Post Malone  rap            0.420  8.82e-5   -1.20
+##  5 Black Magic Woman - Singl~ Santana      rock           0.438  1.38e-4   -1.13
+##  6 River                      Sal &amp; Smit   edm            0.242  1.54e-4   -1.72
+##  7 The Octagon (Ready For Th~ Chillinit    rap            0.305  1.59e-4   -1.49
+##  8 Eazy-er Said Than Dunn     Eazy-E       rap            0.318  1.89e-4   -1.29
+##  9 Ella Quiere Beber - Remix  Anuel AA     latin          0.382  2.08e-4   -1.36
+## 10 Lord I Need You Now        Cynthia Jon~ rnb            0.329  2.15e-4   -1.52
+```
+
+---
+
+
+```r
+sptfy_tr_large_with_unc %&gt;%
+  slice_min(entropy, n = 10) %&gt;%
+  arrange(entropy, track_name)
+```
+
+```
+## # A tibble: 10 x 6
+##    track_name                  track_artist playlist_genre    lc  margin entropy
+##    &lt;chr&gt;                       &lt;chr&gt;        &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1 The Greatest                Sia          pop            0.204 0.0122    -1.78
+##  2 Taxi Voy                    j mena       latin          0.205 0.0179    -1.77
+##  3 REPEAT (feat. Pistol Pete ~ Jaecy        rap            0.201 0.00666   -1.77
+##  4 Super Human                 Tobi         rap            0.216 0.00870   -1.77
+##  5 goodbye                     updog        pop            0.222 0.0186    -1.77
+##  6 Any Time, Any Place         Janet Jacks~ rnb            0.217 0.0111    -1.77
+##  7 Long Away - Remastered 2011 Queen        rock           0.241 0.0580    -1.75
+##  8 Warrior Part 2              Lloyd Banks  rap            0.239 0.0268    -1.75
+##  9 Come Back To Me - filous R~ Urban Cone   pop            0.247 0.0671    -1.75
+## 10 Boss                        Jass Manak   rap            0.251 0.0598    -1.75
+```
+
+---
+
+So far it's only interesting. Will sending the observations our model is most curious about to the "oracle" prove to increase test accuracy better than random observations? See full code in slides Rmd files.
+
+
+
+
+
+&lt;img src="images/Simul-Unc-1.png" width="100%" /&gt;
+
+---
+
+### Query by Commity (QBC)
+
+Similar to ensemble models, we have a committee of models:
+
+`\(C = \{\theta_1, ..., \theta_C\}\)`
+
+Which observations the commitee is most uncertain of? E.g.
+
+`\(x^*_{VE} = \arg\max-{\sum_i \frac{V(\hat{y}_i|x)}{|C|}\log{\frac{V(\hat{y}_i|x)}{|C|}}}\)`
+
+Where `\(V(\hat{y}_i|x)\)` is the number of votes for `\(\hat{y}_i\)`.
+
+How do you get a committee?
+- Different models
+- Bagging
+- Same model, different subsets of features
+- Same model, different params
+
+---
+
+Let's do 6 GBT models, each receiving 2 different consecutive features:
+
+
+```r
+fit_sub_model &lt;- function(i, tr, te) {
+  mod_fit &lt;- mod_spec %&gt;%
+    fit(playlist_genre ~ ., data = tr %&gt;%
+          select(playlist_genre, (2 + i * 2):(3 + i * 2)))
+
+  mod_fit %&gt;%
+    predict(new_data = te)
+}
+mod_pred &lt;- map_dfc(1:6, fit_sub_model,
+                    tr = sptfy_tr_small, te = sptfy_tr_large)
+mod_pred
+```
+
+```
+## # A tibble: 18,641 x 6
+##    .pred_class...1 .pred_class...2 .pred_class...3 .pred_class...4
+##    &lt;fct&gt;           &lt;fct&gt;           &lt;fct&gt;           &lt;fct&gt;          
+##  1 latin           rock            rock            rock           
+##  2 rock            rock            rnb             latin          
+##  3 pop             rock            rnb             rock           
+##  4 pop             rnb             edm             rock           
+##  5 rap             latin           rap             pop            
+##  6 rock            pop             rock            rnb            
+##  7 latin           rnb             latin           rap            
+##  8 rock            rock            rap             latin          
+##  9 pop             latin           rock            pop            
+## 10 rnb             latin           pop             pop            
+## # ... with 18,631 more rows, and 2 more variables: .pred_class...5 &lt;fct&gt;,
+## #   .pred_class...6 &lt;fct&gt;
+```
+
+---
+
+
+```r
+mod_qbc &lt;- mod_pred %&gt;%
+  mutate(probs = pmap(
+    select(., starts_with(".pred")),
+    function(...) table(c(...)) / 6),
+    vote_entropy = map_dbl(probs, uncertainty_h),
+    vote_margin = map_dbl(probs, uncertainty_m))
+
+sptfy_tr_large_with_qbc &lt;- sptfy_tr_large %&gt;%
+  bind_cols(mod_qbc) %&gt;%
+  select(track_name, track_artist, playlist_genre,
+         starts_with(".pred"), vote_entropy)
+
+sptfy_tr_large_with_qbc %&gt;%
+  slice_min(vote_entropy, n = 10) %&gt;%
+  arrange(vote_entropy) %&gt;%
+  select(starts_with(".pred"))
+```
+
+```
+## # A tibble: 256 x 6
+##    .pred_class...17 .pred_class...18 .pred_class...19 .pred_class...20
+##    &lt;fct&gt;            &lt;fct&gt;            &lt;fct&gt;            &lt;fct&gt;           
+##  1 rock             rap              rnb              edm             
+##  2 latin            rap              edm              pop             
+##  3 pop              rap              rnb              edm             
+##  4 rnb              edm              rock             rap             
+##  5 edm              rap              latin            pop             
+##  6 edm              latin            rap              rnb             
+##  7 rap              pop              rock             edm             
+##  8 pop              edm              rnb              rock            
+##  9 rap              edm              rnb              latin           
+## 10 rock             pop              edm              rap             
+## # ... with 246 more rows, and 2 more variables: .pred_class...21 &lt;fct&gt;,
+## #   .pred_class...22 &lt;fct&gt;
+```
+
+---
+
+Will sending the observations our committee is in most disagreement about to the "oracle" prove to increase test accuracy better than random observations? See full code in slides Rmd files.
+
+
+
+
+
+&lt;img src="images/Simul-QBC-1.png" width="100%" /&gt;
+
+---
+
+### Other Active Learning Metrics
+
+- Expected Model Change
+- Expected Error Reduction
+- Variance Reduction
+- And more...
+
+---
+
+class: section-slide
+
+# Imbalanced Classes
+
+---
+
+### Typical examples of Imbalanced Classes scenarios
+
+- Rare diseases: [this](https://www.kaggle.com/c/hivprogression) dataset contains genetic data for 1,000 HIV patients, 206 out of 1,000 patients improved after 16 weeks of therapy
+- Conversion/Sell/CTR rates: [this](https://www.kaggle.com/c/avazu-ctr-prediction) dataset contains 10 days of Click-Through-Rate data for Avazu mobile ads, ~6.8M clicked out of ~40.4M
+- Fraud detection: [this](https://www.kaggle.com/mlg-ulb/creditcardfraud) dataset contains credit card transactions for a major European CC, 492 frauds out of 284,807 transactions
+
+---
+
+### What's so difficult about imbalanced classes?
+
+
+```r
+okcupid_pets &lt;- as_tibble(read_rds("../data/okcupid3_imp_mice.rds"))
+
+idx &lt;- read_rds("../data/okcupid3_idx.rda")
+train_idx &lt;- idx$train_idx
+valid_idx &lt;- idx$valid_idx
+test_idx &lt;- idx$test_idx
+
+ok_train &lt;- okcupid_pets[train_idx, ]
+ok_valid &lt;- okcupid_pets[valid_idx, ]
+
+ok_train %&gt;%
+  count(pets) %&gt;%
+  mutate(pct = round(n / sum(n), 2))
+```
+
+```
+## # A tibble: 2 x 3
+##   pets      n   pct
+##   &lt;fct&gt; &lt;int&gt; &lt;dbl&gt;
+## 1 cats   1624  0.16
+## 2 dogs   8376  0.84
+```
+
+.insight[
+💡 What's a sure way to get 84% accuracy?
+]
+
+---
+
+
+
+
+```r
+mod_glm &lt;- glm(pets ~ ., data = ok_train, family = "binomial")
+pred_glm &lt;- 1 - predict(mod_glm, ok_valid, type = "response")
+
+pred_glm_class &lt;- ifelse(pred_glm &gt; 0.5, "cats", "dogs")
+true_class &lt;- ok_valid$pets
+
+table(true_class, pred_glm_class)
+```
+
+```
+##           pred_glm_class
+## true_class cats dogs
+##       cats   66  407
+##       dogs   62 2194
+```
+
+```r
+report_accuracy_and_auc(true_class, pred_glm)
+```
+
+```
+## Setting direction: controls &lt; cases
+```
+
+```
+## AUC: 0.736
+## ACC: 0.828
+## Cats: Recall: 0.14
+##       Precision: 0.516
+## Dogs: Recall: 0.973
+##       Precision: 0.844
+```
+
+---
+
+### Remedies for Imbalanced Classes
+
+- Model level
+  - Tuning parameters and Cutoff choice
+  - Cost-aware training: Case weights and Prior probabilities
+- Data level
+  - Down sampling
+  - Up sampling
+  - Get more data and features from minority class, similar to Active Learning
+- Change of Framework
+  - Anomaly Detection
+- One final word of wisdom
+
+---
+
+### Tuning parameters and cutoff choice
+
+A general good approach would be:
+
+1. Choose a  model to maximize AUC on one part of the training dataset (using resampling)
+2. Choose a cutoff score on another part of the training dataset
+3. Fitting the entire thing on all training set and checking on test set
+
+But. You could incorporate your initial goal even into (1), making the cutoff another tuning parameter that would maximize:
+
+- Recall(cats): If never missing a cat person (the minority class) is your job .font80percent[(while maintaining acceptable level of Precision(cats))]
+- Precision(cats): If you don't have room for error when you say a person is a cat person .font80percent[(while maintaining acceptable level of Precision(cats))]
+- Some other metric like F1-score
+
+---
+
+Let us choose a model by maximizing AUC then present our client with a few potential cutoffs.
+
+We'll begin by splitting our training set into two:
+
+
+```r
+ok_split &lt;- initial_split(ok_train, prop = 0.7, strata = pets)
+
+ok_train1 &lt;- training(ok_split)
+ok_train2 &lt;- testing(ok_split)
+
+dim(ok_train1)
+```
+
+```
+## [1] 7001   38
+```
+
+```r
+dim(ok_train2)
+```
+
+```
+## [1] 2999   38
+```
+
+---
+
+Use the first training set to choose a GBT model to maximize AUC with 5-fold CV:
+
+
+```r
+mod_gbt_spec &lt;- boost_tree(mode = "classification",
+                           mtry = tune(),
+                           min_n = tune(),
+                           learn_rate = tune(),
+                           trees = 1000) %&gt;%
+  set_engine("xgboost", eval_metric = "logloss")
+
+gbt_grid &lt;- grid_regular(mtry(range(10, 50)),
+                         min_n(range(10, 100)),
+                         learn_rate(range(-3, -1)),
+                         levels = 3)
+rec_gbt &lt;- recipe(pets ~ ., data = ok_train1) %&gt;%
+  step_dummy(all_nominal(), -all_outcomes()) %&gt;%
+  prep(ok_train1)
+
+cv_splits &lt;- vfold_cv(juice(rec_gbt), v = 5, strata = pets)
+```
+
+---
+
+
+```r
+tune_res &lt;- tune_grid(object = mod_gbt_spec,
+                      preprocessor = recipe(pets~., data = juice(rec_gbt)),
+                      resamples = cv_splits,
+                      grid = gbt_grid,
+                      control = control_grid(verbose = TRUE),
+                      metrics = metric_set(roc_auc))
+```
+
+&lt;img src="images/Imbalanced-AUC-Res-1.png" width="100%" /&gt;
+
+
+
+---
+
+Fit the best model on all of `ok_train1` and get scores on `ok_train2`:
+
+
+```r
+mod_gbt_spec &lt;- mod_gbt_spec %&gt;%
+  update(mtry = 30, trees = 1000,
+         min_n = 10, learn_rate = 0.01)
+mod_gbt &lt;- mod_gbt_spec %&gt;%
+  fit(pets ~ ., data = juice(rec_gbt))
+
+pred_gbt &lt;- mod_gbt %&gt;%
+  predict(new_data = bake(rec_gbt, ok_train2), type = "prob") %&gt;%
+  pull(.pred_cats)
+```
+
+---
+
+You can use the ROC curve to understad the behavior of the cutoff:
+
+
+
+
+
+&lt;img src="images/Imbalanced-AUC-ROC-1.png" width="60%" /&gt;
+
+---
+
+Maybe better, draw a histogram of `cats` score and mark the cutoffs there:
+
+&lt;img src="images/Imbalanced-Score-Host-1.png" width="100%" /&gt;
+
+---
+
+Lastly, train on entire training set and evaluate on test set:
+
+
+```r
+mod_gbt &lt;- mod_gbt_spec %&gt;%
+  fit(pets ~ ., data = bake(rec_gbt, ok_train))
+pred_gbt &lt;- mod_gbt %&gt;%
+  predict(new_data = bake(rec_gbt, ok_valid), type = "prob") %&gt;%
+  pull(.pred_cats)
+pred_gbt_class &lt;- ifelse(pred_gbt &gt; 0.17, "cats", "dogs")
+true_class &lt;- ok_valid$pets
+table(true_class, pred_gbt_class)
+```
+
+```
+##           pred_gbt_class
+## true_class cats dogs
+##       cats  309  164
+##       dogs  647 1609
+```
+
+```r
+report_accuracy_and_auc(true_class, pred_gbt, cutoff = 0.17)
+```
+
+```
+## AUC: 0.75
+## ACC: 0.703
+## Cats: Recall: 0.653
+##       Precision: 0.323
+## Dogs: Recall: 0.713
+##       Precision: 0.908
+```
+
+---
+
+### Cost aware training: Case weights
+
+For example, in `glm()` you can simply specify a `weights` param:
+
+&gt; when the elements of weights are positive integers *w_i*, each response *y_i* is the mean of *w_i* unit-weight observations
+
+
+```r
+pets_weights &lt;- rep(1, nrow(ok_train))
+pets_weights[which(ok_train$pets == "cats")] &lt;- 5
+
+mod_glm &lt;- glm(pets ~ ., data = ok_train,
+*              family = "binomial", weights = pets_weights)
+
+pred_glm &lt;- 1 - predict(mod_glm, ok_valid, type = "response")
+
+pred_glm_class &lt;- ifelse(pred_glm &gt; 0.5, "cats", "dogs")
+true_class &lt;- ok_valid$pets
+```
+
+---
+
+
+```r
+table(true_class, pred_glm_class)
+```
+
+```
+##           pred_glm_class
+## true_class cats dogs
+##       cats  303  170
+##       dogs  655 1601
+```
+
+```r
+report_accuracy_and_auc(true_class, pred_glm)
+```
+
+```
+## AUC: 0.736
+## ACC: 0.698
+## Cats: Recall: 0.641
+##       Precision: 0.316
+## Dogs: Recall: 0.71
+##       Precision: 0.904
+```
+
+But this is almost equivalent to up sampling.
+
+A more intelligent use of class weights would be something like using the `class.weights` parameter in `e1071::svm()`
+
+---
+
+### Cost aware training: Prior probabilities
+
+**Small Detour: Naive Bayes**
+
+You know Bayes' Theorem, right?
+
+`\(P(A|B) = \frac{P(B|A)P(A)}{P(B)}\)`
+
+or
+
+`\(posterior = \frac{likelihood \cdot prior}{evidence}\)`
+
+So what would be the posterior probability of class `\(C_k\)` given that we've seen observation `\(x_i\)`?
+
+`\(P(C_k|x_i) = \frac{P(x_i|C_k)P(C_k)}{P(x_i)}\)`
+
+---
+
+`\(P(C_k|x_i) = \frac{P(x_i|C_k)P(C_k)}{P(x_i)}\)`
+
+In words: the likelihood of seeing an observation like `\(x_i\)` in all class `\(C_k\)` observations, times the prior of class `\(C_k\)` observations, divided by the evidence seeing an observation like `\(x_i\)` in general.
+
+.insight[
+💡 What increases `\(P(C_k|x_i)\)`? What decreases it?
+]
+
+But if we have, say 100 predictors, each categorical with 2 levels - we'd have to pre-compute `\(2^{100}\)` possible for each `\(C_k\)`!
+
+---
+
+Enter *Naive* Bayes:
+
+Assume that all predictors `\(X\)`  are mutually independent, conditional on the class `\(C_k\)`, and so:
+
+`\(P(x_i|C_k) = \prod_{j = 1}^pP(x_{ij}|C_k)\)`
+
+And so:
+
+`\(P(C_k|x_i) = \frac{\prod P(x_{ij}|C_k)P(C_k)}{P(x_i)}\)`
+
+And we can further expand: `\(P(x_i) = \sum_k P(x_{i}|C_k)P(C_k)\)`
+
+.insight[
+💡 How would you compute `\(P(x_{ij}|C_k)\)` when `\(x_{ij}\)` is continuous?
+]
+
+---
+
+
+```r
+library(naivebayes)
+
+mod_nb &lt;- naive_bayes(pets ~ ., data = ok_train)
+
+pred_nb &lt;- predict(mod_nb, ok_valid, type = "prob")[, "cats"]
+
+pred_nb_class &lt;- ifelse(pred_nb &gt; 0.5, "cats", "dogs")
+table(true_class, pred_nb_class)
+```
+
+```
+##           pred_nb_class
+## true_class cats dogs
+##       cats  180  293
+##       dogs  294 1962
+```
+
+```r
+report_accuracy_and_auc(true_class, pred_nb)
+```
+
+```
+## AUC: 0.718
+## ACC: 0.785
+## Cats: Recall: 0.381
+##       Precision: 0.38
+## Dogs: Recall: 0.87
+##       Precision: 0.87
+```
+
+---
+
+BTW, *are* our features mutually independent?
+
+
+```r
+ok_train %&gt;%
+  filter(pets == "cats") %&gt;%
+  select_if(is.numeric) %&gt;%
+  cor() %&gt;%
+  corrplot::corrplot()
+```
+
+&lt;img src="images/Imbalanced-Cor-Matrix-1.png" width="50%" /&gt;
+
+---
+
+In the context of imbalanced classes you could just give a 5 times more weight to the score of cats by specifying different prior probabilities `\(P(C_k)\)`:
+
+
+```r
+mod_nb &lt;- naive_bayes(pets ~ ., data = ok_train, prior = c(5, 1))
+
+pred_nb &lt;- predict(mod_nb, ok_valid, type = "prob")[, "cats"]
+
+pred_nb_class &lt;- ifelse(pred_nb &gt; 0.5, "cats", "dogs")
+table(true_class, pred_nb_class)
+```
+
+```
+##           pred_nb_class
+## true_class cats dogs
+##       cats  398   75
+##       dogs 1251 1005
+```
+
+```r
+report_accuracy_and_auc(true_class, pred_nb)
+```
+
+```
+## AUC: 0.718
+## ACC: 0.514
+## Cats: Recall: 0.841
+##       Precision: 0.241
+## Dogs: Recall: 0.445
+##       Precision: 0.931
+```
+
+---
+
+### Down Sampling
+
+Yes, down sampling the majority class, usually to make it the same amount as the minority class (but you can tune this parameter as any other).
+
+You'd be surprised.
+
+
+```r
+rec_gbt &lt;- recipe(pets ~ ., data = ok_train) %&gt;%
+  step_dummy(all_nominal(), -all_outcomes()) %&gt;%
+* themis::step_downsample(pets, under_ratio = 1) %&gt;%
+  prep(ok_train)
+```
+
+If you want to stay in the `tidymodels` framework you can download the `themis` package for extra recipes for dealing with unbalanced data.
+
+---
+
+.warning[
+⚠️ Never down-sample the testing set! Look at the `skip` parameter.
+]
+
+
+```r
+juice(rec_gbt) %&gt;% count(pets)
+```
+
+```
+## # A tibble: 2 x 2
+##   pets      n
+##   &lt;fct&gt; &lt;int&gt;
+## 1 cats   1624
+## 2 dogs   1624
+```
+
+```r
+bake(rec_gbt, ok_valid) %&gt;% count(pets)
+```
+
+```
+## # A tibble: 2 x 2
+##   pets      n
+##   &lt;fct&gt; &lt;int&gt;
+## 1 cats    473
+## 2 dogs   2256
+```
+
+---
+
+
+```r
+mod_gbt &lt;- mod_gbt_spec %&gt;%
+  fit(pets ~ ., data = juice(rec_gbt))
+pred_gbt &lt;- mod_gbt %&gt;%
+  predict(new_data = bake(rec_gbt, ok_valid), type = "prob") %&gt;%
+  pull(.pred_cats)
+pred_gbt_class &lt;- ifelse(pred_gbt &gt; 0.5, "cats", "dogs")
+
+table(true_class, pred_gbt_class)
+```
+
+```
+##           pred_gbt_class
+## true_class cats dogs
+##       cats  329  144
+##       dogs  749 1507
+```
+
+```r
+report_accuracy_and_auc(true_class, pred_gbt)
+```
+
+```
+## AUC: 0.734
+## ACC: 0.673
+## Cats: Recall: 0.696
+##       Precision: 0.305
+## Dogs: Recall: 0.668
+##       Precision: 0.913
+```
+
+---
+
+### Up Sampling
+
+The main disadvantage of down sampling is of course the loss of data.
+
+Will replicating (minority class) data do any better?
+
+
+```r
+rec_gbt &lt;- recipe(pets ~ ., data = ok_train) %&gt;%
+  step_dummy(all_nominal(), -all_outcomes()) %&gt;%
+* themis::step_upsample(pets, over_ratio = 1) %&gt;%
+  prep(ok_train)
+
+mod_gbt &lt;- mod_gbt_spec %&gt;%
+  fit(pets ~ ., data = juice(rec_gbt))
+pred_gbt &lt;- mod_gbt %&gt;%
+  predict(new_data = bake(rec_gbt, ok_valid), type = "prob") %&gt;%
+  pull(.pred_cats)
+pred_gbt_class &lt;- ifelse(pred_gbt &gt; 0.5, "cats", "dogs")
+```
+
+---
+
+
+```r
+table(true_class, pred_gbt_class)
+```
+
+```
+##           pred_gbt_class
+## true_class cats dogs
+##       cats  253  220
+##       dogs  467 1789
+```
+
+```r
+report_accuracy_and_auc(true_class, pred_gbt)
+```
+
+```
+## AUC: 0.74
+## ACC: 0.748
+## Cats: Recall: 0.535
+##       Precision: 0.351
+## Dogs: Recall: 0.793
+##       Precision: 0.89
+```
+
+---
+
+### SMOTE
+
+[Chawla et. al. (2002)](https://arxiv.org/pdf/1106.1813.pdf) developed SMOTE (Synthetic Minority Over-sampling Technique) which is a up sampling technique.
+
+The authors claim that a hybrid combination of SMOTE and regular down sampling works best, that's why SMOTE is sometimes referred to as a "hybrid" sampling algo itself.
+
+But the up sampling does not simply replicates the minority class...
+
+---
+
+It synthesizes them!
+
+&lt;img src="images/smote_algo.png" style="width: 70%" /&gt;
+
+---
+
+
+```r
+n &lt;- 100
+x1 &lt;- rnorm(n, 0, 1); x2 &lt;- rnorm(n, 0, 1)
+t &lt;- 2 - 4 * x1 + 3 * x2
+y &lt;- rbinom(n, 1, 1 / (1 + exp(-t)))
+
+df &lt;- tibble(x1 = x1, x2 = x2, y = factor(y))
+df %&gt;% count(y)
+```
+
+```
+## # A tibble: 2 x 2
+##   y         n
+##   &lt;fct&gt; &lt;int&gt;
+## 1 0        30
+## 2 1        70
+```
+
+```r
+df_smoted &lt;- recipe(y ~ ., data = df) %&gt;%
+  themis::step_smote(y, over_ratio = 1) %&gt;%
+  prep(df) %&gt;%
+  juice()
+```
+
+---
+
+
+```r
+df_smoted %&gt;% count(y)
+```
+
+```
+## # A tibble: 2 x 2
+##   y         n
+##   &lt;fct&gt; &lt;int&gt;
+## 1 0        70
+## 2 1        70
+```
+
+&lt;img src="images/SMOTE-simulation-1.png" width="100%" /&gt;
+
+---
+
+Let's do a hybrid of down sampling and SMOTE on our data:
+
+
+```r
+rec_gbt &lt;- recipe(pets ~ ., data = ok_train) %&gt;%
+  step_dummy(all_nominal(), -all_outcomes()) %&gt;%
+  themis::step_downsample(pets, under_ratio = 1.5) %&gt;%
+  themis::step_smote(pets, over_ratio = 1) %&gt;%
+  prep(ok_train)
+
+juice(rec_gbt) %&gt;% count(pets)
+```
+
+```
+## # A tibble: 2 x 2
+##   pets      n
+##   &lt;fct&gt; &lt;int&gt;
+## 1 cats   2436
+## 2 dogs   2436
+```
+
+```r
+mod_gbt &lt;- mod_gbt_spec %&gt;%
+  fit(pets ~ ., data = juice(rec_gbt))
+pred_gbt &lt;- mod_gbt %&gt;%
+  predict(new_data = bake(rec_gbt, ok_valid), type = "prob") %&gt;%
+  pull(.pred_cats)
+pred_gbt_class &lt;- ifelse(pred_gbt &gt; 0.5, "cats", "dogs")
+```
+
+---
+
+
+```r
+table(true_class, pred_gbt_class)
+```
+
+```
+##           pred_gbt_class
+## true_class cats dogs
+##       cats  273  200
+##       dogs  478 1778
+```
+
+```r
+report_accuracy_and_auc(true_class, pred_gbt)
+```
+
+```
+## AUC: 0.753
+## ACC: 0.752
+## Cats: Recall: 0.577
+##       Precision: 0.364
+## Dogs: Recall: 0.788
+##       Precision: 0.899
+```
+
+---
+
+### Other Up Sampling Methods
+
+- ADASYN
+- Borderline SMOTE
+- ROSE
+- Depends on data (e.g. with images it is common to perform image augmentation: flip, crop, rotate, blur it)
+
+### Change of Framework
+
+- Anomaly Detection
+
+---
+
+### One final word of wisdom
+
+- It's Ok for a model to not know!
+
+- The optimal choice would be for a classification model to output a *score*, rather than a class, and have the client's system interpret that score for different applications
+
+- However, if a class output is required, consider outputting a `\(k+1\)` class: "I don't know"
+
+- In the case of classifying cats vs. dogs people - it makes sense!
+
+- For a two-class problem, you would have not one cutoff on the score, but two: Below cutoff 1 classify as "Dogs", above "Cats" and in the middle: "I don't know"
+
+- As long as you make a decision regarding at least X% of the data
+
+---
+
+Let's see this on the `ok_valid` test set using our last SMOTEd model (but notice to tune these cutoffs you would need an extra set of untouched data!):
+
+
+```r
+upper &lt;- 0.65
+lower &lt;- 0.35
+pred_gbt_class &lt;- ifelse(pred_gbt &gt; upper, "cats",
+                         ifelse(pred_gbt &lt; lower, "dogs", NA))
+table(true_class, pred_gbt_class)
+```
+
+```
+##           pred_gbt_class
+## true_class cats dogs
+##       cats  143  101
+##       dogs  195 1366
+```
+
+---
+
+
+```r
+report_accuracy_and_auc2 &lt;- function(obs, pred, lower = 0.35, upper = 0.65) {
+  pred_class &lt;- ifelse(pred &gt; upper, "cats",
+                         ifelse(pred &lt; lower, "dogs", NA))
+  cm &lt;- table(true_class, pred_class)
+  recall_cats &lt;- cm[1, 1] / sum(cm[1,])
+  recall_dogs &lt;- cm[2, 2] / sum(cm[2,])
+  prec_cats &lt;- cm[1, 1] / sum(cm[,1])
+  prec_dogs &lt;- cm[2, 2] / sum(cm[,2])
+  acc &lt;- sum(diag(cm)) / sum(cm)
+  pred_pct &lt;- sum(cm) / length(obs)
+  glue::glue("Predicted: {format(pred_pct, digits = 3)}
+  ACC: {format(acc, digits = 3)}
+  Cats: Recall: {format(recall_cats, digits = 3)}
+        Precision: {format(prec_cats, digits = 3)}
+  Dogs: Recall: {format(recall_dogs, digits = 3)}
+        Precision: {format(prec_dogs, digits = 3)}")
+}
+
+report_accuracy_and_auc2(true_class, pred_gbt)
+```
+
+```
+## Predicted: 0.661
+## ACC: 0.836
+## Cats: Recall: 0.586
+##       Precision: 0.423
+## Dogs: Recall: 0.875
+##       Precision: 0.931
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="../libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

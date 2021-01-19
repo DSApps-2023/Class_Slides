@@ -208,7 +208,7 @@ We split the data into training, validation and test sets:
 
 ```{r, message=FALSE, warning=FALSE}
 # test_idx <- sample(1:nrow(okcupid2), 2000, replace = FALSE)
-# train_idx <- okcupid2 %>% filter(!id %in% test_idx) %>% sample_n(8000) %>% pull(id)
+# train_idx <- okcupid2 %>% filter(!id %in% test_idx) %>% slice_sample(n = 8000) %>% pull(id)
 # valid_idx <- okcupid2 %>% filter(!id %in% test_idx, !id %in% train_idx) %>% pull(id)
 okcupid2 <- okcupid2 %>% select(-id)
 
@@ -1438,7 +1438,7 @@ And as before we split the data into training, test and validation sets, not sho
 
 ```{r, message=FALSE, echo=FALSE}
 # test_idx <- sample(1:nrow(okcupid3), 4000, replace = FALSE)
-# train_idx <- okcupid3 %>% filter(!id %in% test_idx) %>% sample_n(10000) %>% pull(id)
+# train_idx <- okcupid3 %>% filter(!id %in% test_idx) %>% slice_sample(n = 10000) %>% pull(id)
 # valid_idx <- okcupid3 %>% filter(!id %in% test_idx, !id %in% train_idx) %>% pull(id)
 okcupid3 <- okcupid3 %>% select(-id)
 

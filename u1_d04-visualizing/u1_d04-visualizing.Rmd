@@ -532,7 +532,7 @@ p2 + geom_density()
 
 ```{r Boxplot, eval=FALSE}
 p3 <- okcupid %>%
-  sample_n(5000) %>%
+  slice_sample(n = 5000) %>%
   ggplot(aes(sex, income)) +
   scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x),
                 labels = trans_format("log10", math_format(10^.x))) +
@@ -548,7 +548,7 @@ p3 + geom_boxplot() #<<
 
 ```{r Boxplot1, out.width="80%", fig.asp = 0.7, warning=FALSE, message=FALSE, echo=FALSE}
 p3 <- okcupid %>%
-  sample_n(5000) %>%
+  slice_sample(n = 5000) %>%
   ggplot(aes(sex, income)) +
   scale_y_log10(breaks = trans_breaks("log10", function(x) 10^x),
                 labels = trans_format("log10", math_format(10^.x))) +

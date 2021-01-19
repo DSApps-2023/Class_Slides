@@ -778,7 +778,7 @@ okcupid <- okcupid %>%
   mutate(is_tall = map2_lgl(sex, height_cm, is_above_average_height))
 
 okcupid %>% select(sex, height_cm, is_tall) %>%
-  group_by(sex) %>% sample_n(3)
+  group_by(sex) %>% slice_sample(n = 3)
 ```
 
 .font80percent[This specific example might not be *that* bad with `ifelse()`, what will you do with 5 variables?]
@@ -796,7 +796,7 @@ okcupid <- okcupid %>%
   mutate(is_tall = map2_lgl(sex, height_cm, is_above_average_height,
                             men_avg = 180, women_avg = 165))
 
-okcupid %>% select(sex, height_cm, is_tall) %>% group_by(sex) %>% sample_n(3)
+okcupid %>% select(sex, height_cm, is_tall) %>% group_by(sex) %>% slice_sample(n = 3)
 ```
 
 ---
