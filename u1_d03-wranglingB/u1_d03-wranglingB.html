@@ -4,7 +4,8 @@
     <title>Tidy Data Wrangling - Part B</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-01-19" />
+    <meta name="date" content="2021-02-09" />
+    <script src="u1_d03-wranglingB_files/header-attrs-2.6/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -30,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-01-19
+### 2021-02-09
 
 ---
 
@@ -906,9 +907,9 @@ microbenchmark(nchar_loop(), nchar_vectorized())
 
 ```
 ## Unit: nanoseconds
-##                expr  min   lq     mean median   uq     max neval
-##        nchar_loop() 2601 2701 40056.02   2801 2901 3725301   100
-##  nchar_vectorized()  800  901 11806.99    901  901 1068001   100
+##                expr  min   lq  mean median   uq     max neval
+##        nchar_loop() 2900 3000 45502   3100 3200 4233600   100
+##  nchar_vectorized()  900 1000 13417   1000 1100 1221500   100
 ```
 
 - So why should iterating through a `data.frame` columns or rows be any different?
@@ -1114,12 +1115,12 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;%
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          170. TRUE   
-## 2 f          163. FALSE  
-## 3 f          175. TRUE   
-## 4 m          183. TRUE   
-## 5 m          170. FALSE  
-## 6 m          185. TRUE
+## 1 f          165. TRUE   
+## 2 f          173. TRUE   
+## 3 f          155. FALSE  
+## 4 m          178. FALSE  
+## 5 m          183. TRUE   
+## 6 m          178. FALSE
 ```
 
 .font80percent[This specific example might not be *that* bad with `ifelse()`, what will you do with 5 variables?]
@@ -1146,12 +1147,12 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;% group_by(sex) %&gt;% slice
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          165. TRUE   
-## 2 f          170. TRUE   
-## 3 f          157. FALSE  
-## 4 m          183. TRUE   
-## 5 m          178. FALSE  
-## 6 m          175. FALSE
+## 1 f          157. FALSE  
+## 2 f          168. TRUE   
+## 3 f          163. FALSE  
+## 4 m          178. FALSE  
+## 5 m          173. FALSE  
+## 6 m          173. FALSE
 ```
 
 ---
@@ -1186,7 +1187,7 @@ For each `essay` column, add a column with its length:
 
 ```r
 okcupid %&gt;%
-  mutate_at(vars(essay0:essay9), list("len" = str_length)) %&gt;%
+  mutate(across(essay0:essay9, list("len" = str_length))) %&gt;%
   select(starts_with("essay")) %&gt;%
   head(3)
 ```
@@ -1331,6 +1332,61 @@ okcupid %&gt;%
 ##  9    24 f      &lt;NA&gt;                     NA          NA           NA            
 ## 10    37 m     "my names jake.&lt;br /&gt;\ni~ TRUE        FALSE        FALSE         
 ## # ... with 59,936 more rows
+```
+
+---
+
+## `rowwise()` and `c_across()`
+
+The Tidyverse dev team recently acknowledged that the `purrr` lingo might be a bit much for many users. Enter `rowwise()`:
+
+Before:
+
+
+```r
+is_above_average_height &lt;- function(sex, height_cm) {
+  if (sex == "m") height_cm &gt; 180 else height_cm &gt; 165
+}
+
+okcupid %&gt;%
+  mutate(is_tall = map2_lgl(sex, height_cm, is_above_average_height))
+```
+
+After:
+
+
+```r
+okcupid %&gt;%
+  rowwise() %&gt;%
+  mutate(is_tall = is_above_average_height(sex, height_cm))
+```
+
+---
+
+### `rowwise()` and `c_across()`
+
+Before:
+
+
+```r
+mean_length_essay &lt;- function(...) {
+  mean(str_length(c(...)), na.rm = TRUE)
+}
+
+okcupid %&gt;%
+  mutate(essay_avglen = pmap_dbl(
+    select(., starts_with("essay")),
+    mean_length_essay))
+```
+
+After:
+
+
+```r
+okcupid %&gt;%
+  rowwise() %&gt;%
+  mutate(essay_avglen =
+           mean_length_essay(c_across(starts_with("essay"))))
 ```
 
 ---

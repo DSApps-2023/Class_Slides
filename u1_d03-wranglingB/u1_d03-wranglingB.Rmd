@@ -828,7 +828,7 @@ For each `essay` column, add a column with its length:
 
 ```{r Example3A}
 okcupid %>%
-  mutate_at(vars(essay0:essay9), list("len" = str_length)) %>%
+  mutate(across(essay0:essay9, list("len" = str_length))) %>%
   select(starts_with("essay")) %>%
   head(3)
 ```
@@ -903,6 +903,57 @@ okcupid %>%
     okcupid %>% select(essay0) %>% map_dfc(essay0_features)
   ) %>%
   select(age, sex, starts_with("essay0"))
+```
+
+---
+
+## `rowwise()` and `c_across()`
+
+The Tidyverse dev team recently acknowledged that the `purrr` lingo might be a bit much for many users. Enter `rowwise()`:
+
+Before:
+
+```{r Rowwise-Before1, eval=FALSE}
+is_above_average_height <- function(sex, height_cm) {
+  if (sex == "m") height_cm > 180 else height_cm > 165
+}
+
+okcupid %>%
+  mutate(is_tall = map2_lgl(sex, height_cm, is_above_average_height))
+```
+
+After:
+
+```{r Rowwise-After1, eval=FALSE}
+okcupid %>%
+  rowwise() %>%
+  mutate(is_tall = is_above_average_height(sex, height_cm))
+```
+
+---
+
+### `rowwise()` and `c_across()`
+
+Before:
+
+```{r Before-Rowwise2, eval=FALSE}
+mean_length_essay <- function(...) {
+  mean(str_length(c(...)), na.rm = TRUE)
+}
+
+okcupid %>%
+  mutate(essay_avglen = pmap_dbl(
+    select(., starts_with("essay")),
+    mean_length_essay))
+```
+
+After:
+
+```{r After-Rowwise2, eval=FALSE}
+okcupid %>%
+  rowwise() %>%
+  mutate(essay_avglen =
+           mean_length_essay(c_across(starts_with("essay"))))
 ```
 
 ---
