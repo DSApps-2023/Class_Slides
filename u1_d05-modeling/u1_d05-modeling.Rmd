@@ -131,7 +131,7 @@ ipf_lifts <- ipf_lifts %>%
   mutate(year = year(date), month = month(date),
          dayofweek = wday(date)) %>%
   select(-date) %>%
-  mutate_if(is.character, as.factor)
+  mutate(across(where(is.character), as.factor))
 
 dim(ipf_lifts)
 ```
