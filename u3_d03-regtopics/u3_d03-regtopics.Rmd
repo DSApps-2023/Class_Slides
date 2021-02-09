@@ -999,8 +999,8 @@ library(patchwork)
 weights_tibble <- function(m1, m2) {
   as_tibble(m1) %>%
     mutate(label = colnames(m2)) %>%
-    mutate_if(is.numeric,
-              funs(case_when(. == 0 ~ runif(n(), -0.01, 0.01), TRUE ~ .))) %>%
+    mutate(across(where(is.numeric),
+              ~case_when(.x == 0 ~ runif(n(), -0.01, 0.01), TRUE ~ .x))) %>%
     select(label, everything())
 }
 

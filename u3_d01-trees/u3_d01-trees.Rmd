@@ -169,9 +169,9 @@ okcupid2 <- okcupid2 %>%
            TRUE ~ job2
          ),
          job_underpaid = job2 %in% job_underpaid) %>%
-  mutate_at(vars(essay0:essay9), list("len" = ~log(str_length(.x) + 0.016))) %>%
-  mutate_if(is.character, as.factor) %>%
-  mutate_if(is.logical, as.factor)
+  mutate(across(essay0:essay9, list("len" = ~log(str_length(.x) + 0.016)))) %>%
+  mutate(across(where(is.character), as.factor)) %>%
+  mutate(across(where(is.logical), as.factor))
 
 predictors <- c("age", "height_cm", "sex", "body_type", "body_type_not_perfect",
                 "diet2", "drinks", "drugs", "religion2",
@@ -1406,9 +1406,9 @@ okcupid3 <- okcupid3 %>%
            TRUE ~ job2
          ),
          job_underpaid = job2 %in% job_underpaid) %>%
-  mutate_at(vars(essay0:essay9), list("len" = ~log(str_length(.x) + 0.016))) %>%
-  mutate_if(is.character, as.factor) %>%
-  mutate_if(is.logical, as.factor)
+  mutate(across(essay0:essay9, list("len" = ~log(str_length(.x) + 0.016)))) %>%
+  mutate(across(where(is.character), as.factor)) %>%
+  mutate(across(where(is.logical), as.factor))
 
 predictors <- c("age", "height_cm", "sex", "body_type", "log_income",
                 "diet2", "drinks", "drugs", "religion2",
