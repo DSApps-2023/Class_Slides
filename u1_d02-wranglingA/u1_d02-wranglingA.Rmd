@@ -335,10 +335,6 @@ okcupid %>%
   mutate_all(log)
 ```
 
-.insight[
-`r emo::ji("bulb")` Also see `mutate_if()`
-]
-
 ---
 
 Same but add `sqrt` and keep original columns:
@@ -388,7 +384,31 @@ okcupid %>%
 
 ---
 
-## Dealing with `NA`s
+### `across()` and `c_across()`
+
+The `_if()`, `_at()` and `_all()` families are so last year...
+
+With a few exceptions (`select_if()`, `na_if()`...) they have now been "superseded" by `across()`. So instead of `mutate_all()` we would do:
+
+```{r Mutate-All-Across, eval=FALSE}
+okcupid %>% mutate(across(everything(), log))
+```
+
+Instead of `mutate_at()` we would now do:
+
+```{r Mutate-At-Across, eval=FALSE}
+okcupid %>% mutate(across(c("income", "height_cm"), log))
+```
+
+And instead of `mutate_if()` we would do:
+
+```{r Mutate-If-Across, eval=FALSE}
+okcupid %>% mutate(across(where(is.numeric), log))
+```
+
+---
+
+### Dealing with `NA`s
 
 You've already seen `na_if()`. We could simply, always, keep those `NA`s in income:
 
@@ -460,7 +480,7 @@ count_var_for_gender(body_type, "f") %>% head(9)
 
 ```{r Functionize2}
 transform_all_my_numerics <- function(df, transformation) {
-  df %>% mutate_if(is.numeric, transformation)
+  df %>% mutate(across(where(is.numeric), transformation))
 }
 
 okcupid %>%

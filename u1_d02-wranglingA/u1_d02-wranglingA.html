@@ -4,7 +4,8 @@
     <title>Tidy Data Wrangling - Part A</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-01-19" />
+    <meta name="date" content="2021-02-09" />
+    <script src="u1_d02-wranglingA_files/header-attrs-2.6/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -30,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-01-19
+### 2021-02-09
 
 ---
 
@@ -631,10 +632,6 @@ okcupid %&gt;%
 ## # ... with 59,936 more rows
 ```
 
-.insight[
-💡 Also see `mutate_if()`
-]
-
 ---
 
 Same but add `sqrt` and keep original columns:
@@ -762,7 +759,34 @@ okcupid %&gt;%
 
 ---
 
-## Dealing with `NA`s
+### `across()` and `c_across()`
+
+The `_if()`, `_at()` and `_all()` families are so last year...
+
+With a few exceptions (`select_if()`, `na_if()`...) they have now been "superseded" by `across()`. So instead of `mutate_all()` we would do:
+
+
+```r
+okcupid %&gt;% mutate(across(everything(), log))
+```
+
+Instead of `mutate_at()` we would now do:
+
+
+```r
+okcupid %&gt;% mutate(across(c("income", "height_cm"), log))
+```
+
+And instead of `mutate_if()` we would do:
+
+
+```r
+okcupid %&gt;% mutate(across(where(is.numeric), log))
+```
+
+---
+
+### Dealing with `NA`s
 
 You've already seen `na_if()`. We could simply, always, keep those `NA`s in income:
 
@@ -819,20 +843,20 @@ okcupid %&gt;% select(drugs, age, income, sex) %&gt;%
 ```
 ## # A tibble: 12 x 4
 ## # Groups:   drugs [4]
-##    drugs       age  income sex  
-##    &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;
-##  1 never        26      NA m    
-##  2 never        34      NA m    
-##  3 never        33      NA m    
-##  4 often        22      NA f    
-##  5 often        32 1000000 f    
-##  6 often        26      NA f    
-##  7 sometimes    28      NA f    
-##  8 sometimes    29      NA m    
-##  9 sometimes    23   20000 f    
-## 10 &lt;NA&gt;         43      NA f    
-## 11 &lt;NA&gt;         43  150000 f    
-## 12 &lt;NA&gt;         24      NA m
+##    drugs       age income sex  
+##    &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;
+##  1 never        23  20000 m    
+##  2 never        27     NA f    
+##  3 never        57  50000 m    
+##  4 often        32     NA m    
+##  5 often        24     NA m    
+##  6 often        19     NA f    
+##  7 sometimes    35     NA m    
+##  8 sometimes    21  20000 f    
+##  9 sometimes    30     NA f    
+## 10 &lt;NA&gt;         32     NA f    
+## 11 &lt;NA&gt;         43     NA m    
+## 12 &lt;NA&gt;         29     NA f
 ```
 
 ---
@@ -876,7 +900,7 @@ count_var_for_gender(body_type, "f") %&gt;% head(9)
 
 ```r
 transform_all_my_numerics &lt;- function(df, transformation) {
-  df %&gt;% mutate_if(is.numeric, transformation)
+  df %&gt;% mutate(across(where(is.numeric), transformation))
 }
 
 okcupid %&gt;%
