@@ -691,8 +691,8 @@ g7 <- c("canada", "france", "germany", "italy", "japan", "united_kingdom", "unit
 migration_2019 <- read_rds("../data/migration.rds") %>%
   pivot_longer(cols = -c(1:4), names_to = "country_orig", values_to = "n_migrants") %>%
   filter(year == 2019) %>%
-  filter_at(c("country_orig", "country_dest"), ~.x %in% g7) %>%
-  mutate_at(c("country_orig", "country_dest"), ~case_when(.x == "united_kingdom" ~ "uk", .x == "united_states_of_america" ~ "usa", TRUE ~ .x)) %>%
+  filter(across(c("country_orig", "country_dest"), ~.x %in% g7)) %>%
+  mutate(across(c("country_orig", "country_dest"), ~case_when(.x == "united_kingdom" ~ "uk", .x == "united_states_of_america" ~ "usa", TRUE ~ .x))) %>%
   group_by(country_orig, country_dest) %>%
   summarise(n_migrants = sum(n_migrants))
 
