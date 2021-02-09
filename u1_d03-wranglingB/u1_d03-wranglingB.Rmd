@@ -905,6 +905,10 @@ okcupid %>%
   select(age, sex, starts_with("essay0"))
 ```
 
+```{r}
+# or: okcupid %>% mutate(as_tibble(essay0_features(essay0)))
+```
+
 ---
 
 ## `rowwise()` and `c_across()`

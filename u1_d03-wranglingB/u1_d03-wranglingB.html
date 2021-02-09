@@ -908,8 +908,8 @@ microbenchmark(nchar_loop(), nchar_vectorized())
 ```
 ## Unit: nanoseconds
 ##                expr  min   lq  mean median   uq     max neval
-##        nchar_loop() 2900 3000 45502   3100 3200 4233600   100
-##  nchar_vectorized()  900 1000 13417   1000 1100 1221500   100
+##        nchar_loop() 2700 2800 45491   2900 2900 4260100   100
+##  nchar_vectorized()  800  900 12672    900 1000 1171000   100
 ```
 
 - So why should iterating through a `data.frame` columns or rows be any different?
@@ -1115,12 +1115,12 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;%
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          165. TRUE   
-## 2 f          173. TRUE   
-## 3 f          155. FALSE  
-## 4 m          178. FALSE  
-## 5 m          183. TRUE   
-## 6 m          178. FALSE
+## 1 f          180. TRUE   
+## 2 f          163. FALSE  
+## 3 f          165. TRUE   
+## 4 m          183. TRUE   
+## 5 m          168. FALSE  
+## 6 m          180. TRUE
 ```
 
 .font80percent[This specific example might not be *that* bad with `ifelse()`, what will you do with 5 variables?]
@@ -1147,12 +1147,12 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;% group_by(sex) %&gt;% slice
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          157. FALSE  
-## 2 f          168. TRUE   
+## 1 f          173. TRUE   
+## 2 f          170. TRUE   
 ## 3 f          163. FALSE  
 ## 4 m          178. FALSE  
-## 5 m          173. FALSE  
-## 6 m          173. FALSE
+## 5 m          188. TRUE   
+## 6 m          185. TRUE
 ```
 
 ---
@@ -1332,6 +1332,11 @@ okcupid %&gt;%
 ##  9    24 f      &lt;NA&gt;                     NA          NA           NA            
 ## 10    37 m     "my names jake.&lt;br /&gt;\ni~ TRUE        FALSE        FALSE         
 ## # ... with 59,936 more rows
+```
+
+
+```r
+# or: okcupid %&gt;% mutate(as_tibble(essay0_features(essay0)))
 ```
 
 ---
