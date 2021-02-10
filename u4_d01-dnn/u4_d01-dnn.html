@@ -1,0 +1,2757 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Demystifying Deep Neural Networks</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Giora Simchoni" />
+    <meta name="date" content="2021-02-10" />
+    <script src="u4_d01-dnn_files/header-attrs-2.6/header-attrs.js"></script>
+    <head>
+      <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
+      <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
+    </head>
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+### Demystifying Deep Neural Networks
+
+### Applications of Data Science - Class 16
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### 2021-02-10
+
+---
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;
+  &lt;span&gt;
+    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;/a&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+---
+
+
+
+
+
+class: section-slide
+
+# Logistic Regression as *we* know it
+
+---
+
+### LR as GLM
+
+- We observe `\(y_1, ..., y_n\)` binary outcomes, therefore we say `\(Y_i \sim Bernoulli(p_i)\)` and `\(P(Y_i) = p_i^{y_i}(1-p_i)^{1-y_i}\)`
+- We have `\(X_{n\text{x}(q + 1)}\)` matrix of `\(q\)` predictors for each observation + a `\(\vec{1}\)` column for the intercept, let each row be `\(x_i\)`
+- We wish to estimate a vector of weights for each of the `\(q+1\)` predictors `\(\beta_{(q+1)\text{x}1}\)`, such that some function of `\(x_i\beta\)` explains `\(E(Y_i)=P(Y_i=1)=p_i\)`
+- We choose some *link function* `\(g\)` and model *this* transformation of `\(E(Y_i)\)`
+- Typically for this case `\(g\)` is the logit function: `\(logit(p_i) = log(\frac{p_i}{1-p_i})=x_i\beta\)`
+
+---
+
+- And so we can write:
+
+`\(E(Y_i)= P(Y_i=1|x_i;\beta) = p_i = g^{-1}(x_i\beta) = \frac{1}{1+e^{-x_i\beta}}\)`
+
+- Also note that now we can write:
+
+`\(P(Y_i|X;\beta) =  [g^{-1}(x_i\beta)]^{y_i}[1- g^{-1}(x_i\beta)]^{1-y_i} = (\frac{1}{1+e^{-x_i\beta}})^{y_i}(\frac{e^{-x_i\beta}}{1+e^{-x_i\beta}})^{1-y_i}\)`
+
+- Once we get our estimate `\(\hat\beta\)`:
+1. We could "explain" `\(Y_i\)`, the size and direction of each component of `\(\hat\beta\)` indicating the contribution of that predictor to the *log-odds* of `\(Y_i\)` being `\(1\)`
+2. We could "predict" probability of new observation `\(x_i\)` having `\(Y_i=1\)` by fitting a probability `\(\hat p_i=\frac{1}{1+e^{-x_i\hat\beta}}\)`, where typically if `\(\hat p_i &gt; 0.5\)`, or `\(x_i\hat\beta &gt; 0\)`, we predict `\(Y_i=1\)`
+
+---
+
+### How to fit the model? MLE
+
+Under the standard Maximum Likelihood approach we assume `\(Y_i\)` are also *independent* and so their joint "likelihood" is:
+
+`\(L(\beta|X, y) = \prod_{i = 1}^n{P(Y_i|X;\beta)} = \prod_{i = 1}^n[g^{-1}(x_i\beta)]^{y_i}[1- g^{-1}(x_i\beta)]^{1-y_i}\)`
+
+The `\(\hat\beta\)` we choose is the vector maximizing `\(L(\beta|X, y)\)`, only we take the log-likelihood which is easier to differentiate:
+
+`\(l(\beta|X, y)=\sum_{i=1}^n\ln{P(Y_i|X;\beta)} =\)`
+`\(\sum_{i=1}^n y_i\ln[g^{-1}(x_i\beta)] + (1-y_i)\ln[1- g^{-1}(x_i\beta)] =\)`
+
+This looks Ok but let us improve a bit just for easier differentiation:
+
+`\(\sum_{i=1}^n \ln[1- g^{-1}(x_i\beta)] + y_i\ln[\frac{g^{-1}(x_i\beta)}{1- g^{-1}(x_i\beta)}]=\)`
+`\(\sum_{i=1}^n -\ln[1+ e^{x_i\beta}] + y_ix_i\beta\)`
+
+---
+
+### Life is like a box of chocolates
+
+Differentiate:
+
+`\(\frac{\partial l(\beta|X, y)}{\partial \beta_j} = \sum_{i=1}^n-\frac{1}{1+e^{x_i\beta}}e^{x_i\beta}x_{ij} + y_ix_{ij}=\sum_{i=1}^n x_{ij}(y_i-g^{-1}(x_i\beta))\)`
+
+Or in matrix notation:
+
+`\(\frac{\partial l(\beta|X, y)}{\partial \beta}=X^T(y - g^{-1}(X\beta))\)`
+
+We would like to equate this with `\(\vec0\)` and get `\(\hat\beta\)` but there's no closed solution...
+
+At which point usually the Newton-Raphson method comes to the rescue.
+
+But let's look at simple gradient descent:
+
+---
+
+### Gradient De(A)scent
+
+- Instead of maximizing log-likelihood, let's minimize minus log-likelihood `\(-l(\beta)\)`
+- We'll start with an initial guess `\(\hat\beta_{t=0}\)`
+- The partial derivatives vector of `\(-l(\beta)\)` at point `\(\hat\beta_t\)` (a.k.a the *gradient* `\(-\nabla l(\hat\beta_t)\)`) points to the direction of where `\(-l(\beta)\)` has its steepest descent
+- We'll go a small `\(alpha\)` step down that direction: `\(\hat\beta_{t+1}=\hat\beta_t -\alpha \cdot[-\nabla l(\hat\beta_t)]\)`
+- We do this for `\(I\)` iterations or until some stopping rule indicating `\(\hat\beta\)` has converged
+
+---
+
+### Show me that it's working
+
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+n = 1000
+q = 2
+X = np.random.normal(size = n * q).reshape((n, q))
+beta = np.arange(1, q + 1) # [1, 2]
+p = 1 / (1 + np.exp(-np.dot(X, beta)))
+y = np.random.binomial(1, p, size = n)
+
+
+X1 = np.linspace(-4, 4) # for plotting
+
+def plot_sim(plot_beta_hat=True):
+  plt.clf()
+  plt.scatter(X[:, 0], X[:, 1], c = y)
+  plt.plot(X1, -X1 * beta[0]/beta[1], linestyle = '--', color = 'red')
+  if plot_beta_hat:
+    plt.plot(X1, -X1 * beta_hat[0]/beta_hat[1], linestyle = '--')
+  plt.xlabel('X1')
+  plt.ylabel('X2')
+  if plot_beta_hat:
+    title = 'Guess: %.2f * X1 + %.2f * X2 = 0' % (beta_hat[0], beta_hat[1])
+  else:
+    title = 'Ideal: 1 * X1 + 2 * X2 = 0'
+  plt.title(title)
+  plt.show()
+
+plot_sim(False)
+```
+
+---
+
+&lt;img src="images/LR-Sim-Ideal-1.png" width="70%" /&gt;
+
+---
+`sklearn` should solve this easily:
+
+
+```python
+from sklearn.linear_model import LogisticRegression
+
+lr = LogisticRegression(penalty='none', fit_intercept=False, max_iter=100)
+lr.fit(X, y)
+```
+
+```
+## LogisticRegression(fit_intercept=False, penalty='none')
+```
+
+```python
+lr.coef_
+```
+
+```
+## array([[0.94792812, 2.16330134]])
+```
+
+---
+
+With Gradient Descent let's start with initial guess
+
+
+```python
+beta_hat = np.ones(q) # [1, 1]
+
+plot_sim()
+```
+
+&lt;img src="images/LR-Sim-Guess-1.png" width="50%" /&gt;
+
+---
+
+Let's do 1 iteration:
+
+
+```python
+alpha = 0.01
+
+p_hat = 1 / (1 + np.exp(-np.dot(X, beta_hat)))
+grad = -np.dot(X.T, (y - p_hat))
+beta_hat = beta_hat - alpha * grad
+
+plot_sim()
+```
+
+&lt;img src="images/LR-Sim-Guess1-1.png" width="50%" /&gt;
+
+---
+
+Let's do 10 more:
+
+
+```python
+for i in range(10):
+  p_hat = 1 / (1 + np.exp(-np.dot(X, beta_hat)))
+  grad = -np.dot(X.T, (y - p_hat))
+  beta_hat = beta_hat - alpha * grad
+
+plot_sim()
+```
+
+&lt;img src="images/LR-Sim-Guess10-1.png" width="50%" /&gt;
+
+---
+
+We didn't need to compute `\(-l(\beta)\)` but let's:
+
+
+```python
+alpha = 0.001
+beta_hat = np.array([-2.5, -2.5])
+betas = [beta_hat]
+ls = []
+for i in range(50):
+  p_hat = 1 / (1 + np.exp(-np.dot(X, beta_hat)))
+  l_minus = -np.sum(y * np.log(p_hat) + (1 - y) * np.log(1 - p_hat))
+  ls.append(l_minus)
+  grad = -np.dot(X.T, (y - p_hat))
+  beta_hat = beta_hat - alpha * grad
+  betas.append(beta_hat)
+
+plt.plot(range(50), ls)
+plt.xlabel("Iteration")
+plt.ylabel("-l(beta)")
+plt.show()
+```
+
+---
+
+&lt;img src="images/LR-Loss-1.png" width="70%" /&gt;
+
+---
+
+Even fancier, visualize the actual Gradient Descent in the `\(\beta\)` space:
+
+
+```python
+betas_arr = np.array(betas)
+m = 10
+beta1 = np.linspace(-3.0, 3.0, m)
+beta2 = np.linspace(-3.0, 3.0, m)
+B1, B2 = np.meshgrid(beta1, beta2)
+L = np.zeros((m, m))
+for i in range(m):
+  for j in range(m):
+    beta_hat = np.array([beta1[i], beta2[j]])
+    p_hat = 1 / (1 + np.exp(-np.dot(X, beta_hat)))
+    L[i, j] = -np.sum(y * np.log(p_hat) + (1 - y) * np.log(1 - p_hat))
+fig, ax = plt.subplots(1,1)
+cp = ax.contourf(B1, B2, L)
+cb = fig.colorbar(cp)
+ax.set_title('-l(beta) Gradient Descent')
+ax.set_xlabel('beta1')
+ax.set_ylabel('beta2')
+ax.plot(betas_arr[:, 0], betas_arr[:, 1], marker='x', color ='white')
+ax.plot([beta[0]], [beta[1]], marker='x', color='red', markersize=20, markeredgewidth=5)
+plt.show()
+```
+
+---
+
+&lt;img src="images/LR-Descent-1.png" width="70%" /&gt;
+
+---
+
+class: section-slide
+
+# Logistic Regression as Neural Network
+
+---
+
+### Call me by your name
+
+1. Call our `\(-l(\beta)\)` "Cross Entropy"
+2. Call `\(g^{-1}(X\beta)\)` the "Sigmoid Function"
+3. Call computing `\(\hat p_i\)` and `\(-l(\hat\beta)\)` a "Forward Propagation" or "Feed Forward" step
+4. Call the differentiation of `\(-l(\hat\beta)\)` a "Backward Propagation" step
+5. Call our `\(\beta\)` vector `\(W_{(q+1)\text{x}1}\)`, a weight matrix
+6. Add *Stochastic* Gradient Descent
+7. Draw a diagram with circles and arrows, call these "Neurons", say something about the brain
+
+And you have a Neural Network*.
+
+.font80percent[*Ok, We'll add some stuff later]
+
+---
+
+### Cross Entropy
+
+For discrete probability distributions `\(P(X)\)` and `\(Q(X)\)` with the same support `\(x \in \mathcal X\)` Cross Entropy could be seen as a metric of the "distance" between distributions:
+
+`\(H(P, Q) = -E_P[\log(Q)] = -\sum _{x\in {\mathcal{X}}}P(X=x)\log[Q(X=x)]\)`
+
+In case `\(X\)` has two categories, and `\(p_1=P(X=x_1)\)`, `\(p_2=1-p_1\)` and same for `\(q_1,q_2\)`:
+
+`\(H(P, Q) = -[p_1\log(q_1) + (1-p_1)\log(1-q_1)]\)`
+
+If we let `\(p_1=y_i\)` and `\(q_1=\hat p_i=g^{-1}(x_i\hat\beta)\)` we get:
+
+`\(H(y_i, \hat p_i) = -[y_i\log(\hat p_i) + (1-y_i)\log(1-\hat p_i)] =\)`
+`\(-[y_i\ln[g^{-1}(x_i\hat\beta)] + (1-y_i)\ln[1- g^{-1}(x_i\hat\beta)]]\)`
+
+Which is exactly the contribution of the `\(i\text{th}\)` observation to `\(-l(\hat\beta)\)`.
+
+---
+
+### Sigmoid Function
+
+If `\(g(p)\)` is the logit function, its inverse would be the sigmoid function:
+
+`\(g(p) = logit(p) = \log(\frac{p}{1-p}); \space\space g^{-1}(z) = sigmoid(z) =\frac{1}{1+e^{-z}}\)`
+
+So: `\(g^{-1}(g(p)) = sigmoid(logit(p)) = p\)`
+
+&lt;img src="images/Sigmoid-1.png" width="50%" /&gt;
+
+---
+
+### Forward/Backward Propagation
+
+Recall that each iteration of Gradient Descent included:
+
+1. Forward step: Calculating the loss `\(-l(\hat\beta)\)`
+2. Backward step: Calculate the gradient `\(-\nabla l(\hat\beta_t)\)`
+3. Gradient Descent: `\(\hat\beta_{t+1}=\hat\beta_t -\alpha \cdot[-\nabla l(\hat\beta_t)]\)`
+
+
+```python
+# forward step
+p_hat = 1 / (1 + np.exp(-np.dot(X, beta_hat)))
+l_minus = -np.sum(y * np.log(p_hat) + (1 - y) * np.log(1 - p_hat))
+# backward step
+grad = -np.dot(X.T, (y - p_hat))
+# descent
+beta_hat = beta_hat - alpha * grad
+```
+
+Why "Forward", why "Backward"?...
+
+---
+
+### Reminder: Chain Rule
+
+In our case differentiating `\(l(\beta)\)` analytically was... manageable.
+
+As the NN architecture becomes more complex there is need to generalize this, and break down the derivative into (backward) steps.
+
+Recall that according to the Chain Rule, if `\(y = y(x) = f(g(h(x)))\)` then:
+
+`\(y'(x)=f'(g(h(x)) \cdot g'(h(x)) \cdot h'(x)\)`
+
+Or if you prefer, if `\(z = z(x); \space u = u(z); \space y = y(u)\)` then:
+
+`\(\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dz} \cdot \frac{dz}{dx}\)`
+
+---
+
+Let's re-write `\(-l(\beta)\)` as a composite function:
+
+- Multiplying `\(\beta\)` by `\(x_i\)` will be `\(z_i = z(\beta) = x_i\beta\)`
+- Applying the sigmoid `\(g^{-1}\)` will be `\(p_i = g^{-1}(z_i) = \frac{1}{1 + e^{-z_i}}\)`
+- Calculating the (minus) Cross Entropy will be: `\(l_i = l(p_i) = y_i\ln(p_i) + (1-y_i)\ln(1 - p_i)\)`
+- So one element of `\(-l(\beta)\)` will be: `\(l_i(p_i(z_i(\beta)))\)`
+
+Hence, Forward.
+
+Now `\(-l(\beta)\)` is the sum of (minus) cross entropies: `\(-l(\beta) = -\sum_i l_i(p_i(z_i(\beta)))\)`
+
+And we could differentiate using the chain rule like so:
+
+`\(-\frac{\partial l(\beta)}{\partial \beta_j} = -\sum_i\frac{\partial l_i}{\partial p_i} \cdot \frac{\partial p_i}{\partial z_i} \cdot \frac{\partial z_i}{\partial \beta_j}\)`
+
+Hence, Backward.
+
+---
+
+Each of these is simpler to calculate:
+
+`\(\frac{\partial l_i}{\partial p_i}= \frac{y_i - p_i}{p_i(1-p_i)}\)`
+
+`\(\frac{\partial p_i}{\partial z_i} = p_i(1-p_i)\)`
+
+`\(\frac{\partial z_i}{\partial \beta_j}=x_{ij}\)`
+
+And so:
+
+`\(-\frac{\partial l(\beta)}{\partial \beta_j} = - \sum_i \frac{y_i - p_i}{p_i(1-p_i)} \cdot p_i(1-p_i) \cdot x_{ij}\)`
+
+Which is excatly what we got analytically but now we can write our Gradient Descent iteration as a list of forward/backward steps:
+
+---
+
+
+```python
+def forward(X, y, beta_hat):
+  z = np.dot(X, beta_hat)
+  p_hat = 1 / (1 + np.exp(-z))
+  l = y * np.log(p_hat) + (1 - y) * np.log(1 - p_hat)
+  l_minus = -np.sum(l)
+  return p_hat, l_minus
+
+def backward(X, y, p_hat):
+  dldz = y - p_hat
+  dzdb = X.T
+  grad = -np.dot(dzdb, dldz)
+  return grad
+
+def gradient_descent(alpha, beta_hat, grad):
+  return beta_hat - alpha * grad
+
+def optimize(X, y, alpha, beta_hat):
+  p_hat, l = forward(X, y, beta_hat)
+  grad = backward(X, y, p_hat)
+  beta_hat = gradient_descent(alpha, beta_hat, grad)
+  return l, beta_hat
+
+def lr_nn(X, y, epochs):
+  beta_hat = np.array([-2.5, -2.5])
+  alpha = 0.001
+  for i in range(epochs):
+    l, beta_hat = optimize(X, y, alpha, beta_hat)
+  return l, beta_hat
+```
+
+---
+
+### Stochastic Gradient Descent
+
+
+```python
+def lr_nn(X, y, epochs):
+  beta_hat = np.random.rand(X.shape[1])
+  alpha = 0.001
+  batch_size = 100
+  n = X.shape[0]
+  steps = int(n / batch_size)
+  for i in range(epochs):
+    print('epoch %d:' % i)
+    permute = np.random.permutation(n)
+    X_perm = X[permute, :]
+    y_perm = y[permute]
+    for j in range(steps):
+      start = j * batch_size
+      l, beta_hat = optimize(X_perm[start:start + batch_size, :],
+                            y_perm[start:start + batch_size],
+                            alpha, beta_hat)
+      print('Trained on %d/%d, loss = %d' % (start + batch_size, n, l))
+  return l, beta_hat
+
+l, beta_hat = lr_nn(X, y, 10)
+```
+
+---
+
+
+```
+## epoch 1/50:
+##   100/1000, loss = 59
+##   200/1000, loss = 57
+##   300/1000, loss = 59
+##   400/1000, loss = 53
+##   500/1000, loss = 57
+##   600/1000, loss = 53
+##   700/1000, loss = 55
+##   800/1000, loss = 52
+##   900/1000, loss = 51
+##   1000/1000, loss = 57
+## epoch 2/50:
+##   100/1000, loss = 51
+##   200/1000, loss = 54
+##   300/1000, loss = 50
+##   400/1000, loss = 57
+##   500/1000, loss = 49
+##   600/1000, loss = 47
+##   700/1000, loss = 53
+##   800/1000, loss = 50
+##   900/1000, loss = 51
+##   1000/1000, loss = 55
+## epoch 3/50:
+##   100/1000, loss = 54
+##   200/1000, loss = 54
+##   300/1000, loss = 48
+##   400/1000, loss = 49
+##   500/1000, loss = 50
+##   600/1000, loss = 50
+##   700/1000, loss = 47
+##   800/1000, loss = 46
+##   900/1000, loss = 47
+##   1000/1000, loss = 48
+## epoch 4/50:
+##   100/1000, loss = 48
+##   200/1000, loss = 47
+##   300/1000, loss = 47
+##   400/1000, loss = 48
+##   500/1000, loss = 46
+##   600/1000, loss = 52
+##   700/1000, loss = 46
+##   800/1000, loss = 48
+##   900/1000, loss = 47
+##   1000/1000, loss = 48
+## epoch 5/50:
+##   100/1000, loss = 49
+##   200/1000, loss = 44
+##   300/1000, loss = 43
+##   400/1000, loss = 43
+##   500/1000, loss = 51
+##   600/1000, loss = 45
+##   700/1000, loss = 50
+##   800/1000, loss = 44
+##   900/1000, loss = 49
+##   1000/1000, loss = 48
+## epoch 6/50:
+##   100/1000, loss = 45
+##   200/1000, loss = 41
+##   300/1000, loss = 43
+##   400/1000, loss = 55
+##   500/1000, loss = 49
+##   600/1000, loss = 42
+##   700/1000, loss = 42
+##   800/1000, loss = 47
+##   900/1000, loss = 44
+##   1000/1000, loss = 48
+## epoch 7/50:
+##   100/1000, loss = 41
+##   200/1000, loss = 43
+##   300/1000, loss = 50
+##   400/1000, loss = 48
+##   500/1000, loss = 42
+##   600/1000, loss = 42
+##   700/1000, loss = 46
+##   800/1000, loss = 46
+##   900/1000, loss = 45
+##   1000/1000, loss = 45
+## epoch 8/50:
+##   100/1000, loss = 46
+##   200/1000, loss = 45
+##   300/1000, loss = 45
+##   400/1000, loss = 46
+##   500/1000, loss = 41
+##   600/1000, loss = 43
+##   700/1000, loss = 42
+##   800/1000, loss = 48
+##   900/1000, loss = 49
+##   1000/1000, loss = 39
+## epoch 9/50:
+##   100/1000, loss = 50
+##   200/1000, loss = 44
+##   300/1000, loss = 40
+##   400/1000, loss = 43
+##   500/1000, loss = 41
+##   600/1000, loss = 47
+##   700/1000, loss = 46
+##   800/1000, loss = 42
+##   900/1000, loss = 44
+##   1000/1000, loss = 40
+## epoch 10/50:
+##   100/1000, loss = 39
+##   200/1000, loss = 45
+##   300/1000, loss = 42
+##   400/1000, loss = 40
+##   500/1000, loss = 49
+##   600/1000, loss = 45
+##   700/1000, loss = 40
+##   800/1000, loss = 51
+##   900/1000, loss = 41
+##   1000/1000, loss = 42
+## epoch 11/50:
+##   100/1000, loss = 43
+##   200/1000, loss = 39
+##   300/1000, loss = 36
+##   400/1000, loss = 44
+##   500/1000, loss = 46
+##   600/1000, loss = 49
+##   700/1000, loss = 36
+##   800/1000, loss = 44
+##   900/1000, loss = 46
+##   1000/1000, loss = 49
+## epoch 12/50:
+##   100/1000, loss = 44
+##   200/1000, loss = 46
+##   300/1000, loss = 41
+##   400/1000, loss = 40
+##   500/1000, loss = 47
+##   600/1000, loss = 43
+##   700/1000, loss = 44
+##   800/1000, loss = 40
+##   900/1000, loss = 41
+##   1000/1000, loss = 44
+## epoch 13/50:
+##   100/1000, loss = 44
+##   200/1000, loss = 49
+##   300/1000, loss = 40
+##   400/1000, loss = 43
+##   500/1000, loss = 46
+##   600/1000, loss = 44
+##   700/1000, loss = 36
+##   800/1000, loss = 38
+##   900/1000, loss = 40
+##   1000/1000, loss = 46
+## epoch 14/50:
+##   100/1000, loss = 47
+##   200/1000, loss = 48
+##   300/1000, loss = 39
+##   400/1000, loss = 46
+##   500/1000, loss = 40
+##   600/1000, loss = 36
+##   700/1000, loss = 45
+##   800/1000, loss = 39
+##   900/1000, loss = 38
+##   1000/1000, loss = 47
+## epoch 15/50:
+##   100/1000, loss = 45
+##   200/1000, loss = 40
+##   300/1000, loss = 38
+##   400/1000, loss = 45
+##   500/1000, loss = 41
+##   600/1000, loss = 51
+##   700/1000, loss = 42
+##   800/1000, loss = 35
+##   900/1000, loss = 42
+##   1000/1000, loss = 44
+## epoch 16/50:
+##   100/1000, loss = 46
+##   200/1000, loss = 41
+##   300/1000, loss = 41
+##   400/1000, loss = 43
+##   500/1000, loss = 38
+##   600/1000, loss = 48
+##   700/1000, loss = 52
+##   800/1000, loss = 38
+##   900/1000, loss = 40
+##   1000/1000, loss = 35
+## epoch 17/50:
+##   100/1000, loss = 38
+##   200/1000, loss = 44
+##   300/1000, loss = 43
+##   400/1000, loss = 41
+##   500/1000, loss = 42
+##   600/1000, loss = 38
+##   700/1000, loss = 40
+##   800/1000, loss = 50
+##   900/1000, loss = 40
+##   1000/1000, loss = 43
+## epoch 18/50:
+##   100/1000, loss = 38
+##   200/1000, loss = 53
+##   300/1000, loss = 38
+##   400/1000, loss = 36
+##   500/1000, loss = 35
+##   600/1000, loss = 41
+##   700/1000, loss = 40
+##   800/1000, loss = 38
+##   900/1000, loss = 50
+##   1000/1000, loss = 50
+## epoch 19/50:
+##   100/1000, loss = 41
+##   200/1000, loss = 37
+##   300/1000, loss = 38
+##   400/1000, loss = 46
+##   500/1000, loss = 45
+##   600/1000, loss = 41
+##   700/1000, loss = 42
+##   800/1000, loss = 39
+##   900/1000, loss = 43
+##   1000/1000, loss = 46
+## epoch 20/50:
+##   100/1000, loss = 42
+##   200/1000, loss = 42
+##   300/1000, loss = 43
+##   400/1000, loss = 42
+##   500/1000, loss = 49
+##   600/1000, loss = 43
+##   700/1000, loss = 42
+##   800/1000, loss = 32
+##   900/1000, loss = 42
+##   1000/1000, loss = 41
+## epoch 21/50:
+##   100/1000, loss = 33
+##   200/1000, loss = 43
+##   300/1000, loss = 44
+##   400/1000, loss = 41
+##   500/1000, loss = 44
+##   600/1000, loss = 28
+##   700/1000, loss = 38
+##   800/1000, loss = 51
+##   900/1000, loss = 47
+##   1000/1000, loss = 49
+## epoch 22/50:
+##   100/1000, loss = 42
+##   200/1000, loss = 38
+##   300/1000, loss = 39
+##   400/1000, loss = 37
+##   500/1000, loss = 45
+##   600/1000, loss = 42
+##   700/1000, loss = 36
+##   800/1000, loss = 50
+##   900/1000, loss = 38
+##   1000/1000, loss = 52
+## epoch 23/50:
+##   100/1000, loss = 42
+##   200/1000, loss = 35
+##   300/1000, loss = 53
+##   400/1000, loss = 47
+##   500/1000, loss = 42
+##   600/1000, loss = 40
+##   700/1000, loss = 39
+##   800/1000, loss = 37
+##   900/1000, loss = 42
+##   1000/1000, loss = 40
+## epoch 24/50:
+##   100/1000, loss = 45
+##   200/1000, loss = 42
+##   300/1000, loss = 44
+##   400/1000, loss = 40
+##   500/1000, loss = 51
+##   600/1000, loss = 34
+##   700/1000, loss = 49
+##   800/1000, loss = 36
+##   900/1000, loss = 42
+##   1000/1000, loss = 34
+## epoch 25/50:
+##   100/1000, loss = 47
+##   200/1000, loss = 40
+##   300/1000, loss = 46
+##   400/1000, loss = 39
+##   500/1000, loss = 42
+##   600/1000, loss = 41
+##   700/1000, loss = 38
+##   800/1000, loss = 35
+##   900/1000, loss = 49
+##   1000/1000, loss = 39
+## epoch 26/50:
+##   100/1000, loss = 46
+##   200/1000, loss = 42
+##   300/1000, loss = 43
+##   400/1000, loss = 41
+##   500/1000, loss = 42
+##   600/1000, loss = 44
+##   700/1000, loss = 39
+##   800/1000, loss = 42
+##   900/1000, loss = 41
+##   1000/1000, loss = 36
+## epoch 27/50:
+##   100/1000, loss = 42
+##   200/1000, loss = 46
+##   300/1000, loss = 38
+##   400/1000, loss = 38
+##   500/1000, loss = 42
+##   600/1000, loss = 33
+##   700/1000, loss = 42
+##   800/1000, loss = 46
+##   900/1000, loss = 43
+##   1000/1000, loss = 45
+## epoch 28/50:
+##   100/1000, loss = 51
+##   200/1000, loss = 45
+##   300/1000, loss = 43
+##   400/1000, loss = 39
+##   500/1000, loss = 37
+##   600/1000, loss = 36
+##   700/1000, loss = 39
+##   800/1000, loss = 44
+##   900/1000, loss = 41
+##   1000/1000, loss = 39
+## epoch 29/50:
+##   100/1000, loss = 48
+##   200/1000, loss = 51
+##   300/1000, loss = 38
+##   400/1000, loss = 44
+##   500/1000, loss = 43
+##   600/1000, loss = 33
+##   700/1000, loss = 37
+##   800/1000, loss = 43
+##   900/1000, loss = 43
+##   1000/1000, loss = 34
+## epoch 30/50:
+##   100/1000, loss = 42
+##   200/1000, loss = 50
+##   300/1000, loss = 40
+##   400/1000, loss = 39
+##   500/1000, loss = 44
+##   600/1000, loss = 40
+##   700/1000, loss = 47
+##   800/1000, loss = 40
+##   900/1000, loss = 31
+##   1000/1000, loss = 42
+## epoch 31/50:
+##   100/1000, loss = 49
+##   200/1000, loss = 43
+##   300/1000, loss = 46
+##   400/1000, loss = 33
+##   500/1000, loss = 32
+##   600/1000, loss = 38
+##   700/1000, loss = 40
+##   800/1000, loss = 41
+##   900/1000, loss = 47
+##   1000/1000, loss = 44
+## epoch 32/50:
+##   100/1000, loss = 44
+##   200/1000, loss = 36
+##   300/1000, loss = 41
+##   400/1000, loss = 47
+##   500/1000, loss = 36
+##   600/1000, loss = 46
+##   700/1000, loss = 42
+##   800/1000, loss = 41
+##   900/1000, loss = 46
+##   1000/1000, loss = 36
+## epoch 33/50:
+##   100/1000, loss = 52
+##   200/1000, loss = 46
+##   300/1000, loss = 40
+##   400/1000, loss = 37
+##   500/1000, loss = 34
+##   600/1000, loss = 44
+##   700/1000, loss = 50
+##   800/1000, loss = 35
+##   900/1000, loss = 40
+##   1000/1000, loss = 37
+## epoch 34/50:
+##   100/1000, loss = 40
+##   200/1000, loss = 42
+##   300/1000, loss = 38
+##   400/1000, loss = 42
+##   500/1000, loss = 41
+##   600/1000, loss = 40
+##   700/1000, loss = 38
+##   800/1000, loss = 36
+##   900/1000, loss = 49
+##   1000/1000, loss = 48
+## epoch 35/50:
+##   100/1000, loss = 38
+##   200/1000, loss = 46
+##   300/1000, loss = 39
+##   400/1000, loss = 42
+##   500/1000, loss = 41
+##   600/1000, loss = 36
+##   700/1000, loss = 41
+##   800/1000, loss = 50
+##   900/1000, loss = 44
+##   1000/1000, loss = 37
+## epoch 36/50:
+##   100/1000, loss = 45
+##   200/1000, loss = 54
+##   300/1000, loss = 41
+##   400/1000, loss = 37
+##   500/1000, loss = 45
+##   600/1000, loss = 34
+##   700/1000, loss = 49
+##   800/1000, loss = 31
+##   900/1000, loss = 38
+##   1000/1000, loss = 39
+## epoch 37/50:
+##   100/1000, loss = 45
+##   200/1000, loss = 42
+##   300/1000, loss = 41
+##   400/1000, loss = 47
+##   500/1000, loss = 47
+##   600/1000, loss = 42
+##   700/1000, loss = 40
+##   800/1000, loss = 34
+##   900/1000, loss = 34
+##   1000/1000, loss = 42
+## epoch 38/50:
+##   100/1000, loss = 32
+##   200/1000, loss = 41
+##   300/1000, loss = 41
+##   400/1000, loss = 40
+##   500/1000, loss = 47
+##   600/1000, loss = 42
+##   700/1000, loss = 48
+##   800/1000, loss = 42
+##   900/1000, loss = 39
+##   1000/1000, loss = 42
+## epoch 39/50:
+##   100/1000, loss = 39
+##   200/1000, loss = 41
+##   300/1000, loss = 40
+##   400/1000, loss = 30
+##   500/1000, loss = 38
+##   600/1000, loss = 41
+##   700/1000, loss = 50
+##   800/1000, loss = 45
+##   900/1000, loss = 52
+##   1000/1000, loss = 38
+## epoch 40/50:
+##   100/1000, loss = 44
+##   200/1000, loss = 45
+##   300/1000, loss = 34
+##   400/1000, loss = 51
+##   500/1000, loss = 37
+##   600/1000, loss = 42
+##   700/1000, loss = 43
+##   800/1000, loss = 32
+##   900/1000, loss = 48
+##   1000/1000, loss = 38
+## epoch 41/50:
+##   100/1000, loss = 43
+##   200/1000, loss = 38
+##   300/1000, loss = 45
+##   400/1000, loss = 44
+##   500/1000, loss = 42
+##   600/1000, loss = 34
+##   700/1000, loss = 30
+##   800/1000, loss = 53
+##   900/1000, loss = 44
+##   1000/1000, loss = 40
+## epoch 42/50:
+##   100/1000, loss = 39
+##   200/1000, loss = 36
+##   300/1000, loss = 42
+##   400/1000, loss = 45
+##   500/1000, loss = 44
+##   600/1000, loss = 44
+##   700/1000, loss = 41
+##   800/1000, loss = 38
+##   900/1000, loss = 43
+##   1000/1000, loss = 41
+## epoch 43/50:
+##   100/1000, loss = 41
+##   200/1000, loss = 44
+##   300/1000, loss = 44
+##   400/1000, loss = 43
+##   500/1000, loss = 56
+##   600/1000, loss = 33
+##   700/1000, loss = 45
+##   800/1000, loss = 38
+##   900/1000, loss = 28
+##   1000/1000, loss = 41
+## epoch 44/50:
+##   100/1000, loss = 36
+##   200/1000, loss = 38
+##   300/1000, loss = 48
+##   400/1000, loss = 39
+##   500/1000, loss = 41
+##   600/1000, loss = 44
+##   700/1000, loss = 43
+##   800/1000, loss = 47
+##   900/1000, loss = 42
+##   1000/1000, loss = 36
+## epoch 45/50:
+##   100/1000, loss = 41
+##   200/1000, loss = 40
+##   300/1000, loss = 40
+##   400/1000, loss = 52
+##   500/1000, loss = 39
+##   600/1000, loss = 37
+##   700/1000, loss = 40
+##   800/1000, loss = 40
+##   900/1000, loss = 36
+##   1000/1000, loss = 48
+## epoch 46/50:
+##   100/1000, loss = 38
+##   200/1000, loss = 49
+##   300/1000, loss = 38
+##   400/1000, loss = 37
+##   500/1000, loss = 43
+##   600/1000, loss = 37
+##   700/1000, loss = 50
+##   800/1000, loss = 40
+##   900/1000, loss = 35
+##   1000/1000, loss = 47
+## epoch 47/50:
+##   100/1000, loss = 44
+##   200/1000, loss = 38
+##   300/1000, loss = 41
+##   400/1000, loss = 42
+##   500/1000, loss = 39
+##   600/1000, loss = 48
+##   700/1000, loss = 42
+##   800/1000, loss = 29
+##   900/1000, loss = 47
+##   1000/1000, loss = 43
+## epoch 48/50:
+##   100/1000, loss = 40
+##   200/1000, loss = 33
+##   300/1000, loss = 39
+##   400/1000, loss = 39
+##   500/1000, loss = 35
+##   600/1000, loss = 48
+##   700/1000, loss = 37
+##   800/1000, loss = 39
+##   900/1000, loss = 47
+##   1000/1000, loss = 55
+## epoch 49/50:
+##   100/1000, loss = 35
+##   200/1000, loss = 55
+##   300/1000, loss = 35
+##   400/1000, loss = 42
+##   500/1000, loss = 39
+##   600/1000, loss = 41
+##   700/1000, loss = 37
+##   800/1000, loss = 42
+##   900/1000, loss = 41
+##   1000/1000, loss = 46
+## epoch 50/50:
+##   100/1000, loss = 33
+##   200/1000, loss = 30
+##   300/1000, loss = 41
+##   400/1000, loss = 44
+##   500/1000, loss = 37
+##   600/1000, loss = 50
+##   700/1000, loss = 46
+##   800/1000, loss = 40
+##   900/1000, loss = 41
+##   1000/1000, loss = 50
+```
+
+---
+
+### Put it in a Neural Network Diagram
+
+Binary Logistic Regression, is in fact a single neuron firing a sigmoid probability-like number between 0 and 1, for each sample:
+
+&lt;img src="images/lr_nn.png" style="width: 80%" /&gt;
+
+---
+
+### LR as NN in `Keras`
+
+
+```python
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import SGD
+
+model = Sequential()
+model.add(Dense(1, input_shape=(X.shape[1], ),
+  activation='sigmoid', use_bias=False))
+sgd = SGD(lr=0.1)
+model.compile(loss='binary_crossentropy', optimizer=sgd)
+model.fit(X, y, batch_size=100, epochs=50)
+```
+
+```
+## Epoch 1/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 4s - loss: 1.2191
+## 10/10 [==============================] - 1s 2ms/step - loss: 1.0934
+## Epoch 2/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.8968
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.8478
+## Epoch 3/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.7309
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.7003
+## Epoch 4/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.6227
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.6109
+## Epoch 5/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.5619
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.5617
+## Epoch 6/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.5126
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.5200
+## Epoch 7/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.5450
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.5089
+## Epoch 8/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4940
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4809
+## Epoch 9/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4286
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4509
+## Epoch 10/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4724
+## 10/10 [==============================] - 0s 376us/step - loss: 0.4552
+## Epoch 11/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4333
+## 10/10 [==============================] - 0s 3ms/step - loss: 0.4607
+## Epoch 12/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.5198
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4641
+## Epoch 13/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4239
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4427
+## Epoch 14/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4244
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4458
+## Epoch 15/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4287
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4265
+## Epoch 16/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4356
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4287
+## Epoch 17/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4591
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4486
+## Epoch 18/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4344
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4296
+## Epoch 19/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.5075
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4396
+## Epoch 20/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4570
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4342
+## Epoch 21/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4440
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4284
+## Epoch 22/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4191
+## 10/10 [==============================] - 0s 916us/step - loss: 0.4268
+## Epoch 23/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4788
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4373
+## Epoch 24/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3993
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4246
+## Epoch 25/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4128
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4212
+## Epoch 26/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4311
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4251
+## Epoch 27/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3878
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4216
+## Epoch 28/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3821
+## 10/10 [==============================] - 0s 690us/step - loss: 0.4080
+## Epoch 29/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4419
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4323
+## Epoch 30/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3742
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4120
+## Epoch 31/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3480
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4100
+## Epoch 32/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3680
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4118
+## Epoch 33/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4295
+## 10/10 [==============================] - 0s 151us/step - loss: 0.4276
+## Epoch 34/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3939
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4041
+## Epoch 35/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4422
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4365
+## Epoch 36/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3309
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.3986
+## Epoch 37/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3756
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4090
+## Epoch 38/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3635
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4122
+## Epoch 39/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4419
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4282
+## Epoch 40/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4359
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4255
+## Epoch 41/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3604
+## 10/10 [==============================] - 0s 3ms/step - loss: 0.4055
+## Epoch 42/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3784
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4154
+## Epoch 43/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4951
+## 10/10 [==============================] - 0s 836us/step - loss: 0.4228
+## Epoch 44/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4026
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4211
+## Epoch 45/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.5452
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4203
+## Epoch 46/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4042
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4130
+## Epoch 47/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3542
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4025
+## Epoch 48/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4049
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4044
+## Epoch 49/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3700
+## 10/10 [==============================] - 0s 381us/step - loss: 0.4075
+## Epoch 50/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4442
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4274
+## &lt;tensorflow.python.keras.callbacks.History object at 0x0000000070407AF0&gt;
+```
+
+---
+
+See that it makes sense:
+
+
+```python
+beta_hat = model.get_weights() # Note Keras gives a list of weights!
+beta_hat
+```
+
+```
+## [array([[0.9027474],
+##        [2.0467637]], dtype=float32)]
+```
+
+
+
+```python
+pred = model.predict(X)
+pred[:3]
+```
+
+```
+## array([[0.35204706],
+##        [0.46074766],
+##        [0.48886845]], dtype=float32)
+```
+
+
+
+```python
+pred_manual = 1/(1+np.exp(-np.dot(X, beta_hat[0])))
+pred_manual[:3]
+```
+
+```
+## array([[0.35204704],
+##        [0.46074767],
+##        [0.48886842]])
+```
+
+---
+
+### Is that it?
+
+1. No 😄
+2. &gt; The knee-jerk response from statisticians was "What's the big deal? A neural network is just another nonlinear model, not too different from many other generalizations of linear models". While this may be true, neural networks brought a new energy to the field. They could be scaled up and generalized in a variety of ways... and innovative learning algorithms for massive data sets."
+
+.font80percent[(*Computer Age Statistical Inference* by Bradley Efron &amp; Trevor Hastie, p. 352)]
+
+---
+
+class: section-slide
+
+# Add Classes
+
+---
+
+### `\(C\)` Neurons for `\(C\)` Classes
+
+Alternatively, we could:
+- fit a `\(\beta\)` vector for each class (or let's start talking about `\(W\)`)
+- have `\(C\)` neurons for `\(C\)` classes
+- where the output layer is the *Softmax Function*, to make sure the fitted `\(\hat p\)` sum up to 1:
+
+`\(\hat p_{i;c} = \text{softmax}(c,W_{(q+1)\text{x}C}, x_i)=\frac{e^{x_iw_c}}{\sum_{c=1}^{C} e^{x_iw_c}}\)`
+
+Where `\(x_i\)` is the `\(i\)`th row of `\(X\)` as before and `\(w_c\)` is the `\(c\)`th row of `\(W^T\)` (or `\(c\)`th column of `\(W\)`)
+
+.insight[
+💡 This would be equivalent to *multinomial logistic regression*!
+]
+
+---
+
+So the architecture for 2 classes would be:
+
+&lt;img src="images/lr_nn_2neurons.png" style="width: 80%" /&gt;
+
+---
+
+And in `Keras` we would do:
+
+
+```python
+from tensorflow.keras.utils import to_categorical
+
+y_categorical = to_categorical(y)
+model = Sequential()
+model.add(Dense(2, input_shape=(X.shape[1], ),
+  activation='softmax', use_bias=False))
+sgd = SGD(lr=0.1)
+model.compile(loss='categorical_crossentropy', optimizer=sgd)
+model.fit(X, y_categorical, batch_size=100, epochs=50)
+```
+
+```
+## Epoch 1/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 1s - loss: 0.9543
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.8722
+## Epoch 2/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.6128
+## 10/10 [==============================] - 0s 889us/step - loss: 0.6119
+## Epoch 3/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.5704
+## 10/10 [==============================] - 0s 914us/step - loss: 0.5280
+## Epoch 4/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4564
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4771
+## Epoch 5/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4542
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4661
+## Epoch 6/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4093
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4388
+## Epoch 7/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4929
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4498
+## Epoch 8/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4437
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4294
+## Epoch 9/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3629
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4006
+## Epoch 10/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4308
+## 10/10 [==============================] - 0s 940us/step - loss: 0.4162
+## Epoch 11/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3906
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4304
+## Epoch 12/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.5142
+## 10/10 [==============================] - 0s 893us/step - loss: 0.4435
+## Epoch 13/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4035
+## 10/10 [==============================] - 0s 909us/step - loss: 0.4241
+## Epoch 14/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3981
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4269
+## Epoch 15/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4130
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4087
+## Epoch 16/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4232
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4135
+## Epoch 17/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4523
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4391
+## Epoch 18/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4242
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4192
+## Epoch 19/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.5090
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4319
+## Epoch 20/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4518
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4256
+## Epoch 21/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4363
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4209
+## Epoch 22/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4055
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4188
+## Epoch 23/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4813
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4333
+## Epoch 24/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3881
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4198
+## Epoch 25/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4084
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4167
+## Epoch 26/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4273
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4205
+## Epoch 27/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3828
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4181
+## Epoch 28/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3742
+## 10/10 [==============================] - 0s 356us/step - loss: 0.4023
+## Epoch 29/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4357
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4295
+## Epoch 30/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3679
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4083
+## Epoch 31/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3411
+## 10/10 [==============================] - 0s 0s/step - loss: 0.4071
+## Epoch 32/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3627
+## 10/10 [==============================] - 0s 3ms/step - loss: 0.4093
+## Epoch 33/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4261
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4256
+## Epoch 34/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3919
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4013
+## Epoch 35/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4438
+## 10/10 [==============================] - 0s 820us/step - loss: 0.4375
+## Epoch 36/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3227
+## 10/10 [==============================] - 0s 890us/step - loss: 0.3957
+## Epoch 37/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3700
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4063
+## Epoch 38/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3583
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4104
+## Epoch 39/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4406
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4272
+## Epoch 40/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4330
+## 10/10 [==============================] - 0s 918us/step - loss: 0.4244
+## Epoch 41/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3561
+## 10/10 [==============================] - 0s 893us/step - loss: 0.4034
+## Epoch 42/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3763
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4149
+## Epoch 43/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4974
+## 10/10 [==============================] - 0s 889us/step - loss: 0.4219
+## Epoch 44/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4018
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4208
+## Epoch 45/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.5536
+## 10/10 [==============================] - 0s 1ms/step - loss: 0.4204
+## Epoch 46/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4023
+## 10/10 [==============================] - 0s 359us/step - loss: 0.4122
+## Epoch 47/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3530
+## 10/10 [==============================] - 0s 697us/step - loss: 0.4016
+## Epoch 48/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4028
+## 10/10 [==============================] - 0s 894us/step - loss: 0.4029
+## Epoch 49/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.3669
+## 10/10 [==============================] - 0s 889us/step - loss: 0.4065
+## Epoch 50/50
+## 
+##  1/10 [==&gt;...........................] - ETA: 0s - loss: 0.4439
+## 10/10 [==============================] - 0s 2ms/step - loss: 0.4271
+## &lt;tensorflow.python.keras.callbacks.History object at 0x0000000070B623D0&gt;
+```
+
+---
+
+See that it makes sense:
+
+
+```python
+W = model.get_weights()
+W
+```
+
+```
+## [array([[-0.74589944,  0.19894524],
+##        [-0.28890663,  1.8619907 ]], dtype=float32)]
+```
+
+
+
+```python
+pred = model.predict(X)
+pred[:3]
+```
+
+```
+## array([[0.6550381 , 0.34496185],
+##        [0.5403821 , 0.4596179 ],
+##        [0.51036483, 0.4896352 ]], dtype=float32)
+```
+
+
+
+```python
+Z = np.dot(X, W[0])
+Z_exp = np.exp(Z)
+Z_exp_sum = Z_exp.sum(axis=1)[:, None]
+pred_manual = Z_exp / Z_exp_sum
+pred_manual[:3]
+```
+
+```
+## array([[0.65503816, 0.34496184],
+##        [0.5403821 , 0.4596179 ],
+##        [0.51036482, 0.48963518]])
+```
+
+---
+
+class: section-slide
+
+# Add Hidden Layers
+
+---
+
+### Don't Panic.
+
+&lt;img src="images/lr_nn_morelayers.png" style="width: 80%" /&gt;
+
+.font80percent[
+Where `\(g()\)` is some non-linear *activation function*, e.g. sigmoid (but not often used).
+]
+
+---
+- Notice we are not in Logistic Regression land anymore
+- I have re-instated the bias terms
+- I'm calling `model.summary()` to see no. of params
+
+
+```python
+model = Sequential()
+model.add(Dense(4, input_shape=(X.shape[1], ), activation='sigmoid'))
+model.add(Dense(2, activation='softmax'))
+sgd = SGD(lr=0.1)
+model.compile(loss='categorical_crossentropy', optimizer=sgd)
+model.fit(X, y_categorical, batch_size=100, epochs=50, verbose=0)
+model.summary()
+```
+
+
+```
+## &lt;tensorflow.python.keras.callbacks.History object at 0x000000006C6DC7C0&gt;
+```
+
+```
+## Model: "sequential_2"
+## _________________________________________________________________
+## Layer (type)                 Output Shape              Param #   
+## =================================================================
+## dense_2 (Dense)              (None, 4)                 12        
+## _________________________________________________________________
+## dense_3 (Dense)              (None, 2)                 10        
+## =================================================================
+## Total params: 22
+## Trainable params: 22
+## Non-trainable params: 0
+## _________________________________________________________________
+```
+---
+
+See that it makes sense:
+
+
+
+
+```python
+W1, b1, W2, b2 = model.get_weights()
+
+W1.shape # (2, 4)
+b1.shape # (4,)
+W2.shape # (4, 2)
+b2.shape # (2,)
+
+W1 = np.vstack([b1, W1])
+W2 = np.vstack([b2, W2])
+
+W1.shape # (3, 4)
+W2.shape # (5, 2)
+
+# Get X ready with an intercept column
+Xb = np.hstack((np.ones(n).reshape((n, 1)), X))
+Xb.shape # (1000, 3)
+
+pred = model.predict(X)
+
+pred[:3]
+```
+
+
+```
+## array([[0.6806818 , 0.31931815],
+##        [0.55274254, 0.44725746],
+##        [0.5142706 , 0.48572943]], dtype=float32)
+```
+
+---
+
+
+```python
+Z = 1/(1 + np.exp(-np.dot(Xb, W1)))
+Zb = np.hstack((np.ones(n).reshape((n, 1)), Z))
+Z2_exp = np.exp(np.dot(Zb, W2))
+Z2_exp_sum = Z2_exp.sum(axis=1)[:, None]
+pred_manual = Z2_exp / Z2_exp_sum
+
+pred_manual[:3]
+```
+
+```
+## array([[0.68068185, 0.31931815],
+##        [0.55274256, 0.44725744],
+##        [0.51427058, 0.48572942]])
+```
+
+---
+
+### Activation Functions: Tanh
+
+`\(g(z)=\tanh(z)=\frac{e^z-e^{-z}}{e^z+e^{-z}}\)`
+
+
+```python
+plt.clf()
+plt.plot(X1, (np.exp(X1) - np.exp(-X1)) / (np.exp(X1) + np.exp(-X1)))
+plt.show()
+```
+
+&lt;img src="images/Tanh-1.png" width="40%" /&gt;
+
+---
+
+### Activation Functions: ReLU
+
+`\(g(z)=\text{ReLU}(z)=max(z,0)\)`
+
+
+```python
+plt.clf()
+plt.plot(X1, np.maximum(X1, 0))
+plt.show()
+```
+
+&lt;img src="images/ReLU-1.png" width="40%" /&gt;
+
+---
+
+### Activation Functions: Leaky ReLU
+
+`$$g(z)=\text{LReLU}(z)=\begin{cases}
+z \ge 0 &amp; z\\
+z&lt;0 &amp; \alpha z
+\end{cases}$$`
+ 
+
+```python
+plt.clf()
+plt.plot(X1, np.where(X1 &gt; 0, X1, X1 * 0.01))
+plt.show()
+```
+
+&lt;img src="images/LeakyReLU-1.png" width="40%" /&gt;
+
+---
+
+class: section-slide
+
+# Add Regularization
+
+---
+
+### L1/L2 Regularization
+
+You might have noticed neural networks intice you to add more and more params.
+
+Therefore, NN are infamous for overfitting the training data, and some kind of regulariztion is a must.
+
+Instead of minimizing some loss `\(L\)` (e.g. Cross Entropy) we add a penalty to the weights: `\(\min_W{L(y, f(X; W)] + P(W)}\)`
+
+Where `\(P(W)\)` would typically be:
+- `\(P_{L_2}(W)=\lambda \sum_{ijk}(W^{(k)}_{ij})^2\)`
+- `\(P_{L_1}(W)=\lambda \sum_{ijk}|W^{(k)}_{ij}|\)`
+- or both (a.k.a Elastic Net, but not quite): `\(P_{L1L2}(W) = \lambda_1 \sum_{ijk}(W^{(k)}_{ij})^2 + \lambda_2 \sum_{ijk}|W^{(k)}_{ij}|\)`
+
+---
+
+L1/L2 Regularization in `Keras`:
+
+
+```python
+from tensorflow.keras import regularizers
+
+model = Sequential()
+model.add(Dense(4, input_shape=(X.shape[1], ), activation='relu',
+  kernel_regularizer=regularizers.l1(0.01),
+  bias_regularizer=regularizers.l2(0.01)))
+model.add(Dense(2, activation='softmax',
+  kernel_regularizer=regularizers.l1_l2(l1=0.01, l2=0.01)))
+sgd = SGD(lr=0.1)
+model.compile(loss='categorical_crossentropy', optimizer=sgd)
+model.fit(X, y_categorical, batch_size=100, epochs=50, verbose=0)
+```
+
+---
+
+### Dropout
+
+How to take neurons with a grain of salt?
+
+During each epoch, individual neurons are either "dropped out" of the net with probability `\(1-p\)` (i.e. their weight is zero) or kept with probability `\(p\)`, so that a reduced network is left.
+
+&lt;img src="images/dropout.png" style="width: 60%" /&gt;
+
+.warning[
+⚠️ During prediction no Dropout is performed, but neurons output is scaled by `\(p\)` to make it identical to their expected outputs at training time.
+]
+
+---
+
+Why does it work? You could look at Dropout as an ensemble of neural networks! Each neuron can either count or not at each training step, so after 1K training steps you have virtually trained 1K slightly different models out of `\(2^N\)` possible (where `\(N\)` is no. of neurons).
+
+Dropout in `Keras` (the `rate` parameter is the "fraction of the input units to drop"):
+
+
+```python
+from tensorflow.keras.layers import Dropout
+
+model = Sequential()
+model.add(Dense(4, input_shape=(X.shape[1], ), activation='relu'))
+model.add(Dropout(0.2))
+model.add(Dense(2, activation='softmax'))
+sgd = SGD(lr=0.1)
+model.compile(loss='categorical_crossentropy', optimizer=sgd)
+model.fit(X, y_categorical, batch_size=100, epochs=50, verbose=0)
+```
+
+---
+
+### Early Stopping
+
+Since NN are trained iteratively and are particularly useful on large datasets it is common to monitor the model performance using an additional validation set, or some of the training set. If you see no improvement in the model's performance (e.g. decrease in loss) for a few epochs - stop training.
+
+
+```python
+from tensorflow.keras.callbacks import EarlyStopping
+
+model = Sequential()
+model.add(Dense(4, input_shape=(X.shape[1], ), activation='relu'))
+model.add(Dropout(0.2))
+model.add(Dense(2, activation='softmax'))
+sgd = SGD(lr=0.1)
+callbacks = [EarlyStopping(monitor='val_loss', patience=5)]
+model.compile(loss='categorical_crossentropy', optimizer=sgd)
+model.fit(X, y_categorical, batch_size=100, epochs=50,
+  validation_split=0.2, callbacks=callbacks)
+```
+
+---
+
+### Batch Normalization
+
+---
+
+class: section-slide
+
+# Keras (The Beloved)
+
+---
+
+### Keras is an API
+
+- [Keras](https://keras.io/) is a high-level API "designed for human beings, not machines" developed by [François Chollet](https://twitter.com/fchollet)
+- It bridges to some popular DL backends such as [Tensorflow](https://www.tensorflow.org/), [Theano](http://deeplearning.net/software/theano/), [Apache MXNet](https://mxnet.apache.org/)
+- But it is best integrated with Tensorflow, by Google. In fact, the formal docs of Keras now say:
+
+
+```python
+import tensorflow as tf
+from tensorflow import keras
+```
+
+- "ease of use does not come at the cost of reduced flexibility"
+- Seamless integration with the Pandasverse
+- Keras itself has a surprisingly great API in R, by [RStudio](https://keras.rstudio.com/)
+- You should know the competition by Facebook: [PyTorch](https://pytorch.org/)
+
+---
+
+### Malaria!
+
+The [Malaria](https://lhncbc.nlm.nih.gov/publication/pub9932) dataset contains over 27K (processed and segmented) cell images with equal instances of parasitized and uninfected cells, from hundreds of patients in Bangaladesh. The images were taken by a mobile application that runs on a standard Android smartphone attached to a conventional light microscope. The goal is "reduce the burden for microscopists in resource-constrained regions and improve diagnostic accuracy".
+
+This dataset is part of the [`tensorflow_dataset`](https://www.tensorflow.org/datasets) library which gives you easy access to dozens of varied datasets.
+
+Here I will take only ~10% of the images as a Numpy array and resize them all to 100x100 pixels, for the sake of speed.
+
+---
+
+
+```python
+import tensorflow_datasets as tfds
+from skimage.transform import resize
+
+malaria, info = tfds.load('malaria', split='train', with_info=True)
+fig = tfds.show_examples(malaria, info)
+```
+
+&lt;img src="images/Malaria-1.png" width="65%" /&gt;
+
+---
+
+
+```python
+from sklearn.model_selection import train_test_split
+
+images = []
+labels = []
+for example in tfds.as_numpy(malaria):
+  images.append(resize(example['image'], (100, 100)))
+  labels.append(example['label'])
+  if len(images) == 2500:
+    break
+  
+X = np.array(images)
+y = np.array(labels)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+
+X_train = X_train.flatten().reshape((X_train.shape[0], -1))
+X_test = X_test.flatten().reshape((X_test.shape[0], -1))
+
+print(X_train.shape)
+```
+
+```
+## (2000, 30000)
+```
+
+```python
+print(X_test.shape)
+```
+
+```
+## (500, 30000)
+```
+
+---
+
+
+```python
+from sklearn.linear_model import LogisticRegression
+
+lr = LogisticRegression(penalty='none', max_iter=100, random_state=42)
+lr.fit(X_train, y_train)
+```
+
+```
+## LogisticRegression(penalty='none', random_state=42)
+## 
+## C:\Users\GSIMCH~1\AppData\Local\Programs\Python\Python38\lib\site-packages\sklearn\linear_model\_logistic.py:763: ConvergenceWarning: lbfgs failed to converge (status=1):
+## STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+## 
+## Increase the number of iterations (max_iter) or scale the data as shown in:
+##     https://scikit-learn.org/stable/modules/preprocessing.html
+## Please also refer to the documentation for alternative solver options:
+##     https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+##   n_iter_i = _check_optimize_result(
+```
+
+```python
+lr.score(X_test, y_test)
+```
+
+```
+## 0.63
+```
+
+---
+
+#### The `Sequential` API
+
+
+```python
+from tensorflow import keras
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense, Dropout
+
+model = Sequential()
+model.add(Dense(300, input_shape=(30000,), activation='relu'))
+model.add(Dense(100, activation='relu'))
+model.add(Dense(50, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+```
+
+Alternatively we could:
+
+
+
+
+```python
+model = Sequential([
+  Dense(300, input_shape=(30000,), activation='relu'),
+  Dense(100, activation='relu'),
+  Dense(50, activation='relu'),
+  Dense(1, activation='sigmoid')
+])
+```
+
+---
+
+Make sure you get these numbers:
+
+
+```python
+model.summary()
+```
+
+```
+## Model: "sequential"
+## _________________________________________________________________
+## Layer (type)                 Output Shape              Param #   
+## =================================================================
+## dense (Dense)                (None, 300)               9000300   
+## _________________________________________________________________
+## dense_1 (Dense)              (None, 100)               30100     
+## _________________________________________________________________
+## dense_2 (Dense)              (None, 50)                5050      
+## _________________________________________________________________
+## dense_3 (Dense)              (None, 1)                 51        
+## =================================================================
+## Total params: 9,035,501
+## Trainable params: 9,035,501
+## Non-trainable params: 0
+## _________________________________________________________________
+```
+
+.insight[
+💡 Are you at all worried?
+]
+---
+
+Access layers and their weights:
+
+
+```python
+model.layers
+```
+
+```
+## [&lt;tensorflow.python.keras.layers.core.Dense object at 0x000000029480BB80&gt;, &lt;tensorflow.python.keras.layers.core.Dense object at 0x0000000294814B80&gt;, &lt;tensorflow.python.keras.layers.core.Dense object at 0x0000000294814400&gt;, &lt;tensorflow.python.keras.layers.core.Dense object at 0x0000000294814DF0&gt;]
+```
+
+
+```python
+model.layers[0].name
+```
+
+```
+## 'dense'
+```
+
+
+```python
+W1, b1 = model.get_layer('dense').get_weights()
+
+print(W1.shape)
+```
+
+```
+## (30000, 300)
+```
+
+```python
+W1
+```
+
+```
+## array([[ 0.00080536, -0.01035658,  0.00614795, ...,  0.00070105,
+##          0.01156601, -0.00157061],
+##        [ 0.00391309,  0.00460913,  0.00586426, ..., -0.00503888,
+##         -0.01196953, -0.00992271],
+##        [ 0.00486556,  0.00683407,  0.0070433 , ...,  0.00927963,
+##         -0.00292998, -0.00625381],
+##        ...,
+##        [ 0.00639468,  0.002813  ,  0.00132074, ...,  0.01159826,
+##         -0.00209982,  0.00685151],
+##        [ 0.00481755, -0.01345764, -0.00885091, ..., -0.00620605,
+##          0.00352488,  0.00322159],
+##        [-0.00763555,  0.00162524, -0.00900039, ...,  0.00687446,
+##          0.00054367,  0.00196124]], dtype=float32)
+```
+
+---
+
+Compiling your model:
+
+
+```python
+model.compile(loss="binary_crossentropy",
+  optimizer="adam",
+  metrics=["accuracy"])
+```
+
+For more initialization schemes, losses, metrics and optimizers:
+- https://keras.io/api/layers/initializers/
+- https://keras.io/api/losses/
+- https://keras.io/api/optimizers/
+- https://keras.io/api/metrics/
+
+---
+
+Fitting the model:
+
+
+```python
+from tensorflow.keras.callbacks import EarlyStopping
+
+callbacks = [EarlyStopping(monitor='val_loss', patience=5,
+  restore_best_weights=True)]
+
+history = model.fit(X_train, y_train,
+  batch_size=100, epochs=50,
+  validation_split=0.1, callbacks=callbacks)
+```
+
+```
+## Epoch 1/50
+## 
+##  1/18 [&gt;.............................] - ETA: 6s - loss: 0.6941 - accuracy: 0.5200
+##  4/18 [=====&gt;........................] - ETA: 0s - loss: 5.8889 - accuracy: 0.5046
+##  7/18 [==========&gt;...................] - ETA: 0s - loss: 5.6602 - accuracy: 0.5069
+## 10/18 [===============&gt;..............] - ETA: 0s - loss: 5.3522 - accuracy: 0.5106
+## 13/18 [====================&gt;.........] - ETA: 0s - loss: 4.9854 - accuracy: 0.5125
+## 16/18 [=========================&gt;....] - ETA: 0s - loss: 4.6481 - accuracy: 0.5133
+## 18/18 [==============================] - 2s 78ms/step - loss: 4.3616 - accuracy: 0.5131 - val_loss: 0.6772 - val_accuracy: 0.5950
+## Epoch 2/50
+## 
+##  1/18 [&gt;.............................] - ETA: 0s - loss: 0.6439 - accuracy: 0.6300
+##  4/18 [=====&gt;........................] - ETA: 0s - loss: 0.7106 - accuracy: 0.6138
+##  7/18 [==========&gt;...................] - ETA: 0s - loss: 0.7887 - accuracy: 0.5965
+## 11/18 [=================&gt;............] - ETA: 0s - loss: 0.8609 - accuracy: 0.5750
+## 14/18 [======================&gt;.......] - ETA: 0s - loss: 0.8855 - accuracy: 0.5680
+## 18/18 [==============================] - ETA: 0s - loss: 0.8943 - accuracy: 0.5654
+## 18/18 [==============================] - 0s 21ms/step - loss: 0.8946 - accuracy: 0.5652 - val_loss: 0.7058 - val_accuracy: 0.5800
+## Epoch 3/50
+## 
+##  1/18 [&gt;.............................] - ETA: 0s - loss: 0.5800 - accuracy: 0.6600
+##  4/18 [=====&gt;........................] - ETA: 0s - loss: 0.6506 - accuracy: 0.6256
+##  7/18 [==========&gt;...................] - ETA: 0s - loss: 0.6904 - accuracy: 0.5995
+## 11/18 [=================&gt;............] - ETA: 0s - loss: 0.7005 - accuracy: 0.5945
+## 15/18 [========================&gt;.....] - ETA: 0s - loss: 0.7007 - accuracy: 0.5964
+## 18/18 [==============================] - ETA: 0s - loss: 0.6979 - accuracy: 0.5996
+## 18/18 [==============================] - 0s 20ms/step - loss: 0.6971 - accuracy: 0.6004 - val_loss: 0.6524 - val_accuracy: 0.6300
+## Epoch 4/50
+## 
+##  1/18 [&gt;.............................] - ETA: 0s - loss: 0.5232 - accuracy: 0.7600
+##  4/18 [=====&gt;........................] - ETA: 0s - loss: 0.5793 - accuracy: 0.6983
+##  7/18 [==========&gt;...................] - ETA: 0s - loss: 0.6153 - accuracy: 0.6719
+## 11/18 [=================&gt;............] - ETA: 0s - loss: 0.6335 - accuracy: 0.6597
+## 15/18 [========================&gt;.....] - ETA: 0s - loss: 0.6625 - accuracy: 0.6447
+## 18/18 [==============================] - ETA: 0s - loss: 0.6874 - accuracy: 0.6357
+## 18/18 [==============================] - 0s 20ms/step - loss: 0.6951 - accuracy: 0.6332 - val_loss: 1.8601 - val_accuracy: 0.4400
+## Epoch 5/50
+## 
+##  1/18 [&gt;.............................] - ETA: 0s - loss: 1.9777 - accuracy: 0.3900
+##  4/18 [=====&gt;........................] - ETA: 0s - loss: 1.5532 - accuracy: 0.4704
+##  8/18 [============&gt;.................] - ETA: 0s - loss: 1.3921 - accuracy: 0.4938
+## 12/18 [===================&gt;..........] - ETA: 0s - loss: 1.2834 - accuracy: 0.5106
+## 15/18 [========================&gt;.....] - ETA: 0s - loss: 1.2317 - accuracy: 0.5174
+## 18/18 [==============================] - ETA: 0s - loss: 1.1931 - accuracy: 0.5218
+## 18/18 [==============================] - 0s 21ms/step - loss: 1.1824 - accuracy: 0.5229 - val_loss: 0.8608 - val_accuracy: 0.6000
+## Epoch 6/50
+## 
+##  1/18 [&gt;.............................] - ETA: 0s - loss: 0.7256 - accuracy: 0.6600
+##  4/18 [=====&gt;........................] - ETA: 0s - loss: 0.7598 - accuracy: 0.6238
+##  8/18 [============&gt;.................] - ETA: 0s - loss: 0.7661 - accuracy: 0.6238
+## 12/18 [===================&gt;..........] - ETA: 0s - loss: 0.7694 - accuracy: 0.6214
+## 15/18 [========================&gt;.....] - ETA: 0s - loss: 0.7677 - accuracy: 0.6211
+## 18/18 [==============================] - ETA: 0s - loss: 0.7615 - accuracy: 0.6229
+## 18/18 [==============================] - 0s 19ms/step - loss: 0.7599 - accuracy: 0.6233 - val_loss: 0.7564 - val_accuracy: 0.6150
+## Epoch 7/50
+## 
+##  1/18 [&gt;.............................] - ETA: 0s - loss: 0.6020 - accuracy: 0.6700
+##  5/18 [=======&gt;......................] - ETA: 0s - loss: 0.6138 - accuracy: 0.6694
+##  9/18 [==============&gt;...............] - ETA: 0s - loss: 0.6144 - accuracy: 0.6666
+## 13/18 [====================&gt;.........] - ETA: 0s - loss: 0.6137 - accuracy: 0.6633
+## 16/18 [=========================&gt;....] - ETA: 0s - loss: 0.6139 - accuracy: 0.6622
+## 18/18 [==============================] - 0s 19ms/step - loss: 0.6154 - accuracy: 0.6608 - val_loss: 0.8713 - val_accuracy: 0.5150
+## Epoch 8/50
+## 
+##  1/18 [&gt;.............................] - ETA: 0s - loss: 0.7121 - accuracy: 0.6500
+##  5/18 [=======&gt;......................] - ETA: 0s - loss: 0.6584 - accuracy: 0.6654
+##  8/18 [============&gt;.................] - ETA: 0s - loss: 0.6505 - accuracy: 0.6643
+## 11/18 [=================&gt;............] - ETA: 0s - loss: 0.6412 - accuracy: 0.6679
+## 15/18 [========================&gt;.....] - ETA: 0s - loss: 0.6293 - accuracy: 0.6735
+## 18/18 [==============================] - ETA: 0s - loss: 0.6247 - accuracy: 0.6762
+## 18/18 [==============================] - 0s 21ms/step - loss: 0.6240 - accuracy: 0.6765 - val_loss: 0.7456 - val_accuracy: 0.6000
+```
+
+---
+
+See later the `history` object's many fields.
+
+
+```python
+import pandas as pd
+
+pd.DataFrame(history.history).plot()
+plt.grid(True)
+plt.show()
+```
+
+&lt;img src="images/History-1.png" width="100%" /&gt;
+
+---
+
+Evaluate on test set:
+
+
+```python
+model.evaluate(X_test, y_test)
+```
+
+```
+## 
+##  1/16 [&gt;.............................] - ETA: 1s - loss: 0.6902 - accuracy: 0.5938
+## 12/16 [=====================&gt;........] - ETA: 0s - loss: 0.6498 - accuracy: 0.6172
+## 16/16 [==============================] - 0s 5ms/step - loss: 0.6598 - accuracy: 0.6220
+## [0.6598054766654968, 0.621999979019165]
+```
+
+
+```python
+from sklearn.metrics import confusion_matrix
+
+y_pred = (model.predict(X_test) &gt; 0.5).astype(int).reshape(y_test.shape)
+pd.DataFrame(
+  confusion_matrix(y_test, y_pred), 
+  index=['true:yes', 'true:no'], 
+  columns=['pred:yes', 'pred:no']
+)
+```
+
+```
+##           pred:yes  pred:no
+## true:yes       147      115
+## true:no         74      164
+```
+
+---
+
+Tuning params:
+
+
+```python
+from tensorflow.keras.layers import InputLayer
+from tensorflow.keras.optimizers import SGD
+
+def malaria_model(n_hidden=1, n_neurons=30, lrt=3e-3):
+  model = Sequential()
+  model.add(InputLayer(input_shape=(30000, )))
+  for layer in range(n_hidden):
+    model.add(Dense(n_neurons, activation='relu'))
+  model.add(Dense(1, activation='sigmoid'))
+  model.compile(loss="binary_crossentropy",
+    optimizer=SGD(lr=lrt),
+    metrics=["accuracy"])
+  return model
+
+keras_clf = keras.wrappers.scikit_learn.KerasClassifier(malaria_model)
+```
+
+---
+
+
+```python
+from scipy.stats import reciprocal
+from sklearn.model_selection import RandomizedSearchCV
+
+params = {
+  'n_hidden': [0, 1, 2, 3],
+  'n_neurons': np.arange(1, 100),
+  'lrt': reciprocal(3e-4, 3e-2)
+}
+
+rnd_search_cv = RandomizedSearchCV(keras_clf, params, cv=5,
+  n_iter=10)
+rnd_search_cv.fit(X_train, y_train, epochs=50,
+  validation_split=0.1, callbacks=callbacks)
+
+print(rnd_search_cv2.best_score_)
+print(rnd_search_cv2.best_params_)
+```
+
+
+```
+## 0.6630000114440918
+```
+
+```
+## {'lrt': 0.01678485252717544, 'n_hidden': 0, 'n_neurons': 15}
+```
+
+See also sklearn's [`GridSearchCV()`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV) and [KerasTuner](https://blog.tensorflow.org/2020/01/hyperparameter-tuning-with-keras-tuner.html) for a more robust solution.
+
+---
+
+Saving and restoring a model:
+
+
+```python
+model.save('malaria.h5')
+```
+
+Then:
+
+
+```python
+model = keras.models.load_model('malaria.h5')
+model.predict(X_test[:3])
+```
+
+```
+## array([[0.5306708 ],
+##        [0.7760823 ],
+##        [0.27735898]], dtype=float32)
+```
+
+The HDF5 model saves the model's architecture and hyperparameters, and all weights matrices and biases.
+
+Also see the `ModelCheckPoint()` callback.
+
+
+
+---
+
+#### The `Functional` API
+
+This is a playground!
+
+For more flexibility become familiar with the Functional API:
+
+
+```python
+keras.backend.clear_session()
+
+from tensorflow.keras.layers import Input
+from tensorflow.keras import Model
+
+image_input = Input(shape=(30000,))
+hidden1 = Dense(300, activation='relu')(image_input)
+hidden2 = Dense(100, activation='relu')(hidden1)
+hidden3 = Dense(50, activation='relu')(hidden2)
+output_class = Dense(1, activation='sigmoid')(hidden3)
+model = Model(inputs=[image_input], outputs=[output_class])
+```
+
+Then, as usual:
+
+```python
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+history = model.fit(X_train, y_train, batch_size=100, epochs=1, validation_split=0.1)
+```
+
+---
+
+
+```python
+from tensorflow.keras import utils
+
+utils.plot_model(model, 'images/functional01.png', show_shapes=True)
+```
+
+```
+## &lt;IPython.core.display.Image object&gt;
+```
+
+&lt;img src = "images/functional01.png" style="width: 45%"&gt;
+
+---
+
+How about another Regression output, to predict say an ordinal `\(y\)` score of the severity of parasitization?
+
+
+```python
+keras.backend.clear_session()
+
+y_train_ordinal = np.random.normal(size=y_train.shape[0])
+y_test_ordinal = np.random.normal(size=y_test.shape[0])
+
+image_input = Input(shape=(30000,))
+hidden1 = Dense(300, activation='relu')(image_input)
+hidden2 = Dense(100, activation='relu')(hidden1)
+hidden3 = Dense(50, activation='relu')(hidden2)
+output_class = Dense(1, activation='sigmoid', name='out_class')(hidden3)
+output_score = Dense(1, name='out_score')(hidden3)
+model = Model(inputs=[image_input], outputs=[output_class, output_score])
+```
+
+---
+
+
+```python
+utils.plot_model(model, 'images/functional02.png', show_shapes=True)
+```
+
+```
+## &lt;IPython.core.display.Image object&gt;
+```
+
+&lt;img src = "images/functional02.png" style="width: 70%"&gt;
+---
+
+Then,
+
+
+```python
+model.compile(
+  loss={'out_class': 'binary_crossentropy', 'out_score': 'mse'},
+  loss_weights={'out_class': 0.8, 'out_score': 0.2},
+  optimizer='adam',
+  metrics={'out_class': 'accuracy', 'out_score': 'mse'})
+
+history = model.fit(X_train,
+  {'out_class': y_train, 'out_score': y_train_ordinal},
+  batch_size=100, epochs=1, validation_split=0.1)
+```
+
+```
+## 
+##  1/18 [&gt;.............................] - ETA: 10s - loss: 1.0556 - out_class_loss: 0.7964 - out_score_loss: 2.0927 - out_class_accuracy: 0.4800 - out_score_mse: 2.0927
+##  4/18 [=====&gt;........................] - ETA: 0s - loss: 61.1991 - out_class_loss: 3.8201 - out_score_loss: 290.7152 - out_class_accuracy: 0.4850 - out_score_mse: 290.7152
+##  7/18 [==========&gt;...................] - ETA: 0s - loss: 61.2346 - out_class_loss: 6.1018 - out_score_loss: 281.7659 - out_class_accuracy: 0.4927 - out_score_mse: 281.7659
+## 10/18 [===============&gt;..............] - ETA: 0s - loss: 55.7972 - out_class_loss: 6.7660 - out_score_loss: 251.9219 - out_class_accuracy: 0.4934 - out_score_mse: 251.9219
+## 14/18 [======================&gt;.......] - ETA: 0s - loss: 49.1130 - out_class_loss: 6.9078 - out_score_loss: 217.9339 - out_class_accuracy: 0.4906 - out_score_mse: 217.9339
+## 17/18 [===========================&gt;..] - ETA: 0s - loss: 45.0211 - out_class_loss: 6.8164 - out_score_loss: 197.8398 - out_class_accuracy: 0.4905 - out_score_mse: 197.8398
+## 18/18 [==============================] - 1s 32ms/step - loss: 42.7394 - out_class_loss: 6.7361 - out_score_loss: 186.7526 - out_class_accuracy: 0.4911 - out_score_mse: 186.7526 - val_loss: 3.4536 - val_out_class_loss: 4.0520 - val_out_score_loss: 1.0598 - val_out_class_accuracy: 0.5600 - val_out_score_mse: 1.0598
+```
+
+---
+
+
+```python
+loss_total, loss_class, loss_score, acc_class, mse_score = \
+  model.evaluate(X_test,
+    {'out_class': y_test, 'out_score': y_test_ordinal},
+    verbose=0)
+  
+print(loss_total)
+```
+
+```
+## 4.081937313079834
+```
+
+```python
+print(loss_class)
+```
+
+```
+## 4.820059299468994
+```
+
+```python
+print(loss_score)
+```
+
+```
+## 1.129450798034668
+```
+
+```python
+print(acc_class)
+```
+
+```
+## 0.47600001096725464
+```
+
+```python
+print(mse_score)
+```
+
+```
+## 1.129450798034668
+```
+
+---
+
+
+```python
+y_pred_class, y_pred_score = model.predict(X_test)
+
+y_pred_class[:5]
+```
+
+```
+## array([[0.9999263],
+##        [0.9999893],
+##        [0.9999168],
+##        [0.9999697],
+##        [0.9999695]], dtype=float32)
+```
+
+```python
+y_pred_score[:5]
+```
+
+```
+## array([[-0.20389165],
+##        [-0.18076314],
+##        [-0.29598892],
+##        [-0.22416104],
+##        [-0.22311677]], dtype=float32)
+```
+
+---
+
+How about some additional features (say height and weight of patient) you wish to connect straight to the last unit?
+
+
+```python
+keras.backend.clear_session()
+
+from tensorflow.keras.layers import Concatenate
+
+X_train_ex = np.random.normal(size=(X_train.shape[0], 2))
+X_test_ex = np.random.normal(size=(X_test.shape[0], 2))
+
+image_input = Input(shape=(30000,))
+extra_input = Input(shape=(2,))
+hidden1 = Dense(300, activation='relu')(image_input)
+hidden2 = Dense(100, activation='relu')(hidden1)
+hidden3 = Dense(50, activation='relu')(hidden2)
+concat = Concatenate()([hidden3, extra_input])
+output_class = Dense(1, activation='sigmoid', name='out_class')(concat)
+output_score = Dense(1, name='out_score')(concat)
+model = Model(inputs=[image_input, extra_input],
+  outputs=[output_class, output_score])
+```
+
+---
+
+
+```python
+utils.plot_model(model, 'images/functional03.png', show_shapes=True)
+```
+
+```
+## &lt;IPython.core.display.Image object&gt;
+```
+
+&lt;img src = "images/functional03.png" style="width: 70%"&gt;
+
+---
+
+
+```python
+model.compile(
+  loss={'out_class': 'binary_crossentropy', 'out_score': 'mse'},
+  loss_weights={'out_class': 0.8, 'out_score': 0.2},
+  optimizer='adam',
+  metrics={'out_class': 'accuracy', 'out_score': 'mse'})
+
+history = model.fit([X_train, X_train_ex],
+  [y_train, y_train_ordinal],
+  batch_size=100, epochs=1, validation_split=0.1, verbose=0)
+  
+y_pred_class, y_pred_score = model.predict([X_test, X_test_ex])
+```
+
+---
+
+#### The `Subclassing` API
+
+Take full control! (at the cost of Keras not having your back...)
+
+- subclass the `Model` class
+- implement the constructor `__init__()` and `call()` methods
+- inside `call()` you are the Boss (if/else, for loops, Tensorflow actions)
+
+---
+
+
+```python
+class MyWeirdModel(Model):
+  
+  def __init__(self, activation='relu', **kwargs):
+    super().__init__(**kwargs)
+    self.hidden1 = Dense(300, activation=activation)
+    self.hidden2 = Dense(100, activation='relu')
+    self.hidden3 = Dense(50, activation='relu')
+    self.concat = Concatenate()
+    self.output_class = Dense(1, activation='sigmoid', name='out_class')
+    self.output_score = Dense(1, name='out_score')
+  
+  def call(self, inputs):
+    image_input, extra_input = inputs
+    hidden1 = self.hidden1(image_input)
+    hidden2 = self.hidden2(hidden1)
+    hidden3 = self.hidden3(hidden2)
+    concat = self.concat([hidden3, extra_input])
+    output_class = self.output_class(concat)
+    output_score = self.output_score(concat)
+    return output_class, output_score
+
+model = MyWeirdModel()
+```
+
+---
+
+### Few Excellent Books
+
+.pull-left[
+
+&lt;img src = "images/geron_cover.jpg" style="width: 95%"&gt;
+
+]
+
+.pull-right[
+
+&lt;img src = "images/chollet_cover.png" style="width: 100%"&gt;
+
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="../libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
