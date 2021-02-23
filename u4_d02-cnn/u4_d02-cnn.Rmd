@@ -945,7 +945,7 @@ model.add(Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy',
   optimizer='adam', metrics=['accuracy'])
 
-step_size_train = 10
+step_size_train = train_generator.n // train_generator.batch_size
 step_size_valid = valid_generator.n // valid_generator.batch_size
 step_size_test = test_generator.n // test_generator.batch_size
 
@@ -1065,11 +1065,11 @@ test_generator = test_datagen.flow_from_directory(
   seed = 42
 )
 
-step_size_train = 10
+step_size_train = train_generator.n // train_generator.batch_size
 step_size_valid = valid_generator.n // valid_generator.batch_size
 step_size_test = test_generator.n // test_generator.batch_size
 
-callbacks = [EarlyStopping(monitor='val_loss', patience=10,
+callbacks = [EarlyStopping(monitor='val_loss', patience=5,
   restore_best_weights=True)]
 
 history = model.fit(train_generator, steps_per_epoch = step_size_train,
@@ -1079,7 +1079,7 @@ history = model.fit(train_generator, steps_per_epoch = step_size_train,
 
 ---
 
-```{python}
+```{python, eval=FALSE}
 y_true = test_generator.classes
 y_pred = model.predict(test_generator, steps = step_size_test)
 y_pred = (y_pred > 0.5).astype(int).reshape(y_true.shape)
@@ -1092,6 +1092,24 @@ pd.DataFrame(
   columns=['pred:yes', 'pred:no']
 )
 ```
+
+```{python, echo = FALSE}
+y_pred = np.load('y_pred_dogs.npy')
+y_true = test_generator.classes
+y_pred = (y_pred > 0.5).astype(int).reshape(y_true.shape)
+
+print(np.mean(y_true == y_pred))
+
+pd.DataFrame(
+  confusion_matrix(y_true, y_pred), 
+  index=['true:yes', 'true:no'], 
+  columns=['pred:yes', 'pred:no']
+)
+```
+
+.warning[
+`r emo::ji("warning")` Bug in `ImageDataGenerator`?
+]
 
 ---
 

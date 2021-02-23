@@ -762,7 +762,7 @@ plt.imshow(cell[0])
 ```
 
 ```
-## &lt;matplotlib.image.AxesImage object at 0x00000002D316C7F0&gt;
+## &lt;matplotlib.image.AxesImage object at 0x00000002A68DDB80&gt;
 ```
 
 ```python
@@ -1065,7 +1065,7 @@ model.add(Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy',
   optimizer='adam', metrics=['accuracy'])
 
-step_size_train = 10
+step_size_train = train_generator.n // train_generator.batch_size
 step_size_valid = valid_generator.n // valid_generator.batch_size
 step_size_test = test_generator.n // test_generator.batch_size
 
@@ -1089,7 +1089,7 @@ print(np.mean(y_true == y_pred))
 ```
 
 ```
-## 0.7
+## 0.625
 ```
 
 ```python
@@ -1102,8 +1102,8 @@ pd.DataFrame(
 
 ```
 ##           pred:yes  pred:no
-## true:yes        19        1
-## true:no         11        9
+## true:yes        14        6
+## true:no          9       11
 ```
 
 ---
@@ -1218,11 +1218,11 @@ test_generator = test_datagen.flow_from_directory(
 ```
 
 ```python
-step_size_train = 10
+step_size_train = train_generator.n // train_generator.batch_size
 step_size_valid = valid_generator.n // valid_generator.batch_size
 step_size_test = test_generator.n // test_generator.batch_size
 
-callbacks = [EarlyStopping(monitor='val_loss', patience=10,
+callbacks = [EarlyStopping(monitor='val_loss', patience=5,
   restore_best_weights=True)]
 
 history = model.fit(train_generator, steps_per_epoch = step_size_train,
@@ -1239,13 +1239,7 @@ y_pred = model.predict(test_generator, steps = step_size_test)
 y_pred = (y_pred &gt; 0.5).astype(int).reshape(y_true.shape)
 
 print(np.mean(y_true == y_pred))
-```
 
-```
-## 0.5
-```
-
-```python
 pd.DataFrame(
   confusion_matrix(y_true, y_pred), 
   index=['true:yes', 'true:no'], 
@@ -1253,11 +1247,20 @@ pd.DataFrame(
 )
 ```
 
+
+```
+## 0.85
+```
+
 ```
 ##           pred:yes  pred:no
-## true:yes         0       20
-## true:no          0       20
+## true:yes        17        3
+## true:no          3       17
 ```
+
+.warning[
+⚠️ Bug in `ImageDataGenerator`?
+]
 
 ---
 
