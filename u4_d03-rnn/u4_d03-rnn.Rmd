@@ -49,6 +49,7 @@ seed_value= 0
 
 # 1. Set `PYTHONHASHSEED` environment variable at a fixed value
 import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1" # To turn off GPU
 os.environ['PYTHONHASHSEED']=str(seed_value)
 
 # 2. Set `python` built-in pseudo-random generator at a fixed value
@@ -76,3 +77,312 @@ class: section-slide
 #### (Janis Joplin)
 
 ---
+
+### What would Simone do next?
+
+<img src="images/simone_biles_landing.png" style="width: 60%" />
+
+---
+
+### What would be the price of GOOG tomorrow?
+
+```{python, echo=FALSE}
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def plot_series(series, n_steps, y=None, y_pred=None, x_label="$t$", y_label="$x(t)$"):
+  plt.plot(series, ".-")
+  if y is not None:
+      plt.plot(n_steps, y, "bx", markersize=10)
+  if y_pred is not None:
+      plt.plot(n_steps, y_pred, "ro")
+  plt.grid(True)
+  if x_label:
+      plt.xlabel(x_label, fontsize=16)
+  if y_label:
+      plt.ylabel(y_label, fontsize=16, rotation=0)
+  plt.hlines(0, 0, 100, linewidth=1)
+  plt.axis([0, n_steps + 1, -1, 1])
+```
+
+```{python Google, out.width = "100%", fig.asp=0.5}
+df = pd.read_csv("../data/fortune500_100_days.csv")
+google = df[df['Fortune500'] == 'GOOG'].values[0][1:]
+plot_series(google[:-1], 100, google[-1], y_label='')
+plt.show()
+```
+
+---
+
+### What is he going to say next?
+
+<img src="images/bibi.png" style="width: 100%" />
+
+---
+
+class: section-slide
+
+# RNN: Single Neuron
+
+---
+
+### The Setting
+
+Suppose we have a univariate time series $(x_{i1}, x_{i2}, ..., x_{iT})$ of $T$ time steps, where $i = 1, ..., N$ (e.g. Fortune $N = 500$ stock price, the last $T = 100$ days), and we want to predict $y_i$, which could be:
+- The next day price (regression setting)
+- Positive or negative outcome (classification setting)
+- Simone Biles next move (???)
+
+<img src="images/lr_nn_morelayers.png" style="width: 30%" />
+
+.insight[
+`r emo::ji("bulb")` What are the disadvantages of a regular network in this setting?
+]
+
+---
+
+class: section-slide
+
+# Detour: Time Series Analysis
+
+---
+
+### Don't invent the wheel!
+
+Time Series Analysis is a big deal in Statistics.
+
+.pull-left[
+
+<img src = "images/tsa_hyndman.png" style="width: 80%">
+
+]
+
+.pull-right[
+
+<img src = "images/tsa_cryer.png" style="width: 78%">
+
+]
+---
+
+class: section-slide
+
+# End of Detour
+
+---
+
+### A Single Neuron RNN
+
+The most basic Single-Neuron RNN would:
+- take $x_t$, learn from it and output $y_t$
+- then take both the next input $x_{t+1}$ and previous output $y_t$, learn from them
+- by learning we mean forward and backward propagating at each stage with some loss $L$ (e.g. MSE)
+
+<img src = "images/single_neuron_RNN.png" style="width: 70%">
+
+---
+
+### Unrolling a Neuron
+
+<img src = "images/unrolling_neuron.png" style="width: 70%">
+
+.insight[
+`r emo::ji("bulb")` But how many parameters are we actually learning?
+
+What important NN principle is demonstrated here?
+]
+
+---
+
+### If you build it, they will come.
+
+Remember we built a Logistic Regression NN? Guess what!
+
+At high level nothing changes!
+
+```{python}
+def single_rnn(X, y, epochs, alpha):
+  w = np.array([1, 1, 1])
+  ls = np.zeros(epochs)
+  for i in range(epochs):
+    l, w = optimize(X, y, alpha, w)
+    ls[i] = l
+  return ls, w
+
+def optimize(X, y, alpha, w):
+  y_pred_arr, l = forward(X, y, w)
+  grad = backward(X, y, y_pred_arr, w)
+  w = gradient_descent(alpha, w, grad)
+  return l, w
+
+def gradient_descent(alpha, w, grad):
+  return w - alpha * grad
+```
+
+---
+
+### Forward Propagation
+
+$$\hat{y}_1 = \tanh(w_0 + w_1 \cdot x_1 + w2 \cdot y_{0}) \\
+\vdots \\
+\hat{y}_T = tanh(w_0 + w_1 \cdot x_T + w2 \cdot \hat{y}_{T - 1}) \\
+L = MSE = \frac{1}{N}\sum_{i = 1}^{N}(y_{i1} - \hat{y}_{iT})^2$$
+
+```{python}
+def forward(X, y, w):
+  N, T = X.shape
+  y_pred_arr = np.zeros((N, T + 1))
+  y_pred = np.zeros(N)
+  y_pred_arr[:, 0] = y_pred
+  for t in range(T):
+    y_pred = np.tanh(w[0] + X[:, t] * w[1] + y_pred * w[2])
+    y_pred_arr[:, t + 1] = y_pred
+  l = np.mean((y - y_pred)**2)
+  return y_pred_arr, l
+```
+
+---
+
+### Backward Propagation
+
+$$\frac{\partial \hat{y}_{i1}}{\partial w_0} = \frac{\partial \tanh(o_{i1})}{\partial o_{i1}}\frac{\partial o_{i1}}{\partial w_0} = [1 - \tanh^2(o_{i1})] \cdot 1 = 1 - \hat{y}^2_{i1} \\
+\frac{\partial \hat{y}_{i2}}{\partial w_0} = \frac{\partial \tanh(o_{i2})}{\partial o_{i2}}\frac{\partial o_{i2}}{\partial w_0} = (1 - \hat{y}^2_{i2})(1 + w_2\frac{\partial \hat{y}_{i1}}{\partial w_0})\\
+\vdots \\
+\frac{\partial L}{\partial w_0} = \sum_{i = 1}^N \frac{\partial L}{\partial \hat{y}_{iT}}\frac{\partial \hat{y}_{iT}}{\partial w_0} = \sum_{i = 1}^N -\frac{2}{N}(y_i - \hat{y}_{iT})\frac{\partial \tanh(o_{iT})}{\partial o_{iT}}\frac{\partial o_{iT}}{\partial w_0} = \\
+= \sum_{i = 1}^N -\frac{2}{N}(y_i - \hat{y}_{iT})(1 - \hat{y}^2_{iT})[1 + w_2\frac{\partial \hat{y}_{iT-1}}{\partial w_0}]$$
+
+And you are cordially invited to do the same for $\frac{\partial L}{\partial w_1}$ and $\frac{\partial L}{\partial w_2}$.
+
+.font80percent[Hope you have as much fun as I did.]
+
+---
+
+```{python}
+def backward_t(X, y_pred_arr, w, grads, t, N):
+  y_t = y_pred_arr[:, t]
+  if t == 0:
+    grads_w0 = np.ones((N, ))
+    grads_w1 = X[:, t]
+    grads_w2 = y_t
+  else:
+    dot_dyprev = w[2]
+    dyprev_doprev = 1 - y_t ** 2
+    grads_w0 = np.ones(N) + dot_dyprev * dyprev_doprev * grads[:, 0]
+    grads_w1 = X[:, t] + dot_dyprev * dyprev_doprev * grads[:, 1]
+    grads_w2 = y_t + dot_dyprev * dyprev_doprev * grads[:, 2]
+  return np.stack([grads_w0, grads_w1, grads_w2], axis=1)
+
+def backward(X, y, y_pred_arr, w):
+  N, T = X.shape
+  y_pred = y_pred_arr[:, -1]
+  dl_dypred = -2 * (y - y_pred) / N
+  dypred_doT = 1 - y_pred ** 2
+  grads =  np.zeros((N, 3))
+  for t in range(T):
+    grads = backward_t(X, y_pred_arr, w, grads, t, N)
+  for j in range(3):
+    grads[:, j] *= dl_dypred * dypred_doT
+  final_grads = grads.sum(axis=0)
+  return final_grads
+```
+
+---
+
+### The Fortune500 Stocks
+
+```{python Fortune-Example, out.width = "80%", fig.asp=0.5}
+df = pd.read_csv("../data/fortune500_100_days.csv")
+X = df.iloc[:, 1:].values
+y = X[:, -1]
+X = X[:, :-1]
+
+plt.clf()
+plot_series(X[1, :], 100, y[1], y_label="MMM")
+plt.show()
+```
+
+---
+
+### What would be a good MSE?
+
+Predicting with the mean of $y$ (the 101st day mean stock price)
+```{python}
+np.mean((y - y.mean())**2)
+```
+
+Predicting with the last column of $X$ (the 100th day stock price)
+```{python}
+np.mean((y - X[:, -1])**2)
+```
+
+---
+
+### Training with our neuron
+
+```{python Loss-History, out.width = "70%", fig.asp=0.5}
+mses, w = single_rnn(X, y, epochs=1000, alpha=0.01)
+print(w)
+
+plt.plot(mses)
+plt.ylabel('MSE-Loss'); plt.xlabel('Epoch')
+plt.show()
+```
+
+---
+
+```{python Scatter-Fit, out.width = "50%"}
+y_pred_arr, mse = forward(X, y, w)
+y_pred = y_pred_arr[:, -1]
+print(mse)
+
+plt.scatter(y, y_pred)
+plt.ylabel('y_pred'); plt.xlabel('y_true')
+plt.show()
+```
+
+.insight[
+`r emo::ji("bulb")` Are you surprised? How could we easily improve?
+
+What would be a better aproach for this simple dataset?
+]
+
+---
+
+### Finally, Keras
+
+```{python}
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import SimpleRNN
+
+model = Sequential([
+  SimpleRNN(1, input_shape=(None, 1))
+])
+
+model.compile(optimizer='adam', loss='mse')
+
+X = X[:, :, np.newaxis]
+y = y[:, np.newaxis]
+
+print(X.shape)
+print(y.shape)
+
+history = model.fit(X, y, batch_size = 50, epochs=500)
+```
+
+---
+
+```{python, SingleNeuron-Loss, out.width="50%"}
+print(model.get_weights()[2], model.get_weights()[0], model.get_weights()[1])
+y_pred = model.predict(X, verbose=0)
+print(np.mean((y - y_pred) **2))
+
+plt.plot(history.history['loss'])
+plt.show()
+```
+
+---
+
+```{python, SingleNeuron-Scatter-Fit, out.width="50%"}
+plt.scatter(y, y_pred)
+plt.ylabel('y_pred'); plt.xlabel('y_true')
+plt.show()
+```
