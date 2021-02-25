@@ -122,7 +122,7 @@ plt.show()
 
 class: section-slide
 
-# RNN: Single Neuron
+# Simple RNN
 
 ---
 
@@ -352,12 +352,12 @@ What would be a better aproach for this simple dataset?
 ```{python}
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import SimpleRNN
+from tensorflow.keras.optimizers import Adam
 
 model = Sequential([
   SimpleRNN(1, input_shape=(None, 1))
 ])
-
-model.compile(optimizer='adam', loss='mse')
+model.compile(optimizer=Adam(lr=0.01), loss='mse')
 
 X = X[:, :, np.newaxis]
 y = y[:, np.newaxis]
@@ -365,7 +365,7 @@ y = y[:, np.newaxis]
 print(X.shape)
 print(y.shape)
 
-history = model.fit(X, y, batch_size = 50, epochs=500)
+history = model.fit(X, y, epochs=50, verbose=0)
 ```
 
 ---
@@ -386,3 +386,66 @@ plt.scatter(y, y_pred)
 plt.ylabel('y_pred'); plt.xlabel('y_true')
 plt.show()
 ```
+
+---
+
+### Add inputs, Add neurons
+
+$\hat{Y}_t = \tanh(W_0 + X_t \cdot W_1 + \hat{Y}_{t} \cdot W_2)$
+
+- $X_t$ is $n$ batch size X $m$ inputs
+- $W_1$ is $m$ inputs X $p$ neurons
+- $\hat{Y}_t$ is $n$ batch size X $p$ neurons
+- $W_2$ is $p$ neurons X $p$ neurons
+- $W_0$ is $p$ X 1 bias vector
+
+<img src = "images/multiple_neurons_rnn.png" style="width: 70%">
+
+---
+
+### Add layers
+
+```{python}
+model = Sequential([
+  SimpleRNN(10, return_sequences=True, input_shape=[None, 1]),
+  SimpleRNN(5, return_sequences=True),
+  SimpleRNN(1)
+])
+
+model.compile(optimizer=Adam(lr=0.01), loss='mse')
+```
+
+---
+
+```{python}
+model.summary()
+```
+
+* 10 neurons each having: 1 inputs, 1 bias, all other 10 outputs in layer: 10 * (1 + 1 + 10)
+* 5 neurons each having: 10 inputs, 1 bias, all other 5 outputs in layer: 5 * (10 + 1 + 5)
+* 1 neurons each having: 5 inputs, 1 bias, all other 1 outputs in layer: 1 * (5 + 1 + 1)
+
+---
+
+```{python, DeepRNN-Scatter-Fit, out.width="50%"}
+history = model.fit(X, y, epochs=30, verbose=0)
+
+y_pred = model.predict(X, verbose=0)
+print(np.mean((y - y_pred) **2))
+
+plt.scatter(y, y_pred)
+plt.ylabel('y_pred'); plt.xlabel('y_true')
+plt.show()
+```
+
+.insight[
+`r emo::ji("bulb")` Though ~200 params for predicting 500 numbers... sounds a bit much.
+]
+
+---
+
+### Possibilities are endless
+
+<img src = "images/possibilities.png" style="width: 70%">
+
+.font80percent[Source: [CS230](https://stanford.edu/~shervine/teaching/cs-230/cheatsheet-recurrent-neural-networks)]
