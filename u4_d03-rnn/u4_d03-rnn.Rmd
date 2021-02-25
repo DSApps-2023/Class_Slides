@@ -449,3 +449,17 @@ plt.show()
 <img src = "images/possibilities.png" style="width: 70%">
 
 .font80percent[Source: [CS230](https://stanford.edu/~shervine/teaching/cs-230/cheatsheet-recurrent-neural-networks)]
+
+---
+
+class: section-slide
+
+# LSTM
+
+---
+
+class: section-slide
+
+# 1D Convolution Layers
+
+---
