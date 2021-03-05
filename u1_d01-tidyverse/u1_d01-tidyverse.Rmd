@@ -634,8 +634,8 @@ And if you want this for the age as well:
 okcupid %>%
   filter(sex == "f", age > 30) %>%
   group_by(orientation) %>%
-  summarize_at(vars(income, age),
-               list(mean = mean, median = median), na.rm = TRUE)
+  summarize(across(c(income, age),
+            list(mean = mean, median = median), na.rm = TRUE))
 ```
 
 Now *this* is a language for Data Science.
