@@ -55,7 +55,7 @@ class: section-slide
 
 - Structure (or rather, structure is up to the user)
 - Types to variables
-- Automization (you could learn VBA Excel, but the horror)
+- Automation (you could learn VBA Excel, but the horror)
 - Reproducibility
 - Open Source
 - Extensibility
