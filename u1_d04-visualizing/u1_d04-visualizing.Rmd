@@ -909,6 +909,20 @@ plot_gg(heat)
 
 ---
 
+## `ggfx`
+
+This is literally from February 2021...
+
+```{r GGFX, out.width="80%", fig.asp=0.5, warning=FALSE, message=FALSE}
+library(ggfx)
+
+ggplot(mtcars, aes(mpg, disp)) +
+  with_shadow(geom_smooth(alpha = 1), sigma = 4) +
+  with_shadow(geom_point(), sigma = 4)
+```
+
+---
+
 ## `gganimate`
 
 Take a plot and make it better:
@@ -1080,4 +1094,16 @@ And... it can get a lot more fun:
 <img src = "images/golden_girls.png" style = "width: 100%">
 
 Get the legos you need with `build_instructions()` `r emo::ji("surprised")`
+]
+
+---
+
+## And finally some aRt
+
+(No, I mean it, these sell for $)
+
+<img src = "images/chinchon_art.jpg" style = "width: 50%">
+
+.font80percent[
+[Exoplanet / Antonio Sánchez Chinchón](https://fronkonstin.com/)
 ]
