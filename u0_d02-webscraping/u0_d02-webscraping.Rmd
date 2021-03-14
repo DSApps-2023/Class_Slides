@@ -1,0 +1,191 @@
+---
+title: "Intro to Web Scraping"
+subtitle: "Applications of Data Science"
+author: "Giora Simchoni"
+institute: "Stat. and OR Department, TAU"
+date: "`r Sys.Date()`"
+output_dir: "images"
+output:
+  xaringan::moon_reader:
+    css: "../slides.css"
+    seal: false
+    chakra: "../libs/remark-latest.min.js"
+    includes:
+      in_header: "../header.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+## Intro to Web Scraping
+
+### Applications of Data Science - Class Bonus
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### `r Sys.Date()`
+
+---
+```{r child = "../setup.Rmd"}
+```
+
+```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+class: section-slide
+
+# The Three Rules of Web Scraping
+
+---
+
+### Rule 1: Do you *really* need web scraping?
+
+There are data APIs for just about anything, you know...
+
+<img src="images/apis.png" style="width: 100%" />
+
+---
+
+#### R API Packages
+
+Many of them already accessible with a R/Python package...
+
+```{r, eval=FALSE}
+library(wbstats)
+
+female_labor <- wb_data(
+  indicator = c("women_lab_share" = "SL.TLF.TOTL.FE.ZS"),
+  start_date = 1990,
+  end_date = 2020
+)
+
+female_labor %>%
+  filter(country %in% c("Israel", "United States")) %>%
+  ggplot(aes(date, women_lab_share, color = country)) +
+  geom_line(lwd = 2) +
+  labs(title = "Share of women in labor force") +
+  theme_light() +
+  theme(text = element_text(size=16))
+```
+
+.font80percent[
+From: https://cfss.uchicago.edu/notes/application-program-interface/
+]
+---
+
+```{r WB-Stats, fig.asp=0.7, out.width="100%", warning=FALSE, message=FALSE, echo=FALSE}
+female_labor <- read_csv("../data/female_labor_wbstats.csv")
+
+female_labor %>%
+  filter(country %in% c("Israel", "United States")) %>%
+  ggplot(aes(date, women_lab_share, color = country)) +
+  geom_line(lwd = 2) +
+  labs(title = "% of women in labor force", x = "", y = "") +
+  theme_light() +
+  theme(text = element_text(size=16))
+```
+
+---
+
+#### The `datapasta` package
+
+My gift to you.
+
+<div class = "no_shadow">
+  <p align="center">
+    <img class = "no_shadow" src="images/demo.jpg"/>
+  </p>
+</div>
+
+---
+
+
+### Rule 2: Learn some HTML first!
+
+HTML is a set (or tree) of *elements*, marked by *HTML tags*:
+
+.pull-left[
+<img src="images/html1.png" style="width: 100%" />
+]
+
+.pull-right[
+<img src="images/webpage1.png" style="width: 95%" />
+]
+
+- First children in the tree: `header` and `body`
+- View any page's HTML (on chrome) with right-click and "View page source" (or Ctrl + U)
+
+---
+
+#### Useful elements and attributes to know
+
+- `<p>` for paragraph `</p>`
+- `<h1>` for headings `</h1>`
+- `<br>`, `<hr>` for breaks
+- `<a href = "http://www.google.com>` for links `</a>`
+- `<b><i>` For bold, italic etc. `</i></b>`
+- `<img src="img_name.jpg" alt="Alternative text">`
+- `<p style="color:DodgerBlue;">` for font color `</p>`
+
+---
+
+#### HTML Tables
+
+A big thing when it comes to data as you can imagine...
+
+.pull-left[
+<img src="images/html2.png" style="width: 60%" />
+]
+
+.pull-right[
+<img src="images/webpage2.png" style="width: 120%" />
+]
+
+---
+
+#### HTML Classes
+
+A class attribute is defined in a style sheet, lets you repeat a style.
+
+.pull-left[
+<img src="images/html3.png" style="width: 80%" />
+]
+
+.pull-right[
+<img src="images/webpage3.png" style="width: 120%" />
+]
+
+---
+
+### Rule 3: Be polite!
+
+With great power comes great responsibility.
+
+See e.g. the [polite](https://github.com/dmi3kno/polite) package.
+
+<img src="images/polite_logo.png" style="width: 30%" />
+
+---
+
+class: section-slide
+
+# rvest
+
+---
+
+class: section-slide
+
+# BeautifulSoup
+
+---

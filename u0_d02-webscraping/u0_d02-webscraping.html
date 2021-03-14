@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Intro to Web Scraping</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Giora Simchoni" />
+    <meta name="date" content="2021-03-14" />
+    <script src="u0_d02-webscraping_files/header-attrs-2.6/header-attrs.js"></script>
+    <head>
+      <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
+      <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
+    </head>
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+## Intro to Web Scraping
+
+### Applications of Data Science - Class Bonus
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### 2021-03-14
+
+---
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;
+  &lt;span&gt;
+    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;/a&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+---
+
+
+
+class: section-slide
+
+# The Three Rules of Web Scraping
+
+---
+
+### Rule 1: Do you *really* need web scraping?
+
+There are data APIs for just about anything, you know...
+
+&lt;img src="images/apis.png" style="width: 100%" /&gt;
+
+---
+
+#### R API Packages
+
+Many of them already accessible with a R/Python package...
+
+
+```r
+library(wbstats)
+
+female_labor &lt;- wb_data(
+  indicator = c("women_lab_share" = "SL.TLF.TOTL.FE.ZS"),
+  start_date = 1990,
+  end_date = 2020
+)
+
+female_labor %&gt;%
+  filter(country %in% c("Israel", "United States")) %&gt;%
+  ggplot(aes(date, women_lab_share, color = country)) +
+  geom_line(lwd = 2) +
+  labs(title = "Share of women in labor force") +
+  theme_light() +
+  theme(text = element_text(size=16))
+```
+
+.font80percent[
+From: https://cfss.uchicago.edu/notes/application-program-interface/
+]
+---
+
+&lt;img src="images/WB-Stats-1.png" width="100%" /&gt;
+
+---
+
+#### The `datapasta` package
+
+My gift to you.
+
+&lt;div class = "no_shadow"&gt;
+  &lt;p align="center"&gt;
+    &lt;img class = "no_shadow" src="images/demo.jpg"/&gt;
+  &lt;/p&gt;
+&lt;/div&gt;
+
+---
+
+
+### Rule 2: Learn some HTML first!
+
+HTML is a set (or tree) of *elements*, marked by *HTML tags*:
+
+.pull-left[
+&lt;img src="images/html1.png" style="width: 100%" /&gt;
+]
+
+.pull-right[
+&lt;img src="images/webpage1.png" style="width: 95%" /&gt;
+]
+
+- First children in the tree: `header` and `body`
+- View any page's HTML (on chrome) with right-click and "View page source" (or Ctrl + U)
+
+---
+
+#### Useful elements and attributes to know
+
+- `&lt;p&gt;` for paragraph `&lt;/p&gt;`
+- `&lt;h1&gt;` for headings `&lt;/h1&gt;`
+- `&lt;br&gt;`, `&lt;hr&gt;` for breaks
+- `&lt;a href = "http://www.google.com&gt;` for links `&lt;/a&gt;`
+- `&lt;b&gt;&lt;i&gt;` For bold, italic etc. `&lt;/i&gt;&lt;/b&gt;`
+- `&lt;img src="img_name.jpg" alt="Alternative text"&gt;`
+- `&lt;p style="color:DodgerBlue;"&gt;` for font color `&lt;/p&gt;`
+
+---
+
+#### HTML Tables
+
+A big thing when it comes to data as you can imagine...
+
+.pull-left[
+&lt;img src="images/html2.png" style="width: 60%" /&gt;
+]
+
+.pull-right[
+&lt;img src="images/webpage2.png" style="width: 120%" /&gt;
+]
+
+---
+
+#### HTML Classes
+
+A class attribute is defined in a style sheet, lets you repeat a style.
+
+.pull-left[
+&lt;img src="images/html3.png" style="width: 80%" /&gt;
+]
+
+.pull-right[
+&lt;img src="images/webpage3.png" style="width: 120%" /&gt;
+]
+
+---
+
+### Rule 3: Be polite!
+
+With great power comes great responsibility.
+
+See e.g. the [polite](https://github.com/dmi3kno/polite) package.
+
+&lt;img src="images/polite_logo.png" style="width: 30%" /&gt;
+
+---
+
+class: section-slide
+
+# rvest
+
+---
+
+class: section-slide
+
+# BeautifulSoup
+
+---
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="../libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
