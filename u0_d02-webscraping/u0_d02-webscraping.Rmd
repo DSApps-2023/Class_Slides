@@ -245,8 +245,6 @@ html_obj %>% html_nodes("img")
 ```{r}
 html_obj %>% html_nodes("a")
 ```
----
-
 
 ---
 
