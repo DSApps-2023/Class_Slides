@@ -182,6 +182,452 @@ class: section-slide
 
 ---
 
+### `read_html()`
+
+You're now a NLP expert, and you've just developed a SOTA Q&amp;A model. How would you demonstrate your model's performance?
+
+How about [triviaquestionsnow.com](https://www.triviaquestionsnow.com/)?
+
+Let's scrape a few Q&amp;As. Politely.
+
+
+```r
+library(rvest)
+
+url &lt;- "https://www.triviaquestionsnow.com/for/sports-trivia"
+
+html_obj &lt;- read_html(url)
+```
+
+`read_html()` is usually where you'd start. What did you get?
+
+
+```r
+class(html_obj)
+```
+
+```
+## [1] "xml_document" "xml_node"
+```
+
+---
+
+### View page source
+
+With time, you'll become friendly with this weird object. Right now it is better than...
+
+&lt;img src="images/view_page_source.png" style="width: 100%" /&gt;
+
+---
+
+### `html_children()` and `html_node()`
+
+Our tree has two children: `head` and `body`
+
+
+```r
+html_obj %&gt;% html_children()
+```
+
+```
+## {xml_nodeset (2)}
+## [1] &lt;head&gt;\n&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8 ...
+## [2] &lt;body&gt;\n    &lt;div class="title-bar" data-responsive-toggle="nav" data-hide ...
+```
+
+Again notice the object returned might not be familiar ("`xml_nodeset`")
+
+And each of the children has children of its own:
+
+
+```r
+html_obj %&gt;% html_node("body") %&gt;% html_children()
+```
+
+```
+## {xml_nodeset (6)}
+## [1] &lt;div class="title-bar" data-responsive-toggle="nav" data-hide-for="medium ...
+## [2] &lt;div id="nav" class="top-bar"&gt;\n        &lt;div class="row"&gt;\n            &lt;d ...
+## [3] &lt;div class="wrap bg-grey-light t-pad-20 b-pad-20"&gt;\n            &lt;div clas ...
+## [4] &lt;script src="https://www.triviaquestionsnow.com/js/all.js?v=1"&gt;&lt;/script&gt;
+## [5] &lt;script async src="https://www.googletagmanager.com/gtag/js?id=UA-1150690 ...
+## [6] &lt;script&gt;\n        window.dataLayer = window.dataLayer || [];\n        fun ...
+```
+
+---
+
+### `html_nodes()`
+
+Usually we'd figure out a rule and want a list of all relevant nodes:
+
+
+```r
+html_obj %&gt;% html_nodes("img")
+```
+
+```
+## {xml_nodeset (8)}
+## [1] &lt;img src="https://www.triviaquestionsnow.com/img/trivia-questions.png" al ...
+## [2] &lt;img src="https://www.triviaquestionsnow.com/img/trivia-questions.png" al ...
+## [3] &lt;img src="https://www.triviaquestionsnow.com/img/category/360x130/-catego ...
+## [4] &lt;img src="https://www.triviaquestionsnow.com/img/category/360x130/-catego ...
+## [5] &lt;img src="https://www.triviaquestionsnow.com/img/category/360x130/-catego ...
+## [6] &lt;img src="https://www.triviaquestionsnow.com/img/category/360x130/apologe ...
+## [7] &lt;img src="https://www.triviaquestionsnow.com/img/category/360x130/-catego ...
+## [8] &lt;img src="https://www.triviaquestionsnow.com/img/category/360x130/-catego ...
+```
+
+
+```r
+html_obj %&gt;% html_nodes("a")
+```
+
+```
+## {xml_nodeset (44)}
+##  [1] &lt;a href="/"&gt;\n                &lt;img src="https://www.triviaquestionsnow.c ...
+##  [2] &lt;a href="https://www.triviaquestionsnow.com" class="no-pad"&gt;\n           ...
+##  [3] &lt;a href="https://www.triviaquestionsnow.com/easy-trivia-questions"&gt;Easy  ...
+##  [4] &lt;a href="https://www.triviaquestionsnow.com/for/sports-trivia"&gt;Sports Tr ...
+##  [5] &lt;a href="https://www.triviaquestionsnow.com/for/music-trivia"&gt;Music Triv ...
+##  [6] &lt;a href="https://www.triviaquestionsnow.com/for/math-trivia"&gt;Math Trivia ...
+##  [7] &lt;a href="https://www.triviaquestionsnow.com/categories"&gt;Categories&lt;/a&gt;
+##  [8] &lt;a href="https://www.triviaquestionsnow.com/all"&gt;All Trivia&lt;/a&gt;
+##  [9] &lt;a href="https://www.triviaquestionsnow.com/question/first-player-in-his ...
+## [10] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
+## [11] &lt;a href="https://www.triviaquestionsnow.com/question/former-nba-player-w ...
+## [12] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
+## [13] &lt;a href="https://www.triviaquestionsnow.com/question/nfl-team-that-does- ...
+## [14] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
+## [15] &lt;a href="https://www.triviaquestionsnow.com/question/the-final-of-the-me ...
+## [16] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
+## [17] &lt;a href="https://www.triviaquestionsnow.com/question/former-nba-all-star ...
+## [18] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
+## [19] &lt;a href="https://www.triviaquestionsnow.com/question/player-to-send-game ...
+## [20] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
+## ...
+```
+---
+
+
+---
+
+### `html_attrs()`
+
+Getting a specific attribute from those nodes:
+
+
+```r
+html_obj %&gt;% html_nodes("img") %&gt;% html_attr("src")
+```
+
+```
+## [1] "https://www.triviaquestionsnow.com/img/trivia-questions.png"                               
+## [2] "https://www.triviaquestionsnow.com/img/trivia-questions.png"                               
+## [3] "https://www.triviaquestionsnow.com/img/category/360x130/-category-18-1485571402.jpg"       
+## [4] "https://www.triviaquestionsnow.com/img/category/360x130/-category-17-1485571416.jpg"       
+## [5] "https://www.triviaquestionsnow.com/img/category/360x130/-category-14-1485571440.jpg"       
+## [6] "https://www.triviaquestionsnow.com/img/category/360x130/apologeticsbooksforkids_igh35k.jpg"
+## [7] "https://www.triviaquestionsnow.com/img/category/360x130/-category-12-1485571483.jpg"       
+## [8] "https://www.triviaquestionsnow.com/img/category/360x130/-category-20-1485571383.jpg"
+```
+
+
+```r
+html_obj %&gt;% html_nodes("a") %&gt;% html_attr("href")
+```
+
+```
+##  [1] "/"                                                                                                                                
+##  [2] "https://www.triviaquestionsnow.com"                                                                                               
+##  [3] "https://www.triviaquestionsnow.com/easy-trivia-questions"                                                                         
+##  [4] "https://www.triviaquestionsnow.com/for/sports-trivia"                                                                             
+##  [5] "https://www.triviaquestionsnow.com/for/music-trivia"                                                                              
+##  [6] "https://www.triviaquestionsnow.com/for/math-trivia"                                                                               
+##  [7] "https://www.triviaquestionsnow.com/categories"                                                                                    
+##  [8] "https://www.triviaquestionsnow.com/all"                                                                                           
+##  [9] "https://www.triviaquestionsnow.com/question/first-player-in-history-to-win-the-nbas-most-improved-player-award-in-1986"           
+## [10] "#"                                                                                                                                
+## [11] "https://www.triviaquestionsnow.com/question/former-nba-player-with-starring-role-in-the-1980-comedy-movie-airplane"               
+## [12] "#"                                                                                                                                
+## [13] "https://www.triviaquestionsnow.com/question/nfl-team-that-does-not-play-in-its-home-city"                                         
+## [14] "#"                                                                                                                                
+## [15] "https://www.triviaquestionsnow.com/question/the-final-of-the-mens-doubles-of-the-2012-us-open-was-won-by-which-set-of-two-players"
+## [16] "#"                                                                                                                                
+## [17] "https://www.triviaquestionsnow.com/question/former-nba-all-star-jermaine-o-neal-was-drafted-by-which-team-in-1996"                
+## [18] "#"                                                                                                                                
+## [19] "https://www.triviaquestionsnow.com/question/player-to-send-game-6-of-the-2013-finals-into-overtime-with-clutch-three-pointer"     
+## [20] "#"                                                                                                                                
+## [21] "https://www.triviaquestionsnow.com/question/which-team-actually-chose-the-long-lasting-vince-carter-during-1998-nba-draft"        
+## [22] "#"                                                                                                                                
+## [23] "https://www.triviaquestionsnow.com/question/played-games-count-by-each-team-during-nfl-regular-season"                            
+## [24] "#"                                                                                                                                
+## [25] "https://www.triviaquestionsnow.com/question/who-were-the-victors-of-the-womens-doubles-of-the-2008-australian-open-tournament"    
+## [26] "#"                                                                                                                                
+## [27] "https://www.triviaquestionsnow.com/question/which-player-won-2008-mixed-doubles-wimbledon-championship-along-with-leander-paes"   
+## [28] "#"                                                                                                                                
+## [29] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                      
+## [30] "https://www.triviaquestionsnow.com/for/sports-trivia?page=3"                                                                      
+## [31] "https://www.triviaquestionsnow.com/for/sports-trivia?page=4"                                                                      
+## [32] "https://www.triviaquestionsnow.com/for/sports-trivia?page=5"                                                                      
+## [33] "https://www.triviaquestionsnow.com/for/sports-trivia?page=6"                                                                      
+## [34] "https://www.triviaquestionsnow.com/for/sports-trivia?page=7"                                                                      
+## [35] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                      
+## [36] "https://www.triviaquestionsnow.com/for/food-drink-trivia"                                                                         
+## [37] "https://www.triviaquestionsnow.com/for/science-trivia"                                                                            
+## [38] "https://www.triviaquestionsnow.com/for/bible-trivia"                                                                              
+## [39] "https://www.triviaquestionsnow.com/for/kids-trivia"                                                                               
+## [40] "https://www.triviaquestionsnow.com/for/history-trivia"                                                                            
+## [41] "https://www.triviaquestionsnow.com/for/video-games-trivia"                                                                        
+## [42] "https://www.triviaquestionsnow.com/categories"                                                                                    
+## [43] "javascript:void(0);"                                                                                                              
+## [44] "https://www.triviaquestionsnow.com/privacy"
+```
+
+---
+
+### `html_text()`
+
+Getting the text from whatever set of elements we have:
+
+
+```r
+html_obj %&gt;% html_nodes("a") %&gt;% html_text()
+```
+
+```
+##  [1] "\n                "                                                                                                           
+##  [2] "\n                            "                                                                                               
+##  [3] "Easy Trivia"                                                                                                                  
+##  [4] "Sports Trivia"                                                                                                                
+##  [5] "Music Trivia"                                                                                                                 
+##  [6] "Math Trivia"                                                                                                                  
+##  [7] "Categories"                                                                                                                   
+##  [8] "All Trivia"                                                                                                                   
+##  [9] "\n                Who was the first player in history to win the NBA's Most Improved Player Award in 1986?\n            "     
+## [10] "Show Answer"                                                                                                                  
+## [11] "\n                Which former NBA player had a starring role in the 1980 comedy movie \"Airplane!\"?\n            "          
+## [12] "Show Answer"                                                                                                                  
+## [13] "\n                Which of the following NFL teams does not play in its home city?\n            "                             
+## [14] "Show Answer"                                                                                                                  
+## [15] "\n                The final of the men's doubles of the 2012 U.S. Open was won by which set of two players?\n            "    
+## [16] "Show Answer"                                                                                                                  
+## [17] "\n                Former NBA All-Star Jermaine O'Neal was drafted by which team in 1996?\n            "                       
+## [18] "Show Answer"                                                                                                                  
+## [19] "\n                Which player hit a clutch three-pointer to send Game 6 of the 2013 Finals into overtime?\n            "     
+## [20] "Show Answer"                                                                                                                  
+## [21] "\n                Which team actually chose the long-lasting Vince Carter during 1998 NBA Draft?\n            "               
+## [22] "Show Answer"                                                                                                                  
+## [23] "\n                How many games are played by each team during the NFL regular season?\n            "                        
+## [24] "Show Answer"                                                                                                                  
+## [25] "\n                Who were the victors of the women's doubles of the 2008 Australian Open Tournament?\n            "          
+## [26] "Show Answer"                                                                                                                  
+## [27] "\n                The 2008 mixed doubles Wimbledon Championship was won by Leander Paes and which other player?\n            "
+## [28] "Show Answer"                                                                                                                  
+## [29] "2"                                                                                                                            
+## [30] "3"                                                                                                                            
+## [31] "4"                                                                                                                            
+## [32] "5"                                                                                                                            
+## [33] "6"                                                                                                                            
+## [34] "7"                                                                                                                            
+## [35] "\r\n                        Next\r\n                    "                                                                     
+## [36] "\n                                    \n                    Food &amp; Drink Trivia\n                \n            "              
+## [37] "\n                                    \n                    Science Trivia\n                \n            "                   
+## [38] "\n                                    \n                    Bible Trivia\n                \n            "                     
+## [39] "\n                                    \n                    Kids Trivia\n                \n            "                      
+## [40] "\n                                    \n                    History Trivia\n                \n            "                   
+## [41] "\n                                    \n                    Video Games Trivia\n                \n            "               
+## [42] "See All Categories"                                                                                                           
+## [43] "feedback box"                                                                                                                 
+## [44] "Privacy Policy"
+```
+
+---
+
+### How to get to those questions? Option 1
+
+Look at the page source, get some identifier yourself (class, ID, link)
+
+.pull-left[
+&lt;img src="images/question.png" style="width: 100%" /&gt;
+]
+
+.pull-right[
+&lt;img src="images/question_html.png" style="width: 100%" /&gt;
+]
+
+
+```r
+ html_obj %&gt;% html_nodes(".question") %&gt;% .[[1]]
+```
+
+```
+## {html_node}
+## &lt;div class="question callout" ng-controller="QuestionController as question"&gt;
+## [1] &lt;input type="hidden" ng-model="question.data.id" ng-init="question.data.i ...
+## [2] &lt;span class="float-right light-grey bold l-cush-10"&gt;VeryHard&lt;/span&gt;
+## [3] &lt;h3 class="fs-1 bold"&gt;\n            &lt;a href="https://www.triviaquestionsn ...
+## [4] &lt;div class="t-pad-10"&gt;\n            &lt;a href="#" class="click-to-show bold ...
+```
+
+---
+
+After some trial and error...
+
+
+```r
+html_obj %&gt;%
+  html_nodes(".question") %&gt;%
+  html_nodes(".fs-1") %&gt;%
+  html_text() %&gt;%
+  str_trim()
+```
+
+```
+##  [1] "Who was the first player in history to win the NBA's Most Improved Player Award in 1986?"     
+##  [2] "Which former NBA player had a starring role in the 1980 comedy movie \"Airplane!\"?"          
+##  [3] "Which of the following NFL teams does not play in its home city?"                             
+##  [4] "The final of the men's doubles of the 2012 U.S. Open was won by which set of two players?"    
+##  [5] "Former NBA All-Star Jermaine O'Neal was drafted by which team in 1996?"                       
+##  [6] "Which player hit a clutch three-pointer to send Game 6 of the 2013 Finals into overtime?"     
+##  [7] "Which team actually chose the long-lasting Vince Carter during 1998 NBA Draft?"               
+##  [8] "How many games are played by each team during the NFL regular season?"                        
+##  [9] "Who were the victors of the women's doubles of the 2008 Australian Open Tournament?"          
+## [10] "The 2008 mixed doubles Wimbledon Championship was won by Leander Paes and which other player?"
+```
+
+---
+
+### How to get to those questions? Option 2
+
+[SelectorGadget](https://selectorgadget.com/)!
+
+&lt;div class = "no_shadow"&gt;
+  &lt;p align="center"&gt;
+    &lt;img class = "no_shadow" src="images/demo.jpg"/&gt;
+  &lt;/p&gt;
+&lt;/div&gt;
+
+---
+
+### From here it's a function fest!
+
+
+```r
+extract_questions_and_answers_from_page &lt;- function(url) {
+  html_obj &lt;- read_html(url)
+  levels &lt;- html_obj %&gt;% html_nodes(".question") %&gt;%
+    html_nodes(".l-cush-10") %&gt;% html_text()
+  questions &lt;- html_obj %&gt;% html_nodes(".question") %&gt;%
+    html_nodes(".fs-1") %&gt;% html_text() %&gt;% str_trim()
+  answers &lt;- html_obj %&gt;% html_nodes(".question") %&gt;%
+    html_nodes(".answer") %&gt;% html_text() %&gt;%
+    str_extract(., "Answer:.*") %&gt;% str_replace("Answer: ", "")
+  tibble(level = levels, question = questions, answer = answers)
+}
+
+extract_questions_and_answers_from_page(url)
+```
+
+```
+## # A tibble: 10 x 3
+##    level   question                                              answer         
+##    &lt;chr&gt;   &lt;chr&gt;                                                 &lt;chr&gt;          
+##  1 Easy    "Which team did the Chicago Cubs play in the 1945 Wo~ Detroit Tigers 
+##  2 Hard    "Before Alabama State, which college did Isaiah Crow~ University of ~
+##  3 Easy    "Which golfer was the runner-up to Patrick Reed in t~ Rickie Fowler  
+##  4 Medium  "Which tennis player won the 2016 Laurens World Spor~ Novak Djokovic 
+##  5 Medium  "Andre Agassi won his first Olympic gold medal in wh~ 1996           
+##  6 Medium  "Former NBA All-Star Jermaine O'Neal was drafted by ~ Portland Trail~
+##  7 Easy    "Which turn-of-the-century NBA great's middle name i~ Kobe Bryant    
+##  8 VeryHa~ "Which player was inducted into the Pro Football Hal~ Gale Sayers    
+##  9 Easy    "Who was the first U.S. volleyball player to win thr~ Karch Kiraly   
+## 10 Medium  "Who served as the starting center of the Golden Sta~ Andrew Bogut
+```
+
+---
+
+### Pagination
+
+
+```r
+create_page_url &lt;- function(topic, page_num) {
+  str_c("https://www.triviaquestionsnow.com/for/", topic, "-trivia?page=", page_num)
+}
+
+extract_multiple_pages_single_topic &lt;- function(topic, n = 5) {
+  cat(topic, "\n")
+  res &lt;- map_dfr(
+    1:n,
+    function(i) {
+      cat(" ", i)
+      url &lt;- create_page_url(topic, i)
+      extract_questions_and_answers_from_page(url)
+    }
+  )
+  res$topic &lt;- topic
+  cat("\n")
+  res
+}
+```
+
+---
+
+
+```r
+extract_multiple_pages_single_topic("sports")
+```
+
+
+```
+## # A tibble: 50 x 4
+##    level   question                                        answer          topic
+##    &lt;chr&gt;   &lt;chr&gt;                                           &lt;chr&gt;           &lt;chr&gt;
+##  1 VeryHa~ "In 1948, which NBA basketball team did the Ha~ Minneapolis La~ spor~
+##  2 Medium  "The Jacksonville Jaguars and Carolina Panther~ 1995            spor~
+##  3 Hard    "An automatic progression by a player to the n~ Bye             spor~
+##  4 VeryHa~ "In 2016, Giants' wide receiver Odell Beckham,~ Code Black      spor~
+##  5 Hard    "Which NBA player broke the record for most po~ Jeremy Lin      spor~
+##  6 Medium  "Before relocating to Foxborough, Massachusett~ Boston          spor~
+##  7 Easy    "What is the term for the historic jerseys tod~ Throwback Jers~ spor~
+##  8 Medium  "Who served as the starting center of the Gold~ Andrew Bogut    spor~
+##  9 Easy    "In what year was the 4 minute mile achieved?"  1954 by Roger ~ spor~
+## 10 Hard    "Who was the first tennis player to complete a~ Don Budge       spor~
+## # ... with 40 more rows
+```
+
+---
+
+### Magic!
+
+
+```r
+topics &lt;- c("sports", "kids", "science", "bible", "food-drink", "history", "geography", "video-games")
+
+df_all &lt;- map_dfr(
+  topics,
+  extract_multiple_pages_single_topic
+)
+
+df_all %&gt;% count(topic)
+```
+
+
+```
+## # A tibble: 8 x 2
+##   topic           n
+##   &lt;chr&gt;       &lt;int&gt;
+## 1 bible          50
+## 2 food-drink     50
+## 3 geography      50
+## 4 history        50
+## 5 kids           50
+## 6 science        50
+## 7 sports         50
+## 8 video-games    50
+```
+
+---
+
 class: section-slide
 
 # BeautifulSoup

@@ -184,6 +184,216 @@ class: section-slide
 
 ---
 
+### `read_html()`
+
+You're now a NLP expert, and you've just developed a SOTA Q&A model. How would you demonstrate your model's performance?
+
+How about [triviaquestionsnow.com](https://www.triviaquestionsnow.com/)?
+
+Let's scrape a few Q&As. Politely.
+
+```{r, message=FALSE}
+library(rvest)
+
+url <- "https://www.triviaquestionsnow.com/for/sports-trivia"
+
+html_obj <- read_html(url)
+```
+
+`read_html()` is usually where you'd start. What did you get?
+
+```{r}
+class(html_obj)
+```
+
+---
+
+### View page source
+
+With time, you'll become friendly with this weird object. Right now it is better than...
+
+<img src="images/view_page_source.png" style="width: 100%" />
+
+---
+
+### `html_children()` and `html_node()`
+
+Our tree has two children: `head` and `body`
+
+```{r}
+html_obj %>% html_children()
+```
+
+Again notice the object returned might not be familiar ("`xml_nodeset`")
+
+And each of the children has children of its own:
+
+```{r}
+html_obj %>% html_node("body") %>% html_children()
+```
+
+---
+
+### `html_nodes()`
+
+Usually we'd figure out a rule and want a list of all relevant nodes:
+
+```{r}
+html_obj %>% html_nodes("img")
+```
+
+```{r}
+html_obj %>% html_nodes("a")
+```
+---
+
+
+---
+
+### `html_attrs()`
+
+Getting a specific attribute from those nodes:
+
+```{r}
+html_obj %>% html_nodes("img") %>% html_attr("src")
+```
+
+```{r}
+html_obj %>% html_nodes("a") %>% html_attr("href")
+```
+
+---
+
+### `html_text()`
+
+Getting the text from whatever set of elements we have:
+
+```{r}
+html_obj %>% html_nodes("a") %>% html_text()
+```
+
+---
+
+### How to get to those questions? Option 1
+
+Look at the page source, get some identifier yourself (class, ID, link)
+
+.pull-left[
+<img src="images/question.png" style="width: 100%" />
+]
+
+.pull-right[
+<img src="images/question_html.png" style="width: 100%" />
+]
+
+```{r}
+ html_obj %>% html_nodes(".question") %>% .[[1]]
+```
+
+---
+
+After some trial and error...
+
+```{r}
+html_obj %>%
+  html_nodes(".question") %>%
+  html_nodes(".fs-1") %>%
+  html_text() %>%
+  str_trim()
+```
+
+---
+
+### How to get to those questions? Option 2
+
+[SelectorGadget](https://selectorgadget.com/)!
+
+<div class = "no_shadow">
+  <p align="center">
+    <img class = "no_shadow" src="images/demo.jpg"/>
+  </p>
+</div>
+
+---
+
+### From here it's a function fest!
+
+```{r}
+extract_questions_and_answers_from_page <- function(url) {
+  html_obj <- read_html(url)
+  levels <- html_obj %>% html_nodes(".question") %>%
+    html_nodes(".l-cush-10") %>% html_text()
+  questions <- html_obj %>% html_nodes(".question") %>%
+    html_nodes(".fs-1") %>% html_text() %>% str_trim()
+  answers <- html_obj %>% html_nodes(".question") %>%
+    html_nodes(".answer") %>% html_text() %>%
+    str_extract(., "Answer:.*") %>% str_replace("Answer: ", "")
+  tibble(level = levels, question = questions, answer = answers)
+}
+
+extract_questions_and_answers_from_page(url)
+```
+
+---
+
+### Pagination
+
+```{r}
+create_page_url <- function(topic, page_num) {
+  str_c("https://www.triviaquestionsnow.com/for/", topic, "-trivia?page=", page_num)
+}
+
+extract_multiple_pages_single_topic <- function(topic, n = 5) {
+  cat(topic, "\n")
+  res <- map_dfr(
+    1:n,
+    function(i) {
+      cat(" ", i)
+      url <- create_page_url(topic, i)
+      extract_questions_and_answers_from_page(url)
+    }
+  )
+  res$topic <- topic
+  cat("\n")
+  res
+}
+```
+
+---
+
+```{r, eval=FALSE}
+extract_multiple_pages_single_topic("sports")
+```
+
+```{r, echo=FALSE} 
+df_sports <- read_csv("../data/trivia_scrape_df_sports.csv", col_types =  cols())
+
+df_sports
+```
+
+---
+
+### Magic!
+
+```{r, eval=FALSE}
+topics <- c("sports", "kids", "science", "bible", "food-drink", "history", "geography", "video-games")
+
+df_all <- map_dfr(
+  topics,
+  extract_multiple_pages_single_topic
+)
+
+df_all %>% count(topic)
+```
+
+```{r, echo=FALSE}
+df_all <- read_csv("../data/trivia_scrape_df_all.csv", col_types =  cols())
+
+df_all %>% count(topic)
+```
+
+---
+
 class: section-slide
 
 # BeautifulSoup
