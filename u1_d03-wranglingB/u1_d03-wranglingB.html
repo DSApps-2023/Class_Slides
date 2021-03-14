@@ -4,7 +4,7 @@
     <title>Tidy Data Wrangling - Part B</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-02-09" />
+    <meta name="date" content="2021-03-14" />
     <script src="u1_d03-wranglingB_files/header-attrs-2.6/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-02-09
+### 2021-03-14
 
 ---
 
@@ -908,8 +908,8 @@ microbenchmark(nchar_loop(), nchar_vectorized())
 ```
 ## Unit: nanoseconds
 ##                expr  min   lq  mean median   uq     max neval
-##        nchar_loop() 2700 2800 45491   2900 2900 4260100   100
-##  nchar_vectorized()  800  900 12672    900 1000 1171000   100
+##        nchar_loop() 3100 3200 50770   3300 3400 4745200   100
+##  nchar_vectorized()  900 1000 14494   1100 1100 1338700   100
 ```
 
 - So why should iterating through a `data.frame` columns or rows be any different?
@@ -1115,12 +1115,12 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;%
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          180. TRUE   
-## 2 f          163. FALSE  
+## 1 f          170. TRUE   
+## 2 f          165. TRUE   
 ## 3 f          165. TRUE   
-## 4 m          183. TRUE   
-## 5 m          168. FALSE  
-## 6 m          180. TRUE
+## 4 m          188. TRUE   
+## 5 m          188. TRUE   
+## 6 m          173. FALSE
 ```
 
 .font80percent[This specific example might not be *that* bad with `ifelse()`, what will you do with 5 variables?]
@@ -1147,12 +1147,12 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;% group_by(sex) %&gt;% slice
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          173. TRUE   
-## 2 f          170. TRUE   
-## 3 f          163. FALSE  
-## 4 m          178. FALSE  
-## 5 m          188. TRUE   
-## 6 m          185. TRUE
+## 1 f          155. FALSE  
+## 2 f          173. TRUE   
+## 3 f          165. TRUE   
+## 4 m          180. TRUE   
+## 5 m          173. FALSE  
+## 6 m          170. FALSE
 ```
 
 ---
@@ -1248,19 +1248,19 @@ mean_length_essay &lt;- function(...) {
 
 okcupid %&gt;%
   mutate(essay_avglen = pmap_dbl(
-    select(., starts_with("essay")),
+    across(starts_with("essay")),
     mean_length_essay)) %&gt;%
-  select(essay0:essay3, essay_avglen) %&gt;%
+  select(essay0:essay2, essay_avglen) %&gt;%
   head(3)
 ```
 
 ```
-## # A tibble: 3 x 5
-##   essay0           essay1           essay2          essay3          essay_avglen
-##   &lt;chr&gt;            &lt;chr&gt;            &lt;chr&gt;           &lt;chr&gt;                  &lt;dbl&gt;
-## 1 "about me:&lt;br /~ "currently work~ "making people~ "the way i loo~         264.
-## 2 "i am a chef: t~ "dedicating eve~ "being silly. ~  &lt;NA&gt;                   241.
-## 3 "i'm not ashame~ "i make nerdy s~ "improvising i~ "my large jaw ~         612
+## # A tibble: 3 x 4
+##   essay0                essay1                essay2                essay_avglen
+##   &lt;chr&gt;                 &lt;chr&gt;                 &lt;chr&gt;                        &lt;dbl&gt;
+## 1 "about me:&lt;br /&gt;\n&lt;b~ "currently working a~ "making people laugh~         264.
+## 2 "i am a chef: this i~ "dedicating everyday~ "being silly. having~         241.
+## 3 "i'm not ashamed of ~ "i make nerdy softwa~ "improvising in diff~         612
 ```
 
 ---
@@ -1380,7 +1380,7 @@ mean_length_essay &lt;- function(...) {
 
 okcupid %&gt;%
   mutate(essay_avglen = pmap_dbl(
-    select(., starts_with("essay")),
+    across(starts_with("essay")),
     mean_length_essay))
 ```
 

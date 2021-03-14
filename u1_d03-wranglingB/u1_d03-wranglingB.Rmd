@@ -867,9 +867,9 @@ mean_length_essay <- function(...) {
 
 okcupid %>%
   mutate(essay_avglen = pmap_dbl(
-    select(., starts_with("essay")),
+    across(starts_with("essay")),
     mean_length_essay)) %>%
-  select(essay0:essay3, essay_avglen) %>%
+  select(essay0:essay2, essay_avglen) %>%
   head(3)
 ```
 
@@ -947,7 +947,7 @@ mean_length_essay <- function(...) {
 
 okcupid %>%
   mutate(essay_avglen = pmap_dbl(
-    select(., starts_with("essay")),
+    across(starts_with("essay")),
     mean_length_essay))
 ```
 
