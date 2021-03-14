@@ -269,8 +269,9 @@ ggplot(data = characters, mapping = aes(x = height, y = mass)) +
 
 ```{r Facet4, warning=FALSE, out.width="60%"}
 ggplot(data = characters, mapping = aes(x = height, y = mass)) +
+  geom_point(data = transform(characters, gender = NULL), colour = "grey85") +
   geom_point() +
-  facet_wrap(~ eye_color)
+  facet_wrap(. ~ gender)
 ```
 
 ---
