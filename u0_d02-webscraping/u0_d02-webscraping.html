@@ -4,7 +4,7 @@
     <title>Intro to Web Scraping</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-03-14" />
+    <meta name="date" content="2021-03-17" />
     <script src="u0_d02-webscraping_files/header-attrs-2.6/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-03-14
+### 2021-03-17
 
 ---
 
@@ -292,17 +292,17 @@ html_obj %&gt;% html_nodes("a")
 ##  [6] &lt;a href="https://www.triviaquestionsnow.com/for/math-trivia"&gt;Math Trivia ...
 ##  [7] &lt;a href="https://www.triviaquestionsnow.com/categories"&gt;Categories&lt;/a&gt;
 ##  [8] &lt;a href="https://www.triviaquestionsnow.com/all"&gt;All Trivia&lt;/a&gt;
-##  [9] &lt;a href="https://www.triviaquestionsnow.com/question/nba-basketball-team ...
+##  [9] &lt;a href="https://www.triviaquestionsnow.com/question/last-nba-team-1990s ...
 ## [10] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [11] &lt;a href="https://www.triviaquestionsnow.com/question/twitter" class="dar ...
+## [11] &lt;a href="https://www.triviaquestionsnow.com/question/how-many-aces-did-p ...
 ## [12] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [13] &lt;a href="https://www.triviaquestionsnow.com/question/who-won-the-1994-me ...
+## [13] &lt;a href="https://www.triviaquestionsnow.com/question/nba-personality-own ...
 ## [14] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [15] &lt;a href="https://www.triviaquestionsnow.com/question/fouled-and-left-per ...
+## [15] &lt;a href="https://www.triviaquestionsnow.com/question/year-pete-sampras-w ...
 ## [16] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [17] &lt;a href="https://www.triviaquestionsnow.com/question/which-of-the-follow ...
+## [17] &lt;a href="https://www.triviaquestionsnow.com/question/nation-simona-halep ...
 ## [18] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [19] &lt;a href="https://www.triviaquestionsnow.com/question/in-what-year-were-t ...
+## [19] &lt;a href="https://www.triviaquestionsnow.com/question/former-nba-player-h ...
 ## [20] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
 ## ...
 ```
@@ -335,49 +335,49 @@ html_obj %&gt;% html_nodes("a") %&gt;% html_attr("href")
 ```
 
 ```
-##  [1] "/"                                                                                                                                   
-##  [2] "https://www.triviaquestionsnow.com"                                                                                                  
-##  [3] "https://www.triviaquestionsnow.com/easy-trivia-questions"                                                                            
-##  [4] "https://www.triviaquestionsnow.com/for/sports-trivia"                                                                                
-##  [5] "https://www.triviaquestionsnow.com/for/music-trivia"                                                                                 
-##  [6] "https://www.triviaquestionsnow.com/for/math-trivia"                                                                                  
-##  [7] "https://www.triviaquestionsnow.com/categories"                                                                                       
-##  [8] "https://www.triviaquestionsnow.com/all"                                                                                              
-##  [9] "https://www.triviaquestionsnow.com/question/nba-basketball-team-harlem-globetrotters-won-in-1948-and-broke-nbas-color-barrier"       
-## [10] "#"                                                                                                                                   
-## [11] "https://www.triviaquestionsnow.com/question/twitter"                                                                                 
-## [12] "#"                                                                                                                                   
-## [13] "https://www.triviaquestionsnow.com/question/who-won-the-1994-mens-singles-french-open-championship"                                  
-## [14] "#"                                                                                                                                   
-## [15] "https://www.triviaquestionsnow.com/question/fouled-and-left-permanently-scarred-legendary-isiah-thomas-in-1991"                      
-## [16] "#"                                                                                                                                   
-## [17] "https://www.triviaquestionsnow.com/question/which-of-the-following-team-cups-is-played-by-only-women"                                
-## [18] "#"                                                                                                                                   
-## [19] "https://www.triviaquestionsnow.com/question/in-what-year-were-the-first-air-jordan-sneakers-released"                                
-## [20] "#"                                                                                                                                   
-## [21] "https://www.triviaquestionsnow.com/question/which-country-won-the-2015-davis-cup"                                                    
-## [22] "#"                                                                                                                                   
-## [23] "https://www.triviaquestionsnow.com/question/played-most-games-in-nfl-history-primarily-on-offense"                                   
-## [24] "#"                                                                                                                                   
-## [25] "https://www.triviaquestionsnow.com/question/nba-player-to-brake-in-jan-2019-wilt-chamberlains-most-consecutive-with-3ple-2ble-record"
-## [26] "#"                                                                                                                                   
-## [27] "https://www.triviaquestionsnow.com/question/highest-annual-salary-paid-player-in-nfl-history"                                        
-## [28] "#"                                                                                                                                   
-## [29] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                         
-## [30] "https://www.triviaquestionsnow.com/for/sports-trivia?page=3"                                                                         
-## [31] "https://www.triviaquestionsnow.com/for/sports-trivia?page=4"                                                                         
-## [32] "https://www.triviaquestionsnow.com/for/sports-trivia?page=5"                                                                         
-## [33] "https://www.triviaquestionsnow.com/for/sports-trivia?page=6"                                                                         
-## [34] "https://www.triviaquestionsnow.com/for/sports-trivia?page=7"                                                                         
-## [35] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                         
-## [36] "https://www.triviaquestionsnow.com/for/food-drink-trivia"                                                                            
-## [37] "https://www.triviaquestionsnow.com/for/science-trivia"                                                                               
-## [38] "https://www.triviaquestionsnow.com/for/bible-trivia"                                                                                 
-## [39] "https://www.triviaquestionsnow.com/for/kids-trivia"                                                                                  
-## [40] "https://www.triviaquestionsnow.com/for/history-trivia"                                                                               
-## [41] "https://www.triviaquestionsnow.com/for/video-games-trivia"                                                                           
-## [42] "https://www.triviaquestionsnow.com/categories"                                                                                       
-## [43] "javascript:void(0);"                                                                                                                 
+##  [1] "/"                                                                                                                              
+##  [2] "https://www.triviaquestionsnow.com"                                                                                             
+##  [3] "https://www.triviaquestionsnow.com/easy-trivia-questions"                                                                       
+##  [4] "https://www.triviaquestionsnow.com/for/sports-trivia"                                                                           
+##  [5] "https://www.triviaquestionsnow.com/for/music-trivia"                                                                            
+##  [6] "https://www.triviaquestionsnow.com/for/math-trivia"                                                                             
+##  [7] "https://www.triviaquestionsnow.com/categories"                                                                                  
+##  [8] "https://www.triviaquestionsnow.com/all"                                                                                         
+##  [9] "https://www.triviaquestionsnow.com/question/last-nba-team-1990s-european-basketball-star-drazen-petrovics-played-for"           
+## [10] "#"                                                                                                                              
+## [11] "https://www.triviaquestionsnow.com/question/how-many-aces-did-pete-sampras-record-in-the-1993-season"                           
+## [12] "#"                                                                                                                              
+## [13] "https://www.triviaquestionsnow.com/question/nba-personality-owning-term-three-peat-for-team-winning-3-consecutive-championships"
+## [14] "#"                                                                                                                              
+## [15] "https://www.triviaquestionsnow.com/question/year-pete-sampras-won-last-of-his-7-in-total-wimbledon-championship-titles"         
+## [16] "#"                                                                                                                              
+## [17] "https://www.triviaquestionsnow.com/question/nation-simona-halep-of-the-2018-australian-open-championship-hails-from"            
+## [18] "#"                                                                                                                              
+## [19] "https://www.triviaquestionsnow.com/question/former-nba-player-had-his-number-31-retired-by-the-duke-blue-devils"                
+## [20] "#"                                                                                                                              
+## [21] "https://www.triviaquestionsnow.com/question/rookie-player-key-in-helping-houston-rockets-win-nba-championship-in-1994"          
+## [22] "#"                                                                                                                              
+## [23] "https://www.triviaquestionsnow.com/question/who-was-the-first-non-american-to-win-the-masters-tournament"                       
+## [24] "#"                                                                                                                              
+## [25] "https://www.triviaquestionsnow.com/question/as-of-2019-only-nba-player-with-three-sons-who-also-played-in-the-nba"              
+## [26] "#"                                                                                                                              
+## [27] "https://www.triviaquestionsnow.com/question/who-were-the-victors-of-the-womens-doubles-of-the-2008-australian-open-tournament"  
+## [28] "#"                                                                                                                              
+## [29] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                    
+## [30] "https://www.triviaquestionsnow.com/for/sports-trivia?page=3"                                                                    
+## [31] "https://www.triviaquestionsnow.com/for/sports-trivia?page=4"                                                                    
+## [32] "https://www.triviaquestionsnow.com/for/sports-trivia?page=5"                                                                    
+## [33] "https://www.triviaquestionsnow.com/for/sports-trivia?page=6"                                                                    
+## [34] "https://www.triviaquestionsnow.com/for/sports-trivia?page=7"                                                                    
+## [35] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                    
+## [36] "https://www.triviaquestionsnow.com/for/food-drink-trivia"                                                                       
+## [37] "https://www.triviaquestionsnow.com/for/science-trivia"                                                                          
+## [38] "https://www.triviaquestionsnow.com/for/bible-trivia"                                                                            
+## [39] "https://www.triviaquestionsnow.com/for/kids-trivia"                                                                             
+## [40] "https://www.triviaquestionsnow.com/for/history-trivia"                                                                          
+## [41] "https://www.triviaquestionsnow.com/for/video-games-trivia"                                                                      
+## [42] "https://www.triviaquestionsnow.com/categories"                                                                                  
+## [43] "javascript:void(0);"                                                                                                            
 ## [44] "https://www.triviaquestionsnow.com/privacy"
 ```
 
@@ -393,49 +393,49 @@ html_obj %&gt;% html_nodes("a") %&gt;% html_text()
 ```
 
 ```
-##  [1] "\n                "                                                                                                                                           
-##  [2] "\n                            "                                                                                                                               
-##  [3] "Easy Trivia"                                                                                                                                                  
-##  [4] "Sports Trivia"                                                                                                                                                
-##  [5] "Music Trivia"                                                                                                                                                 
-##  [6] "Math Trivia"                                                                                                                                                  
-##  [7] "Categories"                                                                                                                                                   
-##  [8] "All Trivia"                                                                                                                                                   
-##  [9] "\n                In 1948, which NBA basketball team did the Harlem Globetrotters defeat which eventually helped break the NBA's color barrier?\n            "
-## [10] "Show Answer"                                                                                                                                                  
-## [11] "\n                What player's Twitter handle is @CP3?\n            "                                                                                        
-## [12] "Show Answer"                                                                                                                                                  
-## [13] "\n                Who won the 1994 men's singles French Open Championship?\n            "                                                                     
-## [14] "Show Answer"                                                                                                                                                  
-## [15] "\n                Which fellow NBA superstar fouled the legendary Isiah Thomas so hard in 1991 that it left the latter permanently scarred?\n            "    
-## [16] "Show Answer"                                                                                                                                                  
-## [17] "\n                Which of the following team cups is played by only women?\n            "                                                                    
-## [18] "Show Answer"                                                                                                                                                  
-## [19] "\n                In what year were the first Air Jordan sneakers released?\n            "                                                                    
-## [20] "Show Answer"                                                                                                                                                  
-## [21] "\n                Which Country won the 2015 Davis Cup?\n            "                                                                                        
-## [22] "Show Answer"                                                                                                                                                  
-## [23] "\n                Which player holds the record for playing the most games in NFL history primarily on offense?\n            "                                
-## [24] "Show Answer"                                                                                                                                                  
-## [25] "\n                In January of 2019, which NBA player broke Wilt Chamberlain's record of most consecutive games with a triple-double?\n            "         
-## [26] "Show Answer"                                                                                                                                                  
-## [27] "\n                Who is the highest-paid player in terms of annual salary in NFL history?\n            "                                                     
-## [28] "Show Answer"                                                                                                                                                  
-## [29] "2"                                                                                                                                                            
-## [30] "3"                                                                                                                                                            
-## [31] "4"                                                                                                                                                            
-## [32] "5"                                                                                                                                                            
-## [33] "6"                                                                                                                                                            
-## [34] "7"                                                                                                                                                            
-## [35] "\r\n                        Next\r\n                    "                                                                                                     
-## [36] "\n                                    \n                    Food &amp; Drink Trivia\n                \n            "                                              
-## [37] "\n                                    \n                    Science Trivia\n                \n            "                                                   
-## [38] "\n                                    \n                    Bible Trivia\n                \n            "                                                     
-## [39] "\n                                    \n                    Kids Trivia\n                \n            "                                                      
-## [40] "\n                                    \n                    History Trivia\n                \n            "                                                   
-## [41] "\n                                    \n                    Video Games Trivia\n                \n            "                                               
-## [42] "See All Categories"                                                                                                                                           
-## [43] "feedback box"                                                                                                                                                 
+##  [1] "\n                "                                                                                                                                                                                      
+##  [2] "\n                            "                                                                                                                                                                          
+##  [3] "Easy Trivia"                                                                                                                                                                                             
+##  [4] "Sports Trivia"                                                                                                                                                                                           
+##  [5] "Music Trivia"                                                                                                                                                                                            
+##  [6] "Math Trivia"                                                                                                                                                                                             
+##  [7] "Categories"                                                                                                                                                                                              
+##  [8] "All Trivia"                                                                                                                                                                                              
+##  [9] "\n                Budding 1990's European basketball star Dražen Petrovic's career was cut short when he died in a car crash at 28 years of age. What was the last NBA team he played for?\n            "
+## [10] "Show Answer"                                                                                                                                                                                             
+## [11] "\n                How many aces did Pete Sampras record in the 1993 season?\n            "                                                                                                               
+## [12] "Show Answer"                                                                                                                                                                                             
+## [13] "\n                Which NBA personality actually owns the term \"three-peat\", referring to a team winning three consecutive championships?\n            "                                               
+## [14] "Show Answer"                                                                                                                                                                                             
+## [15] "\n                Throughout his career, Pete Sampras won a total of 7 Wimbledon titles. Which year did he win his last title in the Wimbledon Championship?\n            "                              
+## [16] "Show Answer"                                                                                                                                                                                             
+## [17] "\n                Simona Halep played in the final of the 2018 Australian Open Championship. Which nation does she hail from?\n            "                                                             
+## [18] "Show Answer"                                                                                                                                                                                             
+## [19] "\n                Which former NBA player had his number 31 retired by the Duke Blue Devils?\n            "                                                                                              
+## [20] "Show Answer"                                                                                                                                                                                             
+## [21] "\n                Which rookie player was key in helping the Houston Rockets win the NBA Championship in 1994?\n            "                                                                            
+## [22] "Show Answer"                                                                                                                                                                                             
+## [23] "\n                Who was the first non-American to win the Masters Tournament?\n            "                                                                                                           
+## [24] "Show Answer"                                                                                                                                                                                             
+## [25] "\n                As of 2019, who is the only player in NBA history to have sired three sons who also played in the NBA?\n            "                                                                  
+## [26] "Show Answer"                                                                                                                                                                                             
+## [27] "\n                Who were the victors of the women's doubles of the 2008 Australian Open Tournament?\n            "                                                                                     
+## [28] "Show Answer"                                                                                                                                                                                             
+## [29] "2"                                                                                                                                                                                                       
+## [30] "3"                                                                                                                                                                                                       
+## [31] "4"                                                                                                                                                                                                       
+## [32] "5"                                                                                                                                                                                                       
+## [33] "6"                                                                                                                                                                                                       
+## [34] "7"                                                                                                                                                                                                       
+## [35] "\r\n                        Next\r\n                    "                                                                                                                                                
+## [36] "\n                                    \n                    Food &amp; Drink Trivia\n                \n            "                                                                                         
+## [37] "\n                                    \n                    Science Trivia\n                \n            "                                                                                              
+## [38] "\n                                    \n                    Bible Trivia\n                \n            "                                                                                                
+## [39] "\n                                    \n                    Kids Trivia\n                \n            "                                                                                                 
+## [40] "\n                                    \n                    History Trivia\n                \n            "                                                                                              
+## [41] "\n                                    \n                    Video Games Trivia\n                \n            "                                                                                          
+## [42] "See All Categories"                                                                                                                                                                                      
+## [43] "feedback box"                                                                                                                                                                                            
 ## [44] "Privacy Policy"
 ```
 
@@ -462,7 +462,7 @@ Look at the page source, get some identifier yourself (class, ID, link)
 ## {html_node}
 ## &lt;div class="question callout" ng-controller="QuestionController as question"&gt;
 ## [1] &lt;input type="hidden" ng-model="question.data.id" ng-init="question.data.i ...
-## [2] &lt;span class="float-right light-grey bold l-cush-10"&gt;VeryHard&lt;/span&gt;
+## [2] &lt;span class="float-right light-grey bold l-cush-10"&gt;Medium&lt;/span&gt;
 ## [3] &lt;h3 class="fs-1 bold"&gt;\n            &lt;a href="https://www.triviaquestionsn ...
 ## [4] &lt;div class="t-pad-10"&gt;\n            &lt;a href="#" class="click-to-show bold ...
 ```
@@ -481,16 +481,16 @@ html_obj %&gt;%
 ```
 
 ```
-##  [1] "In 1948, which NBA basketball team did the Harlem Globetrotters defeat which eventually helped break the NBA's color barrier?"
-##  [2] "What player's Twitter handle is @CP3?"                                                                                        
-##  [3] "Who won the 1994 men's singles French Open Championship?"                                                                     
-##  [4] "Which fellow NBA superstar fouled the legendary Isiah Thomas so hard in 1991 that it left the latter permanently scarred?"    
-##  [5] "Which of the following team cups is played by only women?"                                                                    
-##  [6] "In what year were the first Air Jordan sneakers released?"                                                                    
-##  [7] "Which Country won the 2015 Davis Cup?"                                                                                        
-##  [8] "Which player holds the record for playing the most games in NFL history primarily on offense?"                                
-##  [9] "In January of 2019, which NBA player broke Wilt Chamberlain's record of most consecutive games with a triple-double?"         
-## [10] "Who is the highest-paid player in terms of annual salary in NFL history?"
+##  [1] "Budding 1990's European basketball star Dražen Petrovic's career was cut short when he died in a car crash at 28 years of age. What was the last NBA team he played for?"
+##  [2] "How many aces did Pete Sampras record in the 1993 season?"                                                                                                               
+##  [3] "Which NBA personality actually owns the term \"three-peat\", referring to a team winning three consecutive championships?"                                               
+##  [4] "Throughout his career, Pete Sampras won a total of 7 Wimbledon titles. Which year did he win his last title in the Wimbledon Championship?"                              
+##  [5] "Simona Halep played in the final of the 2018 Australian Open Championship. Which nation does she hail from?"                                                             
+##  [6] "Which former NBA player had his number 31 retired by the Duke Blue Devils?"                                                                                              
+##  [7] "Which rookie player was key in helping the Houston Rockets win the NBA Championship in 1994?"                                                                            
+##  [8] "Who was the first non-American to win the Masters Tournament?"                                                                                                           
+##  [9] "As of 2019, who is the only player in NBA history to have sired three sons who also played in the NBA?"                                                                  
+## [10] "Who were the victors of the women's doubles of the 2008 Australian Open Tournament?"
 ```
 
 ---
@@ -528,18 +528,18 @@ extract_questions_and_answers_from_page(url)
 
 ```
 ## # A tibble: 10 x 3
-##    level    question                                                answer      
-##    &lt;chr&gt;    &lt;chr&gt;                                                   &lt;chr&gt;       
-##  1 Easy     "Which company owns the blimps which are mainstays at ~ Goodyear    
-##  2 Easy     "Brazil was eliminated in the 2014 world cup by what t~ Germany     
-##  3 Medium   "1990's actress Holly Robinson went on to marry which ~ Rodney Peete
-##  4 Hard     "Which former NBA player had his number 31 retired by ~ Shane Batti~
-##  5 VeryHard "In a professional tour game in tennis, the chair umpi~ Second Viol~
-##  6 Medium   "Retired NBA player Jason \"White Chocolate\" Williams~ Randy Moss  
-##  7 VeryHard "Who is considered to be the biggest player to ever we~ Max Starks  
-##  8 Medium   "Which player won the women's singles 2014 Wimbledon C~ Petra Kvito~
-##  9 Easy     "A touchdown is worth how many points in football?"     6           
-## 10 VeryHard "Who was the first non-American to win the Masters Tou~ Gary Player
+##    level   question                                         answer              
+##    &lt;chr&gt;   &lt;chr&gt;                                            &lt;chr&gt;               
+##  1 Easy    What play immediately preceded Roger Goodell as~ Paul Tagliabue      
+##  2 Medium  Which of the following players was the runner-u~ Karolína Plíšková   
+##  3 Easy    Which tennis player won the women's singles of ~ Naomi Osaka         
+##  4 Easy    Pitt &amp; North Carolina play college basketball i~ A.C.C.              
+##  5 Easy    During which year was male cheerleaders introdu~ 2018                
+##  6 Medium  A silhouette of which player is widely recogniz~ Jerry West          
+##  7 Easy    Which meat dish becomes particularly popular du~ Chicken Wings       
+##  8 Hard    Who did Roger Federer defeat to win his maiden ~ Lleyton Hewitt      
+##  9 VeryHa~ The mixed doubles of the 2000 French Open was w~ Marian de Swardt an~
+## 10 Easy    Which player was the winner of the 2018 men's s~ Roger Federer
 ```
 
 ---
@@ -631,6 +631,222 @@ class: section-slide
 # BeautifulSoup
 
 ---
+
+### Almost always start with
+
+
+```python
+import requests
+from bs4 import BeautifulSoup
+
+html_obj = requests.get('https://en.wikipedia.org/wiki/List_of_The_Real_Housewives_cast_members')
+
+soup = BeautifulSoup(html_obj.content, 'html.parser')
+type(soup)
+```
+
+```
+## &lt;class 'bs4.BeautifulSoup'&gt;
+```
+
+This object has all sorts of attributes and methods:
+
+
+```python
+soup.get_text()
+soup.prettify()
+soup.attrs
+soup.children
+soup.title
+```
+
+---
+
+### `find()` a tag, `find_all()`
+
+
+```python
+link_objs = soup.find_all('a', href=True)
+type(link_objs)
+```
+
+```
+## &lt;class 'bs4.element.ResultSet'&gt;
+```
+
+```python
+type(link_objs[3])
+```
+
+```
+## &lt;class 'bs4.element.Tag'&gt;
+```
+
+```python
+link_objs[3].text
+```
+
+```
+## 'media franchise'
+```
+
+```python
+link_objs[3].attrs
+```
+
+```
+## {'href': '/wiki/Media_franchise', 'class': ['mw-redirect'], 'title': 'Media franchise'}
+```
+
+See the actual link in the [page](https://en.wikipedia.org/wiki/List_of_The_Real_Housewives_cast_members).
+
+---
+
+### Getting that `table`
+
+
+```python
+table = soup.find('table', attrs={'class':'wikitable'})
+table_body = table.find('tbody')
+
+rows = table_body.find_all('tr')
+len(rows)
+```
+
+```
+## 131
+```
+
+```python
+rows[0]
+```
+
+```
+## &lt;tr&gt;
+## &lt;th rowspan="2"&gt;Installment
+## &lt;/th&gt;
+## &lt;th rowspan="2"&gt;Housewives
+## &lt;/th&gt;
+## &lt;th rowspan="2"&gt;First season&lt;br/&gt;starred
+## &lt;/th&gt;
+## &lt;th rowspan="2"&gt;Last season&lt;br/&gt;starred
+## &lt;/th&gt;
+## &lt;th colspan="3"&gt;Number of seasons
+## &lt;/th&gt;&lt;/tr&gt;
+```
+
+---
+
+### Getting a Housewife name
+
+&lt;img src="images/housewife_row_html.png" style="width: 100%" /&gt;
+
+
+```python
+import re
+
+rows[3].find('span', attrs = {'data-sort-value': re.compile(r'.*')})
+```
+
+```
+## &lt;span data-sort-value="De La Rosa, Jo !"&gt;Jo De La Rosa&lt;/span&gt;
+```
+
+---
+
+### Getting only HWives with Wiki pages
+
+
+```python
+housewives_with_links = []
+for row in rows:
+  housewife = row.find('span',
+    attrs = {'data-sort-value': re.compile(r'.*')})
+  if housewife is not None:
+    link = housewife.find('a')
+    if link is not None:
+      housewives_with_links.append((housewife.text, link['href']))
+
+import pandas as pd
+
+h_df = pd.DataFrame(housewives_with_links, columns=['name', 'link'])
+
+h_df.head()
+```
+
+```
+##                     name                         link
+## 0        Vicki Gunvalson        /wiki/Vicki_Gunvalson
+## 1           Jeana Keough           /wiki/Jeana_Keough
+## 2         Heather Dubrow         /wiki/Heather_Dubrow
+## 3  Shannon Storms Beador  /wiki/Shannon_Storms_Beador
+## 4       Luann de Lesseps       /wiki/Luann_de_Lesseps
+```
+
+---
+
+### (Though if your table is simple, try:)
+
+
+```python
+l = pd.read_html(html_obj.text)
+
+l[0].head()
+```
+
+```
+##      Installment       Housewives  ... Number of seasons      
+##      Installment       Housewives  ...            Friend Guest
+## 0  Orange County  Kimberly Bryant  ...                 0     3
+## 1  Orange County    Jo De La Rosa  ...                 0     2
+## 2  Orange County  Vicki Gunvalson  ...                 1     0
+## 3  Orange County     Jeana Keough  ...                 1     4
+## 4  Orange County   Lauri Peterson  ...                 1     1
+## 
+## [5 rows x 7 columns]
+```
+
+---
+
+### Following HWives Links
+
+
+```python
+def get_housewife_img_ref(housewife_link):
+  html_obj = requests.get('https://en.wikipedia.org' + housewife_link)
+  soup = BeautifulSoup(html_obj.content, 'html.parser')
+  infobox = soup.find('table', attrs = {'class': 'vcard'})
+  if infobox is not None:
+    img_obj = infobox.find('img', src=True)
+    if img_obj is not None:
+      return img_obj['src']
+  return None
+  
+h_df['img_ref'] = h_df['link'].apply(get_housewife_img_ref)
+h_df.dropna(inplace=True)
+
+h_df.head()
+```
+
+---
+
+### Downloading HWives Images
+
+
+```python
+def make_img_filename(hf_name):
+  return 'data/housewives/' + hf_name.lower().strip(',.-').replace(' ', '_') + '.jpg'
+
+def download_hw_img(hf_name, hf_img_ref):
+  img_file = make_img_filename(hf_name)
+  img_data = requests.get('http:' + hf_img_ref).content
+  with open(img_file, 'wb') as handler:
+      handler.write(img_data)
+      
+h_df.apply(lambda row: download_hw_img(row['name'], row['img_ref']),
+  axis=1)
+```
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="../libs/remark-latest.min.js"></script>

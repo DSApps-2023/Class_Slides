@@ -397,3 +397,135 @@ class: section-slide
 # BeautifulSoup
 
 ---
+
+### Almost always start with
+
+```{python}
+import requests
+from bs4 import BeautifulSoup
+
+html_obj = requests.get('https://en.wikipedia.org/wiki/List_of_The_Real_Housewives_cast_members')
+
+soup = BeautifulSoup(html_obj.content, 'html.parser')
+type(soup)
+```
+
+This object has all sorts of attributes and methods:
+
+```{python, eval=FALSE}
+soup.get_text()
+soup.prettify()
+soup.attrs
+soup.children
+soup.title
+```
+
+---
+
+### `find()` a tag, `find_all()`
+
+```{python}
+link_objs = soup.find_all('a', href=True)
+type(link_objs)
+type(link_objs[3])
+link_objs[3].text
+link_objs[3].attrs
+```
+
+See the actual link in the [page](https://en.wikipedia.org/wiki/List_of_The_Real_Housewives_cast_members).
+
+---
+
+### Getting that `table`
+
+```{python}
+table = soup.find('table', attrs={'class':'wikitable'})
+table_body = table.find('tbody')
+
+rows = table_body.find_all('tr')
+len(rows)
+rows[0]
+```
+
+---
+
+### Getting a Housewife name
+
+<img src="images/housewife_row_html.png" style="width: 100%" />
+
+```{python}
+import re
+
+rows[3].find('span', attrs = {'data-sort-value': re.compile(r'.*')})
+```
+
+---
+
+### Getting only HWives with Wiki pages
+
+```{python}
+housewives_with_links = []
+for row in rows:
+  housewife = row.find('span',
+    attrs = {'data-sort-value': re.compile(r'.*')})
+  if housewife is not None:
+    link = housewife.find('a')
+    if link is not None:
+      housewives_with_links.append((housewife.text, link['href']))
+
+import pandas as pd
+
+h_df = pd.DataFrame(housewives_with_links, columns=['name', 'link'])
+
+h_df.head()
+```
+
+---
+
+### (Though if your table is simple, try:)
+
+```{python}
+l = pd.read_html(html_obj.text)
+
+l[0].head()
+```
+
+---
+
+### Following HWives Links
+
+```{python, eval = FALSE}
+def get_housewife_img_ref(housewife_link):
+  html_obj = requests.get('https://en.wikipedia.org' + housewife_link)
+  soup = BeautifulSoup(html_obj.content, 'html.parser')
+  infobox = soup.find('table', attrs = {'class': 'vcard'})
+  if infobox is not None:
+    img_obj = infobox.find('img', src=True)
+    if img_obj is not None:
+      return img_obj['src']
+  return None
+  
+h_df['img_ref'] = h_df['link'].apply(get_housewife_img_ref)
+h_df.dropna(inplace=True)
+
+h_df.head()
+```
+
+---
+
+### Downloading HWives Images
+
+```{python, eval = FALSE}
+def make_img_filename(hf_name):
+  return 'data/housewives/' + hf_name.lower().strip(',.-').replace(' ', '_') + '.jpg'
+
+def download_hw_img(hf_name, hf_img_ref):
+  img_file = make_img_filename(hf_name)
+  img_data = requests.get('http:' + hf_img_ref).content
+  with open(img_file, 'wb') as handler:
+      handler.write(img_data)
+      
+h_df.apply(lambda row: download_hw_img(row['name'], row['img_ref']),
+  axis=1)
+```
+
