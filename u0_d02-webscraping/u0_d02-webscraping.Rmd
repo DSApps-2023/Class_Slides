@@ -511,6 +511,11 @@ h_df.dropna(inplace=True)
 h_df.head()
 ```
 
+```{python, echo=FALSE}
+df = pd.read_csv('../data/housewives.csv', usecols=[1,2,3])
+df.head()
+```
+
 ---
 
 ### Downloading HWives Images
