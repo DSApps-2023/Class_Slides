@@ -177,18 +177,21 @@ Estimating $n$, $p$ and $c$ from our networks:
 
 ```{python}
 def estimate_p(m, n): return m / (n * (n - 1) / 2)
-def estimate_c(G, l=1): return np.mean(np.array(list(dict(G.degree()).values()))**l)
+def estimate_c(n, p): return (n - 1) * p
+def calculate_c(G, l=1): return np.mean(np.array(list(dict(G.degree()).values()))**l)
 
 n_isr, n_sci, n_ru = I.number_of_nodes(), Sc.number_of_nodes(), Ru.number_of_nodes()
 m_isr, m_sci, m_ru = I.number_of_edges(), Sc.number_of_edges(), Ru.number_of_edges()
 p_isr, p_sci, p_ru = estimate_p(m_isr, n_isr), estimate_p(m_sci, n_sci), estimate_p(m_ru, n_ru)
-c_isr, c_sci, c_ru = estimate_c(I), estimate_c(Sc), estimate_c(Ru)
+c_isr0, c_sci0, c_ru0 = estimate_c(n_isr, p_isr), estimate_c(n_sci, p_sci), estimate_c(n_ru, p_ru)
+c_isr, c_sci, c_ru = calculate_c(I), calculate_c(Sc), calculate_c(Ru)
 
 pd.DataFrame({
   'network': ['Israeli Artists', 'Sci-Fi Books', 'RuPaul Verse'],
   'n': [n_isr, n_sci, n_ru],
   'm': [m_isr, m_sci, m_ru],
   'p': [p_isr, p_sci, p_ru],
+  'c^': [c_isr0, c_sci0, c_ru0],
   'c': [c_isr, c_sci, c_ru]
 })
 ```
@@ -472,7 +475,7 @@ def size_of_GCC(G): return round(len(max(nx.connected_components(G), key=len))/G
 n_e, n_eu, n_h = E.number_of_nodes(), Euro.number_of_nodes(), H.number_of_nodes()
 m_e, m_eu, m_h = E.number_of_edges(), Euro.number_of_edges(), H.number_of_edges()
 p_e, p_eu, p_h = estimate_p(m_e, n_e), estimate_p(m_eu, n_eu), estimate_p(m_h, n_h)
-c_e, c_eu, c_h = estimate_c(E), estimate_c(Euro), estimate_c(H)
+c_e, c_eu, c_h = calculate_c(E), calculate_c(Euro), calculate_c(H)
 S_e, S_eu, S_h = size_of_GCC(E), size_of_GCC(Euro), size_of_GCC(H)
 
 pd.DataFrame({
@@ -877,8 +880,8 @@ So we now have a way of seeing the actual Transitivity of our networks, vs. a th
 
 ```{python}
 def transitivity_conf(G):
-  D = estimate_c(G, l=1)
-  D2 = estimate_c(G, l=2)
+  D = calculate_c(G, l=1)
+  D2 = calculate_c(G, l=2)
   n = G.number_of_nodes()
   return (1/n)*((D2-D)**2/(D**3))
 
@@ -932,8 +935,8 @@ $Diameter(G_{Conf})=\frac{\ln(n)}{\ln(x_\text{min}[\frac{\alpha-2}{\alpha-3}]-1)
 
 ```{python}
 def diameter_conf(G):
-  D = estimate_c(G, l=1)
-  D2 = estimate_c(G, l=2)
+  D = calculate_c(G, l=1)
+  D2 = calculate_c(G, l=2)
   n = G.number_of_nodes()
   return np.log(n) / np.log((D2-D)/D)
 

@@ -4,7 +4,8 @@
     <title>Network Models</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-01-18" />
+    <meta name="date" content="2021-04-18" />
+    <script src="u2_d05-models_files/header-attrs-2.6/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -30,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-01-18
+### 2021-04-18
 
 ---
 
@@ -130,27 +131,30 @@ Estimating `\(n\)`, `\(p\)` and `\(c\)` from our networks:
 
 ```python
 def estimate_p(m, n): return m / (n * (n - 1) / 2)
-def estimate_c(G, l=1): return np.mean(np.array(list(dict(G.degree()).values()))**l)
+def estimate_c(n, p): return (n - 1) * p
+def calculate_c(G, l=1): return np.mean(np.array(list(dict(G.degree()).values()))**l)
 
 n_isr, n_sci, n_ru = I.number_of_nodes(), Sc.number_of_nodes(), Ru.number_of_nodes()
 m_isr, m_sci, m_ru = I.number_of_edges(), Sc.number_of_edges(), Ru.number_of_edges()
 p_isr, p_sci, p_ru = estimate_p(m_isr, n_isr), estimate_p(m_sci, n_sci), estimate_p(m_ru, n_ru)
-c_isr, c_sci, c_ru = estimate_c(I), estimate_c(Sc), estimate_c(Ru)
+c_isr0, c_sci0, c_ru0 = estimate_c(n_isr, p_isr), estimate_c(n_sci, p_sci), estimate_c(n_ru, p_ru)
+c_isr, c_sci, c_ru = calculate_c(I), calculate_c(Sc), calculate_c(Ru)
 
 pd.DataFrame({
   'network': ['Israeli Artists', 'Sci-Fi Books', 'RuPaul Verse'],
   'n': [n_isr, n_sci, n_ru],
   'm': [m_isr, m_sci, m_ru],
   'p': [p_isr, p_sci, p_ru],
+  'c^': [c_isr0, c_sci0, c_ru0],
   'c': [c_isr, c_sci, c_ru]
 })
 ```
 
 ```
-##            network    n     m         p          c
-## 0  Israeli Artists  321   381  0.007418   2.373832
-## 1     Sci-Fi Books   23    51  0.201581   4.434783
-## 2     RuPaul Verse  112  5119  0.823520  91.410714
+##            network    n     m         p         c^          c
+## 0  Israeli Artists  321   381  0.007418   2.373832   2.373832
+## 1     Sci-Fi Books   23    51  0.201581   4.434783   4.434783
+## 2     RuPaul Verse  112  5119  0.823520  91.410714  91.410714
 ```
 
 
@@ -568,7 +572,7 @@ Seeing the log-log transformation with our distributions should also result in a
 
 &lt;img src="images/Degree-Hists4-1.png" width="100%" /&gt;
 
-😭
+🙍
 
 ---
 
@@ -779,8 +783,8 @@ So we now have a way of seeing the actual Transitivity of our networks, vs. a th
 
 ```python
 def transitivity_conf(G):
-  D = estimate_c(G, l=1)
-  D2 = estimate_c(G, l=2)
+  D = calculate_c(G, l=1)
+  D2 = calculate_c(G, l=2)
   n = G.number_of_nodes()
   return (1/n)*((D2-D)**2/(D**3))
 
@@ -843,8 +847,8 @@ In the case `\(D_G \sim PL(\alpha,d_\text{min})\)`, again this estimate is only 
 
 ```python
 def diameter_conf(G):
-  D = estimate_c(G, l=1)
-  D2 = estimate_c(G, l=2)
+  D = calculate_c(G, l=1)
+  D2 = calculate_c(G, l=2)
   n = G.number_of_nodes()
   return np.log(n) / np.log((D2-D)/D)
 
