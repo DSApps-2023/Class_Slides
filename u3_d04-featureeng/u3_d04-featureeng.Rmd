@@ -1962,7 +1962,7 @@ cv_res_catdog %>%
 
 - The `textrecipes` package lets you calculate a few features with a single `step_textfeature()`
 - The `extract_functions` parameter accepts a named list of functions you wish to define on your text data
-- By default it will accept `count_functions` list from the [`textfeatures`](https://textfeatures.mikewk.com/reference/textfeatures.html) by Mike Kearney, which gets you basic counts like `n_words`, `n_digits` etc.
+- By default it will accept `count_functions` list from the [`textfeatures`](https://textfeatures.mikewk.com/reference/textfeatures.html) package by Mike Kearney, which gets you basic counts like `n_words`, `n_digits` etc.
 
 ---
 
