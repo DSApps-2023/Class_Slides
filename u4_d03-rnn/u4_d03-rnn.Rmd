@@ -173,8 +173,8 @@ class: section-slide
 ### A Single Neuron RNN
 
 The most basic Single-Neuron RNN would:
-- take $x_t$, learn from it and output $y_t$
-- then take both the next input $x_{t+1}$ and previous output $y_t$, learn from them
+- take $x_t$, learn from it and output $\hat{y}_t$
+- then take both the next input $x_{t+1}$ and previous output $\hat{y}_t$, learn from them
 - by learning we mean forward and backward propagating at each stage with some loss $L$ (e.g. MSE)
 
 <img src = "images/single_neuron_RNN.png" style="width: 70%">
@@ -225,7 +225,7 @@ def gradient_descent(alpha, w, grad):
 $$\hat{y}_1 = \tanh(w_0 + w_1 \cdot x_1 + w2 \cdot y_{0}) \\
 \vdots \\
 \hat{y}_T = tanh(w_0 + w_1 \cdot x_T + w2 \cdot \hat{y}_{T - 1}) \\
-L = MSE = \frac{1}{N}\sum_{i = 1}^{N}(y_{i1} - \hat{y}_{iT})^2$$
+L = MSE = \frac{1}{N}\sum_{i = 1}^{N}(y_{i} - \hat{y}_{iT})^2$$
 
 ```{python}
 def forward(X, y, w):
@@ -391,7 +391,7 @@ plt.show()
 
 ### Add inputs, Add neurons
 
-$\hat{Y}_t = \tanh(W_0 + X_t \cdot W_1 + \hat{Y}_{t} \cdot W_2)$
+$\hat{Y}_t = \tanh(W_0 + X_t \cdot W_1 + \hat{Y}_{t-1} \cdot W_2)$
 
 - $X_t$ is $n$ batch size X $m$ inputs
 - $W_1$ is $m$ inputs X $p$ neurons
@@ -454,7 +454,288 @@ plt.show()
 
 class: section-slide
 
+# Detour: Text is a Time Series!
+
+---
+
+#### But we first have to tokenize it
+
+```{python}
+from tensorflow.keras.preprocessing import text, sequence
+
+sentences = [
+  'I love Stats so much',
+  'I love ML too',
+  'I love DS',
+  'I love NN'
+]
+
+tokenizer = text.Tokenizer(num_words = 10)
+tokenizer.fit_on_texts(sentences)
+
+print(tokenizer.word_counts)
+print(tokenizer.word_index)
+print(tokenizer.index_word)
+```
+
+---
+
+#### Then make it a sequence
+
+```{python}
+text_sequences = tokenizer.texts_to_sequences(sentences)
+
+print(text_sequences)
+
+X = sequence.pad_sequences(text_sequences,
+  padding='post', truncating='post', maxlen=4)
+
+print(X)
+```
+
+---
+
+#### Now we can embed it
+
+```{python}
+from tensorflow.keras.layers import Embedding
+
+embed_layer = Embedding(input_dim= (10 + 1), output_dim=3)
+
+print(embed_layer(np.array([1])))
+
+X_embedded = embed_layer(X)
+
+print(X_embedded.shape)
+print(X_embedded)
+```
+
+---
+
+class: section-slide
+
+# End of Detour
+
+---
+
+### Yelp!
+
+~600K (!) [text reviews](https://www.tensorflow.org/datasets/catalog/yelp_polarity_reviews) of shops and restaurants, polarized to negative (1-2 stars) and positive (3-4 stars), 560K in training set.
+
+```{python, eval=FALSE}
+(ds_train, ds_test), ds_info = tfds.load('yelp_polarity_reviews',
+  split=['train', 'test'], with_info=True)
+  
+df_train = tfds.as_dataframe(ds_train, ds_info)
+df_test = tfds.as_dataframe(ds_test, ds_info)
+df_test['text'] = df_test['text'].str.decode('utf-8')
+df_train['text'] = df_train['text'].str.decode('utf-8')
+
+print(df_train.shape)
+print(df_test.shape)
+print(df_test.head(3))
+```
+
+```{python, echo=FALSE}
+df_test = pd.read_csv('../data/yelp_polarity_reviews_test.csv')
+
+print((560000, 2))
+print(df_test.shape)
+print(df_test.head(3))
+```
+
+---
+
+#### Yelp! But with sequences
+
+```{python, eval=FALSE}
+from sklearn.model_selection import train_test_split
+
+max_features = 10000
+seq_len = 100
+
+tokenizer = text.Tokenizer(num_words=max_features)
+tokenizer.fit_on_texts(df_train['text'])
+text_sequences = tokenizer.texts_to_sequences(df_train['text'])
+X = sequence.pad_sequences(text_sequences, padding='post',
+  truncating='post', maxlen=seq_len)
+
+X_train, X_test, y_train, y_test = train_test_split(X,
+  df_train['label'], test_size = 0.2)
+
+print(X_train.shape)
+print(X_test.shape)
+```
+
+```{python, echo=FALSE}
+max_features = 10000
+seq_len = 100
+print((448000, 100))
+print((112000, 100))
+```
+
+In case you're wondering, yes, there are smarter text generators, but even this 0.5M rows `X` matrix is only ~220MB.
+
+---
+
+#### Yelp with MLP
+
+Remember there's nothing preventing you from using a simple NN, for (almost) everything:
+
+```{python}
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.callbacks import EarlyStopping
+
+n_cells = 10
+epochs = 100
+batch_size = 30
+words_embed_dim = 50
+callbacks = EarlyStopping(monitor='val_loss', patience=5)
+
+mlp = Sequential([
+  Embedding(max_features + 1, words_embed_dim),
+  Dense(n_cells, activation='relu'),
+  Dense(1, activation='sigmoid')
+])
+
+mlp.compile(loss = 'binary_crossentropy',
+  optimizer='adam', metrics='accuracy')
+```
+
+---
+
+```{python}
+mlp.summary()
+```
+
+```{python, eval=FALSE}
+history = mlp.fit(X_train, y_train, validation_split=0.1, callbacks=callbacks,
+  batch_size=batch_size, epochs=epochs)
+  
+mlp.evaluate(X_test, y_test)
+```
+
+```{python, echo=FALSE}
+print([0.6664084792137146, 0.5871875286102295])
+```
+
+---
+
+#### Yelp with RNN
+
+```{python}
+rnn = Sequential([
+  Embedding(max_features + 1, words_embed_dim),
+  SimpleRNN(n_cells, return_sequences=True),
+  SimpleRNN(1, activation='sigmoid')
+])
+
+rnn.compile(loss = 'binary_crossentropy',
+  optimizer='adam', metrics='accuracy')
+
+rnn.summary()
+```
+
+---
+
+```{python, eval=FALSE}
+history = rnn.fit(X_train, y_train, validation_split=0.1, callbacks=callbacks,
+  batch_size=batch_size, epochs=epochs)
+  
+rnn.evaluate(X_test, y_test)
+```
+
+```{python, echo=FALSE}
+print([0.44967198371887207, 0.8164107203483582])
+```
+
+---
+
+class: section-slide
+
 # LSTM
+
+---
+
+### RNN Cell has Short Memory
+
+> I hated this bar, though the bartender was so handsome and the drink he made me was absolutely delicious.
+
+The RNN sees `[I, hated, this, bar, ..., so, handsome, ... absolutely, delicious]`.
+
+What do you think it would predict?
+
+Enter Long Short-Term Memory cells (LSTM).
+
+LSTM keeps track of its memory, of its state $C_t$, by constantly updating how much it needs to:
+- forget from previous state: $f_t \cdot C_{t-1}$
+- remember from current "candidate" state: $i_t \cdot \tilde{C_t}$
+
+$C_t = f_t \cdot C_{t-1} + i_t \cdot \tilde{C_t}$
+
+---
+
+$C_t = f_t \cdot C_{t-1} + i_t \cdot \tilde{C_t}$
+
+Where $i_t$ and $f_t$ are "gates" between 0 and 1.
+
+Finally, the state goes through $\tanh()$ activation and another 0-1 gate $o_t$, and the output is:
+
+$\hat{Y}_t = o_t \cdot tanh(C_t)$
+
+So how do we learn the gates and get $\tilde{C_t}$? Don't panic:
+
+$f_t = \sigma(W_{0f} + X_t \cdot W_{1f} + \hat{Y}_{t-1} \cdot W_{2f})$
+$i_t = \sigma(W_{0i} + X_t \cdot W_{1i} + \hat{Y}_{t-1} \cdot W_{2i})$
+$o_t = \sigma(W_{0o} + X_t \cdot W_{1o} + \hat{Y}_{t-1} \cdot W_{2o})$
+
+$\tilde{C}_t = \tanh(W_{0c} + X_t \cdot W_{1c} + \hat{Y}_{t-1} \cdot W_{2c})$
+
+Where $\sigma$ is the sigmoid function, shrinking any input to be between 0 and 1.
+
+---
+
+#### Or if you prefer a diagram
+
+<img src="images/lstm_cell.png" style="width: 100%" />
+
+---
+
+#### Yelp with LSTM
+
+```{python, warning=FALSE, message=FALSE}
+from tensorflow.keras.layers import LSTM
+
+lstm = Sequential([
+  Embedding(max_features + 1, words_embed_dim),
+  LSTM(n_cells, return_sequences=True),
+  LSTM(1, activation='sigmoid')
+])
+
+lstm.compile(loss = 'binary_crossentropy',
+  optimizer='adam', metrics='accuracy')
+```
+
+.insight[
+`r emo::ji("bulb")` So if RNN layer would have $l$ parameters, LSTM would have...?
+]
+
+---
+
+```{python}
+lstm.summary()
+```
+
+```{python, eval=FALSE}
+history = lstm.fit(X_train, y_train, validation_split=0.1, callbacks=callbacks,
+  batch_size=batch_size, epochs=epochs)
+  
+lstm.evaluate(X_test, y_test)
+```
+
+```{python, echo=FALSE}
+print([[0.22240985929965973, 0.9227678775787354]])
+```
 
 ---
 
