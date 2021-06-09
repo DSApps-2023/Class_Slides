@@ -4,7 +4,7 @@
     <title>Recurrent Neural Networks</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-06-02" />
+    <meta name="date" content="2021-06-09" />
     <script src="u4_d03-rnn_files/header-attrs-2.6/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-06-02
+### 2021-06-09
 
 ---
 
@@ -838,6 +838,89 @@ rnn.evaluate(X_test, y_test)
 
 class: section-slide
 
+# 1D Convolution Layers
+
+---
+
+### If you got it in 2D...
+
+&lt;img src="images/conv1d_excel.png" style="width: 60%" /&gt;
+
+Or, in a formula:
+`\(Z_{i} = b + \sum_{v=0}^{f_w-1}X_{i - \frac{f_w - 1}{2} + v} \cdot W_{v}\)`
+
+Or, in Numpy:
+
+
+```python
+np.convolve([0,1,2,1,0], [0.2,0.6,0.2][::-1], 'same')
+```
+
+```
+## array([0.2, 1. , 1.6, 1. , 0.2])
+```
+
+.insight[
+💡 Why would we want this?
+]
+
+---
+
+
+```python
+from tensorflow.keras.layers import Conv1D
+
+rnn_conv1d = Sequential([
+  Embedding(max_features + 1, words_embed_dim),
+  Conv1D(filters=5, kernel_size=2, strides=1),
+  SimpleRNN(n_cells, return_sequences=True),
+  SimpleRNN(1, activation='sigmoid')
+])
+
+rnn_conv1d.compile(loss = 'binary_crossentropy',
+  optimizer='adam', metrics='accuracy')
+
+rnn_conv1d.summary()
+```
+
+```
+## Model: "sequential_4"
+## _________________________________________________________________
+## Layer (type)                 Output Shape              Param #   
+## =================================================================
+## embedding_3 (Embedding)      (None, None, 50)          500050    
+## _________________________________________________________________
+## conv1d (Conv1D)              (None, None, 5)           505       
+## _________________________________________________________________
+## simple_rnn_6 (SimpleRNN)     (None, None, 10)          160       
+## _________________________________________________________________
+## simple_rnn_7 (SimpleRNN)     (None, 1)                 12        
+## =================================================================
+## Total params: 500,727
+## Trainable params: 500,727
+## Non-trainable params: 0
+## _________________________________________________________________
+```
+
+---
+
+
+```python
+history = rnn_conv1d.fit(X_train, y_train, validation_split=0.1, callbacks=callbacks,
+  batch_size=batch_size, epochs=epochs)
+  
+rnn_conv1d.evaluate(X_test, y_test)
+```
+
+
+```
+## [0.4487762749195099, 0.825705349445343]
+```
+
+---
+
+class: section-slide
+
 # LSTM
 
 ---
@@ -920,11 +1003,11 @@ lstm.summary()
 ```
 
 ```
-## Model: "sequential_4"
+## Model: "sequential_5"
 ## _________________________________________________________________
 ## Layer (type)                 Output Shape              Param #   
 ## =================================================================
-## embedding_3 (Embedding)      (None, None, 50)          500050    
+## embedding_4 (Embedding)      (None, None, 50)          500050    
 ## _________________________________________________________________
 ## lstm (LSTM)                  (None, None, 10)          2440      
 ## _________________________________________________________________
@@ -951,11 +1034,15 @@ lstm.evaluate(X_test, y_test)
 
 ---
 
-class: section-slide
+### Play with it!
 
-# 1D Convolution Layers
+For example, combining LSTM with the old MLP to predict women's shoes price:
+
+&lt;img src="images/lstm_with_mlp.png" style="width: 50%" /&gt;
 
 ---
+
+### One more
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="../libs/remark-latest.min.js"></script>
