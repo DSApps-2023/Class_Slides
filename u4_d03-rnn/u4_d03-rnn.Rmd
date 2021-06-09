@@ -653,6 +653,62 @@ print([0.44967198371887207, 0.8164107203483582])
 
 class: section-slide
 
+# 1D Convolution Layers
+
+---
+
+### If you got it in 2D...
+
+<img src="images/conv1d_excel.png" style="width: 60%" />
+
+Or, in a formula:
+$Z_{i} = b + \sum_{v=0}^{f_w-1}X_{i - \frac{f_w - 1}{2} + v} \cdot W_{v}$
+
+Or, in Numpy:
+
+```{python}
+np.convolve([0,1,2,1,0], [0.2,0.6,0.2][::-1], 'same')
+```
+
+.insight[
+`r emo::ji("bulb")` Why would we want this?
+]
+
+---
+
+```{python}
+from tensorflow.keras.layers import Conv1D
+
+rnn_conv1d = Sequential([
+  Embedding(max_features + 1, words_embed_dim),
+  Conv1D(filters=5, kernel_size=2, strides=1),
+  SimpleRNN(n_cells, return_sequences=True),
+  SimpleRNN(1, activation='sigmoid')
+])
+
+rnn_conv1d.compile(loss = 'binary_crossentropy',
+  optimizer='adam', metrics='accuracy')
+
+rnn_conv1d.summary()
+```
+
+---
+
+```{python, eval=FALSE}
+history = rnn_conv1d.fit(X_train, y_train, validation_split=0.1, callbacks=callbacks,
+  batch_size=batch_size, epochs=epochs)
+  
+rnn_conv1d.evaluate(X_test, y_test)
+```
+
+```{python, echo=FALSE}
+print([0.4487762749195099, 0.825705349445343])
+```
+
+---
+
+class: section-slide
+
 # LSTM
 
 ---
@@ -739,8 +795,12 @@ print([[0.22240985929965973, 0.9227678775787354]])
 
 ---
 
-class: section-slide
+### Play with it!
 
-# 1D Convolution Layers
+For example, combining LSTM with the old MLP to predict women's shoes price:
+
+<img src="images/lstm_with_mlp.png" style="width: 50%" />
 
 ---
+
+### One more
