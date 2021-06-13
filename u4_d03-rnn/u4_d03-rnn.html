@@ -4,7 +4,7 @@
     <title>Recurrent Neural Networks</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-06-10" />
+    <meta name="date" content="2021-06-13" />
     <script src="u4_d03-rnn_files/header-attrs-2.6/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-06-10
+### 2021-06-13
 
 ---
 
@@ -391,7 +391,7 @@ print(model.get_weights()[2], model.get_weights()[0], model.get_weights()[1])
 ```
 
 ```
-## [-0.05025314] [[0.89638436]] [[0.44938317]]
+## [-0.05025313] [[0.8963843]] [[0.44938323]]
 ```
 
 ```python
@@ -400,7 +400,7 @@ print(np.mean((y - y_pred) **2))
 ```
 
 ```
-## 0.04377151694823706
+## 0.04377151881286946
 ```
 
 ```python
@@ -489,7 +489,7 @@ print(np.mean((y - y_pred) **2))
 ```
 
 ```
-## 0.026836454381774174
+## 0.026084491948608103
 ```
 
 ```python
@@ -1031,6 +1031,16 @@ lstm.evaluate(X_test, y_test)
 ```
 ## [0.22240985929965973, 0.9227678775787354]
 ```
+
+---
+
+### Beyond the black box
+
+Sending "probes" can help us get what the LSTM is doing. By standardizing an LSTM neuron output to 0-1 and translating this to a cold-hot palette as was done [here](https://towardsdatascience.com/visualising-lstm-activations-in-keras-b50206da96ff) we can see what turns it on/off.
+
+Here I checked the first neuron for a few test reviews (see full notebook in Colab):
+
+&lt;img src="images/lstm_black_box.png" style="width: 100%" /&gt;
 
 ---
 

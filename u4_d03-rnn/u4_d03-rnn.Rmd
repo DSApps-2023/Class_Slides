@@ -795,6 +795,16 @@ print([0.22240985929965973, 0.9227678775787354])
 
 ---
 
+### Beyond the black box
+
+Sending "probes" can help us get what the LSTM is doing. By standardizing an LSTM neuron output to 0-1 and translating this to a cold-hot palette as was done [here](https://towardsdatascience.com/visualising-lstm-activations-in-keras-b50206da96ff) we can see what turns it on/off.
+
+Here I checked the first neuron for a few test reviews (see full notebook in Colab):
+
+<img src="images/lstm_black_box.png" style="width: 100%" />
+
+---
+
 ### Play with it!
 
 For example, combining LSTM with the old MLP to predict women's shoes price:
