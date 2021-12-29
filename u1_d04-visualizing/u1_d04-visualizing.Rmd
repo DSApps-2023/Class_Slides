@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 class: section-slide
@@ -369,7 +370,7 @@ p + geom_hline(yintercept = 0.139, lty = 2, color = "#163f59") +
   annotate("text", x = 5, y = 0.139 + 0.03, label = "Overall %",
            color = "#163f59", family = "mono") +
   annotate(geom = "curve", x = 5, y = 0.15, xend = 4, yend = 0.139 + 0.001, 
-    curvature = .3, arrow = arrow(length = unit(2, "mm")), color = "#163f59")
+    curvature = .3, arrow = ggplot2::arrow(length = unit(2, "mm")), color = "#163f59")
 ```
 
 ---
@@ -382,6 +383,7 @@ class: section-slide
 ```{r Themes1, out.width="100%", fig.asp = 0.5}
 p + theme_classic()
 ```
+
 ---
 
 ```{r Themes2, out.width="100%", fig.asp = 0.5}
@@ -422,7 +424,7 @@ ggplot(okcupid_lgbt_relig, aes(religion, pct_lgbt)) +
   coord_flip() +
   scale_fill_westeros(palette = "Tyrell", type = "continuous") + theme_minimal() +
   theme(text = element_text(family = "Cinzel", size = 12),
-        title = element_text(family = "Cinzel", size = 14)) + guides(fill=FALSE)
+        title = element_text(family = "Cinzel", size = 14)) + guides(fill="none")
 ```
 
 ---
@@ -484,7 +486,7 @@ sex_labeller <- function(variable, value){
 
 p2 <- okcupid %>%
   ggplot(aes(income)) +
-  facet_wrap(. ~ sex, labeller = sex_labeller) +
+  facet_wrap(. ~ sex, labeller = labeller(sex = sex_labeller)) +
   scale_x_log10(breaks = trans_breaks("log10", function(x) 10^x),
                 labels = trans_format("log10", math_format(10^.x))) +
   labs(x = "", y = "", title = "OkCupid: Annual Income Dist. by Gender",
@@ -509,7 +511,7 @@ sex_labeller <- function(variable, value){
 
 p2 <- okcupid %>%
   ggplot(aes(income)) +
-  facet_wrap(. ~ sex, labeller = sex_labeller) +
+  facet_wrap(. ~ sex, labeller = labeller(sex = sex_labeller)) +
   scale_x_log10(breaks = trans_breaks("log10", function(x) 10^x),
                 labels = trans_format("log10", math_format(10^.x))) +
   labs(x = "", y = "", title = "OkCupid: Annual Income Dist. by Gender",
@@ -574,7 +576,7 @@ p3 + geom_violin(fill = "darkgreen", alpha = 0.6)
 ## Swarm Plot
 
 ```{r Swarm, out.width="80%", fig.asp = 0.7, warning=FALSE, message=FALSE}
-p3 + ggbeeswarm::geom_quasirandom(aes(color = sex)) + guides(color=FALSE)
+p3 + ggbeeswarm::geom_quasirandom(aes(color = sex)) + guides(color="none")
 ```
 ---
 
@@ -633,7 +635,7 @@ okcupid %>%
 ggplot() +
   geom_mosaic(aes(x = product(orientation, religion), fill=orientation)) +#<<
   labs(x = "", y = "", title = "OkCupid: Orientation by Religion") +
-  guides(fill=FALSE) +
+  guides(fill="none") +
   theme_ipsum(base_family = "Roboto Condensed") +
   theme(axis.text.y = element_text(size = 14),
         axis.text.x = element_text(angle = 90, vjust = 0.5, size = 12))
@@ -650,7 +652,7 @@ okcupid %>%
 ggplot() +
   geom_mosaic(aes(x = product(orientation, religion), fill=orientation)) +
   labs(x = "", y = "", title = "OkCupid: Orientation by Religion") +
-  guides(fill=FALSE) +
+  guides(fill="none") +
   theme_ipsum(base_family = "Roboto Condensed") +
   theme(axis.text.y = element_text(size = 14),
         axis.text.x = element_text(angle = 90, vjust = 0.5, size = 12))
@@ -710,7 +712,7 @@ ggplot(migration_2019,
   geom_label(stat = "stratum", infer.label = TRUE) +
   scale_x_discrete(limits = c("Origin", "Destination"), expand = c(.05, .05)) +
   scale_fill_brewer(type = "qual", palette = "Set1") +
-  guides(fill = FALSE) +
+  guides(fill = "none") +
   labs(y = "", title = "G7 Cross-Country Migration 2019") +
   scale_y_comma() +
   theme_ipsum(base_family = "Roboto Condensed")
@@ -726,7 +728,7 @@ ggplot(migration_2019,
   geom_label(stat = "stratum", infer.label = TRUE) +
   scale_x_discrete(limits = c("Origin", "Destination"), expand = c(.05, .05)) +
   scale_fill_brewer(type = "qual", palette = "Set1") +
-  guides(fill = FALSE) +
+  guides(fill = "none") +
   labs(y = "", title = "G7 Cross-Country Migration 2019") +
   scale_y_comma() +
   theme_ipsum(base_family = "Roboto Condensed")
@@ -767,7 +769,7 @@ gender_age_height_drink
 ```{r Heatmap2, out.width="100%", fig.asp=0.5, warning=FALSE, message=FALSE}
 heat <- ggplot(gender_age_height_drink, aes(age_group, height_group, fill = drinks)) +
   geom_tile(aes(text = str_c(percent(drinks, 1), " of ", n, "    "))) + #<<
-  facet_wrap(. ~ sex, labeller = sex_labeller) +
+  facet_wrap(. ~ sex, labeller = labeller(sex = sex_labeller)) +
   labs(x = "Age", y = "Height", title = "OkCupid: %Reported Drinking by Age and Height") +
   scale_fill_gradient(labels = percent_format(accuracy = 1)) +
   theme_ipsum(base_family = "Roboto Condensed")
@@ -859,13 +861,13 @@ library(patchwork)
 p1 <- ggplot(okcupid %>% filter(between(age, 18, 70))) +
   geom_density(aes(age, fill = sex)) +
   labs(y = "") +
-  guides(fill = FALSE) +
+  guides(fill = "none") +
   theme_ipsum(base_family = "Roboto Condensed")
 
 p2 <- ggplot(okcupid %>% filter(between(height_cm, 140, 200))) +
   geom_density(aes(height_cm, fill = sex)) +
   labs(y = "") +
-  guides(fill = FALSE) +
+  guides(fill = "none") +
   theme_ipsum(base_family = "Roboto Condensed")
 
 p3 <- ggplot(okcupid) +
@@ -1067,7 +1069,7 @@ okcupid %>%
   theme_brick()
 ```
 
-(Though this was available only on v0.2.0 `r emo::ji("sad")`)
+(Though this was available only on v0.2.0 `r emoji("sad")`)
 ---
 
 .pull-left[
@@ -1094,7 +1096,7 @@ And... it can get a lot more fun:
 
 <img src = "images/golden_girls.png" style = "width: 100%">
 
-Get the legos you need with `build_instructions()` `r emo::ji("surprised")`
+Get the legos you need with `build_instructions()` `r emoji("surprised")`
 ]
 
 ---
