@@ -58,7 +58,7 @@ library(tidyverse)
 
 # I must insist.
 
-- You have a terminal, a.k.a shell (Mac/Windows 10 - See installation instructions [here](https://github.com/DSApps-2021/Class_Slides/blob/main/Apps_of_DS_installations.pdf). Windows 7 and less - 😧)
+- You have a terminal, a.k.a shell (Mac/Windows 10 - See installation instructions [here](https://github.com/DSApps-2022/Class_Slides/blob/main/Apps_of_DS_installations.pdf). Windows 7 and less - 😧)
 - You start becoming friendly with your terminal
 <br></br>
 - You have git on your system
@@ -175,4 +175,4 @@ class: center, middle
   <img src="images/nadia.gif"/>
 </p>
 
-Go to: [bit.ly/dsapps2021_tidyverse](http://bit.ly/dsapps2021_tidyverse)
+Go to: [bit.ly/dsapps2022_tidyverse](http://bit.ly/dsapps2022_tidyverse)
