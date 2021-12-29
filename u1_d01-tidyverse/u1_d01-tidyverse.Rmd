@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 class: section-slide
@@ -136,7 +137,7 @@ randomForest(as.factor(y) ~ x1 + x2)
 gbm(y ~ x1 + x2, data = data.frame(x1 = x1, x2 = x2, y = y))
 ```
 
-`r emo::ji("scream")`
+`r emoji("scream")`
 
 ---
 
@@ -208,7 +209,15 @@ class: section-slide
   - Do you like pets?
   - Open questions, e.g. "On a typical Friday night I am..."
   - And the more boring demographic details like age, height, location, sign, religion etc.
-- See [here](https://github.com/rudeboybert/JSE_OkCupid/blob/master/okcupid_codebook.txt) for the full codebook
+- See [here](https://github.com/rudeboybert/JSE_OkCupid/blob/master/okcupid_codebook_revised.txt) for the full codebook
+
+---
+
+### BTW
+
+<img src="images/okcupid_issue.png" style="width: 80%" />
+
+See [here](https://www.tandfonline.com/doi/full/10.1080/26939169.2021.1930812).
 
 ---
 class: section-slide
@@ -310,7 +319,7 @@ aggregate(okcupid_females_over30$income,
 
 Manager: "What? Why would bisexual women have a higher income than straight or gay women? Could you add the median, trimmed mean, standard error and n?"
 
-You: `r emo::ji("scream")`
+You: `r emoji("scream")`
 
 ---
 class: section-slide
@@ -349,10 +358,10 @@ Many more:
 
 ---
 
-# What's so great about the Tidyverse?
+## What's so great about the Tidyverse?
 
 - Tidy Data
-- Consistentcy (in function names, args, return types, documentation)
+- Consistency (in function names, args, return types, documentation)
 - The Pipe
 - Speed (C++ under the hood)
 - `ggplot2`
@@ -492,7 +501,7 @@ tribble(
 
 ---
 
-- Can build on top variables during creation:
+- Can build on top of variables during creation:
 
 ```{r Tibble-Existing-Vars}
 tibble(x = 1:5, y = x^2)
@@ -644,6 +653,20 @@ But we're getting ahead of ourselves.
 
 ---
 
+### In fact!
+
+This became so popular that since R 4.1 there is a built-in pipe operator:
+
+```{r, Pipe3}
+okcupid |>
+  filter(sex == "f", age > 30) |>
+  group_by(orientation) |>
+  summarize(across(c(income, age),
+            list(mean = mean, median = median), na.rm = TRUE))
+```
+
+---
+
 ## `ggplot2`
 
 <img src="images/ave_mariah_ggridges.png" style="width: 80%" />
@@ -705,7 +728,7 @@ But we're getting ahead of ourselves.
 - Cheatsheet for everything
 - Documentation for humans, Packages websites, Webinars, Free Books (start with [R4DS](https://r4ds.had.co.nz/))
 - [Rstudio Community forum](https://community.rstudio.com/)
-- [RLadies](https://rladies.org/) worldwide branches .font80percent[(who will pick up the `r emo::ji("boxing")` and create RLadies TLV?)]
+- [RLadies](https://rladies.org/) worldwide branches .font80percent[(who will pick up the `r emoji("boxing")` and create RLadies TLV?)]
 - Very strong on Twitter [#rstats](https://twitter.com/search?q=%23rstats)
 ]
 
