@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 class: section-slide
@@ -88,7 +89,7 @@ okcupid <- okcupid %>%
 ```
 
 .insight[
-`r emo::ji("bulb")` if you also load the `magrittr` package you could do:
+`r emoji("bulb")` if you also load the `magrittr` package you could do:
 
 `okcupid %<>% mutate(height_cm = 2.54 * height)`
 ]
@@ -126,7 +127,7 @@ okcupid %>%
 ```
 
 .insight[
-`r emo::ji("bulb")` Many, many such gifts, see [`tidyselect`](https://tidyselect.r-lib.org/reference/select_helpers.html)
+`r emoji("bulb")` Many, many such gifts, see [`tidyselect`](https://tidyselect.r-lib.org/reference/select_helpers.html)
 ]
 
 ---
@@ -282,7 +283,7 @@ okcupid %>%
 ```
 
 .insight[
-`r emo::ji("bulb")` Or use `rank()`
+`r emoji("bulb")` Or use `rank()`
 ]
 
 ---
@@ -296,7 +297,7 @@ okcupid %>%
 ```
 
 .insight[
-`r emo::ji("bulb")` `distinct()` is much more powerful than `unique()`, see `?distinct`.
+`r emoji("bulb")` `distinct()` is much more powerful than `unique()`, see `?distinct`.
 
 To count number of distinct obs look at `n_distinct()`
 ]
@@ -524,5 +525,5 @@ okcupid %>%
 
 
 .insight[
-`r emo::ji("bulb")` for better living see `glue::glue("number of rows: {nrow(df)}")`
+`r emoji("bulb")` for better living see `glue::glue("number of rows: {nrow(df)}")`
 ]
