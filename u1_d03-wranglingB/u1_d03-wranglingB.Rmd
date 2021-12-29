@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 class: section-slide
@@ -66,7 +67,7 @@ films <- sw_tables$films
 ```
 
 .insight[
-`r emo::ji("bulb")` What are the advantages/disadvantages of storing data in such a way?
+`r emoji("bulb")` What are the advantages/disadvantages of storing data in such a way?
 ]
 ---
 
@@ -179,7 +180,7 @@ locations <- tibble::tribble(
 - we take the unique characters
 - but how do we match? `for` loop*?
 
-`r emo::ji("right arrow")` Clearly, second problem with this approach: it doesn't generalize well to more complex scenarios, where we need to match on multiple criteria
+`r emoji("right arrow")` Clearly, second problem with this approach: it doesn't generalize well to more complex scenarios, where we need to match on multiple criteria
 
 And third problem: speed .font80percent[(but only in a complex scenario!)]
 
@@ -219,7 +220,7 @@ lines %>%
 ```
 
 .insight[
-`r emo::ji("bulb")` The base R function for joining is `merge()` which tends to be slower.
+`r emoji("bulb")` The base R function for joining is `merge()` which tends to be slower.
 ]
 
 ---
@@ -245,7 +246,7 @@ characters %>%
 ```
 
 .insight[
-`r emo::ji("bulb")` What else could you do to make `inner_join`'s life easier?
+`r emoji("bulb")` What else could you do to make `inner_join`'s life easier?
 ]
 ---
 
@@ -310,7 +311,7 @@ autoplot(res)
 - See [this](https://stackoverflow.com/q/59183599/4095235) StackOverflow question and answer for a good example*
 - But in general: when data gets bigger, when multiple keys are involved
 
-.font80percent[&#42; Yes, I know, I answered my own question, `r emo::ji("person_facepalming")`]
+.font80percent[&#42; Yes, I know, I answered my own question, `r emoji("person_facepalming")`]
 
 ### Other types of Joins?
 
@@ -369,7 +370,7 @@ class: section-slide
 
 ### What's untidy about the migration Excel file?
 
-- It's an Excel file `r emo::ji("angry")`
+- It's an Excel file `r emoji("angry")`
 - Multiple sheets
 - Color coded, font coded (bold), space coded!
 - Logo, free text in header lines
@@ -384,7 +385,7 @@ class: section-slide
 
 ### "Today Only, The Landlord Went Nuts!"
 
-- ~~It's an Excel file `r emo::ji("angry")`~~
+- ~~It's an Excel file `r emoji("angry")`~~
 - ~~Multiple sheets~~
 - ~~Color coded, font coded (bold), space coded!~~
 - ~~Logo, free text in header lines~~
@@ -682,7 +683,7 @@ The `purrr` package provides a set of functions to make iteration easier:
 - Generally faster (implemented in C)
 - Definitely more clear, concise and elegant code
 
-TBH, I'm addicted `r emo::ji("cry")`
+TBH, I'm addicted `r emoji("cry")`
 
 ---
 
@@ -724,7 +725,7 @@ my_func(1:5)
 ```
 
 .insight[
-`r emo::ji("bulb")` This is a silly example, do you know how to easily vectorize this function?
+`r emoji("bulb")` This is a silly example, do you know how to easily vectorize this function?
 ]
 
 ---
@@ -818,7 +819,7 @@ okcupid <- okcupid %>%
 ```
 
 .insight[
-`r emo::ji("bulb")` There's a thin line between elegance and unreadable undebuggable bragging.
+`r emoji("bulb")` There's a thin line between elegance and unreadable undebuggable bragging.
 ]
 ---
 
@@ -989,11 +990,11 @@ map_chr(list(1, 2, "3", 4), my_func_safe)
 ```
 
 .insight[
-`r emo::ji("bulb")` See a more realistic example when we talk about Web Scraping
+`r emoji("bulb")` See a more realistic example when we talk about Web Scraping
 ]
 
 .insight[
-`r emo::ji("bulb")` What would `map_chr(c(1, 2, "3", 4), my_func_safe)` return?
+`r emoji("bulb")` What would `map_chr(c(1, 2, "3", 4), my_func_safe)` return?
 ]
 ---
 
