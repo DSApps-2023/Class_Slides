@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 class: section-slide
@@ -76,7 +77,7 @@ randomForest(as.factor(y) ~ x1 + x2)
 gbm(y ~ x1 + x2, data = data.frame(x1 = x1, x2 = x2, y = y))
 ```
 
-`r emo::ji("scream")`
+`r emoji("scream")`
 
 ---
 
@@ -104,42 +105,35 @@ class: section-slide
 
 ---
 
-### IPF-Lifts: Predicting Bench Lifting
+### Hungarian Blogs: Predicting Feedback
 
-- Dataset was published as part of the [TidyTuesday](https://github.com/rfordatascience/tidytuesday) intiative
-- Comes from [Open Powerlifting](https://www.openpowerlifting.org/data)
-- [Wikipedia](https://en.wikipedia.org/wiki/Powerlifting): Powerlifting is a strength sport that consists of three attempts at maximal weight on three lifts: squat, bench press, and deadlift
+- Dataset was published as part of the [UCI ML Repository](https://archive.ics.uci.edu/ml/datasets/BlogFeedback) initiative
+- Comes from [Buza 2014](http://www.cs.bme.hu/~buza/pdfs/gfkl2012_blogs.pdf)
+- 280 numeric heavily engineered features on blogs and posts published in the last 72 hours
+- can we predict no. of comments in the next 24 hours?
 
-<img src="images/pl_bench.jpg" style="width: 70%" />
+<img src="images/hungarian_blog.png" style="width: 70%" />
 
 ---
 
-The raw data has over 40K rows: for each athlete, for each event, stats about athlete gender, age and weight, and the maximal weight lifted in the 3 types of Powerlifting.
+The raw data has over 50K rows: for each blog features like total comments until base time, weekday, words, etc.
 
-We will be predicting `best3bench_kg` based on a few predictors, no missing values:
+We will be predicting `log(fb)` based on all features, no missing values:
 
 ```{r, message=FALSE}
-library(lubridate)
+blogs_fb <- read_csv("~/BlogFeedback/blogData_train.csv", col_names = FALSE)
 
-ipf_lifts <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-10-08/ipf_lifts.csv")
+blogs_fb <- blogs_fb %>%
+  rename(fb = X281, blog_len = X62, sunday = X276) %>%
+  mutate(fb = log(fb + 1))
 
-ipf_lifts <- ipf_lifts %>%
-  drop_na(best3bench_kg, age) %>%
-  filter(between(age, 18, 100), best3bench_kg > 0, equipment != "Wraps") %>%
-  select(sex, event, equipment, age, division, bodyweight_kg, best3bench_kg, date, meet_name) %>%
-  drop_na() %>%
-  mutate(year = year(date), month = month(date),
-         dayofweek = wday(date)) %>%
-  select(-date) %>%
-  mutate(across(where(is.character), as.factor))
-
-dim(ipf_lifts)
+dim(blogs_fb)
 ```
 
 ---
 
 ```{r}
-glimpse(ipf_lifts)
+glimpse(blogs_fb)
 ```
 
 ---
@@ -147,41 +141,19 @@ glimpse(ipf_lifts)
 See the dependent variable distribution:
 
 ```{r Bench-Hist, message=FALSE, out.width="100%", fig.asp=0.5}
-ggplot(ipf_lifts, aes(best3bench_kg)) +
-  geom_histogram(fill = "red", alpha = 0.5) +
-  theme_classic()
+ggplot(blogs_fb, aes(fb)) +
+  geom_histogram(fill = "red", alpha = 0.5, binwidth = 0.5) +
+  theme_bw()
 ```
 
 ---
 
-See it vs. say age, facetted by equipment:
+See it vs. say "length of post":
 
 ```{r Bench-Age-Equipment, message=FALSE, out.width="100%", fig.asp=0.5}
-ggplot(ipf_lifts, aes(age, best3bench_kg)) +
+ggplot(blogs_fb, aes(log(blog_len), fb)) +
   geom_point(color = "red", alpha = 0.5) +
-  facet_wrap(~ equipment) +
-  theme_classic()
-```
-
----
-
-See it vs. year, by gender:
-
-```{r Bench-Year-Gender, message=FALSE, out.width="100%", fig.asp=0.5}
-ggplot(ipf_lifts, aes(factor(year), best3bench_kg, fill = sex)) +
-  geom_boxplot(outlier.alpha = 0.5) +
-  labs(fill = "", x = "", y = "") +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-```
-
----
-
-Maybe add $age^2$ and $year^2$ to make Linear Regression's life easier?
-
-```{r}
-ipf_lifts <- ipf_lifts %>%
-  mutate(age2 = age ^ 2, year2 = year ^2)
+  theme_bw()
 ```
 
 ---
@@ -195,13 +167,13 @@ class: section-slide
 # WARNING
 
 .warning[
-`r emo::ji("bulb")` What you're about to see is not a good modeling/prediction flow. This is just an intro to tidy modeling. Some of the issues with how things are done here will be raised, some will have to wait till later in the course.
+`r emoji("bulb")` What you're about to see is not a good modeling/prediction flow. This is just an intro to tidy modeling. Some of the issues with how things are done here will be raised, some will have to wait till later in the course.
 ]
 ---
 
 class: section-slide
 
-# The Present Solution: `caret`
+# The ~~Present~~ Past Solution: `caret`
 
 ---
 
@@ -210,15 +182,15 @@ class: section-slide
 ```{r, message=FALSE, warning=FALSE}
 library(caret)
 
-train_idx <- createDataPartition(ipf_lifts$best3bench_kg,
+train_idx <- createDataPartition(blogs_fb$fb,
                                  p = 0.6, list = FALSE)
 
-ipf_tr <- ipf_lifts[train_idx, ]
-ipf_te <- ipf_lifts[-train_idx, ]
+blogs_tr <- blogs_fb[train_idx, ]
+blogs_te <- blogs_fb[-train_idx, ]
 
 library(glue)
-glue("train no. of rows: {nrow(ipf_tr)}
-     test no. of rows: {nrow(ipf_te)}")
+glue("train no. of rows: {nrow(blogs_tr)}
+     test no. of rows: {nrow(blogs_te)}")
 ```
 
 Here you might consider some preprocessing.
@@ -238,17 +210,17 @@ ridge_grid <- expand.grid(alpha=0, lambda = 10^seq(-3, 1, length = 50))
 lasso_grid <- expand.grid(alpha=1, lambda = 10^seq(-3, 1, length = 50))
 rf_grid <- expand.grid(splitrule = "variance",
                        min.node.size = seq(10, 30, 10),
-                       mtry = seq(2, 10, 2))
+                       mtry = seq(10, 50, 20))
 
-mod_ridge <- train(best3bench_kg ~ ., data = ipf_tr, method = "glmnet",
+mod_ridge <- train(fb ~ ., data = blogs_tr, method = "glmnet",
                 trControl = fit_control, tuneGrid = ridge_grid,
                 metric = "RMSE")
 
-mod_lasso <- train(best3bench_kg ~ ., data = ipf_tr, method = "glmnet",
+mod_lasso <- train(fb ~ ., data = blogs_tr, method = "glmnet",
                 trControl = fit_control, tuneGrid = lasso_grid,
                 metric = "RMSE")
 
-mod_rf <- train(best3bench_kg ~ ., data = ipf_tr, method = "ranger",
+mod_rf <- train(fb ~ ., data = blogs_tr, method = "ranger",
                 trControl = fit_control, tuneGrid = rf_grid,
                 num.trees = 50, metric = "RMSE")
 ```
@@ -296,8 +268,7 @@ plot(mod_rf)
 ### Comparing Models
 
 ```{r}
-resamps <- resamples(list(Ridge = mod_ridge,
-                          Lasso = mod_lasso,
+resamps <- resamples(list(Ridge = mod_ridge, Lasso = mod_lasso,
                           RF = mod_rf))
 summary(resamps)
 ```
@@ -313,36 +284,30 @@ dotplot(resamps, metric = "RMSE")
 ### Predicting
 
 ```{r}
-pred_ridge <- predict(mod_ridge, newdata = ipf_te)
-pred_lasso <- predict(mod_lasso, newdata = ipf_te)
-pred_rf <- predict(mod_rf, newdata = ipf_te)
+pred_ridge <- predict(mod_ridge, newdata = blogs_te)
+pred_lasso <- predict(mod_lasso, newdata = blogs_te)
+pred_rf <- predict(mod_rf, newdata = blogs_te)
 
-rmse_ridge <- RMSE(pred_ridge, ipf_te$best3bench_kg)
-rmse_lasso <- RMSE(pred_lasso, ipf_te$best3bench_kg)
-rmse_rf <- RMSE(pred_rf, ipf_te$best3bench_kg)
+rmse_ridge <- RMSE(pred_ridge, blogs_te$fb)
+rmse_lasso <- RMSE(pred_lasso, blogs_te$fb)
+rmse_rf <- RMSE(pred_rf, blogs_te$fb)
 
 glue("Test RMSE Ridge: {format(rmse_ridge, digits = 3)}
      Test RMSE Lassoe: {format(rmse_lasso, digits = 3)}
      Test RMSE RF: {format(rmse_rf, digits = 3)}")
 ```
 
-.warning[
-`r emo::ji("warning")` Is using a "regular" regression model the natural approach for these data?
-
-Ask yourself what is this model good for, if at all `r emo::ji("surprise")`
-]
-
 ---
 
 ```{r Caret-Pred-vs-True, message=FALSE, warning=FALSE, fig.asp=0.5, out.width="100%"}
 bind_rows(
-  tibble(method = "Ridge", pred = pred_ridge, true = ipf_te$best3bench_kg),
-  tibble(method = "Lasso", pred = pred_lasso, true = ipf_te$best3bench_kg),
-  tibble(method = "RF", pred = pred_rf, true = ipf_te$best3bench_kg)) %>%
-  ggplot(aes(pred, true)) +
+  tibble(method = "Ridge", pred = pred_ridge, true = blogs_te$fb),
+  tibble(method = "Lasso", pred = pred_lasso, true = blogs_te$fb),
+  tibble(method = "RF", pred = pred_rf, true = blogs_te$fb)) %>%
+  ggplot(aes(true, pred)) +
   geom_point(color = "red", alpha = 0.5) +
   geom_abline(slope = 1, intercept = 0) +
-  facet_wrap(~ method) +
+  facet_wrap(~ factor(method, levels = c("Ridge", "Lasso", "RF"))) +
   theme_bw()
 ```
 
@@ -350,7 +315,7 @@ bind_rows(
 
 class: section-slide
 
-# The Future Solution: `tidymodels`
+# The ~~Future~~ Present Solution: `tidymodels`
 
 #### Inspired by [Julia Silge](https://juliasilge.com/blog/intro-tidymodels/)
 
@@ -369,7 +334,7 @@ class: section-slide
 And [more](https://www.tidymodels.org/).
 
 .warning[
-`r emo::ji("warning")` All `tidymodels` packages are under development!
+`r emoji("warning")` All `tidymodels` packages are under development!
 ]
 
 ---
@@ -381,16 +346,16 @@ The `initial_split()` function is from the `rsample` package:
 ```{r, message=FALSE, warning=FALSE}
 library(tidymodels)
 
-ipf_split_obj <- ipf_lifts %>%
-  initial_split(prop = 0.6, strata = equipment)
+blogs_split_obj <- blogs_fb %>%
+  initial_split(prop = 0.6)
 
-ipf_tr <- training(ipf_split_obj)
-ipf_te <- testing(ipf_split_obj)
+blogs_tr <- training(blogs_split_obj)
+blogs_te <- testing(blogs_split_obj)
 
-glue("train no. of rows: {nrow(ipf_tr)}
-     test no. of rows: {nrow(ipf_te)}")
+glue("train no. of rows: {nrow(blogs_tr)}
+     test no. of rows: {nrow(blogs_te)}")
 
-print(ipf_split_obj)
+print(blogs_split_obj)
 ```
 
 ---
@@ -400,14 +365,14 @@ print(ipf_split_obj)
 The `recipe()` function is from the `recipes` package. It allows you to specify a python-like pipe you can later apply to any dataset, including all preprocessing steps:
 
 ```{r}
-ipf_rec <- recipe(best3bench_kg ~ ., data = ipf_tr)
-ipf_rec
+blogs_rec <- recipe(fb ~ ., data = blogs_tr)
+blogs_rec
 ```
 
 `recipes` contains more preprocessing [`step_`s](https://tidymodels.github.io/recipes/reference/index.html) than you imagine:
 
 ```{r}
-ipf_rec <-  ipf_rec %>%
+blogs_rec <-  blogs_rec %>%
   step_normalize(all_numeric())
 ```
 
@@ -416,9 +381,9 @@ ipf_rec <-  ipf_rec %>%
 After you have your `recipe` you need to `prep()` materials...
 
 ```{r}
-ipf_rec <- ipf_rec %>% prep(ipf_tr)
+blogs_rec <- blogs_rec %>% prep(blogs_tr)
 
-ipf_rec
+blogs_rec
 ```
 
 At this point our `recipe` has all necessary `sd` and `mean`s for numeric variables.
@@ -426,20 +391,14 @@ At this point our `recipe` has all necessary `sd` and `mean`s for numeric variab
 ---
 
 ```{r}
-ipf_rec$var_info
+blogs_rec$var_info
 ```
 
 ---
 
 ```{r}
-ipf_rec$levels$meet_name
-```
-
----
-
-```{r}
-ipf_rec$steps[[1]]$means
-ipf_rec$steps[[1]]$sds
+blogs_rec$steps[[1]]$means |> head()
+blogs_rec$steps[[1]]$sds |> head()
 ```
 
 ---
@@ -447,14 +406,14 @@ ipf_rec$steps[[1]]$sds
 And then we `bake()` (or [`juice()`](https://tidymodels.github.io/recipes/reference/juice.html)):
 
 ```{r}
-ipf_tr2 <- ipf_rec %>% bake(ipf_tr)
-ipf_te2 <- ipf_rec %>% bake(ipf_te)
+blogs_tr2 <- blogs_rec %>% bake(blogs_tr)
+blogs_te2 <- blogs_rec %>% bake(blogs_te)
 
-glue("mean of age in orig training: {format(mean(ipf_tr$age), digits = 3)}, sd: {format(sd(ipf_tr$age), digits = 3)}
-     mean of age in baked training: {format(mean(ipf_tr2$age), digits = 0)}, sd: {format(sd(ipf_tr2$age), digits = 3)}")
+glue("mean of comments in orig training: {format(mean(blogs_tr$X51), digits = 3)}, sd: {format(sd(blogs_tr$X51), digits = 3)}
+     mean of comments in baked training: {format(mean(blogs_tr2$X51), digits = 0)}, sd: {format(sd(blogs_tr2$X51), digits = 3)}")
 
-glue("mean of age in orig testing: {format(mean(ipf_te$age), digits = 3)}, sd: {format(sd(ipf_te$age), digits = 3)}
-     mean of age in baked testing: {format(mean(ipf_te2$age), digits = 0)}, sd: {format(sd(ipf_te2$age), digits = 3)}")
+glue("mean of comments in orig testing: {format(mean(blogs_te$X51), digits = 3)}, sd: {format(sd(blogs_te$X51), digits = 3)}
+     mean of comments in baked testing: {format(mean(blogs_te2$X51), digits = 0)}, sd: {format(sd(blogs_te2$X51), digits = 3)}")
 ```
 
 ---
@@ -462,18 +421,18 @@ glue("mean of age in orig testing: {format(mean(ipf_te$age), digits = 3)}, sd: {
 Or you can do it all in a single pipe:
 
 ```{r}
-ipf_rec <- recipe(best3bench_kg ~ ., data = ipf_tr) %>%
+blogs_rec <- recipe(fb ~ ., data = blogs_tr) %>%
   step_normalize(all_numeric()) %>%
-  prep(ipf_tr)
+  prep(blogs_tr)
 
-ipf_tr2 <- ipf_rec %>% bake(ipf_tr)
-ipf_te2 <- ipf_rec %>% bake(ipf_te)
+blogs_tr2 <- blogs_rec %>% bake(blogs_tr)
+blogs_te2 <- blogs_rec %>% bake(blogs_te)
 
-glue("mean of age in orig training: {format(mean(ipf_tr$age), digits = 3)}, sd: {format(sd(ipf_tr$age), digits = 3)}
-     mean of age in baked training: {format(mean(ipf_tr2$age), digits = 0)}, sd: {format(sd(ipf_tr2$age), digits = 2)}")
+glue("mean of comments in orig training: {format(mean(blogs_tr$X51), digits = 3)}, sd: {format(sd(blogs_tr$X51), digits = 3)}
+     mean of comments in baked training: {format(mean(blogs_tr2$X51), digits = 0)}, sd: {format(sd(blogs_tr2$X51), digits = 3)}")
 
-glue("mean of age in orig testing: {format(mean(ipf_te$age), digits = 3)}, sd: {format(sd(ipf_te$age), digits = 3)}
-     mean of age in baked testing: {format(mean(ipf_te2$age), digits = 0)}, sd: {format(sd(ipf_te2$age), digits = 3)}")
+glue("mean of comments in orig testing: {format(mean(blogs_te$X51), digits = 3)}, sd: {format(sd(blogs_te$X51), digits = 3)}
+     mean of comments in baked testing: {format(mean(blogs_te2$X51), digits = 0)}, sd: {format(sd(blogs_te2$X51), digits = 3)}")
 ```
 
 ---
@@ -506,7 +465,7 @@ rec_int_topints <- recipe(pets ~ ., data = okcupid_tr) %>%
 
 ### Modeling
 
-For now let us use the original `ipf_tr` data.
+For now let us use the original `blogs_tr` data.
 
 Functions `linear_reg()` and `set_engine()` are from the `parsnip` package:
 
@@ -521,7 +480,7 @@ mod_ridge_spec
 
 ```{r}
 mod_ridge <- mod_ridge_spec %>%
-  fit(best3bench_kg ~ ., data = ipf_tr)
+  fit(fb ~ ., data = blogs_tr)
 
 mod_ridge
 ```
@@ -533,7 +492,7 @@ In a single pipe:
 ```{r}
 mod_lasso <- linear_reg(mixture = 1, penalty = 0.001) %>%
   set_engine(engine = "glmnet") %>%
-  fit(best3bench_kg ~ ., data = ipf_tr)
+  fit(fb ~ ., data = blogs_tr)
 
 mod_lasso
 ```
@@ -543,10 +502,10 @@ mod_lasso
 Can also use `fit_xy()` a-la `sklearn`:
 
 ```{r}
-mod_rf <- rand_forest(mode = "regression", mtry = 4, trees = 50, min_n = 30) %>%
+mod_rf <- rand_forest(mode = "regression", mtry = 50, trees = 50, min_n = 10) %>%
   set_engine("ranger") %>%
-  fit_xy(x = ipf_tr[, -7],
-         y = ipf_tr$best3bench_kg)
+  fit_xy(x = blogs_tr[, -281],
+         y = blogs_tr$fb)
 
 mod_rf
 ```
@@ -565,21 +524,21 @@ tidy(mod_ridge)
 
 ```{r}
 results_test <- mod_ridge %>%
-  predict(new_data = ipf_te, penalty = 0.001) %>%
+  predict(new_data = blogs_te, penalty = 0.001) %>%
   mutate(
-    truth = ipf_te$best3bench_kg,
+    truth = blogs_te$fb,
     method = "Ridge"
   ) %>%
   bind_rows(mod_lasso %>%
-    predict(new_data = ipf_te) %>%
+    predict(new_data = blogs_te) %>%
     mutate(
-      truth = ipf_te$best3bench_kg,
+      truth = blogs_te$fb,
       method = "Lasso"
   )) %>%
   bind_rows(mod_rf %>%
-    predict(new_data = ipf_te) %>%
+    predict(new_data = blogs_te) %>%
     mutate(
-      truth = ipf_te$best3bench_kg,
+      truth = blogs_te$fb,
       method = "RF"
   ))
 
@@ -604,10 +563,10 @@ results_test %>%
 
 ```{r Tidymodels-Pred-vs-True, message=FALSE, warning=FALSE, fig.asp=0.5, out.width="100%"}
 results_test %>%
-  ggplot(aes(.pred, truth)) +
+  ggplot(aes(truth, .pred)) +
   geom_point(color = "red", alpha = 0.5) +
   geom_abline(slope = 1, intercept = 0) +
-  facet_wrap(~ method) +
+  facet_wrap(~ factor(method, levels = c("Ridge", "Lasso", "RF"))) +
   theme_bw()
 ```
 
@@ -630,8 +589,8 @@ mod_rf_spec <- rand_forest(mode = "regression",
 Define the `grid` on which you train your params, with the `dials` package:
 
 ```{r}
-rf_grid <- grid_regular(mtry(range(2, 10)), min_n(range(10, 30)),
-                        levels = c(5, 3))
+rf_grid <- grid_regular(mtry(range(10, 70)), min_n(range(10, 30)),
+                        levels = c(4, 3))
 
 rf_grid
 ```
@@ -641,7 +600,7 @@ rf_grid
 Split your data into a few folds for Cross Validation with `vfold_cv()` from the `rsample` package:
 
 ```{r}
-cv_splits <- vfold_cv(ipf_tr, v = 5)
+cv_splits <- vfold_cv(blogs_tr, v = 5)
 
 cv_splits
 ```
@@ -652,7 +611,7 @@ Now perform cross validation with `tune_grid()` from the `tune` package:
 
 ```{r, eval=FALSE}
 tune_res <- tune_grid(mod_rf_spec,
-                      recipe(best3bench_kg ~ ., data = ipf_tr),
+                      recipe(fb ~ ., data = blogs_tr),
                       resamples = cv_splits,
                       grid = rf_grid,
                       metrics = metric_set(rmse))
@@ -660,7 +619,7 @@ tune_res
 ```
 
 ```{r echo=FALSE}
-tune_res <- read_rds("../data/ipf_rfmod_tune.rds")
+tune_res <- read_rds("../data/blogs_rfmod_tune.rds")
 tune_res
 ```
 
@@ -691,7 +650,7 @@ estimates %>%
   geom_point() + 
   geom_line() + 
   labs(y = "Mean RMSE") +
-  theme_classic()
+  theme_bw()
 ```
 
 ---
@@ -712,13 +671,15 @@ mod_rf_final
 
 ---
 
-```{r}
+```{r, eval=FALSE}
 mod_rf_final %>%
-  fit(best3bench_kg ~ ., data = ipf_tr) %>%
-  predict(new_data = ipf_te) %>%
-  mutate(truth = ipf_te$best3bench_kg)
+  fit(fb ~ ., data = blogs_tr) %>%
+  predict(new_data = blogs_te) %>%
+  mutate(truth = blogs_te$fb)
 ```
-
+```{r, echo=FALSE, message=FALSE}
+read_rds("../data/blogs_mod_rf_te_pred.rds")
+```
 ---
 
 class: section-slide
@@ -729,31 +690,36 @@ class: section-slide
 
 ### Statistical Q1
 
-Is there a relation between men and women and the type of equipment they use in 2019? Assume observations are independent.
+Is there a relation between posts published on Sundays and blogger hand dominance, where hand dominance is totally made up? `r emoji("grimacing")`
 
-```{r}
-sex_vs_equipment <- ipf_lifts %>%
-  filter(year == 2019) %>%
-  select(sex, equipment) %>%
-  table()
-
-sex_vs_equipment
+```{r, echo=FALSE}
+blogs_fb <- blogs_fb %>%
+  mutate(hand = sample(c("left", "right"), n(),
+                       prob = c(0.1, 0.9), replace = T),
+         sunday = factor(ifelse(sunday, "S", "NS")))
 ```
 
 ```{r}
-prop.table(sex_vs_equipment, margin = 1)
+pub_vs_hand <- blogs_fb %>%
+  select(sunday, hand) %>%
+  table()
+
+pub_vs_hand
+```
+
+```{r}
+prop.table(pub_vs_hand, margin = 1)
 ```
 
 ---
 
 ### Statistical Q2
 
-Is there a difference between men and women age in 2019? Assume observations are independent.
+Is there a difference in feedback between posts published on Sundays and posts published on another day?
 
 ```{r}
-ipf_lifts %>%
-  filter(year == 2019) %>%
-  group_by(sex) %>% summarise(avg = mean(age), sd = sd(age), n = n())
+blogs_fb %>%
+  group_by(sunday) %>% summarise(avg = mean(fb), sd = sd(fb), n = n())
 ```
 
 ---
@@ -763,13 +729,13 @@ ipf_lifts %>%
 Varied interface, varied output.
 
 ```{r}
-prop.test(sex_vs_equipment[,1], rowSums(sex_vs_equipment))
+prop.test(pub_vs_hand[,1], rowSums(pub_vs_hand))
 ```
 
 ---
 
 ```{r}
-t.test(age ~ sex, data = ipf_lifts %>% filter(year == 2019))
+t.test(fb ~ sunday, data = blogs_fb)
 ```
 
 ---
@@ -779,11 +745,11 @@ t.test(age ~ sex, data = ipf_lifts %>% filter(year == 2019))
 (Also available when you load several other packages, like `broom` and `yardstick`)
 
 ```{r}
-tidy(prop.test(sex_vs_equipment[,1], rowSums(sex_vs_equipment)))
+tidy(prop.test(pub_vs_hand[,1], rowSums(pub_vs_hand)))
 ```
 
 ```{r}
-tidy(t.test(age ~ sex, data = ipf_lifts %>% filter(year == 2019)))
+tidy(t.test(fb ~ sunday, data = blogs_fb))
 ```
 
 ---
@@ -806,13 +772,13 @@ tidy(t.test(age ~ sex, data = ipf_lifts %>% filter(year == 2019)))
 Get the observed statistic (here manually in order to not confuse you, there *is* a way via `infer`):
 
 ```{r}
-#    equipment
-# sex Raw Single-ply
-#   F 678        186
-#   M 854        287
-p_F <- sex_vs_equipment[1, 1] / (sum(sex_vs_equipment[1, ]))
-p_M <- sex_vs_equipment[2, 1] / (sum(sex_vs_equipment[2, ]))
-obs_diff <- p_F - p_M
+pub_vs_hand
+```
+
+```{r}
+p_NS <- pub_vs_hand[1, 1] / (sum(pub_vs_hand[1, ]))
+p_S <- pub_vs_hand[2, 1] / (sum(pub_vs_hand[2, ]))
+obs_diff <- p_NS - p_S
 obs_diff
 ```
 
@@ -821,12 +787,11 @@ obs_diff
 Get distribution of the difference in proportions under null hypothesis
 
 ```{r}
-diff_null_perm <- ipf_lifts %>%
-  filter(year == 2019) %>%
-  specify(equipment ~ sex, success = "Raw") %>%
+diff_null_perm <- blogs_fb %>%
+  specify(hand ~ sunday, success = "left") %>%
   hypothesize(null = "independence") %>%
   generate(reps = 200, type = "permute") %>%
-  calculate(stat = "diff in props", order = c("F", "M"))
+  calculate(stat = "diff in props", order = c("NS", "S"))
 
 diff_null_perm
 ```
@@ -856,10 +821,9 @@ diff_null_perm %>%
 Get the observed statistic (here via `infer`):
 
 ```{r}
-obs_t <- ipf_lifts %>%
-  filter(year == 2019) %>%
-  specify(age ~ sex) %>%
-  calculate(stat = "t", order = c("F", "M"))
+obs_t <- blogs_fb %>%
+  specify(fb ~ sunday) %>%
+  calculate(stat = "t", order = c("NS", "S"))
 obs_t
 ```
 
@@ -869,12 +833,11 @@ obs_t
 Get distribution of the t statistic under null hypothesis
 
 ```{r}
-t_null_perm <- ipf_lifts %>%
-  filter(year == 2019) %>%
-  specify(age ~ sex) %>%
+t_null_perm <- blogs_fb %>%
+  specify(fb ~ sunday) %>%
   hypothesize(null = "independence") %>%
   generate(reps = 100, type = "permute") %>%
-  calculate(stat = "t", order = c("F", "M"))
+  calculate(stat = "t", order = c("NS", "S"))
 
 t_null_perm
 ```
