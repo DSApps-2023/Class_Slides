@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 class: section-slide
@@ -78,7 +79,7 @@ print(a.shape)
 ```
 
 .warning[
-`r emo::ji("warning")` Index is zero based!
+`r emoji("warning")` Index is zero based!
 ]
 
 ```{python}
@@ -303,7 +304,7 @@ print(face[:5, :5])
 
 ---
 
-```{python Face, out.width="100%", fig.asp=0.5}
+```{python Face, out.width="60%"}
 plt.subplot(121)
 plt.imshow(face, cmap=plt.cm.gray)
 plt.subplot(122)
@@ -415,7 +416,7 @@ cat(tab)
 ```
 
 .insight[
-`r emo::ji("bulb")` Thare *are* Pandas dialects, don't go translating your pipes verbatim.
+`r emoji("bulb")` Thare *are* Pandas dialects, don't go translating your pipes verbatim.
 ]
 
 ---
@@ -494,16 +495,14 @@ okcupid \
 But why settle for women only?
 
 ```{python}
-okcupid \
-  .groupby('sex')['height_cm'] \
+okcupid.groupby('sex')['height_cm'] \
   .agg('mean')
 ```
 
 And you might want to consider `rename()`ing sex!
 
 ```{python}
-okcupid \
-  .groupby('sex')['height_cm'] \
+okcupid.groupby('sex')['height_cm'] \
   .agg('mean') \
   .rename_axis(index = {'sex': 'gender'})
 ```
@@ -571,7 +570,7 @@ class: section-slide
 
 ---
 
-```{python Seaborn-Scatterplot}
+```{python Seaborn-Scatterplot, out.width="50%"}
 import matplotlib.pyplot as plt
 import seaborn as sns
 

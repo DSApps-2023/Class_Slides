@@ -675,7 +675,8 @@ mod_rf_final
 mod_rf_final %>%
   fit(fb ~ ., data = blogs_tr) %>%
   predict(new_data = blogs_te) %>%
-  mutate(truth = blogs_te$fb)
+  mutate(truth = blogs_te$fb) %>%
+  head(10)
 ```
 
 ```{r, echo=FALSE, message=FALSE}
