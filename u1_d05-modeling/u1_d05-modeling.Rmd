@@ -619,7 +619,7 @@ tune_res
 ```
 
 ```{r echo=FALSE}
-tune_res <- read_rds("../data/blogs_rfmod_tune.rds")
+tune_res <- read_rds("~/blogs_rfmod_tune.rds")
 tune_res
 ```
 
@@ -641,7 +641,7 @@ estimates
 
 ---
 
-Choose best paramter:
+Choose best parameter:
 
 ```{r Tidymodels-RMSE-Comp, fig.asp=0.5, out.width="100%"}
 estimates %>%
@@ -677,6 +677,7 @@ mod_rf_final %>%
   predict(new_data = blogs_te) %>%
   mutate(truth = blogs_te$fb)
 ```
+
 ```{r, echo=FALSE, message=FALSE}
 read_rds("../data/blogs_mod_rf_te_pred.rds")
 ```
