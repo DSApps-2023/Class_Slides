@@ -172,7 +172,7 @@ A class attribute is defined in a style sheet, lets you repeat a style.
 
 With great power comes great responsibility.
 
-See e.g. the [polite](https://github.com/dmi3kno/polite) package.
+See e.g. the [polite](https://dmi3kno.github.io/polite/) package.
 
 <img src="images/polite_logo.png" style="width: 30%" />
 
@@ -443,8 +443,8 @@ table = soup.find('table', attrs={'class':'wikitable'})
 table_body = table.find('tbody')
 
 rows = table_body.find_all('tr')
-len(rows)
-rows[0]
+print(len(rows))
+print(rows[0])
 ```
 
 ---
@@ -456,7 +456,7 @@ rows[0]
 ```{python}
 import re
 
-rows[3].find('span', attrs = {'data-sort-value': re.compile(r'.*')})
+print(rows[3].find('span', attrs = {'data-sort-value': re.compile(r'.*')}))
 ```
 
 ---
