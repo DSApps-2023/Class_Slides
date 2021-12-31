@@ -563,7 +563,7 @@ So our goal is to maximize $\mathbf{s}^\intercal \mathbf{M}\mathbf{s}$ s.t. $s_i
 
 And as before we will relax $\mathbf{s}$ to have a norm of $n$: $\sum_is_i^2=\mathbf{s}^\intercal\mathbf{s}=n$
 
-Applying Lagrange multplier, taking derivative, equating to zero:
+Applying Lagrange multiplier, taking derivative, equating to zero:
 
 $\frac{\partial Q}{\partial s}=\frac{\partial}{\partial s}\mathbf{s}^\intercal\mathbf{M}\mathbf{s}+\lambda(n-\mathbf{s}^\intercal\mathbf{s})=0$
 
