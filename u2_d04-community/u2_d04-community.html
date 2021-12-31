@@ -4,7 +4,8 @@
     <title>Community Detection</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-01-18" />
+    <meta name="date" content="2021-12-31" />
+    <script src="u2_d04-community_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -30,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-01-18
+### 2021-12-31
 
 ---
 
@@ -40,12 +41,14 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
 
 ---
+
+
 
 
 
@@ -252,13 +255,13 @@ nx.draw_networkx(G, nodelist = G.nodes,
 plt.show()
 ```
 
-&lt;img src="images/Girvan-Newman-1.png" width="50%" /&gt;
+&lt;img src="images/Girvan-Newman-3.png" width="50%" /&gt;
 
 ---
 
 Getting the actual dendrogram turned out to be quite laborious, you can see [here](https://stackoverflow.com/questions/59821151/plot-the-dendrogram-of-communities-found-by-networkx-girvan-newman-algorithm/59827653#59827653) how I got it to work or see the slides source (this chunk is hidden because it's a lot of code...)
 
-&lt;img src="images/scifi-dendrogram-1.png" width="70%" /&gt;
+&lt;img src="images/scifi-dendrogram-5.png" width="70%" /&gt;
 
 ---
 
@@ -336,7 +339,7 @@ nx.draw_shell(F, nodelist=F.nodes, node_color=node_colors)
 plt.show()
 ```
 
-&lt;img src="images/Coloring-Problem-1.png" width="30%" /&gt;
+&lt;img src="images/Coloring-Problem-7.png" width="30%" /&gt;
 
 .insight[
 💡 Think of a not-so-fast simple algorithm to get this done (A fast algorithm can make this in O(max(deg(G))) time!)
@@ -391,7 +394,7 @@ nx.draw_networkx(G, nodelist = G.nodes,
 plt.show()
 ```
 
-&lt;img src="images/Label-Propagation-1.png" width="50%" /&gt;
+&lt;img src="images/Label-Propagation-9.png" width="50%" /&gt;
 
 ---
 
@@ -426,7 +429,7 @@ nx.draw_networkx(F)
 plt.show()
 ```
 
-&lt;img src="images/Modularity1-1.png" width="40%" /&gt;
+&lt;img src="images/Modularity1-11.png" width="40%" /&gt;
 
 ---
 
@@ -503,7 +506,7 @@ So our goal is to maximize `\(\mathbf{s}^\intercal \mathbf{M}\mathbf{s}\)` s.t. 
 
 And as before we will relax `\(\mathbf{s}\)` to have a norm of `\(n\)`: `\(\sum_is_i^2=\mathbf{s}^\intercal\mathbf{s}=n\)`
 
-Applying Lagrange multplier, taking derivative, equating to zero:
+Applying Lagrange multiplier, taking derivative, equating to zero:
 
 `\(\frac{\partial Q}{\partial s}=\frac{\partial}{\partial s}\mathbf{s}^\intercal\mathbf{M}\mathbf{s}+\lambda(n-\mathbf{s}^\intercal\mathbf{s})=0\)`
 
@@ -560,7 +563,7 @@ nx.draw_networkx(G, nodelist = G.nodes,
 plt.show()
 ```
 
-&lt;img src="images/Greedy-Modularity-1.png" width="50%" /&gt;
+&lt;img src="images/Greedy-Modularity-13.png" width="50%" /&gt;
 
 ---
 
@@ -604,7 +607,7 @@ nx.draw_networkx(G, nodelist = G.nodes, node_color = node_colors)
 plt.show()
 ```
 
-&lt;img src="images/Louvain-1.png" width="50%" /&gt;
+&lt;img src="images/Louvain-15.png" width="50%" /&gt;
 
 ---
 
@@ -806,43 +809,49 @@ node2vec = Node2Vec(G, dimensions=64, walk_length=30, num_walks=200, workers=1, 
 ```
 ## 
 Computing transition probabilities:   0%|          | 0/23 [00:00&lt;?, ?it/s]
-Computing transition probabilities: 100%|##########| 23/23 [00:00&lt;00:00, 28356.55it/s]
+Computing transition probabilities: 100%|##########| 23/23 [00:00&lt;00:00, 2874.69it/s]
 ## 
 Generating walks (CPU: 1):   0%|          | 0/200 [00:00&lt;?, ?it/s]
-Generating walks (CPU: 1):   4%|3         | 7/200 [00:00&lt;00:03, 57.91it/s]
-Generating walks (CPU: 1):   6%|6         | 13/200 [00:00&lt;00:03, 53.10it/s]
-Generating walks (CPU: 1):  10%|9         | 19/200 [00:00&lt;00:03, 51.19it/s]
-Generating walks (CPU: 1):  12%|#2        | 25/200 [00:00&lt;00:03, 51.09it/s]
-Generating walks (CPU: 1):  16%|#5        | 31/200 [00:00&lt;00:03, 50.96it/s]
-Generating walks (CPU: 1):  18%|#8        | 37/200 [00:00&lt;00:03, 50.29it/s]
-Generating walks (CPU: 1):  22%|##1       | 43/200 [00:00&lt;00:03, 51.45it/s]
-Generating walks (CPU: 1):  24%|##4       | 49/200 [00:00&lt;00:03, 50.00it/s]
-Generating walks (CPU: 1):  28%|##7       | 55/200 [00:01&lt;00:02, 52.04it/s]
-Generating walks (CPU: 1):  30%|###       | 61/200 [00:01&lt;00:02, 49.83it/s]
-Generating walks (CPU: 1):  34%|###3      | 67/200 [00:01&lt;00:02, 50.00it/s]
-Generating walks (CPU: 1):  36%|###6      | 73/200 [00:01&lt;00:02, 50.59it/s]
-Generating walks (CPU: 1):  40%|###9      | 79/200 [00:01&lt;00:02, 49.86it/s]
-Generating walks (CPU: 1):  42%|####2     | 85/200 [00:01&lt;00:02, 51.30it/s]
-Generating walks (CPU: 1):  46%|####5     | 91/200 [00:01&lt;00:02, 49.90it/s]
-Generating walks (CPU: 1):  48%|####8     | 97/200 [00:01&lt;00:01, 51.76it/s]
-Generating walks (CPU: 1):  52%|#####1    | 103/200 [00:02&lt;00:01, 49.69it/s]
-Generating walks (CPU: 1):  55%|#####4    | 109/200 [00:02&lt;00:01, 49.97it/s]
-Generating walks (CPU: 1):  57%|#####7    | 115/200 [00:02&lt;00:01, 50.46it/s]
-Generating walks (CPU: 1):  60%|######    | 121/200 [00:02&lt;00:01, 49.89it/s]
-Generating walks (CPU: 1):  64%|######3   | 127/200 [00:02&lt;00:01, 51.26it/s]
-Generating walks (CPU: 1):  66%|######6   | 133/200 [00:02&lt;00:01, 49.85it/s]
-Generating walks (CPU: 1):  70%|######9   | 139/200 [00:02&lt;00:01, 52.00it/s]
-Generating walks (CPU: 1):  72%|#######2  | 145/200 [00:02&lt;00:01, 51.43it/s]
-Generating walks (CPU: 1):  76%|#######5  | 151/200 [00:02&lt;00:00, 49.63it/s]
-Generating walks (CPU: 1):  78%|#######8  | 157/200 [00:03&lt;00:00, 52.01it/s]
-Generating walks (CPU: 1):  82%|########1 | 163/200 [00:03&lt;00:00, 49.76it/s]
-Generating walks (CPU: 1):  84%|########4 | 169/200 [00:03&lt;00:00, 50.51it/s]
-Generating walks (CPU: 1):  88%|########7 | 175/200 [00:03&lt;00:00, 50.46it/s]
-Generating walks (CPU: 1):  90%|######### | 181/200 [00:03&lt;00:00, 50.01it/s]
-Generating walks (CPU: 1):  94%|#########3| 187/200 [00:03&lt;00:00, 51.20it/s]
-Generating walks (CPU: 1):  96%|#########6| 193/200 [00:03&lt;00:00, 50.00it/s]
-Generating walks (CPU: 1): 100%|#########9| 199/200 [00:03&lt;00:00, 51.21it/s]
-Generating walks (CPU: 1): 100%|##########| 200/200 [00:03&lt;00:00, 50.38it/s]
+Generating walks (CPU: 1):   3%|3         | 6/200 [00:00&lt;00:03, 51.68it/s]
+Generating walks (CPU: 1):   6%|6         | 12/200 [00:00&lt;00:04, 45.90it/s]
+Generating walks (CPU: 1):   8%|8         | 17/200 [00:00&lt;00:04, 45.53it/s]
+Generating walks (CPU: 1):  11%|#1        | 22/200 [00:00&lt;00:04, 43.91it/s]
+Generating walks (CPU: 1):  14%|#3        | 27/200 [00:00&lt;00:03, 44.02it/s]
+Generating walks (CPU: 1):  16%|#6        | 32/200 [00:00&lt;00:03, 43.74it/s]
+Generating walks (CPU: 1):  18%|#8        | 37/200 [00:00&lt;00:03, 44.02it/s]
+Generating walks (CPU: 1):  21%|##1       | 42/200 [00:00&lt;00:03, 43.77it/s]
+Generating walks (CPU: 1):  24%|##3       | 47/200 [00:01&lt;00:03, 43.84it/s]
+Generating walks (CPU: 1):  26%|##6       | 52/200 [00:01&lt;00:03, 43.51it/s]
+Generating walks (CPU: 1):  28%|##8       | 57/200 [00:01&lt;00:03, 44.00it/s]
+Generating walks (CPU: 1):  31%|###1      | 62/200 [00:01&lt;00:03, 43.68it/s]
+Generating walks (CPU: 1):  34%|###3      | 67/200 [00:01&lt;00:03, 43.58it/s]
+Generating walks (CPU: 1):  36%|###6      | 72/200 [00:01&lt;00:02, 43.10it/s]
+Generating walks (CPU: 1):  38%|###8      | 77/200 [00:01&lt;00:02, 43.49it/s]
+Generating walks (CPU: 1):  41%|####1     | 82/200 [00:01&lt;00:02, 43.07it/s]
+Generating walks (CPU: 1):  44%|####3     | 87/200 [00:01&lt;00:02, 43.29it/s]
+Generating walks (CPU: 1):  46%|####6     | 92/200 [00:02&lt;00:02, 43.94it/s]
+Generating walks (CPU: 1):  48%|####8     | 97/200 [00:02&lt;00:02, 43.44it/s]
+Generating walks (CPU: 1):  51%|#####1    | 102/200 [00:02&lt;00:02, 43.31it/s]
+Generating walks (CPU: 1):  54%|#####3    | 107/200 [00:02&lt;00:02, 43.29it/s]
+Generating walks (CPU: 1):  56%|#####6    | 112/200 [00:02&lt;00:02, 43.75it/s]
+Generating walks (CPU: 1):  58%|#####8    | 117/200 [00:02&lt;00:01, 43.50it/s]
+Generating walks (CPU: 1):  61%|######1   | 122/200 [00:02&lt;00:01, 43.32it/s]
+Generating walks (CPU: 1):  64%|######3   | 127/200 [00:02&lt;00:01, 43.61it/s]
+Generating walks (CPU: 1):  66%|######6   | 132/200 [00:03&lt;00:01, 43.31it/s]
+Generating walks (CPU: 1):  68%|######8   | 137/200 [00:03&lt;00:01, 43.47it/s]
+Generating walks (CPU: 1):  71%|#######1  | 142/200 [00:03&lt;00:01, 44.10it/s]
+Generating walks (CPU: 1):  74%|#######3  | 147/200 [00:03&lt;00:01, 43.32it/s]
+Generating walks (CPU: 1):  76%|#######6  | 152/200 [00:03&lt;00:01, 43.74it/s]
+Generating walks (CPU: 1):  78%|#######8  | 157/200 [00:03&lt;00:00, 43.50it/s]
+Generating walks (CPU: 1):  81%|########1 | 162/200 [00:03&lt;00:00, 44.42it/s]
+Generating walks (CPU: 1):  84%|########3 | 167/200 [00:03&lt;00:00, 43.43it/s]
+Generating walks (CPU: 1):  86%|########6 | 172/200 [00:03&lt;00:00, 43.25it/s]
+Generating walks (CPU: 1):  88%|########8 | 177/200 [00:04&lt;00:00, 43.92it/s]
+Generating walks (CPU: 1):  91%|#########1| 182/200 [00:04&lt;00:00, 43.21it/s]
+Generating walks (CPU: 1):  94%|#########3| 187/200 [00:04&lt;00:00, 43.55it/s]
+Generating walks (CPU: 1):  96%|#########6| 192/200 [00:04&lt;00:00, 43.09it/s]
+Generating walks (CPU: 1):  98%|#########8| 197/200 [00:04&lt;00:00, 43.51it/s]
+Generating walks (CPU: 1): 100%|##########| 200/200 [00:04&lt;00:00, 43.44it/s]
 ```
 
 ---
@@ -883,7 +892,7 @@ nx.draw_networkx(G, nodelist = G.nodes, node_color = node_colors)
 plt.show()
 ```
 
-&lt;img src="images/Node2Vec-1.png" width="50%" /&gt;
+&lt;img src="images/Node2Vec-17.png" width="50%" /&gt;
 
 ---
 

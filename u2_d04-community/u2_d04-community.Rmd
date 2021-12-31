@@ -39,6 +39,10 @@ class: title-slide
 ```{r child = '../setup.Rmd'}
 ```
 
+```{r, echo=FALSE, message=FALSE}
+library(emoji)
+```
+
 ```{python, echo=FALSE}
 def get_node_colors_by_communities(communities, nodes, colors = ['green', 'blue', 'red', 'purple']):
   colors = ['red', 'blue', 'green', 'purple'] # cheating...
@@ -88,7 +92,7 @@ class: section-slide
 Start with dividing the network into 2 communities ("bisection").
 
 .insight[
-`r emo::ji("bulb")` What is the number of ways to divide n nodes into two distinct groups?
+`r emoji("bulb")` What is the number of ways to divide n nodes into two distinct groups?
 ]
 
 The *cut size* between two sets of nodes is the number of edges between them:
@@ -164,7 +168,7 @@ But $\mathbf{s}$ needs to be at $\pm1$, so bottom line we take the $n_1$ most po
 It can be shown that $R=\frac{n_1n_2}{n}\lambda$, hence $\lambda$, the second smallest eigenvalue of $L$ (a.k.a *algebraic connectivity*) determines the cut size, how easy it is to divide the network into two communities of sizes $n_1$ and $n_2$
 
 .insight[
-`r emo::ji("bulb")` What if $\lambda=0$? What if we didn't assume we knew $n_1$ and $n_2$?
+`r emoji("bulb")` What if $\lambda=0$? What if we didn't assume we knew $n_1$ and $n_2$?
 ]
 
 ---
@@ -235,7 +239,7 @@ To summarize:
 4. Repeat from step 2 until no edges remain.
 
 .insight[
-`r emo::ji("bulb")` Why recalculate betweenness at each iteration?
+`r emoji("bulb")` Why recalculate betweenness at each iteration?
 ]
 
 ---
@@ -376,7 +380,7 @@ Relatively fast (in parallel) | May not converge
                               | Reproducibility issue
                               
 .insight[
-`r emo::ji("bulb")` Can you think of a network that will never converge?
+`r emoji("bulb")` Can you think of a network that will never converge?
 ]
 
 ---
@@ -429,7 +433,7 @@ plt.show()
 ```
 
 .insight[
-`r emo::ji("bulb")` Think of a not-so-fast simple algorithm to get this done (A fast algorithm can make this in O(max(deg(G))) time!)
+`r emoji("bulb")` Think of a not-so-fast simple algorithm to get this done (A fast algorithm can make this in O(max(deg(G))) time!)
 ]
 
 ---
@@ -437,7 +441,7 @@ plt.show()
 The smallest number of colors required to color a given network $G$ is called its *chromatic number*, $\chi(G)$
 
 .insight[
-`r emo::ji("bulb")` What is an "easy" upper bound on $\chi(G)$?
+`r emoji("bulb")` What is an "easy" upper bound on $\chi(G)$?
 ]
 
 What is it good for?
@@ -467,7 +471,7 @@ class: section-slide
 5. Go back to 3 until some stopping criteria ("Equilibrium")
 
 .insight[
-`r emo::ji("bulb")` Do you see the sense in iterating the nodes in parallel *in each color group*?
+`r emoji("bulb")` Do you see the sense in iterating the nodes in parallel *in each color group*?
 ]
 ---
 
@@ -495,7 +499,7 @@ class: section-slide
 Modularity in words: “the fraction of the edges that fall within the given groups minus the expected fraction if edges were distributed at random.”
 
 .insight[
-`r emo::ji("bulb")` Statisticians might know this from the "observed minus expected" approach for Goodness of Fit statistics.
+`r emoji("bulb")` Statisticians might know this from the "observed minus expected" approach for Goodness of Fit statistics.
 ]
 
 ---
@@ -528,7 +532,7 @@ print(nx.community.modularity(F, [{0, 2, 4, 6}, {1, 3, 5, 7}]))
 ```
 
 .insight[
-`r emo::ji("bulb")` A good $Q$ is said to be above 0.3. What do you think of that?
+`r emoji("bulb")` A good $Q$ is said to be above 0.3. What do you think of that?
 
 What would you do with a weighted network?
 ]
@@ -687,7 +691,7 @@ class: section-slide
 ### Bag of Words Model (BOW)
 
 .insight[
-`r emo::ji("bulb")` What is the dimensionality of "words"?
+`r emoji("bulb")` What is the dimensionality of "words"?
 ]
 
 - In the Oxford English dictionary there are 171K words. When expanding to jargon etc. the estimate is 1M words
