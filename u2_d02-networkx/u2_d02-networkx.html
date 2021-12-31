@@ -4,7 +4,8 @@
     <title>NetworkX</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-01-18" />
+    <meta name="date" content="2021-12-31" />
+    <script src="u2_d02-networkx_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -30,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-01-18
+### 2021-12-31
 
 ---
 
@@ -40,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -456,7 +457,7 @@ nx.draw_networkx(G, node_size=800, node_color='red', edge_color='pink',
 plt.show()
 ```
 
-&lt;img src="images/Basic2-1.png" width="45%" /&gt;
+&lt;img src="images/Basic2-3.png" width="45%" /&gt;
 
 ---
 
@@ -474,7 +475,7 @@ nx.draw_networkx(G, **options)
 plt.show()
 ```
 
-&lt;img src="images/Basic3-1.png" width="45%" /&gt;
+&lt;img src="images/Basic3-5.png" width="45%" /&gt;
 
 ---
 
@@ -491,7 +492,7 @@ nx.draw_networkx(G, pos=nx.fruchterman_reingold_layout(G))
 plt.show()
 ```
 
-&lt;img src="images/Basic4-1.png" width="45%" /&gt;
+&lt;img src="images/Basic4-7.png" width="45%" /&gt;
 
 ---
 
@@ -503,7 +504,7 @@ nx.draw_kamada_kawai(G)
 plt.show()
 ```
 
-&lt;img src="images/Basic5-1.png" width="45%" /&gt;
+&lt;img src="images/Basic5-9.png" width="45%" /&gt;
 
 ---
 
@@ -541,7 +542,7 @@ nx.draw_networkx(G, node_size=0, font_size=40)
 plt.show()
 ```
 
-&lt;img src="images/Numpy-1.png" width="30%" /&gt;
+&lt;img src="images/Numpy-11.png" width="30%" /&gt;
 
 ---
 
@@ -559,7 +560,7 @@ nx.draw_networkx(G, width=weights)
 plt.show()
 ```
 
-&lt;img src="images/Beatles1-1.png" width="40%" /&gt;
+&lt;img src="images/Beatles1-13.png" width="40%" /&gt;
 
 ---
 
@@ -643,7 +644,7 @@ nx.draw_networkx(G)
 plt.show()
 ```
 
-&lt;img src="images/Beatles2-1.png" width="40%" /&gt;
+&lt;img src="images/Beatles2-15.png" width="40%" /&gt;
 
 ---
 
@@ -690,7 +691,7 @@ nx.draw_networkx(G, pos=nx.bipartite_layout(G, [1, 2, 3, 4]), node_size=0, font_
 plt.show()
 ```
 
-&lt;img src="images/Bipartite1-1.png" width="40%" /&gt;
+&lt;img src="images/Bipartite1-17.png" width="40%" /&gt;
 
 It is your responsibility though to check that indeed the two sets of nodes are not connected.
 
@@ -729,7 +730,7 @@ nx.draw_networkx(G, pos=nx.bipartite_layout(G, films), node_size=0, font_size=10
 plt.show()
 ```
 
-&lt;img src="images/Bipartite3-1.png" width="50%" /&gt;
+&lt;img src="images/Bipartite3-19.png" width="50%" /&gt;
 
 ---
 
@@ -747,7 +748,7 @@ nx.draw_networkx(Gc, node_size=0, font_size=10)
 plt.show()
 ```
 
-&lt;img src="images/Bipartite4-1.png" width="50%" /&gt;
+&lt;img src="images/Bipartite4-21.png" width="50%" /&gt;
 
 ---
 
@@ -761,7 +762,7 @@ nx.draw_networkx(Gc, node_size=0, font_size=10)
 plt.show()
 ```
 
-&lt;img src="images/Bipartite5-1.png" width="50%" /&gt;
+&lt;img src="images/Bipartite5-23.png" width="50%" /&gt;
 
 ---
 
@@ -865,7 +866,7 @@ limits = plt.axis('off')
 plt.show()
 ```
 
-&lt;img src="images/Sci-Fi-1.png" width="45%" /&gt;
+&lt;img src="images/Sci-Fi-25.png" width="45%" /&gt;
 
 ---
 
@@ -1131,7 +1132,7 @@ list(cc)
 ```
 
 ```
-## [{'American Gods', 'A Song of Ice and Fire', 'The Princess Bride', 'The Dune Chronicles', 'Frankenstein', 'Brave New World', 'Solaris', 'The Lord of the Rings', 'Watership Down', 'Harry Potter Series', 'The Lion, the Witch and the Wardrobe', 'The Hunger Games', 'Journey to the Center of the Earth', "The Hitchhiker's Guide to the Galaxy", "Ender's Game", '2001: A Space Odyssey', 'World War Z', 'Twenty Thousand Leagues Under the Sea', "The Handmaid's Tale", 'Flowers for Algernon', 'Babel 17', 'I, Robot', 'Contact'}]
+## [{'Journey to the Center of the Earth', 'The Hunger Games', 'The Dune Chronicles', 'Contact', 'Flowers for Algernon', 'The Lion, the Witch and the Wardrobe', 'Brave New World', 'World War Z', 'Babel 17', 'Solaris', "The Hitchhiker's Guide to the Galaxy", 'The Princess Bride', 'Watership Down', '2001: A Space Odyssey', 'American Gods', 'Harry Potter Series', "Ender's Game", "The Handmaid's Tale", 'A Song of Ice and Fire', 'The Lord of the Rings', 'Frankenstein', 'Twenty Thousand Leagues Under the Sea', 'I, Robot'}]
 ```
 
 Get component of a specific node:
@@ -1142,7 +1143,7 @@ nx.node_connected_component(G, 'Contact')
 ```
 
 ```
-## {'American Gods', 'A Song of Ice and Fire', 'The Princess Bride', 'The Dune Chronicles', 'Frankenstein', 'Brave New World', 'Solaris', 'The Lord of the Rings', 'Watership Down', 'Harry Potter Series', 'The Lion, the Witch and the Wardrobe', 'The Hunger Games', "The Hitchhiker's Guide to the Galaxy", 'Journey to the Center of the Earth', "Ender's Game", '2001: A Space Odyssey', 'World War Z', 'Twenty Thousand Leagues Under the Sea', "The Handmaid's Tale", 'Babel 17', 'Flowers for Algernon', 'I, Robot', 'Contact'}
+## {'Journey to the Center of the Earth', 'The Hunger Games', 'The Dune Chronicles', 'Contact', 'Flowers for Algernon', 'The Lion, the Witch and the Wardrobe', 'Brave New World', 'World War Z', 'Babel 17', 'Solaris', "The Hitchhiker's Guide to the Galaxy", 'The Princess Bride', 'Watership Down', '2001: A Space Odyssey', 'American Gods', 'Harry Potter Series', "Ender's Game", 'A Song of Ice and Fire', "The Handmaid's Tale", 'The Lord of the Rings', 'Frankenstein', 'Twenty Thousand Leagues Under the Sea', 'I, Robot'}
 ```
 
 ---
@@ -1187,6 +1188,7 @@ L.todense()[:5, :5]
 ##         [ 0, -1, -1,  6, -1],
 ##         [ 0, -1,  0, -1,  5]], dtype=int32)
 ```
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="../libs/remark-latest.min.js"></script>

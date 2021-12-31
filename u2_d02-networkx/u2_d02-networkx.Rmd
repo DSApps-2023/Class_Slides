@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 
 printmrow <- function(x) cat(cat(x,sep=' & '),'\\\\')
 
@@ -512,7 +513,7 @@ D = nx.from_pandas_edgelist(beatles_df, 'source', 'target',
 ```
 
 .warning[
-`r emo::ji("warning")` When creating `DiGraph()` NetworkX assumes $A_{ij}$ corresponds to the edge from i to j, contrary to our convention. Therefore, you should use `A.transpose()`
+`r emoji("warning")` When creating `DiGraph()` NetworkX assumes $A_{ij}$ corresponds to the edge from i to j, contrary to our convention. Therefore, you should use `A.transpose()`
 ]
 ---
 
@@ -674,7 +675,7 @@ A[:4, :4]
 ```
 
 .insight[
-`r emo::ji("bulb")` Say, didn't we have 25 books?
+`r emoji("bulb")` Say, didn't we have 25 books?
 ]
 
 ---
@@ -690,7 +691,7 @@ print(A[:4, :4])
 ```
 
 .insight[
-`r emo::ji("bulb")` Do you know what a sparse matrix is?
+`r emoji("bulb")` Do you know what a sparse matrix is?
 ]
 
 ---
