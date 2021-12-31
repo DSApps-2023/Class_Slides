@@ -39,6 +39,10 @@ class: title-slide
 ```{r child = '../setup.Rmd'}
 ```
 
+```{r, echo=FALSE, message=FALSE}
+library(emoji)
+```
+
 ```{python packages, echo=FALSE, message=FALSE, warning=FALSE}
 def get_top_n_dict(d, n=5):
   return dict(sorted(d.items(), key = lambda x: x[1], reverse=True)[:n])
@@ -258,7 +262,7 @@ Closeness is the *inverse mean shortest distance* from node $i$ to every other n
 $x_i = \frac{n}{\sum_jd(i, j)}$
 
 .insight[
-`r emo::ji("bulb")` What might be an issue with Closeness centrality?
+`r emoji("bulb")` What might be an issue with Closeness centrality?
 ]
 
 ```{python}
@@ -287,7 +291,7 @@ Where $\tau(u,v)$ is the number of shortest paths from node $u$ to node $v$ and 
 When $\tau(u,v) = 0$ the contribution is "0/0" and is defined as zero.
 
 .insight[
-`r emo::ji("bulb")` What is assumed regarding the motivation for Betweenness centrality above?
+`r emoji("bulb")` What is assumed regarding the motivation for Betweenness centrality above?
 
 How would you "normalize" Betweeness to range from 0 to 1?
 
@@ -373,7 +377,7 @@ pretty_print(get_top_n_dict(k_cores))
 ```
 
 .insight[
-`r emo::ji("bulb")` How would you find all k-Cores?
+`r emoji("bulb")` How would you find all k-Cores?
 ]
 
 ---
@@ -413,7 +417,7 @@ The graph *transitvity* is the proportion of closed triads or triangles out of a
 $Transitivity(G)=\frac{\text{#closed triads}}{\text{#triads}}=\frac{3 \text{x #triangles}}{\text{#triads}}=\frac{6 \text{x #triangles}}{\text{#paths of length 2}}$
 
 .insight[
-`r emo::ji("bulb")` Where did the 3 and 6 factors come from?
+`r emoji("bulb")` Where did the 3 and 6 factors come from?
 ]
 
 ```{python}
@@ -423,7 +427,7 @@ nx.transitivity(G)
 Is this high? One way is to compare a graph transitivity to its density. If nodes connected to other nodes by random we would expect transitivity of about 20%. This is much higher, implying that the network is far from "random" and there is some logic to its edges.
 
 .insight[
-`r emo::ji("bulb")` How would a network with transitivity 0 or 1 look like?
+`r emoji("bulb")` How would a network with transitivity 0 or 1 look like?
 ]
 
 ---
@@ -435,7 +439,7 @@ The local equivalent of transitivity to a single node is the proportion of close
 $LCC(i)=\frac{\text{#closed triads involving node i}}{\text{#pairs of neighbors of i}}=\frac{2\text{x#closed triads involving node i}}{k_i(k_i-1)}$
 
 .insight[
-`r emo::ji("bulb")` How would a node with clustering coefficient 0 or 1 look like?
+`r emoji("bulb")` How would a node with clustering coefficient 0 or 1 look like?
 ]
 
 ```{python}
@@ -463,7 +467,7 @@ plt.show()
 In many realistic networks we see a negative correlation between LCC and betweenness centrality. Since for a given node the LCC is much easier to compute it is often a good enough approximation of (inverse) betweenness.
 
 .insight[
-`r emo::ji("bulb")` Can you explain this pattern?
+`r emoji("bulb")` Can you explain this pattern?
 ]
 
 ---
@@ -482,11 +486,11 @@ class: section-slide
 *Structural Equivalence* is only one type of similarity and it is concerned with $n_{ij}$: how many neighbors two nodes $i$ and $j$ share.
 
 .insight[
-`r emo::ji("bulb")` Why not just use *that* as a measure of similarity?
+`r emoji("bulb")` Why not just use *that* as a measure of similarity?
 ]
 
 .warning[
-`r emo::ji("warning")` The Sci-Fi books is already a network based on pairwise similarities. Structural Equivalence does not deal with this type of similarity, calculated over a vector of features.
+`r emoji("warning")` The Sci-Fi books is already a network based on pairwise similarities. Structural Equivalence does not deal with this type of similarity, calculated over a vector of features.
 ]
 
 ---
@@ -500,7 +504,7 @@ $S(i, j) =\cos(\theta)=\frac{\sum_kA_{ik}A_{kj}}{\sqrt{\sum_kA^2_{ik}}\sqrt{\sum
 $S(i, j) =r(i,j)=\frac{\sum_k(A_{ik}-\overline{A_i})(A_{jk}-\overline{A_j})}{\sqrt{\sum_k(A_{ik}-\overline{A_i})^2}\sqrt{\sum_k(A_{jk}-\overline{A_j})^2}}$
 
 .warning[
-`r emo::ji("warning")` Not implemented in NetworkX, you could extract the adjacency matrix yourself and use Scikit-Learn for cosine distance and SciPy for pearson correlation.
+`r emoji("warning")` Not implemented in NetworkX, you could extract the adjacency matrix yourself and use Scikit-Learn for cosine distance and SciPy for pearson correlation.
 ]
 
 ---
@@ -537,7 +541,7 @@ Divided They Blog / Lada Adamic](http://www.ramb.ethz.ch/CDstore/www2005-ws/work
 ]
 
 .insight[
-`r emo::ji("bulb")` What would be an easy example of a network displaying *dis*assortative mixing?
+`r emoji("bulb")` What would be an easy example of a network displaying *dis*assortative mixing?
 ]
 
 ---
@@ -573,7 +577,7 @@ Where $||B||$ means the sum of all elements in matrix $B$.
 This *assortative coefficient* is positive for attributes which demonstrate assortativity (up to a maximum of 1), 0 for attributes with no apparent assortativity and negative for attributes which demonstrate disassortativity.
 
 .insight[
-`r emo::ji("bulb")` Why not use a $\chi^2$ test for independence?
+`r emoji("bulb")` Why not use a $\chi^2$ test for independence?
 
 How would you perform hypothesis testing on such a statistic?
 ]

@@ -4,7 +4,8 @@
     <title>Network Metrics</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-01-18" />
+    <meta name="date" content="2021-12-31" />
+    <script src="u2_d03-metrics_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -30,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-01-18
+### 2021-12-31
 
 ---
 
@@ -40,12 +41,14 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
 
 ---
+
+
 
 
 
@@ -115,7 +118,7 @@ nx.draw_networkx(G, nodelist = cent_deg.keys(),
 plt.show()
 ```
 
-&lt;img src="images/Sci-Fi-Degree-1.png" width="70%" /&gt;
+&lt;img src="images/Sci-Fi-Degree-3.png" width="70%" /&gt;
 
 ---
 
@@ -171,7 +174,7 @@ nx.draw_networkx(G, nodelist = cent_eig.keys(),
 plt.show()
 ```
 
-&lt;img src="images/Sci-Fi-Eigen-1.png" width="70%" /&gt;
+&lt;img src="images/Sci-Fi-Eigen-5.png" width="70%" /&gt;
 
 ---
 
@@ -203,7 +206,7 @@ nx.draw_networkx(Dag)
 plt.show()
 ```
 
-&lt;img src="images/unnamed-chunk-5-1.png" width="50%" /&gt;
+&lt;img src="images/unnamed-chunk-6-7.png" width="50%" /&gt;
 
 
 ```python
@@ -216,14 +219,12 @@ iteration failed to converge within 100 iterations')
 ##
 ## Detailed traceback:
 ## File "&lt;string&gt;", line 1, in &lt;module&gt;
-## File "&lt;decorator-gen-160&gt;", line 2, in eigenvector_centrality
-## File
-"C:\Users\GSIMCH~1\AppData\Local\Programs\Python\Python38\lib\site-packages\networkx\utils\decorators.py",
-line 78, in _not_implemented_for
-## return not_implement_for_func(*args, **kwargs)
+## File "&lt;class 'networkx.utils.decorators.argmap'&gt; compilation 16", line 4, in
+argmap_eigenvector_centrality_13
+## from pathlib import Path
 ## File
 "C:\Users\GSIMCH~1\AppData\Local\Programs\Python\Python38\lib\site-packages\networkx\algorithms\centrality\eigenvector.py",
-line 137, in eigenvector_centrality
+line 138, in eigenvector_centrality
 ## raise nx.PowerIterationFailedConvergence(max_iter)
 &lt;/code&gt;&lt;/pre&gt;
 
@@ -281,7 +282,7 @@ nx.draw_networkx(G, nodelist = cent_katz.keys(),
 plt.show()
 ```
 
-&lt;img src="images/Sci-Fi-Katz-1.png" width="70%" /&gt;
+&lt;img src="images/Sci-Fi-Katz-9.png" width="70%" /&gt;
 
 ---
 
@@ -326,7 +327,7 @@ nx.draw_networkx(G, nodelist = cent_pagerank.keys(),
 plt.show()
 ```
 
-&lt;img src="images/Sci-Fi-PageRank-1.png" width="70%" /&gt;
+&lt;img src="images/Sci-Fi-PageRank-11.png" width="70%" /&gt;
 
 ---
 
@@ -363,7 +364,7 @@ nx.draw_networkx(G, nodelist = cent_closeness.keys(),
 plt.show()
 ```
 
-&lt;img src="images/Sci-Fi-Closeness-1.png" width="70%" /&gt;
+&lt;img src="images/Sci-Fi-Closeness-13.png" width="70%" /&gt;
 
 ---
 
@@ -410,7 +411,7 @@ nx.draw_networkx(G, nodelist = cent_betweenness.keys(),
 plt.show()
 ```
 
-&lt;img src="images/Sci-Fi-Betweenness-1.png" width="70%" /&gt;
+&lt;img src="images/Sci-Fi-Betweenness-15.png" width="70%" /&gt;
 
 ---
 
@@ -444,7 +445,7 @@ nx.draw_networkx(Clique)
 plt.show()
 ```
 
-&lt;img src="images/Clique-1.png" width="40%" /&gt;
+&lt;img src="images/Clique-17.png" width="40%" /&gt;
 
 ---
 class: section-slide
@@ -577,7 +578,7 @@ pretty_print(get_top_n_dict(clust_coefs))
 
 ### LCC vs. Betweenness Centrality
 
-&lt;img src="images/lCC-Betweenness-1.png" width="30%" /&gt;
+&lt;img src="images/lCC-Betweenness-19.png" width="30%" /&gt;
 
 In many realistic networks we see a negative correlation between LCC and betweenness centrality. Since for a given node the LCC is much easier to compute it is often a good enough approximation of (inverse) betweenness.
 
@@ -640,9 +641,9 @@ pretty_print(sim_jaccard_top5)
 ```
 ## ('The Lion, the Witch and the Wardrobe', 'The Princess Bride'): 0.50
 ## ("Ender's Game", 'I, Robot'): 0.50
-## ('The Hunger Games', 'Harry Potter Series'): 0.43
-## ('2001: A Space Odyssey', 'Babel 17'): 0.43
-## ('Journey to the Center of the Earth', 'The Lord of the Rings'): 0.43
+## ('Babel 17', '2001: A Space Odyssey'): 0.43
+## ('The Lord of the Rings', 'Journey to the Center of the Earth'): 0.43
+## ('Harry Potter Series', 'The Hunger Games'): 0.43
 ```
 
 ---
@@ -770,7 +771,7 @@ nx.numeric_assortativity_coefficient(G, 'quarter_century')
 ```
 
 ```
-## 0.1155547690674223
+## 0.11555476906742237
 ```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
