@@ -4,8 +4,8 @@
     <title>Network Models</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-04-18" />
-    <script src="u2_d05-models_files/header-attrs-2.6/header-attrs.js"></script>
+    <meta name="date" content="2021-12-31" />
+    <script src="u2_d05-models_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-04-18
+### 2021-12-31
 
 ---
 
@@ -41,12 +41,14 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
 
 ---
+
+
 
 
 
@@ -62,7 +64,7 @@ class: section-slide
 - The Israeli artists musical cooperations in the 21st century
 - The Sci-Fi themed correlation network
 
-&lt;img src="images/Degree-Hists-1.png" width="80%" /&gt;
+&lt;img src="images/Degree-Hists-1.png" width="70%" /&gt;
 
 .insight[
 💡 Which is which?
@@ -181,7 +183,7 @@ nx.draw_networkx(G)
 plt.show()
 ```
 
-&lt;img src="images/ER-1.png" width="50%" /&gt;
+&lt;img src="images/ER-3.png" width="50%" /&gt;
 
 ---
 
@@ -192,7 +194,7 @@ h = plt.hist(deg)
 plt.show()
 ```
 
-&lt;img src="images/ER-Deg_Dist-1.png" width="50%" /&gt;
+&lt;img src="images/ER-Deg_Dist-5.png" width="50%" /&gt;
 
 .insight[
 💡 Does this degree distribution resemble any of the distributions we've seen?
@@ -301,7 +303,7 @@ plt.show()
 
 ---
 
-&lt;img src="images/GCC-Size-1.png" width="50%" /&gt;
+&lt;img src="images/GCC-Size-8.png" width="50%" /&gt;
 
 Surprisingly, for a given `\(n\)`, when `\(p\)` is varied from 0 to 1, the giant component size `\(S\)` suddenly "jumps"!
 
@@ -309,7 +311,7 @@ This is also true for a given `\(p\)` as you increase `\(n\)`: imagine sitting a
 
 ---
 
-&lt;img src="images/GCC-Size2-1.png" width="50%" /&gt;
+&lt;img src="images/GCC-Size2-10.png" width="50%" /&gt;
 
 Don't blink! Because there seems to be a *critical point*, a *transition point*, a *percolation point* where `\(S\)` increases from 0 and finally reaches to 1 making your network fully connected.
 
@@ -352,7 +354,7 @@ Now there is no closed solution for `\(S\)` but we can isolate `\(c=(n-1)p\)`:
 
 ---
 
-&lt;img src="images/GCC-Size3-1.png" width="30%" /&gt;
+&lt;img src="images/GCC-Size3-12.png" width="40%" /&gt;
 
 We can see that around `\(c=1\)` (or `\(p=1/n\)`) the size of the GCC starts increasing .font80percent[(makes sense)].
 
@@ -428,7 +430,7 @@ Let's see some larger real-life networks:
 
 ### Degree histograms
 
-&lt;img src="images/Degree-Hists2-1.png" width="80%" /&gt;
+&lt;img src="images/Degree-Hists2-14.png" width="80%" /&gt;
 
 One of the main shortcomings of the ER model is that none of these look even remotely Poisson.
 
@@ -519,7 +521,7 @@ pd.DataFrame({
 
 ---
 
-&lt;img src="images/Degree-Hists3-1.png" width="100%" /&gt;
+&lt;img src="images/Degree-Hists3-16.png" width="100%" /&gt;
 
 ---
 
@@ -547,7 +549,7 @@ Thus, `\(mX\)` will distribute Power-Law with the same `\(\alpha\)` parameter an
 
 Meaning, the relative likelihood between small and large events is the same, no matter what choice of "small" we make:
 
-&lt;img src="images/Scale-Invariance-1.png" width="80%" /&gt;
+&lt;img src="images/Scale-Invariance-18.png" width="80%" /&gt;
 
 ---
 
@@ -570,9 +572,9 @@ Seeing the log-log transformation with our distributions should also result in a
 ## &lt;string&gt;:7: RuntimeWarning: divide by zero encountered in log
 ```
 
-&lt;img src="images/Degree-Hists4-1.png" width="100%" /&gt;
+&lt;img src="images/Degree-Hists4-1.png" width="80%" /&gt;
 
-🙍
+😿
 
 ---
 
@@ -662,7 +664,7 @@ P_eu, W_eu, WE_eu = lorenz_curve(Euro, alpha_eu)
 P_h, W_h, WE_h = lorenz_curve(H, alpha_h)
 ```
 
-&lt;img src="images/Lorenz-Curves-1.png" width="90%" /&gt;
+&lt;img src="images/Lorenz-Curves-3.png" width="70%" /&gt;
 
 ---
 
@@ -737,7 +739,7 @@ nx.draw_networkx(G)
 plt.show()
 ```
 
-&lt;img src="images/Configuration-1.png" width="50%" /&gt;
+&lt;img src="images/Configuration-5.png" width="40%" /&gt;
 
 Unfortunately matplotlib cannot draw self edges easily 🤬
 
@@ -752,7 +754,7 @@ nx.draw_networkx(G)
 plt.show()
 ```
 
-&lt;img src="images/Configuration2-1.png" width="50%" /&gt;
+&lt;img src="images/Configuration2-7.png" width="50%" /&gt;
 
 Each such graph is a sample from the same sequence/distribution of degrees.
 

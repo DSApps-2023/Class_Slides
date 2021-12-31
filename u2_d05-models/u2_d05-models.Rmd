@@ -39,6 +39,10 @@ class: title-slide
 ```{r child = '../setup.Rmd'}
 ```
 
+```{r, echo=FALSE, message=FALSE}
+library(emoji)
+```
+
 ```{python, echo=FALSE}
 import pandas as pd
 import networkx as nx
@@ -92,7 +96,7 @@ class: section-slide
 - The Israeli artists musical cooperations in the 21st century
 - The Sci-Fi themed correlation network
 
-```{python Degree-Hists, echo=FALSE, fig.asp=0.5, out.width="80%"}
+```{python Degree-Hists, echo=FALSE, fig.asp=0.5, out.width="70%"}
 rupaul = pd.read_csv('../data/queens_edges.csv')
 Ru = nx.from_pandas_edgelist(rupaul, source='from', target='to', create_using=nx.Graph)
 scifi_books = pd.read_csv('../data/sci_fi_final_edgelist.csv')
@@ -101,6 +105,7 @@ israeli_artists = pd.read_csv('../data/israeli_artists_coops.csv')
 I = nx.from_pandas_edgelist(israeli_artists, 'from', 'to')
 
 
+fig, ax = plt.subplots(figsize=(10,6))
 plt.gcf().subplots_adjust(bottom=0.15)
 plt.subplot(1, 3, 1)
 degree_hist(I, xlabel='')
@@ -112,7 +117,7 @@ plt.show()
 ```
 
 .insight[
-`r emo::ji("bulb")` Which is which?
+`r emoji("bulb")` Which is which?
 ]
 
 ---
@@ -148,7 +153,7 @@ Each possible edge is a Bernoulli trial with probability $p$.
 Then the no. of edges $M$ is a Binomial RV $\sim Binom({n\choose 2},p)$
 
 .insight[
-`r emo::ji("bulb")` So what is $P(M=m)$? What is $E(M)$? What is $Var(M)$?
+`r emoji("bulb")` So what is $P(M=m)$? What is $E(M)$? What is $Var(M)$?
 ]
 
 The $G(n, p)$ collection of all simple networks formed this way is the Erdős–Rényi model.
@@ -164,7 +169,7 @@ We have defined the mean degree to be: $c = \frac{2m}{n}$, but now we treat $m$ 
 $c=E(D)=E(\frac{2M}{n})=\frac{2E(M)}{n}=\frac{2}{n}{n\choose 2}p=(n-1)p$
 
 .insight[
-`r emo::ji("bulb")` Say it in words, it makes sense.
+`r emoji("bulb")` Say it in words, it makes sense.
 ]
 
 But this implies we could have formulated the ER model slightly different:
@@ -228,7 +233,7 @@ plt.show()
 ```
 
 .insight[
-`r emo::ji("bulb")` Does this degree distribution resemble any of the distributions we've seen?
+`r emoji("bulb")` Does this degree distribution resemble any of the distributions we've seen?
 ]
 
 ---
@@ -240,7 +245,7 @@ $Transitivity(G)=\frac{\text{#closed triads}}{\text{#triads}}$
 In other words it is the probability of two neighbors of the same node to also be connected.
 
 .insight[
-`r emo::ji("bulb")` What is that probability in the ER model? Reasonable?
+`r emoji("bulb")` What is that probability in the ER model? Reasonable?
 ]
 
 ```{python}
@@ -283,7 +288,7 @@ pd.DataFrame({
 ```
 
 .insight[
-`r emo::ji("bulb")` What famous phenomenon this could help explain?
+`r emoji("bulb")` What famous phenomenon this could help explain?
 ]
 
 ---
@@ -291,7 +296,7 @@ pd.DataFrame({
 ## The Giant Component
 
 .insight[
-`r emo::ji("bulb")` What is the size of the largest component with $p=0$?
+`r emoji("bulb")` What is the size of the largest component with $p=0$?
 
 What is the size of the largest component with $p=1$?
 ]
@@ -387,7 +392,7 @@ $c=-\frac{\ln(1-S)}{S}$
 
 ---
 
-```{python GCC-Size3, out.width="30%", echo=FALSE}
+```{python GCC-Size3, out.width="40%", echo=FALSE}
 s = np.linspace(0, 1, 101)
 plt.plot(s, -np.log(1-s)/s)
 plt.xlabel("S", fontsize=16)
@@ -400,7 +405,7 @@ We can see that around $c=1$ (or $p=1/n$) the size of the GCC starts increasing 
 It can be shown that around $c=\ln(n)$ (or $p=\frac{\ln(n)}{n}$) we expect the network to be fully connected.
 
 .insight[
-`r emo::ji("bulb")` So according to the ER model, for 1K nodes, a probability of 0.7% of an edge is enough to make the network connected. What do you think of that?
+`r emoji("bulb")` So according to the ER model, for 1K nodes, a probability of 0.7% of an edge is enough to make the network connected. What do you think of that?
 ]
 
 ---
@@ -494,6 +499,7 @@ pd.DataFrame({
 
 ```{python Degree-Hists2, echo=FALSE, fig.asp=0.5, out.width="80%"}
 plt.figure()
+fig, ax = plt.subplots(figsize=(10,6))
 plt.gcf().subplots_adjust(bottom=0.15)
 plt.subplot(1, 3, 1)
 degree_hist(E, xlabel='')
@@ -519,7 +525,7 @@ where $C=\frac{\alpha - 1}{x^{1-\alpha}_\text{min}}$
 and we can write: $f(x)=\frac{\alpha-1}{x_\text{min}}(\frac{x}{x_\text{min}})^{-\alpha}$
 
 .insight[
-`r emo::ji("bulb")` What do you need to check in order to verify this is a proper density function?
+`r emoji("bulb")` What do you need to check in order to verify this is a proper density function?
 ]
 
 ---
@@ -538,7 +544,7 @@ Where $E(X)$ converges only if $\alpha>2$.
 The MLE for $\alpha$ is: $\hat\alpha=1+\frac{n}{\sum_i\ln(\frac{x_i}{x_\text{min}})}$
 
 .warning[
-`r emo::ji("bulb")` The estimate for $x_\text{min}$ is not simply $min(X)$! With empirical data it is best advised to first estimate $x_\text{min}$, i.e. from *where* the distribution behaves like PL. See [Clauset et. al.](https://arxiv.org/abs/0706.1062) article and the [powerlaw](https://github.com/jeffalstott/powerlaw) library.
+`r emoji("bulb")` The estimate for $x_\text{min}$ is not simply $min(X)$! With empirical data it is best advised to first estimate $x_\text{min}$, i.e. from *where* the distribution behaves like PL. See [Clauset et. al.](https://arxiv.org/abs/0706.1062) article and the [powerlaw](https://github.com/jeffalstott/powerlaw) library.
 ]
 
 ---
@@ -586,6 +592,7 @@ pd.DataFrame({
 
 ```{python Degree-Hists3, echo=FALSE, fig.asp=0.5, out.width="100%"}
 res = plt.figure()
+fig, ax = plt.subplots(figsize=(10,6))
 plt.gcf().subplots_adjust(bottom=0.15)
 res = plt.subplot(1, 3, 1)
 degree_hist_with_pl_fit(E, alpha_e, dmin_e, xlabel='')
@@ -615,7 +622,7 @@ $f(mx)=C(mx)^{-\alpha}=Cm^{-\alpha}x^{-\alpha}=C'x^{-\alpha}\propto f(x)$
 Thus, $mX$ will distribute Power-Law with the same $\alpha$ parameter and a different constant.
 
 .insight[
-`r emo::ji("bulb")` How would $mX$ distribute if $X$ distributed Normal? Exponential?
+`r emoji("bulb")` How would $mX$ distribute if $X$ distributed Normal? Exponential?
 ]
 
 ---
@@ -662,8 +669,9 @@ legend("topright", legend = paste0("m=", 1:3), col = 1:3, lty = 1)
 
 Seeing the log-log transformation with our distributions should also result in a straight line with a slope roughly $-\alpha$:
 
-```{python Degree-Hists4, echo=FALSE, fig.asp=0.5, out.width="100%"}
+```{python Degree-Hists4, echo=FALSE, fig.asp=0.5, out.width="80%"}
 res = plt.figure()
+fig, ax = plt.subplots(figsize=(10,6))
 plt.gcf().subplots_adjust(bottom=0.15)
 res = plt.subplot(1, 3, 1)
 degree_hist_with_pl_fit_log_log(E, alpha_e, dmin_e, xlabel='')
@@ -674,7 +682,7 @@ degree_hist_with_pl_fit_log_log(H, alpha_h, dmin_h, xlabel='', ylabel='')
 plt.show()
 ```
 
-`r emo::ji("sad")`
+`r emoji("sad")`
 
 ---
 
@@ -702,7 +710,7 @@ As a result, the PL distribution is very good for modeling extreme distributions
 Also, if we sample from a typical PL distribution with $2<\alpha<3$ the value could be "anywhere" and isn't confined by a scale parameter
 
 .insight[
-`r emo::ji("bulb")` When sampling from a Normal distribution, we can expect in 95% of cases...
+`r emoji("bulb")` When sampling from a Normal distribution, we can expect in 95% of cases...
 ]
 
 ---
@@ -744,7 +752,7 @@ And this is how we get to the 80/20 rule without defining what wealthy is, the L
 <img src = "images/PL-Pareto-Rule.png" style="width: 100%">
 
 .insight[
-`r emo::ji("bulb")` The dashed line shows the empirical Lorenz curve for the wealthiest individuals in the USA (data from the Forbes, 2003)!
+`r emoji("bulb")` The dashed line shows the empirical Lorenz curve for the wealthiest individuals in the USA (data from the Forbes, 2003)!
 ]
 
 ---
@@ -763,8 +771,9 @@ P_eu, W_eu, WE_eu = lorenz_curve(Euro, alpha_eu)
 P_h, W_h, WE_h = lorenz_curve(H, alpha_h)
 ```
 
-```{python Lorenz-Curves, echo=FALSE, fig.asp=0.5, out.width="90%"}
+```{python Lorenz-Curves, echo=FALSE, fig.asp=0.5, out.width="70%"}
 res = plt.figure()
+fig, ax = plt.subplots(figsize=(10,6))
 plt.gcf().subplots_adjust(bottom=0.15)
 res = plt.subplot(1, 3, 1)
 plot_lorenz_curve(P_e, W_e, WE_e, xlabel='')
@@ -810,7 +819,7 @@ class: section-slide
 - We sample $n$ degrees from this distribution and continue as usual.
 
 .insight[
-`r emo::ji("bulb")` What if $p_{k_i}$ is Poisson? What if it is Power-Law?
+`r emoji("bulb")` What if $p_{k_i}$ is Poisson? What if it is Power-Law?
 ]
 
 Finally notice that as with the ER model, we get a *distribution* of networks from every sequence or degree-distribution specified. And this distribution of networks is Uniform!
@@ -820,7 +829,7 @@ Finally notice that as with the ER model, we get a *distribution* of networks fr
 ### Two issues
 
 .insight[
-`r emo::ji("bulb")` Try building a network with degree sequence $\{1,2,2\}$
+`r emoji("bulb")` Try building a network with degree sequence $\{1,2,2\}$
 ]
 
 1. If $m$ is no. of edges $\sum_i k_i = 2m$ --> the sum of degrees must be even! Even those sampled from $p_{k_i}$
@@ -833,14 +842,14 @@ Nothing preventing connecting nodes $i$ and $j$ more than once
 
 ## Configuration model In NetworkX
 
-```{python Configuration, out.width="50%"}
+```{python Configuration, out.width="40%"}
 G = nx.configuration_model([1,2,3,4,6])
 print(G.degree())
 nx.draw_networkx(G)
 plt.show()
 ```
 
-Unfortunately matplotlib cannot draw self edges easily `r emo::ji("swearing")`
+Unfortunately matplotlib cannot draw self edges easily `r emoji("swearing")`
 
 ---
 
@@ -971,7 +980,7 @@ In the ER model we found:
 <img src = "images/gcc_vs_c.png" style="width: 100%">
 
 .insight[
-`r emo::ji("bulb")` What is the maximum value $c$ can reach?
+`r emoji("bulb")` What is the maximum value $c$ can reach?
 ]
 
 In the Configuration model we find a similar pattern. It can be shown that once $E(D^2)>2E(D)$ (estimated by $\overline{D^2}>2\overline{D}$) the giant component starts forming, until the network is fully connected.
