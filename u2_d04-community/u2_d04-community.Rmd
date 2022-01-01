@@ -659,7 +659,10 @@ plt.show()
 
 [https://arxiv.org/abs/1810.08473](https://arxiv.org/abs/1810.08473)
 
-And see the [`leidenalg`](https://leidenalg.readthedocs.io/en/stable/index.html) package.
+The Leiden method is supposed to not only reach better quality results than Louvain (modularity and more), but is also much faster.
+
+You'll read about it in HW5, and see the [`leidenalg`](https://leidenalg.readthedocs.io/en/stable/index.html) package.
+
 ---
 
 class: section-slide
