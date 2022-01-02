@@ -4,8 +4,8 @@
     <title>The Trees</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-02-09" />
-    <script src="u3_d01-trees_files/header-attrs-2.6/header-attrs.js"></script>
+    <meta name="date" content="2022-01-02" />
+    <script src="u3_d01-trees_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-02-09
+### 2022-01-02
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -157,50 +157,50 @@ glimpse(okcupid2)
 ```
 ## Rows: 11,504
 ## Columns: 44
-## $ income                &lt;dbl&gt; -0.09691001, -0.69897000, -0.39794001, -0.522...
-## $ age                   &lt;dbl&gt; 35, 23, 28, 30, 29, 40, 31, 22, 35, 31, 21, 3...
-## $ height_cm             &lt;dbl&gt; 177.80, 180.34, 182.88, 167.64, 157.48, 180.3...
-## $ sex                   &lt;fct&gt; m, m, m, f, f, m, f, m, m, f, m, m, f, m, m, ...
-## $ body_type             &lt;fct&gt; average, thin, average, skinny, thin, fit, th...
-## $ body_type_not_perfect &lt;fct&gt; TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE...
-## $ diet2                 &lt;fct&gt; other, vegetarian, anything, anything, anythi...
-## $ drinks                &lt;fct&gt; often, socially, socially, socially, socially...
-## $ drugs                 &lt;fct&gt; sometimes, NA, never, never, never, NA, somet...
-## $ religion2             &lt;fct&gt; atheist, NA, christian, christian, christian,...
-## $ education2            &lt;fct&gt; other, student1, degree1, high_school, studen...
-## $ education_kind        &lt;fct&gt; working, working, graduated, graduated, worki...
-## $ education_academic    &lt;fct&gt; FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE...
-## $ ethnicity2            &lt;fct&gt; white, white, white, white, other, white, oth...
-## $ part_black            &lt;fct&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, NA,...
-## $ part_white            &lt;fct&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, NA, FALSE...
-## $ part_asian            &lt;fct&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, NA,...
-## $ part_hispanic         &lt;fct&gt; FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, NA, ...
-## $ job3                  &lt;fct&gt; travel, student, financial, marketing, other,...
-## $ orientation           &lt;fct&gt; straight, straight, straight, straight, strai...
-## $ pets_has_dogs         &lt;fct&gt; FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, NA, ...
-## $ pets_has_cats         &lt;fct&gt; FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, NA, ...
-## $ pets_likes_cats       &lt;fct&gt; TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, NA, NA,...
-## $ pets_likes_dogs       &lt;fct&gt; TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, NA, NA...
-## $ sign_fun              &lt;fct&gt; FALSE, FALSE, FALSE, NA, FALSE, TRUE, NA, FAL...
-## $ sign_not_matter       &lt;fct&gt; FALSE, FALSE, TRUE, NA, FALSE, FALSE, NA, TRU...
-## $ sign_matters          &lt;fct&gt; FALSE, FALSE, FALSE, NA, FALSE, FALSE, NA, FA...
-## $ sign2                 &lt;fct&gt; cancer, pisces, leo, NA, taurus, gemini, NA, ...
-## $ speaks_spanish        &lt;fct&gt; TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE...
-## $ speaks_french         &lt;fct&gt; TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE...
-## $ speaks_german         &lt;fct&gt; FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALS...
-## $ speaks_chinese        &lt;fct&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FAL...
-## $ status                &lt;fct&gt; single, single, seeing someone, single, singl...
-## $ essay0_len            &lt;dbl&gt; 6.538163, 3.713962, 7.336296, NA, NA, 6.97542...
-## $ essay1_len            &lt;dbl&gt; 3.951551, 3.713962, 6.095861, NA, 5.843591, 5...
-## $ essay2_len            &lt;dbl&gt; 4.564515, 4.605330, 6.109283, NA, 6.428131, 5...
-## $ essay3_len            &lt;dbl&gt; NA, 3.496992, 5.733393, NA, 4.204931, 4.89795...
-## $ essay4_len            &lt;dbl&gt; 5.517517, 5.327954, 6.278551, NA, 6.971684, 6...
-## $ essay5_len            &lt;dbl&gt; 5.723637, NA, 6.424895, NA, 4.812314, 5.25757...
-## $ essay6_len            &lt;dbl&gt; NA, 3.258712, 5.459654, NA, 4.709674, 5.43379...
-## $ essay7_len            &lt;dbl&gt; NA, NA, 4.709674, NA, 4.875319, 5.459654, 4.7...
-## $ essay8_len            &lt;dbl&gt; 3.9123430, NA, 4.5645148, NA, 4.5434650, 4.96...
-## $ essay9_len            &lt;dbl&gt; NA, 3.045284, 5.669936, NA, 3.784553, 8.13388...
-## $ id                    &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14...
+## $ income                &lt;dbl&gt; -0.09691001, -0.69897000, -0.39794001, -0.522878~
+## $ age                   &lt;dbl&gt; 35, 23, 28, 30, 29, 40, 31, 22, 35, 31, 21, 34, ~
+## $ height_cm             &lt;dbl&gt; 177.80, 180.34, 182.88, 167.64, 157.48, 180.34, ~
+## $ sex                   &lt;fct&gt; m, m, m, f, f, m, f, m, m, f, m, m, f, m, m, m, ~
+## $ body_type             &lt;fct&gt; average, thin, average, skinny, thin, fit, thin,~
+## $ body_type_not_perfect &lt;fct&gt; TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, F~
+## $ diet2                 &lt;fct&gt; other, vegetarian, anything, anything, anything,~
+## $ drinks                &lt;fct&gt; often, socially, socially, socially, socially, s~
+## $ drugs                 &lt;fct&gt; sometimes, NA, never, never, never, NA, sometime~
+## $ religion2             &lt;fct&gt; atheist, NA, christian, christian, christian, at~
+## $ education2            &lt;fct&gt; other, student1, degree1, high_school, student1,~
+## $ education_kind        &lt;fct&gt; working, working, graduated, graduated, working,~
+## $ education_academic    &lt;fct&gt; FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, F~
+## $ ethnicity2            &lt;fct&gt; white, white, white, white, other, white, other,~
+## $ part_black            &lt;fct&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, NA, FA~
+## $ part_white            &lt;fct&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, NA, FALSE, T~
+## $ part_asian            &lt;fct&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, NA, TR~
+## $ part_hispanic         &lt;fct&gt; FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, NA, FAL~
+## $ job3                  &lt;fct&gt; travel, student, financial, marketing, other, cr~
+## $ orientation           &lt;fct&gt; straight, straight, straight, straight, straight~
+## $ pets_has_dogs         &lt;fct&gt; FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, NA, NA,~
+## $ pets_has_cats         &lt;fct&gt; FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, NA, NA,~
+## $ pets_likes_cats       &lt;fct&gt; TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, NA, NA, TR~
+## $ pets_likes_dogs       &lt;fct&gt; TRUE, FALSE, FALSE, FALSE, TRUE, TRUE, NA, NA, T~
+## $ sign_fun              &lt;fct&gt; FALSE, FALSE, FALSE, NA, FALSE, TRUE, NA, FALSE,~
+## $ sign_not_matter       &lt;fct&gt; FALSE, FALSE, TRUE, NA, FALSE, FALSE, NA, TRUE, ~
+## $ sign_matters          &lt;fct&gt; FALSE, FALSE, FALSE, NA, FALSE, FALSE, NA, FALSE~
+## $ sign2                 &lt;fct&gt; cancer, pisces, leo, NA, taurus, gemini, NA, vir~
+## $ speaks_spanish        &lt;fct&gt; TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, F~
+## $ speaks_french         &lt;fct&gt; TRUE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, F~
+## $ speaks_german         &lt;fct&gt; FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, ~
+## $ speaks_chinese        &lt;fct&gt; FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,~
+## $ status                &lt;fct&gt; single, single, seeing someone, single, single, ~
+## $ essay0_len            &lt;dbl&gt; 6.538163, 3.713962, 7.336296, NA, NA, 6.975429, ~
+## $ essay1_len            &lt;dbl&gt; 3.951551, 3.713962, 6.095861, NA, 5.843591, 5.99~
+## $ essay2_len            &lt;dbl&gt; 4.564515, 4.605330, 6.109283, NA, 6.428131, 5.12~
+## $ essay3_len            &lt;dbl&gt; NA, 3.496992, 5.733393, NA, 4.204931, 4.897959, ~
+## $ essay4_len            &lt;dbl&gt; 5.517517, 5.327954, 6.278551, NA, 6.971684, 6.85~
+## $ essay5_len            &lt;dbl&gt; 5.723637, NA, 6.424895, NA, 4.812314, 5.257579, ~
+## $ essay6_len            &lt;dbl&gt; NA, 3.258712, 5.459654, NA, 4.709674, 5.433792, ~
+## $ essay7_len            &lt;dbl&gt; NA, NA, 4.709674, NA, 4.875319, 5.459654, 4.7275~
+## $ essay8_len            &lt;dbl&gt; 3.9123430, NA, 4.5645148, NA, 4.5434650, 4.96992~
+## $ essay9_len            &lt;dbl&gt; NA, 3.045284, 5.669936, NA, 3.784553, 8.133886, ~
+## $ id                    &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 1~
 ```
 
 ---
@@ -727,12 +727,12 @@ head(mod_tree$cptable)
 
 ```
 ##            CP nsplit rel error    xerror       xstd
-## 1 0.113597498      0 1.0000000 1.0003194 0.02238829
-## 2 0.048179174      1 0.8864025 0.8894647 0.02281825
-## 3 0.013140594      2 0.8382233 0.8423040 0.02365392
-## 4 0.010043056      3 0.8250827 0.8330971 0.02376901
-## 5 0.009147817      4 0.8150397 0.8257328 0.02376313
-## 6 0.005634308      5 0.8058919 0.8175822 0.02394374
+## 1 0.113597498      0 1.0000000 1.0004018 0.02238391
+## 2 0.048179174      1 0.8864025 0.8901778 0.02277755
+## 3 0.013140594      2 0.8382233 0.8447553 0.02364249
+## 4 0.010043056      3 0.8250827 0.8352090 0.02378235
+## 5 0.009147817      4 0.8150397 0.8276886 0.02390221
+## 6 0.005634308      5 0.8058919 0.8189309 0.02414362
 ```
 
 ---
@@ -980,8 +980,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_ctree_na)
 ```
 
 ```
-## RMSE: 0.363
-## CORR: 0.45
+## RMSE: 0.362
+## CORR: 0.453
 ```
 
 ---
@@ -1158,8 +1158,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_bag_na)
 ```
 
 ```
-## RMSE: 0.365
-## CORR: 0.439
+## RMSE: 0.367
+## CORR: 0.432
 ```
 
 ```r
@@ -1169,8 +1169,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_bag_mice)
 ```
 
 ```
-## RMSE: 0.365
-## CORR: 0.439
+## RMSE: 0.366
+## CORR: 0.437
 ```
 
 ---
@@ -1316,7 +1316,7 @@ report_rmse_and_cor(okcupid2_valid$income, pred_gbm_na)
 
 ```
 ## RMSE: 0.35
-## CORR: 0.508
+## CORR: 0.507
 ```
 
 ```r
@@ -1328,7 +1328,7 @@ report_rmse_and_cor(okcupid2_valid$income, pred_gbm_mice)
 
 ```
 ## RMSE: 0.352
-## CORR: 0.5
+## CORR: 0.499
 ```
 
 For variables importance see the `summary` function:
@@ -1366,8 +1366,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_xgboost_na)
 ```
 
 ```
-## RMSE: 0.354
-## CORR: 0.493
+## RMSE: 0.355
+## CORR: 0.487
 ```
 
 .warning[
@@ -1682,7 +1682,7 @@ report_accuracy_and_auc(okcupid3_valid$pets, pred_glm_glmnet[, 1])
 
 ```
 ## AUC: 0.738
-## ACC: 0.684
+## ACC: 0.685
 ## Dogs: Recall: 0.688
 ##       Precision: 0.909
 ## Cats: Recall: 0.67

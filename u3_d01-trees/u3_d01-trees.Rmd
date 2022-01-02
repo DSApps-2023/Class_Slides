@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 class: section-slide
@@ -375,7 +376,7 @@ report_rmse_and_cor(okcupid2_valid$income, pred_lm_mice)
 ```
 
 .insight[
-`r emo::ji("bulb")` Can you think of other imputation strategies?
+`r emoji("bulb")` Can you think of other imputation strategies?
 ]
 
 ---
@@ -475,7 +476,7 @@ class: section-slide
 - Variables can be ranked by "importance"
 
 .insight[
-`r emo::ji("bulb")` What if the best split isn't binary?
+`r emoji("bulb")` What if the best split isn't binary?
 ]
 
 ---
@@ -485,7 +486,7 @@ class: section-slide
 <img src="images/recursive_partitioning.png" style="width: 75%" />
 
 .insight[
-`r emo::ji("bulb")` Does this remind you of anything?
+`r emoji("bulb")` Does this remind you of anything?
 ]
 
 ---
@@ -546,7 +547,7 @@ p1 / p2
 ### The $SSE$ criterion - categorical predictor
 
 .insight[
-`r emo::ji("bulb")` What could be an issue with a categorical variable with many levels?
+`r emoji("bulb")` What could be an issue with a categorical variable with many levels?
 ]
 
 - a categorical predictor $l$ is nominated for splitting the current node
@@ -625,7 +626,7 @@ mod_tree <- prune(mod_tree, cp = 0.05)
 ```
 
 .warning[
-`r emo::ji("warning")` There is a $c_p$ parameter you can pass to `rpart` while training like so:
+`r emoji("warning")` There is a $c_p$ parameter you can pass to `rpart` while training like so:
 
 `rpart(income ~ ., data = okcupid2_train, control = rpart.control(cp = 0.05))`
 
@@ -807,7 +808,7 @@ enframe(mod_tree_na$variable.importance) %>%
 ```
 
 .insight[
-`r emo::ji("bulb")` How would this profile look for a couple of very correlated predictors?
+`r emoji("bulb")` How would this profile look for a couple of very correlated predictors?
 ]
 
 ---
@@ -1157,7 +1158,7 @@ mod_rf_mice$importance %>%
 ```
 
 .insight[
-`r emo::ji("bulb")` What is troubling about variable importance?
+`r emoji("bulb")` What is troubling about variable importance?
 ]
 ---
 
@@ -1219,7 +1220,7 @@ $\hat{y_i} = \overline{y} + \sum_{j=1}^m \lambda \cdot tree_j(\mbox{x}_i)$
 That is why GBT (or GBM) in general is called an additive model.
 
 .insight[
-`r emo::ji("bulb")` Where does "Gradient" come from?
+`r emoji("bulb")` Where does "Gradient" come from?
 ]
 
 - The added random sampling of the data was added later, this version is called *Stochastic* Gradient Boosting, the default for the parameter often called "bagging fraction" is 0.5
@@ -1264,7 +1265,7 @@ importance_mat %>%
 
 
 .insight[
-`r emo::ji("bulb")` Do you see the difference in the profile of importance between RF and GBT?
+`r emoji("bulb")` Do you see the difference in the profile of importance between RF and GBT?
 ]
 ---
 
@@ -1290,7 +1291,7 @@ report_rmse_and_cor(okcupid2_valid$income, pred_xgboost_na)
 ```
 
 .warning[
-`r emo::ji("warning")` Note that `xgboost` only accepts numeric input, that is why we use `data.matrix()`. Perhaps the order of the factors could be improved before they are turned into integers.
+`r emoji("warning")` Note that `xgboost` only accepts numeric input, that is why we use `data.matrix()`. Perhaps the order of the factors could be improved before they are turned into integers.
 ]
 
 ---
@@ -1560,7 +1561,7 @@ table(true_class, pred_class)
 ```
 
 .insight[
-`r emo::ji("bulb")` What would be the accuracy? Recall (sensitivity, specificity)? Precision (PPV, NPV)?
+`r emoji("bulb")` What would be the accuracy? Recall (sensitivity, specificity)? Precision (PPV, NPV)?
 ]
 
 ---
