@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 library(reticulate)
 ```
 
@@ -562,7 +563,7 @@ pred_manual[:3]
 
 ### Is that it?
 
-1. No `r emo::ji("happy")`
+1. No `r emoji("happy")`
 2. > The knee-jerk response from statisticians was "What's the big deal? A neural network is just another nonlinear model, not too different from many other generalizations of linear models". While this may be true, neural networks brought a new energy to the field. They could be scaled up and generalized in a variety of ways... and innovative learning algorithms for massive data sets."
 
 .font80percent[(*Computer Age Statistical Inference* by Bradley Efron & Trevor Hastie, p. 352)]
@@ -587,7 +588,7 @@ $\hat p_{i;c} = \text{softmax}(c,W_{(q+1)\text{x}C}, x_i)=\frac{e^{x_iw_c}}{\sum
 Where $x_i$ is the $i$th row of $X$ as before and $w_c$ is the $c$th row of $W^T$ (or $c$th column of $W$)
 
 .insight[
-`r emo::ji("bulb")` This would be equivalent to *multinomial logistic regression*!
+`r emoji("bulb")` This would be equivalent to *multinomial logistic regression*!
 ]
 
 ---
@@ -816,7 +817,7 @@ During each epoch, individual neurons are either "dropped out" of the net with p
 <img src="images/dropout.png" style="width: 60%" />
 
 .warning[
-`r emo::ji("warning")` During prediction no Dropout is performed, but neurons output is scaled by $p$ to make it identical to their expected outputs at training time.
+`r emoji("warning")` During prediction no Dropout is performed, but neurons output is scaled by $p$ to make it identical to their expected outputs at training time.
 ]
 
 ---
@@ -981,7 +982,7 @@ model.summary()
 ```
 
 .insight[
-`r emo::ji("bulb")` Are you at all worried?
+`r emoji("bulb")` Are you at all worried?
 ]
 ---
 
@@ -1037,10 +1038,10 @@ history = model.fit(X_train, y_train,
 
 See later the `history` object's many fields.
 
-```{python History, out.width="100%", fig.asp=0.5}
+```{python History, out.width="90%", fig.asp=0.5}
 import pandas as pd
 
-pd.DataFrame(history.history).plot()
+pd.DataFrame(history.history).plot(figsize=(10, 6))
 plt.grid(True)
 plt.show()
 ```
@@ -1170,7 +1171,7 @@ history = model.fit(X_train, y_train, batch_size=100, epochs=1, validation_split
 
 ---
 
-```{python}
+```{python, eval=FALSE}
 from tensorflow.keras import utils
 
 utils.plot_model(model, 'images/functional01.png', show_shapes=True)
@@ -1199,7 +1200,7 @@ model = Model(inputs=[image_input], outputs=[output_class, output_score])
 
 ---
 
-```{python}
+```{python, eval=FALSE}
 utils.plot_model(model, 'images/functional02.png', show_shapes=True)
 ```
 
@@ -1271,7 +1272,7 @@ model = Model(inputs=[image_input, extra_input],
 
 ---
 
-```{python}
+```{python, eval=FALSE}
 utils.plot_model(model, 'images/functional03.png', show_shapes=True)
 ```
 
