@@ -4,8 +4,8 @@
     <title>Recurrent Neural Networks</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-06-13" />
-    <script src="u4_d03-rnn_files/header-attrs-2.6/header-attrs.js"></script>
+    <meta name="date" content="2022-01-02" />
+    <script src="u4_d03-rnn_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-06-13
+### 2022-01-02
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -271,7 +271,7 @@ plot_series(X[1, :], 100, y[1], y_label="MMM")
 plt.show()
 ```
 
-&lt;img src="images/Fortune-Example-1.png" width="80%" /&gt;
+&lt;img src="images/Fortune-Example-3.png" width="70%" /&gt;
 
 ---
 
@@ -317,7 +317,7 @@ plt.ylabel('MSE-Loss'); plt.xlabel('Epoch')
 plt.show()
 ```
 
-&lt;img src="images/Loss-History-1.png" width="70%" /&gt;
+&lt;img src="images/Loss-History-5.png" width="60%" /&gt;
 
 ---
 
@@ -338,7 +338,7 @@ plt.ylabel('y_pred'); plt.xlabel('y_true')
 plt.show()
 ```
 
-&lt;img src="images/Scatter-Fit-1.png" width="50%" /&gt;
+&lt;img src="images/Scatter-Fit-7.png" width="50%" /&gt;
 
 .insight[
 💡 Are you surprised? How could we easily improve?
@@ -391,7 +391,7 @@ print(model.get_weights()[2], model.get_weights()[0], model.get_weights()[1])
 ```
 
 ```
-## [-0.05025313] [[0.8963843]] [[0.44938323]]
+## [-0.05025314] [[0.89638424]] [[0.4493833]]
 ```
 
 ```python
@@ -400,7 +400,7 @@ print(np.mean((y - y_pred) **2))
 ```
 
 ```
-## 0.04377151881286946
+## 0.04377151824928343
 ```
 
 ```python
@@ -408,7 +408,7 @@ plt.plot(history.history['loss'])
 plt.show()
 ```
 
-&lt;img src="images/SingleNeuron-Loss-1.png" width="50%" /&gt;
+&lt;img src="images/SingleNeuron-Loss-9.png" width="50%" /&gt;
 
 ---
 
@@ -419,7 +419,7 @@ plt.ylabel('y_pred'); plt.xlabel('y_true')
 plt.show()
 ```
 
-&lt;img src="images/SingleNeuron-Scatter-Fit-1.png" width="50%" /&gt;
+&lt;img src="images/SingleNeuron-Scatter-Fit-11.png" width="50%" /&gt;
 
 ---
 
@@ -489,7 +489,7 @@ print(np.mean((y - y_pred) **2))
 ```
 
 ```
-## 0.026084491948608103
+## 0.025966283960601952
 ```
 
 ```python
@@ -498,7 +498,7 @@ plt.ylabel('y_pred'); plt.xlabel('y_true')
 plt.show()
 ```
 
-&lt;img src="images/DeepRNN-Scatter-Fit-1.png" width="50%" /&gt;
+&lt;img src="images/DeepRNN-Scatter-Fit-13.png" width="50%" /&gt;
 
 .insight[
 💡 Though ~200 params for predicting 500 numbers... sounds a bit much.
@@ -980,13 +980,7 @@ lstm = Sequential([
   LSTM(n_cells, return_sequences=True),
   LSTM(1, activation='sigmoid')
 ])
-```
 
-```
-## WARNING:tensorflow:Layer lstm_1 will not use cuDNN kernel since it doesn't meet the cuDNN kernel criteria. It will use generic GPU kernel as fallback when running on GPU
-```
-
-```python
 lstm.compile(loss = 'binary_crossentropy',
   optimizer='adam', metrics='accuracy')
 ```

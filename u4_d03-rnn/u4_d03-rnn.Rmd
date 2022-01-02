@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 ```{python, echo=FALSE, message=FALSE, warning=FALSE}
@@ -86,11 +87,12 @@ class: section-slide
 
 ### What would be the price of GOOG tomorrow?
 
-```{python, echo=FALSE}
+```{python, echo=FALSE, out.width="60%"}
 import pandas as pd
 import matplotlib.pyplot as plt
 
 def plot_series(series, n_steps, y=None, y_pred=None, x_label="$t$", y_label="$x(t)$"):
+  plt.figure(figsize=(10, 5))
   plt.plot(series, ".-")
   if y is not None:
       plt.plot(n_steps, y, "bx", markersize=10)
@@ -136,7 +138,7 @@ Suppose we have a univariate time series $(x_{i1}, x_{i2}, ..., x_{iT})$ of $T$ 
 <img src="images/lr_nn_morelayers.png" style="width: 30%" />
 
 .insight[
-`r emo::ji("bulb")` What are the disadvantages of a regular network in this setting?
+`r emoji("bulb")` What are the disadvantages of a regular network in this setting?
 ]
 
 ---
@@ -186,7 +188,7 @@ The most basic Single-Neuron RNN would:
 <img src = "images/unrolling_neuron.png" style="width: 70%">
 
 .insight[
-`r emo::ji("bulb")` But how many parameters are we actually learning?
+`r emoji("bulb")` But how many parameters are we actually learning?
 
 What important NN principle is demonstrated here?
 ]
@@ -289,7 +291,7 @@ def backward(X, y, y_pred_arr, w):
 
 ### The Fortune500 Stocks
 
-```{python Fortune-Example, out.width = "80%", fig.asp=0.5}
+```{python Fortune-Example, out.width = "70%", fig.asp=0.5}
 df = pd.read_csv("../data/fortune500_100_days.csv")
 X = df.iloc[:, 1:].values
 y = X[:, -1]
@@ -318,7 +320,7 @@ np.mean((y - X[:, -1])**2)
 
 ### Training with our neuron
 
-```{python Loss-History, out.width = "70%", fig.asp=0.5}
+```{python Loss-History, out.width = "60%"}
 mses, w = single_rnn(X, y, epochs=1000, alpha=0.01)
 print(w)
 
@@ -340,7 +342,7 @@ plt.show()
 ```
 
 .insight[
-`r emo::ji("bulb")` Are you surprised? How could we easily improve?
+`r emoji("bulb")` Are you surprised? How could we easily improve?
 
 What would be a better aproach for this simple dataset?
 ]
@@ -439,7 +441,7 @@ plt.show()
 ```
 
 .insight[
-`r emo::ji("bulb")` Though ~200 params for predicting 500 numbers... sounds a bit much.
+`r emoji("bulb")` Though ~200 params for predicting 500 numbers... sounds a bit much.
 ]
 
 ---
@@ -671,7 +673,7 @@ np.convolve([0,1,2,1,0], [0.2,0.6,0.2][::-1], 'same')
 ```
 
 .insight[
-`r emo::ji("bulb")` Why would we want this?
+`r emoji("bulb")` Why would we want this?
 ]
 
 ---
@@ -773,7 +775,7 @@ lstm.compile(loss = 'binary_crossentropy',
 ```
 
 .insight[
-`r emo::ji("bulb")` So if RNN layer would have $l$ parameters, LSTM would have...?
+`r emoji("bulb")` So if RNN layer would have $l$ parameters, LSTM would have...?
 ]
 
 ---
