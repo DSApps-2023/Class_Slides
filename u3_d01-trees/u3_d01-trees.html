@@ -58,7 +58,7 @@ class: section-slide
 
 ## Pros
 
-- It's just a set of if-else statements my 7 y/o can get
+- It's just a set of if-else statements my ~~7~~ ~~8~~ 9 y/o can get
 - Highly interpretable (when tree is not large)
 - Easy to implement
 - Fast? (to predict)
@@ -727,12 +727,12 @@ head(mod_tree$cptable)
 
 ```
 ##            CP nsplit rel error    xerror       xstd
-## 1 0.113597498      0 1.0000000 1.0004018 0.02238391
-## 2 0.048179174      1 0.8864025 0.8901778 0.02277755
-## 3 0.013140594      2 0.8382233 0.8447553 0.02364249
-## 4 0.010043056      3 0.8250827 0.8352090 0.02378235
-## 5 0.009147817      4 0.8150397 0.8276886 0.02390221
-## 6 0.005634308      5 0.8058919 0.8189309 0.02414362
+## 1 0.113597498      0 1.0000000 1.0000930 0.02237966
+## 2 0.048179174      1 0.8864025 0.8895296 0.02276700
+## 3 0.013140594      2 0.8382233 0.8449979 0.02358206
+## 4 0.010043056      3 0.8250827 0.8335388 0.02366560
+## 5 0.009147817      4 0.8150397 0.8264539 0.02378065
+## 6 0.005634308      5 0.8058919 0.8149773 0.02394991
 ```
 
 ---
@@ -980,8 +980,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_ctree_na)
 ```
 
 ```
-## RMSE: 0.362
-## CORR: 0.453
+## RMSE: 0.365
+## CORR: 0.442
 ```
 
 ---
@@ -1158,8 +1158,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_bag_na)
 ```
 
 ```
-## RMSE: 0.367
-## CORR: 0.432
+## RMSE: 0.366
+## CORR: 0.438
 ```
 
 ```r
@@ -1169,8 +1169,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_bag_mice)
 ```
 
 ```
-## RMSE: 0.366
-## CORR: 0.437
+## RMSE: 0.364
+## CORR: 0.443
 ```
 
 ---
@@ -1315,8 +1315,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_gbm_na)
 ```
 
 ```
-## RMSE: 0.35
-## CORR: 0.507
+## RMSE: 0.351
+## CORR: 0.505
 ```
 
 ```r
@@ -1327,8 +1327,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_gbm_mice)
 ```
 
 ```
-## RMSE: 0.352
-## CORR: 0.499
+## RMSE: 0.353
+## CORR: 0.496
 ```
 
 For variables importance see the `summary` function:
@@ -1366,8 +1366,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_xgboost_na)
 ```
 
 ```
-## RMSE: 0.355
-## CORR: 0.487
+## RMSE: 0.358
+## CORR: 0.477
 ```
 
 .warning[
@@ -1682,11 +1682,11 @@ report_accuracy_and_auc(okcupid3_valid$pets, pred_glm_glmnet[, 1])
 
 ```
 ## AUC: 0.738
-## ACC: 0.685
-## Dogs: Recall: 0.688
-##       Precision: 0.909
-## Cats: Recall: 0.67
-##       Precision: 0.31
+## ACC: 0.687
+## Dogs: Recall: 0.691
+##       Precision: 0.91
+## Cats: Recall: 0.672
+##       Precision: 0.313
 ```
 
 ---
