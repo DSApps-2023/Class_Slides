@@ -4,8 +4,8 @@
     <title>Convolutional Neural Networks</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-02-23" />
-    <script src="u4_d02-cnn_files/header-attrs-2.6/header-attrs.js"></script>
+    <meta name="date" content="2022-01-02" />
+    <script src="u4_d02-cnn_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-02-23
+### 2022-01-02
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -131,7 +131,7 @@ plt.imshow(red,
 plt.show()
 ```
 
-&lt;img src="images/Logo-Red-1.png" width="100%" /&gt;
+&lt;img src="images/Logo-Red-3.png" width="100%" /&gt;
 
 ]
 
@@ -144,7 +144,7 @@ fig = plt.ylim(0, 1700000)
 plt.show()
 ```
 
-&lt;img src="images/Logo-Red-Hist-1.png" width="100%" /&gt;
+&lt;img src="images/Logo-Red-Hist-5.png" width="100%" /&gt;
 
 ]
 
@@ -162,7 +162,7 @@ plt.imshow(green,
 plt.show()
 ```
 
-&lt;img src="images/Logo-Green-1.png" width="100%" /&gt;
+&lt;img src="images/Logo-Green-7.png" width="100%" /&gt;
 
 ]
 
@@ -175,7 +175,7 @@ fig = plt.ylim(0, 1700000)
 plt.show()
 ```
 
-&lt;img src="images/Logo-Green-Hist-1.png" width="100%" /&gt;
+&lt;img src="images/Logo-Green-Hist-9.png" width="100%" /&gt;
 
 ]
 
@@ -193,7 +193,7 @@ plt.imshow(blue,
 plt.show()
 ```
 
-&lt;img src="images/Logo-Blue-1.png" width="100%" /&gt;
+&lt;img src="images/Logo-Blue-11.png" width="100%" /&gt;
 
 ]
 
@@ -206,7 +206,7 @@ fig = plt.ylim(0, 1700000)
 plt.show()
 ```
 
-&lt;img src="images/Logo-Blue-Hist-1.png" width="100%" /&gt;
+&lt;img src="images/Logo-Blue-Hist-13.png" width="100%" /&gt;
 
 ]
 
@@ -350,7 +350,7 @@ plt.imshow(
 plt.show()
 ```
 
-&lt;img src="images/NY-Orig-1.png" width="100%" /&gt;
+&lt;img src="images/NY-Orig-15.png" width="100%" /&gt;
 
 ]
 
@@ -364,7 +364,7 @@ plt.imshow(
 plt.show()
 ```
 
-&lt;img src="images/NY-Convolved-1.png" width="100%" /&gt;
+&lt;img src="images/NY-Convolved-17.png" width="100%" /&gt;
 
 ]
 
@@ -645,12 +645,12 @@ history = model.fit(X_train, y_train, batch_size=100, epochs=50,
 ```python
 import pandas as pd
 
-pd.read_csv(history.history).plot()
+pd.read_csv(history.history).plot(figsize=(10, 6))
 plt.grid(True)
 plt.show()
 ```
 
-&lt;img src="images/History-1.png" width="100%" /&gt;
+&lt;img src="images/History-19.png" width="90%" /&gt;
 
 ---
 
@@ -748,7 +748,7 @@ plt.imshow(W[:, :, 2, 0], cmap='gray');
 plt.show()
 ```
 
-&lt;img src="images/First-Filter-1.png" width="100%" /&gt;
+&lt;img src="images/First-Filter-21.png" width="100%" /&gt;
 
 ---
 
@@ -759,17 +759,10 @@ plt.show()
 cell = X_test[0, :, :, :].reshape(1, 100, 100, 3)
 
 plt.imshow(cell[0])
-```
-
-```
-## &lt;matplotlib.image.AxesImage object at 0x00000002A68DDB80&gt;
-```
-
-```python
 plt.show()
 ```
 
-&lt;img src="images/Cell-1.png" width="100%" /&gt;
+&lt;img src="images/Cell-23.png" width="100%" /&gt;
 
 ---
 
@@ -808,7 +801,7 @@ plt.show()
 
 ---
 
-&lt;img src="images/Feature-Maps-1.png" width="100%" /&gt;
+&lt;img src="images/Feature-Maps-25.png" width="100%" /&gt;
 
 ---
 
@@ -923,11 +916,11 @@ model = ResNet50(weights='imagenet')
 
 johann = imread('images/johann.jpg')
 
-fig = plt.imshow(johann)
-plt.show()
+fig, ax = plt.subplots(figsize=(5, 3))
+ax.imshow(johann)
 ```
 
-&lt;img src="images/Johann-1.png" width="672" /&gt;
+&lt;img src="images/Johann-27.png" width="480" /&gt;
 
 ---
 
@@ -940,13 +933,7 @@ johann = preprocess_input(johann)
 johann_pred = model.predict(johann)
 
 print(johann_pred.shape)
-```
 
-```
-## (1, 1000)
-```
-
-```python
 johann_breed = decode_predictions(johann_pred, top=5)
 
 for _, breed, score in johann_breed[0]:
@@ -1089,7 +1076,7 @@ print(np.mean(y_true == y_pred))
 ```
 
 ```
-## 0.625
+## 0.65
 ```
 
 ```python
@@ -1102,7 +1089,7 @@ pd.DataFrame(
 
 ```
 ##           pred:yes  pred:no
-## true:yes        14        6
+## true:yes        15        5
 ## true:no          9       11
 ```
 

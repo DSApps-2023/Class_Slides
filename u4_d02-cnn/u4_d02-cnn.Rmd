@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 ```{python, echo=FALSE, message=FALSE, warning=FALSE}
@@ -180,7 +181,7 @@ plt.show()
 ### Until Convolutional Networks
 
 .insight[
-`r emo::ji("bulb")` So how many features is that? `r emo::ji("laughing")` `r emo::ji("laughing")` `r emo::ji("laughing")`
+`r emoji("bulb")` So how many features is that? `r emoji("laughing")` `r emoji("laughing")` `r emoji("laughing")`
 ]
 
 - In 1998 LeCun et. al. published [LeNet-5](https://ieeexplore.ieee.org/abstract/document/726791) for digit recognition
@@ -273,7 +274,7 @@ $Z_{i,j} = b + \sum_{u=0}^{f_h-1}\sum_{v=0}^{f_w-1}X_{i+u,j+v}W_{u,v}$
 <img src="images/conv03.png" style="width: 100%" />
 
 .insight[
-`r emo::ji("bulb")` What low-level feature did this layer learn to look for? What pattern will make its neurons most positive (i.e. will "turn them on")?
+`r emoji("bulb")` What low-level feature did this layer learn to look for? What pattern will make its neurons most positive (i.e. will "turn them on")?
 ]
 
 ---
@@ -283,7 +284,7 @@ $Z_{i,j} = b + \sum_{u=0}^{f_h-1}\sum_{v=0}^{f_w-1}X_{i+u,j+v}W_{u,v}$
 <img src="images/conv04.png" style="width: 100%" />
 
 .insight[
-`r emo::ji("bulb")` What low-level feature did this layer learn to look for? What pattern will make its neurons most positive (i.e. will "turn them on")?
+`r emoji("bulb")` What low-level feature did this layer learn to look for? What pattern will make its neurons most positive (i.e. will "turn them on")?
 ]
 
 ---
@@ -400,7 +401,7 @@ Usually with strides $s_w=s_h=f_w=f_h$ and no padding (a.k.a `VALID`):
 Clearly we're losing info.
 
 .insight[
-`r emo::ji("bulb")` A 2x2 max pooling layer would reduce the size of the previous layer by how many percents?
+`r emoji("bulb")` A 2x2 max pooling layer would reduce the size of the previous layer by how many percents?
 ]
 
 But maybe sometimes it's a *good* thing to ignore some neurons? Where did we get this crazy idea from?
@@ -421,7 +422,7 @@ Images are different.
 - Stretching
 
 .insight[
-`r emo::ji("bulb")` Are there some images or applications you wouldn't want augmentations or at least should go about it very carefully?
+`r emoji("bulb")` Are there some images or applications you wouldn't want augmentations or at least should go about it very carefully?
 ]
 
 ---
@@ -538,7 +539,7 @@ model.summary()
 
 ---
 
-```{python}
+```{python, eval=FALSE}
 from tensorflow.keras import utils
 
 utils.plot_model(model, 'images/malaria_cnn.png', show_shapes=True);
@@ -577,15 +578,15 @@ np.save('y_pred.npy', y_pred)
 ```{python, eval=FALSE}
 import pandas as pd
 
-pd.read_csv(history.history).plot()
+pd.read_csv(history.history).plot(figsize=(10, 6))
 plt.grid(True)
 plt.show()
 ```
 
-```{python History, echo=FALSE, out.width="100%", fig.asp=0.5}
+```{python History, echo=FALSE, out.width="90%", fig.asp=0.5}
 import pandas as pd
 
-pd.read_csv('malaria_cnn_history.csv').plot();
+pd.read_csv('malaria_cnn_history.csv').plot(figsize=(10, 6));
 plt.grid(True)
 plt.show()
 ```
@@ -627,7 +628,7 @@ Watch me reach ~94% accuracy with 100% of the data in [Google Colab](https://col
 <img src = "images/malaria_cnn_history_100pct.png" style="width: 60%">
 
 .insight[
-`r emo::ji("bulb")` Think about the researchers seeing this for the first time in 2012...
+`r emoji("bulb")` Think about the researchers seeing this for the first time in 2012...
 ]
 
 ---
@@ -723,7 +724,6 @@ for _ in range(height):
 		_ = ax.set_yticks([])
 		_ = plt.imshow(feature_maps[0, :, :, ix-1], cmap='gray')
 		ix += 1
-plt.show()
 ```
 
 ---
@@ -810,7 +810,7 @@ See a Keras implementation e.g. [here](https://engmrk.com/alexnet-implementation
 - The signal is allowed to propagate through the layers
 
 .insight[
-`r emo::ji("bulb")` The model learning $H(X)$ will be forced to learn $H(X) - X$, hence *residual* learning.
+`r emoji("bulb")` The model learning $H(X)$ will be forced to learn $H(X) - X$, hence *residual* learning.
 ]
 
 ---
@@ -837,8 +837,8 @@ model = ResNet50(weights='imagenet')
 
 johann = imread('images/johann.jpg')
 
-fig = plt.imshow(johann)
-plt.show()
+fig, ax = plt.subplots(figsize=(5, 3))
+ax.imshow(johann)
 ```
 
 ---
@@ -1108,7 +1108,7 @@ pd.DataFrame(
 ```
 
 .warning[
-`r emo::ji("warning")` Bug in `ImageDataGenerator`?
+`r emoji("warning")` Bug in `ImageDataGenerator`?
 ]
 
 ---
