@@ -4,8 +4,8 @@
     <title>Topics in Regression</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-02-09" />
-    <script src="u3_d03-regtopics_files/header-attrs-2.6/header-attrs.js"></script>
+    <meta name="date" content="2022-01-02" />
+    <script src="u3_d03-regtopics_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-02-09
+### 2022-01-02
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2021.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -730,6 +730,12 @@ In general, `bs()` fits B-splines, which is a special paramterization of the sim
 
 ]
 
+.pull-right[
+
+&lt;img src = "images/richly_cover.jpg" style="width: 85%"&gt;
+
+]
+
 ---
 
 class: section-slide
@@ -1158,10 +1164,8 @@ These are `\(u_1\)` and `\(v_1\)`. To get the next pair of `\(u_2\)` and `\(v_2\
 Using the [`chorrrds`](https://r-music.rbind.io/posts/2018-08-19-chords-analysis-with-the-chorrrds-package/) package I scraped the Brazilian site [CifraClub](https://www.cifraclub.com.br/) for the chords and lyrics of thousands of Rock songs:
 
 
-
-
 ```r
-chords_lyrics &lt;-  read_rds(url(chords_url, "rb"))
+chords_lyrics &lt;-  read_rds("~/chords_lyrics.rds")
 X &lt;- chords_lyrics$X
 Y &lt;- chords_lyrics$Y
 

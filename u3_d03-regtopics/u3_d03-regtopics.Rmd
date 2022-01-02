@@ -41,6 +41,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 class: section-slide
@@ -132,7 +133,7 @@ plot(x1, pmax(0, x1 - 3), type = "l", main = "h(x-3)", xlab = "x", ylab = "h(x-3
 ```
 
 .insight[
-`r emo::ji("bulb")` If you know about Deep Learning this would be called...
+`r emoji("bulb")` If you know about Deep Learning this would be called...
 ]
 
 ---
@@ -158,7 +159,7 @@ summary(mod_mars)
 ```
 
 .insight[
-`r emo::ji("bulb")` Why on earth is the package for MARS called... `r emo::ji("person_facepalming")`
+`r emoji("bulb")` Why on earth is the package for MARS called... `r emoji("person_facepalming")`
 ]
 
 ---
@@ -258,13 +259,13 @@ Then the growing of trees algorithm is really...
 * Most important: NOT removing the parent $B_{m*}(X)$, we can always go back to the parent and split it *again*, allowing for additive models such as $\hat{y} = 6 + 5[-(x_1-4)]_+ - 2[+(x_2-3)]_+$
 
 .insight[
-`r emo::ji("bulb")` Can you do this with a tree?
+`r emoji("bulb")` Can you do this with a tree?
 ]
 
 * The generalized form is actually $[\pm(x-t)]^q_+$ where $q$ is usually 1 but *can be* 2 or 3
 
 .insight[
-`r emo::ji("bulb")` What if $q=0$?
+`r emoji("bulb")` What if $q=0$?
 ]
 
 ---
@@ -272,7 +273,7 @@ Then the growing of trees algorithm is really...
 * At each step of adding to $B_{m}(X)$ only variables which have not yet participated in this path are added
 
 .insight[
-`r emo::ji("bulb")` How is it different from trees and why do you think this was added?
+`r emoji("bulb")` How is it different from trees and why do you think this was added?
 ]
 
 * For "growing" and "pruning" the $LOF(g)$ used by MARS is $GCV$ (Generalized Cross Validation) which is a penalized version of $SSE$ which is out of scope
@@ -447,7 +448,7 @@ $\hat{y} = g(X) = \sum_m \beta_mB_m(X)$
 In general, $B_m(X)$ are sometimes called *basis functions* or *basis expansions* of $X$.
 
 .insight[
-`r emo::ji("bulb")` What would $B_m(X)$ be for polynomial regression?
+`r emoji("bulb")` What would $B_m(X)$ be for polynomial regression?
 ]
 
 For splines, **for a univariate $X$**, define a set of knots $\tau_1, ..., \tau_K$ in the range of $X$. Let each $B_k(X)$ be a polynomial of degree $d$ in the range $\tau_{k-1} < X \le \tau_k$ .font80percent[(where for the first and last knots we'll use the minimum and maximum of X for now)]
@@ -549,6 +550,12 @@ In general, `bs()` fits B-splines, which is a special paramterization of the sim
 
 ]
 
+.pull-right[
+
+<img src = "images/richly_cover.jpg" style="width: 85%">
+
+]
+
 ---
 
 class: section-slide
@@ -616,7 +623,7 @@ Though harder to interpret geometrically, it isn't that different:
 
 "We seek a few linear combinations of $X$ that would be closest to each of $Y$'s columns..."
 
-`r emo::ji("right_arrow")` But in case of multi-dimensional $Y$ could we not find linear combinations **of $Y$** that would be closest to linear combinations of $X$?
+`r emoji("right_arrow")` But in case of multi-dimensional $Y$ could we not find linear combinations **of $Y$** that would be closest to linear combinations of $X$?
 
 ---
 
@@ -914,12 +921,8 @@ $X'Y^{k+1} \leftarrow X'Y^{k} - u_1'X'Yv_1\cdot u_1\cdot v_1'$
 
 Using the [`chorrrds`](https://r-music.rbind.io/posts/2018-08-19-chords-analysis-with-the-chorrrds-package/) package I scraped the Brazilian site [CifraClub](https://www.cifraclub.com.br/) for the chords and lyrics of thousands of Rock songs:
 
-```{r, echo=FALSE}
-chords_url <- "https://raw.github.com/DSApps-2020/Class_Slides/master/data/chords_lyrics.rds"
-```
-
 ```{r}
-chords_lyrics <-  read_rds(url(chords_url, "rb"))
+chords_lyrics <-  read_rds("~/chords_lyrics.rds")
 X <- chords_lyrics$X
 Y <- chords_lyrics$Y
 
