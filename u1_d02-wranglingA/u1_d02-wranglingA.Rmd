@@ -525,5 +525,5 @@ okcupid %>%
 
 
 .insight[
-`r emoji("bulb")` for better living see `glue::glue("number of rows: {nrow(df)}")`
+`r emoji("bulb")` for better living see `glue::glue("number of rows: {nrow(df)}")` and `%T>%`
 ]

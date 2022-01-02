@@ -620,7 +620,7 @@ strings_vec %>% str_to_title()
 ```
 - No intermediate objects
 - Don't strive to make the longest possible pipe (though it is a fun experiment)
-- Tools exist for debugging
+- Tools exist for debugging (e.g. `%T>%`, the ViewPipeStep package, ...)
 
 ---
 
