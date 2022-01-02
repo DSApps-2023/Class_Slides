@@ -43,6 +43,7 @@ class: title-slide
 
 ```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(emoji)
 ```
 
 class: section-slide
@@ -91,7 +92,7 @@ tibble(x1 = x1, x2 = x2, y = factor(y)) %>%
   geom_abline(intercept =  a, slope = b) +
   xlim(c(-2.5, 2.5)) +
   ylim(c(-2.5, 2.5)) +
-  guides(color = FALSE) +
+  guides(color = "none") +
   geom_text(x = 0, y = 0, label = formula1,
             parse = FALSE, color = "black", size = 5) +
   theme_light() +
@@ -137,7 +138,7 @@ time-consuming, or expensive to obtain.
 ### Uncertainty Sampling
 
 .insight[
-`r emo::ji("bulb")` For a 2-class dataset, the observations your model is most uncertain of are...
+`r emoji("bulb")` For a 2-class dataset, the observations your model is most uncertain of are...
 ]
 
 ```{r AL-LR-Example2, ref.label = "AL-LR-Example", echo = FALSE, out.width = "50%", warning=FALSE}
@@ -157,7 +158,7 @@ So $\hat{y}_1 = \arg\max{P_{\theta}(y|x)}$ are the actual predicted classes, $\h
 $x^*_{LC} = \arg\min{P_{\theta}(\hat{y}_1|x)}$
 
 .insight[
-`r emo::ji("bulb")` For a 2-class balanced dataset, this means...
+`r emoji("bulb")` For a 2-class balanced dataset, this means...
 ]
 
 ---
@@ -167,7 +168,7 @@ $x^*_{LC} = \arg\min{P_{\theta}(\hat{y}_1|x)}$
 $x^*_M = \arg\min{P_{\theta}(\hat{y}_1|x) - P_{\theta}(\hat{y}_2|x)}$
 
 .insight[
-`r emo::ji("bulb")` For a 2-class balanced dataset, this means...
+`r emoji("bulb")` For a 2-class balanced dataset, this means...
 ]
 
 * Entropy: Choose the observations for which entropy is highest:
@@ -177,7 +178,7 @@ $x^*_H = \arg\max-{\sum_i P_{\theta}(\hat{y}_i|x) \log[P_{\theta}(\hat{y}_i|x)]}
 We will talk more about entropy in Neural Networks, let's minimize negative entropy.
 
 .insight[
-`r emo::ji("bulb")` For a 2-class balanced dataset, this means...
+`r emoji("bulb")` For a 2-class balanced dataset, this means...
 ]
 
 ---
@@ -221,6 +222,7 @@ sptfy_te <- testing(sptfy_split_obj)
 Plot twist! We only have 20 songs from each genre!
 
 ```{r}
+set.seed(1)
 sptfy_tr_small <- sptfy_tr %>%
   group_by(playlist_genre) %>%
   slice_sample(n = 20) %>%
@@ -620,7 +622,7 @@ active_learning_qbc <- function(qbc_metric, n = 100, iter = 5) {
 ```
 
 ```{r, echo=FALSE, eval=FALSE}
-n <- 10
+n <- 100
 n_seq <- seq(0, 5*n, n)
 simul_qbc <- bind_rows(
   tibble(qbc_metric = "vote entropy", n = n_seq,
@@ -693,7 +695,7 @@ ok_train %>%
 ```
 
 .insight[
-`r emo::ji("bulb")` What's a sure way to get 84% accuracy?
+`r emoji("bulb")` What's a sure way to get 84% accuracy?
 ]
 
 ---
@@ -976,7 +978,7 @@ $P(C_k|x_i) = \frac{P(x_i|C_k)P(C_k)}{P(x_i)}$
 In words: the likelihood of seeing an observation like $x_i$ in all class $C_k$ observations, times the prior of class $C_k$ observations, divided by the evidence seeing an observation like $x_i$ in general.
 
 .insight[
-`r emo::ji("bulb")` What increases $P(C_k|x_i)$? What decreases it?
+`r emoji("bulb")` What increases $P(C_k|x_i)$? What decreases it?
 ]
 
 But if we have, say 100 predictors, each categorical with 2 levels - we'd have to pre-compute $2^{100}$ possible for each $C_k$!
@@ -996,7 +998,7 @@ $P(C_k|x_i) = \frac{\prod P(x_{ij}|C_k)P(C_k)}{P(x_i)}$
 And we can further expand: $P(x_i) = \sum_k P(x_{i}|C_k)P(C_k)$
 
 .insight[
-`r emo::ji("bulb")` How would you compute $P(x_{ij}|C_k)$ when $x_{ij}$ is continuous?
+`r emoji("bulb")` How would you compute $P(x_{ij}|C_k)$ when $x_{ij}$ is continuous?
 ]
 
 ---
@@ -1059,7 +1061,7 @@ If you want to stay in the `tidymodels` framework you can download the `themis` 
 ---
 
 .warning[
-`r emo::ji("warning")` Never down-sample the testing set! Look at the `skip` parameter.
+`r emoji("warning")` Never down-sample the testing set! Look at the `skip` parameter.
 ]
 
 ```{r}
@@ -1156,7 +1158,7 @@ df %>% mutate(type = "Original") %>%
   geom_point() +
   xlim(c(-2.5, 2.5)) +
   ylim(c(-2.5, 2.5)) +
-  guides(color = FALSE) +
+  guides(color = "none") +
   theme_light() +
   theme(text = element_text(size = 10)) +
   facet_wrap(. ~ type)
