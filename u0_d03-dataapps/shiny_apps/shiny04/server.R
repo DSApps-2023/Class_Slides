@@ -22,6 +22,7 @@ server <- function(input, output) {
         theme_light()
     }
   )
+  
   output$plot <- renderPlot({
     if (is.null(rv$plot)) return()
     rv$plot

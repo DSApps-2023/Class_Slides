@@ -46,12 +46,207 @@ library(emoji)
 
 class: section-slide
 
-# Shiny in Five apps
+# Shiny in Four Apps
+
+---
+
+### Shiny
+
+Shiny is made in RStudio.
+
+Start with the [docs](https://shiny.rstudio.com/).
+
+Or go to Zev Ross 40 (!) apps [tutorial](http://zevross.com/blog/2016/04/19/r-powered-web-applications-with-shiny-a-tutorial-and-cheat-sheet-with-40-example-apps/).
+
+Or straight to God Himself:
+
+<img src="images/shiny_cover.png" style="width: 30%" />
+
+---
+
+### shiny01
+
+A single `app.R` file containing your frontend (`ui`) and backend (`server`):
+
+.pull-left[
+  <img src="images/shiny01_code.png" style="width: 90%" />
+]
+
+.pull-right[
+  <img src="images/shiny01_app.png" style="width: 85%" />
+]
+---
+
+### shiny02
+
+I recommend befriending the frontend (`ui`) first:
+
+.pull-left[
+  <img src="images/shiny02_code.png" style="width: 100%" />
+]
+
+.pull-right[
+  <img src="images/shiny02_app.png" style="width: 95%" />
+]
+
+---
+
+### shiny03
+
+Once it becomes too much we go modular.
+
+Backend (`server.R`) is where R does her thing.
+
+`observeEvent()` of slider changing to re-render a plot:
+
+.pull-left[
+  <img src="images/shiny03_code1.png" style="width: 100%" />
+]
+
+.pull-right[
+  <img src="images/shiny03_code2.png" style="width: 100%" />
+]
+
+---
+
+### shiny04
+
+.pull-left[
+  Use `reactiveValues()` to keep the state of dynamic objects:
+  
+  <img src="images/shiny04_code1.png" style="width: 100%" />
+]
+
+.pull-right[
+  Use `renderUI()` for dynamic UI:
+  
+  <img src="images/shiny04_code2.png" style="width: 100%" />
+  
+  <img src="images/shiny04_code3.png" style="width: 100%" />
+]
+
+---
+
+### Is that it?
+
+<img src="images/trixie-mattel-oh-honey.gif">
+
+---
+
+### Formulan
+
+<iframe src="https://gsimchoni.shinyapps.io/formulan" width="108%" height="75%", style="border:2px solid black;"></iframe>
+
+---
+
+### If you really want to be amazed
+
+Visit the annual RStudio Shiny [contest](https://www.rstudio.com/blog/winners-of-the-3rd-annual-shiny-contest/) and the Shiny [gallery](https://shiny.rstudio.com/gallery/).
 
 ---
 
 class: section-slide
 
-# Dash in Five apps
+# Dash in Four Apps
 
 ---
+
+### Dash
+
+Dash is made by Plotly, other than Python it works with R and Julia.
+
+It is much "closer" to JavaScript (advantage?)
+
+Start with the [docs](https://plotly.com/dash/).
+
+Another promising option is [Voila](https://voila.readthedocs.io/en/stable/index.html) by Jupyter.
+
+---
+
+### dash01
+
+A single `app.py` file containing your frontend (`layout`) and backend (`callbacks`):
+
+.pull-left[
+  <img src="images/dash01_code.png" style="width: 90%" />
+]
+
+.pull-right[
+  <img src="images/dash01_app.png" style="width: 85%" />
+]
+---
+
+### dash02
+
+I recommend befriending the frontend (`layout`) first:
+
+.pull-left[
+  <img src="images/dash02_code.png" style="width: 100%" />
+]
+
+.pull-right[
+  <img src="images/dash02_app.png" style="width: 95%" />
+]
+
+---
+
+### dash03
+
+Once it becomes too much we go modular.
+
+Backend (`callbacks.py`) is where Python does her thing.
+
+`@app.callback()` of slider changing to re-render a plot:
+
+.pull-left[
+  <img src="images/dash03_code1.png" style="width: 100%" />
+]
+
+.pull-right[
+  <img src="images/dash03_code2.png" style="width: 100%" />
+]
+
+---
+
+### dash04
+
+.pull-left[
+  There are no `reactiveValues` in Dash backend (AFAIK), but we can do multiple `Output`s/`Input`s and `State`s
+  
+  <img src="images/dash04_code1.png" style="width: 100%" />
+]
+
+.pull-right[
+  And rendering UI is very easy because every object's components are modifiable:
+  
+  <img src="images/dash04_code2.png" style="width: 100%" />
+  
+  <img src="images/dash04_code3.png" style="width: 100%" />
+]
+
+---
+
+### Is that it?
+
+<img src="images/trixie-mattel-oh-honey2.gif">
+
+---
+
+### If you really want to be amazed
+
+Visit the Dash [gallery](https://dash.gallery/Portal/).
+
+---
+
+### Summary
+
+Do I think you can replace the Front-end engineer at your organization? No.
+
+But you can certainly use data apps for:
+
+* Inside dashboards (everyone can access via company server or with Docker: Vivian)
+* Personal tools (RateImagesApp, Formulan)
+* Quick prototypes
+* Showing people in company how data/analysis looks like and letting them playing with it
+* Simulations
+* Model testing

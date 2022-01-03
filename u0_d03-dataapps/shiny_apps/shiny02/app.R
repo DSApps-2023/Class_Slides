@@ -1,8 +1,5 @@
 library(shiny)
-
 options_list <- c("R", "Python", "Go")
-
-server <- function(input, output) {}
 
 ui <- fluidPage(
 
@@ -17,8 +14,7 @@ ui <- fluidPage(
         textInput("text", "Write something", value = "Something"),
         radioButtons("radio", "Choose a single option:",
                      choices = c("a", "b", "c"),
-                     selected = "b")
-        ),
+                     selected = "b")),
 
         mainPanel(
           tabsetPanel(
@@ -29,10 +25,9 @@ ui <- fluidPage(
                      selectInput("dropdown", "Select:", options_list)
                      ), 
             tabPanel("Tabby"), 
-            tabPanel("Tabula")
-          )
-        )
-    )
+            tabPanel("Tabula"))))
 )
+
+server <- function(input, output) {}
 
 shinyApp(ui = ui, server = server)
