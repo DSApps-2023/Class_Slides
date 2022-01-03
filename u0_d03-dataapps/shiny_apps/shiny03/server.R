@@ -8,7 +8,7 @@ server <- function(input, output) {
         ggplot(mtcars %>% slice(1:input$slider1)) +
           aes(mpg, hp) + geom_point(size=5) +
           theme_light() +
-          title(main = "mtcars")
+          labs(title = "mtcars")
       )
     }
   )

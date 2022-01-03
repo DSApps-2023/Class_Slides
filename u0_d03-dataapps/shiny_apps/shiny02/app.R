@@ -14,10 +14,10 @@ ui <- fluidPage(
                     label = "Slider options",
                     min = 1, max = 50, value = 30),
         actionButton("button", "Update"),
-        textInput("text", "Write something"),
+        textInput("text", "Write something", value = "Something"),
         radioButtons("radio", "Choose a single option:",
                      choices = c("a", "b", "c"),
-                     selected = 2)
+                     selected = "b")
         ),
 
         mainPanel(
