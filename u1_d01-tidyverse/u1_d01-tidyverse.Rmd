@@ -63,7 +63,9 @@ class: section-slide
 - Speed and Scale
 - Modeling (there *is* a t-test, but the horror)
 
-[MS Excel might be the most dangerous software on the planet](https://www.forbes.com/sites/timworstall/2013/02/13/microsofts-excel-might-be-the-most-dangerous-software-on-the-planet/#667084f5633d) (Tim Worstall, Forbes)
+[Excel might be the most dangerous software on the planet](https://www.forbes.com/sites/timworstall/2013/02/13/microsofts-excel-might-be-the-most-dangerous-software-on-the-planet/#667084f5633d) (Forbes)
+
+[Excel horror stories](http://www.eusprig.org/index.htm)
 
 ---
 
