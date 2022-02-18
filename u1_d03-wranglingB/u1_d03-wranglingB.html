@@ -4,7 +4,7 @@
     <title>Tidy Data Wrangling - Part B</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-12-29" />
+    <meta name="date" content="2022-02-18" />
     <script src="u1_d03-wranglingB_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-12-29
+### 2022-02-18
 
 ---
 
@@ -866,8 +866,8 @@ microbenchmark(nchar_loop(), nchar_vectorized())
 ```
 ## Unit: nanoseconds
 ##                expr  min   lq  mean median   uq     max neval
-##        nchar_loop() 1900 2000 43623   2000 2100 4153700   100
-##  nchar_vectorized()  300  300 11247    400  400 1086000   100
+##        nchar_loop() 2400 2500 51413   2600 2600 4860600   100
+##  nchar_vectorized()  400  400 14257    500  500 1364800   100
 ```
 
 - So why should iterating through a `data.frame` columns or rows be any different?
@@ -1073,12 +1073,12 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;%
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          160. FALSE  
-## 2 f          155. FALSE  
-## 3 f          160. FALSE  
-## 4 m          188. TRUE   
-## 5 m          168. FALSE  
-## 6 m          175. FALSE
+## 1 f          173. TRUE   
+## 2 f          165. TRUE   
+## 3 f          150. FALSE  
+## 4 m          190. TRUE   
+## 5 m          173. FALSE  
+## 6 m          178. FALSE
 ```
 
 .font80percent[This specific example might not be *that* bad with `ifelse()`, what will you do with 5 variables?]
@@ -1105,12 +1105,12 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;% group_by(sex) %&gt;% slice
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          163. FALSE  
-## 2 f          170. TRUE   
-## 3 f          165. TRUE   
-## 4 m          170. FALSE  
-## 5 m          190. TRUE   
-## 6 m          185. TRUE
+## 1 f          157. FALSE  
+## 2 f          160. FALSE  
+## 3 f          150. FALSE  
+## 4 m          175. FALSE  
+## 5 m          173. FALSE  
+## 6 m          170. FALSE
 ```
 
 ---
