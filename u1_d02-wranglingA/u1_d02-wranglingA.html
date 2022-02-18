@@ -4,7 +4,7 @@
     <title>Tidy Data Wrangling - Part A</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-12-29" />
+    <meta name="date" content="2022-02-18" />
     <script src="u1_d02-wranglingA_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-12-29
+### 2022-02-18
 
 ---
 
@@ -843,20 +843,20 @@ okcupid %&gt;% select(drugs, age, income, sex) %&gt;%
 ```
 ## # A tibble: 12 x 4
 ## # Groups:   drugs [4]
-##    drugs       age  income sex  
-##    &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;
-##  1 never        30      NA f    
-##  2 never        22      NA m    
-##  3 never        24      NA f    
-##  4 often        21 1000000 m    
-##  5 often        20      NA f    
-##  6 often        29      NA m    
-##  7 sometimes    26   20000 f    
-##  8 sometimes    29      NA m    
-##  9 sometimes    42      NA m    
-## 10 &lt;NA&gt;         32      NA f    
-## 11 &lt;NA&gt;         44      NA m    
-## 12 &lt;NA&gt;         26      NA m
+##    drugs       age income sex  
+##    &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;
+##  1 never        38     NA m    
+##  2 never        39     NA f    
+##  3 never        41 250000 m    
+##  4 often        22  30000 f    
+##  5 often        23     NA m    
+##  6 often        24     NA f    
+##  7 sometimes    30  20000 f    
+##  8 sometimes    27     NA f    
+##  9 sometimes    25     NA f    
+## 10 &lt;NA&gt;         39     NA m    
+## 11 &lt;NA&gt;         41     NA f    
+## 12 &lt;NA&gt;         36     NA m
 ```
 
 ---
@@ -985,7 +985,7 @@ okcupid %&gt;%
 
 
 .insight[
-💡 for better living see `glue::glue("number of rows: {nrow(df)}")`
+💡 for better living see `glue::glue("number of rows: {nrow(df)}")` and `%T&gt;%`
 ]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
