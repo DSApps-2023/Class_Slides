@@ -428,7 +428,7 @@ migration %>%
 
 ---
 
-## It would have been much nicer to have:
+### It would have been much nicer to have:
 
 ```{r Migration4, eval=FALSE}
 migration %>%
@@ -886,11 +886,11 @@ essay0_features <- function(essay0) {
  list(
    essay0_love = contains_love,
    essay0_obama = contains_obama,
-   essay0_ser_rel = contains_rel
+   essay0_rel = contains_rel
  )
 }
 
-okcupid %>% select(essay0) %>% map_dfc(essay0_features)
+okcupid %>% select(essay0) %>% map_dfc(essay0_features) %>% head(4)
 # or: map_dfc(okcupid$essay0, essay0_features)
 ```
 

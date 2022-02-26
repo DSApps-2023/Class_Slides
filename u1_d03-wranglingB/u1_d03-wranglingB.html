@@ -4,7 +4,7 @@
     <title>Tidy Data Wrangling - Part B</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-02-18" />
+    <meta name="date" content="2022-02-26" />
     <script src="u1_d03-wranglingB_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-02-18
+### 2022-02-26
 
 ---
 
@@ -581,7 +581,7 @@ migration %&gt;%
 
 ---
 
-## It would have been much nicer to have:
+### It would have been much nicer to have:
 
 
 ```r
@@ -866,8 +866,8 @@ microbenchmark(nchar_loop(), nchar_vectorized())
 ```
 ## Unit: nanoseconds
 ##                expr  min   lq  mean median   uq     max neval
-##        nchar_loop() 2400 2500 51413   2600 2600 4860600   100
-##  nchar_vectorized()  400  400 14257    500  500 1364800   100
+##        nchar_loop() 2000 2000 37721   2100 2200 3557100   100
+##  nchar_vectorized()  300  300 10403    400  400 1001600   100
 ```
 
 - So why should iterating through a `data.frame` columns or rows be any different?
@@ -1073,12 +1073,12 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;%
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          173. TRUE   
-## 2 f          165. TRUE   
-## 3 f          150. FALSE  
-## 4 m          190. TRUE   
-## 5 m          173. FALSE  
-## 6 m          178. FALSE
+## 1 f          157. FALSE  
+## 2 f          163. FALSE  
+## 3 f          168. TRUE   
+## 4 m          185. TRUE   
+## 5 m          185. TRUE   
+## 6 m          180. TRUE
 ```
 
 .font80percent[This specific example might not be *that* bad with `ifelse()`, what will you do with 5 variables?]
@@ -1106,11 +1106,11 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;% group_by(sex) %&gt;% slice
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
 ## 1 f          157. FALSE  
-## 2 f          160. FALSE  
-## 3 f          150. FALSE  
-## 4 m          175. FALSE  
-## 5 m          173. FALSE  
-## 6 m          170. FALSE
+## 2 f          170. TRUE   
+## 3 f          165. TRUE   
+## 4 m          183. TRUE   
+## 5 m          180. TRUE   
+## 6 m          175. FALSE
 ```
 
 ---
@@ -1234,28 +1234,21 @@ essay0_features &lt;- function(essay0) {
  list(
    essay0_love = contains_love,
    essay0_obama = contains_obama,
-   essay0_ser_rel = contains_rel
+   essay0_rel = contains_rel
  )
 }
 
-okcupid %&gt;% select(essay0) %&gt;% map_dfc(essay0_features)
+okcupid %&gt;% select(essay0) %&gt;% map_dfc(essay0_features) %&gt;% head(4)
 ```
 
 ```
-## # A tibble: 59,946 x 3
-##    essay0_love essay0_obama essay0_ser_rel
-##    &lt;lgl&gt;       &lt;lgl&gt;        &lt;lgl&gt;         
-##  1 TRUE        FALSE        FALSE         
-##  2 TRUE        FALSE        FALSE         
-##  3 TRUE        FALSE        FALSE         
-##  4 FALSE       FALSE        FALSE         
-##  5 FALSE       FALSE        FALSE         
-##  6 TRUE        FALSE        FALSE         
-##  7 TRUE        FALSE        FALSE         
-##  8 NA          NA           NA            
-##  9 NA          NA           NA            
-## 10 TRUE        FALSE        FALSE         
-## # ... with 59,936 more rows
+## # A tibble: 4 x 3
+##   essay0_love essay0_obama essay0_rel
+##   &lt;lgl&gt;       &lt;lgl&gt;        &lt;lgl&gt;     
+## 1 TRUE        FALSE        FALSE     
+## 2 TRUE        FALSE        FALSE     
+## 3 TRUE        FALSE        FALSE     
+## 4 FALSE       FALSE        FALSE
 ```
 
 ```r
@@ -1277,18 +1270,18 @@ okcupid %&gt;%
 
 ```
 ## # A tibble: 59,946 x 6
-##      age sex   essay0                    essay0_love essay0_obama essay0_ser_rel
-##    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;                     &lt;lgl&gt;       &lt;lgl&gt;        &lt;lgl&gt;         
-##  1    22 m     "about me:&lt;br /&gt;\n&lt;br /&gt;~ TRUE        FALSE        FALSE         
-##  2    35 m     "i am a chef: this is wh~ TRUE        FALSE        FALSE         
-##  3    38 m     "i'm not ashamed of much~ TRUE        FALSE        FALSE         
-##  4    23 m     "i work in a library and~ FALSE       FALSE        FALSE         
-##  5    29 m     "hey how's it going? cur~ FALSE       FALSE        FALSE         
-##  6    29 m     "i'm an australian livin~ TRUE        FALSE        FALSE         
-##  7    32 f     "life is about the littl~ TRUE        FALSE        FALSE         
-##  8    31 f      &lt;NA&gt;                     NA          NA           NA            
-##  9    24 f      &lt;NA&gt;                     NA          NA           NA            
-## 10    37 m     "my names jake.&lt;br /&gt;\ni~ TRUE        FALSE        FALSE         
+##      age sex   essay0                        essay0_love essay0_obama essay0_rel
+##    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;                         &lt;lgl&gt;       &lt;lgl&gt;        &lt;lgl&gt;     
+##  1    22 m     "about me:&lt;br /&gt;\n&lt;br /&gt;\ni ~ TRUE        FALSE        FALSE     
+##  2    35 m     "i am a chef: this is what t~ TRUE        FALSE        FALSE     
+##  3    38 m     "i'm not ashamed of much, bu~ TRUE        FALSE        FALSE     
+##  4    23 m     "i work in a library and go ~ FALSE       FALSE        FALSE     
+##  5    29 m     "hey how's it going? current~ FALSE       FALSE        FALSE     
+##  6    29 m     "i'm an australian living in~ TRUE        FALSE        FALSE     
+##  7    32 f     "life is about the little th~ TRUE        FALSE        FALSE     
+##  8    31 f      &lt;NA&gt;                         NA          NA           NA        
+##  9    24 f      &lt;NA&gt;                         NA          NA           NA        
+## 10    37 m     "my names jake.&lt;br /&gt;\ni'm a~ TRUE        FALSE        FALSE     
 ## # ... with 59,936 more rows
 ```
 
