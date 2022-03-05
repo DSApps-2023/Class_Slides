@@ -687,7 +687,7 @@ read_rds("../data/blogs_mod_rf_te_pred.rds")
 
 ### Book (WIP?)
 
-<img src="images/tmwr.png" style="width: 70%" />
+<img src="images/tmwr.png" style="width: 45%" />
 
 https://www.tmwr.org/
 
