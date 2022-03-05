@@ -349,13 +349,13 @@ library(tidymodels)
 blogs_split_obj <- blogs_fb %>%
   initial_split(prop = 0.6)
 
+print(blogs_split_obj)
+
 blogs_tr <- training(blogs_split_obj)
 blogs_te <- testing(blogs_split_obj)
 
 glue("train no. of rows: {nrow(blogs_tr)}
      test no. of rows: {nrow(blogs_te)}")
-
-print(blogs_split_obj)
 ```
 
 ---
@@ -682,6 +682,15 @@ mod_rf_final %>%
 ```{r, echo=FALSE, message=FALSE}
 read_rds("../data/blogs_mod_rf_te_pred.rds")
 ```
+
+---
+
+### Book (WIP?)
+
+<img src="images/tmwr.png" style="width: 70%" />
+
+https://www.tmwr.org/
+
 ---
 
 class: section-slide
