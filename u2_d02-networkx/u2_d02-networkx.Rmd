@@ -619,7 +619,7 @@ We reached a 25x25 symmetric correlation matrix for 25 books:
 scifi_corr.values[:5, :5]
 ```
 
-Turn all upper traingle to `Nan`, so we'll get only 25 * 24 / 2 correlations:
+Turn all upper triangle to `Nan`, so we'll get only 25 * 24 / 2 correlations:
 
 ```{python}
 scifi_corr.values[np.triu_indices_from(scifi_corr.values)] = np.nan

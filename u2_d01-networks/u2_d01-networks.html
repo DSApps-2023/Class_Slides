@@ -4,7 +4,7 @@
     <title>Introduction to Networks</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-12-31" />
+    <meta name="date" content="2022-03-13" />
     <script src="u2_d01-networks_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-12-31
+### 2022-03-13
 
 ---
 
@@ -208,7 +208,7 @@ Many types of networks:
 
 ---
 
-## The networks we've seen
+#### The networks we've seen
 
 .font80percent[
 Network                    | Directed | Weighted | Connected | Self-edges | Acyclic | Time-Varied
@@ -228,23 +228,23 @@ Math Expression            |          |          |           |            |     
 
 ---
 
-## The networks we've seen
+#### The networks we've seen
 
 
 
 .font80percent[
 Network                    | Directed | Weighted | Connected | Self-edges | Acyclic | Time-Varied
 -------------------------- | -------- | -------- | --------- | ---------- | ------- | -----------
-Israeli Artists Coops      |          |          |    ✔️  |            |         | ✔️
-Gush Dan Trains            |          |          |    ✔️  |            |         | 
-Wikipedia Site Map         |  ✔️   |          |    weakly |            |  ✔️  | 
-Israeli Judges Connections |          |          |           |            |         | ✔️
-Worm Nervous System        |  ✔️   | ✔️    |    weakly |  ✔️     |         | 
-John Lennon Timeline       |  ✔️   |          |    weakly |            |  ✔️  | 😢
-Marvel Cinematic Universe  |          |          |    ✔️  |            |         | ✔️
-Sci-Fi Books               |          |  ✔️   |           |            |         | 
+Israeli Artists Coops      |          |          |    ✅  |            |         | ✅
+Gush Dan Trains            |          |          |    ✅  |            |         | 
+Wikipedia Site Map         |  ✅   |          |    weakly |            |  ✅  | 
+Israeli Judges Connections |          |          |           |            |         | ✅
+Worm Nervous System        |  ✅   | ✅    |    weakly |  ✅     |         | 
+John Lennon Timeline       |  ✅   |          |    weakly |            |  ✅  | 😭
+Marvel Cinematic Universe  |          |          |    ✅  |            |         | ✅
+Sci-Fi Books               |          |  ✅   |           |            |         | 
 Noordin Terrorist Net      |          |          |           |            |         | 
-Math Expression            |   ✔️  |          |    weakly |            | ✔️   | 
+Math Expression            |   ✅  |          |    weakly |            | ✅   | 
 
 ]
 
@@ -628,7 +628,7 @@ The weighted degree of a node in an undirected weighted network is the sum of ed
 
 In terms of adjacency matrix `\(A\)`:
 
-`\(deg(i) = k_i = \sum_{i=1}^n A_{ij}\)`
+`\(deg(i) = k_i = \sum_{j=1}^n A_{ij}\)`
 
 .insight[
 💡 Does this definition work for networks with multiedges or self-edges?

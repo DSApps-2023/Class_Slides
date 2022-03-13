@@ -210,7 +210,7 @@ Many types of networks:
 
 ---
 
-## The networks we've seen
+#### The networks we've seen
 
 .font80percent[
 Network                    | Directed | Weighted | Connected | Self-edges | Acyclic | Time-Varied
@@ -230,7 +230,7 @@ Math Expression            |          |          |           |            |     
 
 ---
 
-## The networks we've seen
+#### The networks we've seen
 
 ```{r Emojis, echo=FALSE}
 v <- emoji("check")
@@ -758,7 +758,7 @@ The weighted degree of a node in an undirected weighted network is the sum of ed
 
 In terms of adjacency matrix $A$:
 
-$deg(i) = k_i = \sum_{i=1}^n A_{ij}$
+$deg(i) = k_i = \sum_{j=1}^n A_{ij}$
 
 .insight[
 `r emoji("bulb")` Does this definition work for networks with multiedges or self-edges?

@@ -4,7 +4,7 @@
     <title>NetworkX</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-12-31" />
+    <meta name="date" content="2022-03-13" />
     <script src="u2_d02-networkx_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-12-31
+### 2022-03-13
 
 ---
 
@@ -805,7 +805,7 @@ scifi_corr.values[:5, :5]
 ##        [-0.2111842 ,  0.23530427,  0.48989795, -0.04082483,  1.        ]])
 ```
 
-Turn all upper traingle to `Nan`, so we'll get only 25 * 24 / 2 correlations:
+Turn all upper triangle to `Nan`, so we'll get only 25 * 24 / 2 correlations:
 
 
 ```python
@@ -1132,7 +1132,7 @@ list(cc)
 ```
 
 ```
-## [{'Journey to the Center of the Earth', 'The Hunger Games', 'The Dune Chronicles', 'Contact', 'Flowers for Algernon', 'The Lion, the Witch and the Wardrobe', 'Brave New World', 'World War Z', 'Babel 17', 'Solaris', "The Hitchhiker's Guide to the Galaxy", 'The Princess Bride', 'Watership Down', '2001: A Space Odyssey', 'American Gods', 'Harry Potter Series', "Ender's Game", "The Handmaid's Tale", 'A Song of Ice and Fire', 'The Lord of the Rings', 'Frankenstein', 'Twenty Thousand Leagues Under the Sea', 'I, Robot'}]
+## [{'Contact', 'Watership Down', "The Handmaid's Tale", 'The Princess Bride', 'Twenty Thousand Leagues Under the Sea', 'Harry Potter Series', 'Journey to the Center of the Earth', 'Brave New World', 'The Lion, the Witch and the Wardrobe', 'Flowers for Algernon', 'Solaris', 'The Hunger Games', 'Frankenstein', 'A Song of Ice and Fire', '2001: A Space Odyssey', 'The Dune Chronicles', "The Hitchhiker's Guide to the Galaxy", 'Babel 17', "Ender's Game", 'The Lord of the Rings', 'I, Robot', 'World War Z', 'American Gods'}]
 ```
 
 Get component of a specific node:
@@ -1143,7 +1143,7 @@ nx.node_connected_component(G, 'Contact')
 ```
 
 ```
-## {'Journey to the Center of the Earth', 'The Hunger Games', 'The Dune Chronicles', 'Contact', 'Flowers for Algernon', 'The Lion, the Witch and the Wardrobe', 'Brave New World', 'World War Z', 'Babel 17', 'Solaris', "The Hitchhiker's Guide to the Galaxy", 'The Princess Bride', 'Watership Down', '2001: A Space Odyssey', 'American Gods', 'Harry Potter Series', "Ender's Game", 'A Song of Ice and Fire', "The Handmaid's Tale", 'The Lord of the Rings', 'Frankenstein', 'Twenty Thousand Leagues Under the Sea', 'I, Robot'}
+## {'Contact', 'Watership Down', "The Handmaid's Tale", 'The Princess Bride', 'Twenty Thousand Leagues Under the Sea', 'Harry Potter Series', 'Journey to the Center of the Earth', 'Brave New World', 'The Lion, the Witch and the Wardrobe', 'Flowers for Algernon', 'Solaris', 'The Hunger Games', 'Frankenstein', 'A Song of Ice and Fire', '2001: A Space Odyssey', 'The Dune Chronicles', "The Hitchhiker's Guide to the Galaxy", 'Babel 17', "Ender's Game", 'The Lord of the Rings', 'I, Robot', 'World War Z', 'American Gods'}
 ```
 
 ---
