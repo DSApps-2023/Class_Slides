@@ -4,7 +4,7 @@
     <title>Network Metrics</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-12-31" />
+    <meta name="date" content="2022-03-18" />
     <script src="u2_d03-metrics_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-12-31
+### 2022-03-18
 
 ---
 
@@ -381,7 +381,7 @@ When `\(\tau(u,v) = 0\)` the contribution is "0/0" and is defined as zero.
 .insight[
 💡 What is assumed regarding the motivation for Betweenness centrality above?
 
-How would you "normalize" Betweeness to range from 0 to 1?
+How would you "normalize" Betweenness to range from 0 to 1?
 
 How would you imagine a node with high Betweenness (a *broker*) "looks like"?
 ]
@@ -521,11 +521,11 @@ nx.density(G)
 
 &lt;img src="images/transitivity.png" style="width: 50%" /&gt;
 
-If Virginia is friends with Ursula, and Ursula is friends with Winona, is Ursula friends with Winona? Is the `\(vuw\)` *connected triple* or *triad* a *closed triad*?
+If Virginia is friends with Ursula, and Ursula is friends with Winona, will Virginia be friends with Winona? Is the `\(vuw\)` *connected triple* or *triad* a *closed triad*?
 
 ---
 
-The graph *transitvity* is the proportion of closed triads or triangles out of all triads:
+The graph *transitivity* is the proportion of closed triads or triangles out of all triads:
 
 `\(Transitivity(G)=\frac{\text{#closed triads}}{\text{#triads}}=\frac{3 \text{x #triangles}}{\text{#triads}}=\frac{6 \text{x #triangles}}{\text{#paths of length 2}}\)`
 
@@ -640,10 +640,10 @@ pretty_print(sim_jaccard_top5)
 
 ```
 ## ('The Lion, the Witch and the Wardrobe', 'The Princess Bride'): 0.50
-## ("Ender's Game", 'I, Robot'): 0.50
-## ('Babel 17', '2001: A Space Odyssey'): 0.43
+## ('I, Robot', "Ender's Game"): 0.50
+## ('2001: A Space Odyssey', 'Babel 17'): 0.43
+## ('Brave New World', 'Solaris'): 0.43
 ## ('The Lord of the Rings', 'Journey to the Center of the Earth'): 0.43
-## ('Harry Potter Series', 'The Hunger Games'): 0.43
 ```
 
 ---

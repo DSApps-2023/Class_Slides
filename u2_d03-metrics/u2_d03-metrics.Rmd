@@ -293,7 +293,7 @@ When $\tau(u,v) = 0$ the contribution is "0/0" and is defined as zero.
 .insight[
 `r emoji("bulb")` What is assumed regarding the motivation for Betweenness centrality above?
 
-How would you "normalize" Betweeness to range from 0 to 1?
+How would you "normalize" Betweenness to range from 0 to 1?
 
 How would you imagine a node with high Betweenness (a *broker*) "looks like"?
 ]
@@ -408,11 +408,11 @@ nx.density(G)
 
 <img src="images/transitivity.png" style="width: 50%" />
 
-If Virginia is friends with Ursula, and Ursula is friends with Winona, is Ursula friends with Winona? Is the $vuw$ *connected triple* or *triad* a *closed triad*?
+If Virginia is friends with Ursula, and Ursula is friends with Winona, will Virginia be friends with Winona? Is the $vuw$ *connected triple* or *triad* a *closed triad*?
 
 ---
 
-The graph *transitvity* is the proportion of closed triads or triangles out of all triads:
+The graph *transitivity* is the proportion of closed triads or triangles out of all triads:
 
 $Transitivity(G)=\frac{\text{#closed triads}}{\text{#triads}}=\frac{3 \text{x #triangles}}{\text{#triads}}=\frac{6 \text{x #triangles}}{\text{#paths of length 2}}$
 
