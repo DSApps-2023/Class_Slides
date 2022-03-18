@@ -645,6 +645,10 @@ communities = louvain.best_partition(G) # returns a dict: node to community
 print(louvain.modularity(communities, G))
 ```
 
+.insight[
+`r emoji("bulb")` Oops, times they are a changing: In v2.7 see [`louvain_communities()`](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.louvain.louvain_communities.html#networkx.algorithms.community.louvain.louvain_communities)
+]
+
 ---
 ```{python Louvain, out.width="50%"}
 color_dict = {0: 'blue', 1: 'red', 2: 'green'}
