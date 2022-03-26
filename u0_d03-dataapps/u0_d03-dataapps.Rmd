@@ -236,6 +236,8 @@ Backend (`callbacks.py`) is where Python does her thing.
 
 Visit the Dash [gallery](https://dash.gallery/Portal/).
 
+Dockerize your app!
+
 ---
 
 ### Summary
