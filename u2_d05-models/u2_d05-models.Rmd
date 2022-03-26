@@ -790,7 +790,7 @@ plt.show()
 
 So we agree many large networks degree distributions behave Power-Law.
 
-- That is not a model of a how a network was formed, what process causes "scale-free" networks?
+- That is not a model of how a network was formed, what process causes "scale-free" networks?
 - How do all *other* network metrics behave? Do we see improvement where the ER model did not make sense?
 
 ---
@@ -849,7 +849,7 @@ nx.draw_networkx(G)
 plt.show()
 ```
 
-Unfortunately matplotlib cannot draw self edges easily `r emoji("swearing")`
+Unfortunately matplotlib cannot draw multi-edges easily `r emoji("swearing")`
 
 ---
 
