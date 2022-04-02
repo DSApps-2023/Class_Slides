@@ -4,7 +4,7 @@
     <title>The Trees</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-01-02" />
+    <meta name="date" content="2022-04-02" />
     <script src="u3_d01-trees_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-01-02
+### 2022-04-02
 
 ---
 
@@ -509,7 +509,7 @@ report_rmse_and_cor(okcupid2_valid$income, pred_lm_lasso)
 
 ```
 ## RMSE: 0.351
-## CORR: 0.506
+## CORR: 0.505
 ```
 
 ---
@@ -624,7 +624,7 @@ p1 / p2
 💡 What could be an issue with a categorical variable with many levels?
 ]
 
-- a categorical predictor `\(l\)` is nominated for splitting the current node
+- a categorical predictor `\(v\)` is nominated for splitting the current node
   - option 1: use dummy variables, turning each level into a 2-level 0/1 category variable
   - option 2: order levels by some criterion like `\(\overline{y_j}\)` and treat `\(l\)` as continuous from here on
 
@@ -727,12 +727,12 @@ head(mod_tree$cptable)
 
 ```
 ##            CP nsplit rel error    xerror       xstd
-## 1 0.113597498      0 1.0000000 1.0000930 0.02237966
-## 2 0.048179174      1 0.8864025 0.8895296 0.02276700
-## 3 0.013140594      2 0.8382233 0.8449979 0.02358206
-## 4 0.010043056      3 0.8250827 0.8335388 0.02366560
-## 5 0.009147817      4 0.8150397 0.8264539 0.02378065
-## 6 0.005634308      5 0.8058919 0.8149773 0.02394991
+## 1 0.113597498      0 1.0000000 1.0004474 0.02238962
+## 2 0.048179174      1 0.8864025 0.8900851 0.02278637
+## 3 0.013140594      2 0.8382233 0.8419405 0.02357595
+## 4 0.010043056      3 0.8250827 0.8354807 0.02371773
+## 5 0.009147817      4 0.8150397 0.8278775 0.02377594
+## 6 0.005634308      5 0.8058919 0.8161921 0.02411148
 ```
 
 ---
@@ -980,8 +980,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_ctree_na)
 ```
 
 ```
-## RMSE: 0.365
-## CORR: 0.442
+## RMSE: 0.361
+## CORR: 0.457
 ```
 
 ---
@@ -1158,8 +1158,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_bag_na)
 ```
 
 ```
-## RMSE: 0.366
-## CORR: 0.438
+## RMSE: 0.368
+## CORR: 0.428
 ```
 
 ```r
@@ -1169,8 +1169,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_bag_mice)
 ```
 
 ```
-## RMSE: 0.364
-## CORR: 0.443
+## RMSE: 0.367
+## CORR: 0.431
 ```
 
 ---
@@ -1316,7 +1316,7 @@ report_rmse_and_cor(okcupid2_valid$income, pred_gbm_na)
 
 ```
 ## RMSE: 0.351
-## CORR: 0.505
+## CORR: 0.506
 ```
 
 ```r
@@ -1327,8 +1327,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_gbm_mice)
 ```
 
 ```
-## RMSE: 0.353
-## CORR: 0.496
+## RMSE: 0.352
+## CORR: 0.501
 ```
 
 For variables importance see the `summary` function:
@@ -1366,8 +1366,8 @@ report_rmse_and_cor(okcupid2_valid$income, pred_xgboost_na)
 ```
 
 ```
-## RMSE: 0.358
-## CORR: 0.477
+## RMSE: 0.362
+## CORR: 0.457
 ```
 
 .warning[
@@ -1682,11 +1682,11 @@ report_accuracy_and_auc(okcupid3_valid$pets, pred_glm_glmnet[, 1])
 
 ```
 ## AUC: 0.738
-## ACC: 0.687
+## ACC: 0.688
 ## Dogs: Recall: 0.691
 ##       Precision: 0.91
-## Cats: Recall: 0.672
-##       Precision: 0.313
+## Cats: Recall: 0.674
+##       Precision: 0.314
 ```
 
 ---

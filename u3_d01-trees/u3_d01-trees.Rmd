@@ -550,7 +550,7 @@ p1 / p2
 `r emoji("bulb")` What could be an issue with a categorical variable with many levels?
 ]
 
-- a categorical predictor $l$ is nominated for splitting the current node
+- a categorical predictor $v$ is nominated for splitting the current node
   - option 1: use dummy variables, turning each level into a 2-level 0/1 category variable
   - option 2: order levels by some criterion like $\overline{y_j}$ and treat $l$ as continuous from here on
 
