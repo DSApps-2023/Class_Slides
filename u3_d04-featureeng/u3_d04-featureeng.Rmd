@@ -369,19 +369,19 @@ library(tidymodels)
 
 set.seed(42)
 ok_cutoff_split <- initial_split(okcupid_train,
-                                 strata = pets, prop = (729 - 1)/12729)
+                                 strata = pets, prop = (729 + 1)/12729)
 ok_tr_cutoff <- training(ok_cutoff_split)
 ok_train <- testing(ok_cutoff_split)
 
 set.seed(42)
 ok_missing_split <- initial_split(ok_train,
-                                  strata = pets, prop = (2000 - 1)/12000)
+                                  strata = pets, prop = (2000 + 1)/12000)
 ok_tr_missing <- training(ok_missing_split)
 ok_train <- testing(ok_missing_split)
 
 set.seed(42)
 ok_imbalance_split <- initial_split(ok_train,
-                                  strata = pets, prop = (2000 - 1)/10000)
+                                  strata = pets, prop = (2000 + 1)/10000)
 ok_tr_imbalance <- training(ok_imbalance_split)
 ok_train <- testing(ok_imbalance_split)
 ```
@@ -391,13 +391,13 @@ ok_train <- testing(ok_imbalance_split)
 ```{r, message=FALSE, warning=FALSE}
 set.seed(42)
 ok_interaction_split <- initial_split(ok_train,
-                                      strata = pets, prop = (2000 - 1)/8000)
+                                      strata = pets, prop = (2000 + 1)/8000)
 ok_tr_interaction <- training(ok_interaction_split)
 ok_train <- testing(ok_interaction_split)
 
 set.seed(42)
 ok_tuning_split <- initial_split(ok_train,
-                                  strata = pets, prop = (3000 - 1)/6000)
+                                  strata = pets, prop = 3000/6000)
 ok_tr_tuning <- training(ok_tuning_split)
 ok_tr_eng <- testing(ok_tuning_split)
 ```
@@ -1775,7 +1775,7 @@ recipe(pets ~ ., data = ok_tr_eng %>% select(pets, location)) %>%
 Make sure you get what just happened
 
 ```{r}
-mv <- ok_tr_eng$location == "mountain view, california"
+mv <- ok_tr_eng$location == "palo alto, california"
 p <- mean(ok_tr_eng$pets[mv] == "cats")
 log(p / (1 - p))
 ```

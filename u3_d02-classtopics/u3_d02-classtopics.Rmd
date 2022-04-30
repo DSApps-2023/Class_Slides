@@ -981,7 +981,7 @@ In words: the likelihood of seeing an observation like $x_i$ in all class $C_k$ 
 `r emoji("bulb")` What increases $P(C_k|x_i)$? What decreases it?
 ]
 
-But if we have, say 100 predictors, each categorical with 2 levels - we'd have to pre-compute $2^{100}$ possible for each $C_k$!
+But if we have, say 100 predictors, each categorical with 2 levels - we'd have to pre-compute $2^{100}$ possibilities for each $C_k$!
 
 ---
 
