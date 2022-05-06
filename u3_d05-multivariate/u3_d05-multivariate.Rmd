@@ -66,9 +66,11 @@ class: section-slide
 - Performance in ML:
   - (Especially for old-school models, old-school computation)
   - $p$ is so large we cannot apply our ML model of choice
-  - Models which suffer from Multicollinearity (which?)
+  - Features decorrelation: Models which suffer from multicollinearity (which?)
 
 - Feature Engineering!
+
+- Compression (images)
 
 ---
 
@@ -233,7 +235,7 @@ W2 %>%
 
 ---
 
-How much variance is "explained" by the PCs?
+How much variance is "explained" by the PCs? (Scree plot)
 
 ```{r VarExplained, out.width = "80%", fig.asp=0.5}
 ve <- tibble(PC = str_c("PC", 1:14),
@@ -335,9 +337,9 @@ Simplify a bit:
 
 - Assume $\varepsilon_i \sim N(0, \Psi_{p \times p})$ where $\Psi$ is assumed diagonal, and $t_i \sim N(0, I_K)$ (meaning...)
 
-- Let $\mu_i$ be the $p$-dimensional mean vector for each individual $i$
+- Let $\mu$ be the $p$-dimensional mean vector for all observations
 
-- then write the FA model: $x_i = Wt_i + \mu_i + \varepsilon_i$
+- then write the FA model: $x_i = Wt_i + \mu + \varepsilon_i$
 
 So $x_i$ is a linear combinations of $K$ factors, plus a mean, plus some normal error.
 
@@ -345,13 +347,13 @@ So $x_i$ is a linear combinations of $K$ factors, plus a mean, plus some normal 
 
 ### FA does not calculate. It estimates.
 
-Conditionally, $x_i | t_i \sim N(Wt_i + \mu_i, \Psi)$.
+Conditionally, $x_i | t_i \sim N(Wt_i + \mu, \Psi)$.
 
-Marginally, $x_i \sim N(\mu_i, V)$, where $V_{p \times p} = WW' + \Psi$ (communality + uniqueness).
+Marginally, $x_i \sim N(\mu, V)$, where $V_{p \times p} = WW' + \Psi$ (communality + uniqueness).
 
 Write the marginal log-likelihood: $L(\mu, W, \Psi | X) = -\frac{n}{2}[p\ln{(2\pi)} + \ln|V| + \text{tr}(V^{-1}S)]$,
 
-where $S$ is the covariance matrix of $X$: $S = \frac{1}{n}\sum_{i = 1}^{n} (x_i - \mu_i)(x_i - \mu_i)'$
+where $S$ is the covariance matrix of $X$: $S = \frac{1}{n}\sum_{i = 1}^{n} (x_i - \mu)(x_i - \mu)'$
 
 And find the MLE for $W, \Psi$ and predict $T$.
 

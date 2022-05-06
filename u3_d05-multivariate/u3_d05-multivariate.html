@@ -4,7 +4,7 @@
     <title>Intro. to Multivariate Methods</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-05-03" />
+    <meta name="date" content="2022-05-06" />
     <script src="u3_d05-multivariate_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-05-03
+### 2022-05-06
 
 ---
 
@@ -72,9 +72,11 @@ class: section-slide
 - Performance in ML:
   - (Especially for old-school models, old-school computation)
   - `\(p\)` is so large we cannot apply our ML model of choice
-  - Models which suffer from Multicollinearity (which?)
+  - Features decorrelation: Models which suffer from multicollinearity (which?)
 
 - Feature Engineering!
+
+- Compression (images)
 
 ---
 
@@ -156,9 +158,9 @@ pca$rotation
 ```
 
 ```
-##            PC1        PC2
-## [1,] 0.4968761 -0.8678215
-## [2,] 0.8678215  0.4968761
+##             PC1       PC2
+## [1,]  0.2102089 0.9776565
+## [2,] -0.9776565 0.2102089
 ```
 
 The PCs:
@@ -169,12 +171,12 @@ pca$x
 ```
 
 ```
-##             PC1         PC2
-## [1,] -1.3930344  0.15263059
-## [2,] -0.3149250 -0.03557521
-## [3,]  1.2366366 -0.43397509
-## [4,]  0.7888070  0.75812097
-## [5,] -0.3174843 -0.44120126
+##               PC1         PC2
+## [1,]  0.684627474  0.12599974
+## [2,] -0.707342887 -0.04205151
+## [3,]  1.372996749 -0.27440810
+## [4,] -1.342265222 -0.19657533
+## [5,] -0.008016114  0.38703520
 ```
 
 ---
@@ -187,7 +189,7 @@ pca$sdev ** 2 #compare with apply(pca$x, 2, var)
 ```
 
 ```
-## [1] 1.0730014 0.2455755
+## [1] 1.16397725 0.07034555
 ```
 
 Check R:
@@ -200,12 +202,12 @@ X_scaled %*% pca$rotation
 ```
 
 ```
-##             PC1         PC2
-## [1,] -1.3930344  0.15263059
-## [2,] -0.3149250 -0.03557521
-## [3,]  1.2366366 -0.43397509
-## [4,]  0.7888070  0.75812097
-## [5,] -0.3174843 -0.44120126
+##               PC1         PC2
+## [1,]  0.684627474  0.12599974
+## [2,] -0.707342887 -0.04205151
+## [3,]  1.372996749 -0.27440810
+## [4,] -1.342265222 -0.19657533
+## [5,] -0.008016114  0.38703520
 ```
 
 ---
@@ -218,9 +220,9 @@ eigen(t(X_scaled) %*% X_scaled)$vectors
 ```
 
 ```
-##           [,1]       [,2]
-## [1,] 0.4968761 -0.8678215
-## [2,] 0.8678215  0.4968761
+##            [,1]       [,2]
+## [1,] -0.2102089 -0.9776565
+## [2,]  0.9776565 -0.2102089
 ```
 
 
@@ -229,7 +231,7 @@ eigen(t(X_scaled) %*% X_scaled)$values / (5 - 1)
 ```
 
 ```
-## [1] 1.0730014 0.2455755
+## [1] 1.16397725 0.07034555
 ```
 
 .insight[
@@ -328,7 +330,7 @@ W2 %&gt;%
 
 ---
 
-How much variance is "explained" by the PCs?
+How much variance is "explained" by the PCs? (Scree plot)
 
 
 ```r
@@ -460,9 +462,9 @@ Simplify a bit:
 
 - Assume `\(\varepsilon_i \sim N(0, \Psi_{p \times p})\)` where `\(\Psi\)` is assumed diagonal, and `\(t_i \sim N(0, I_K)\)` (meaning...)
 
-- Let `\(\mu_i\)` be the `\(p\)`-dimensional mean vector for each individual `\(i\)`
+- Let `\(\mu\)` be the `\(p\)`-dimensional mean vector for all observations
 
-- then write the FA model: `\(x_i = Wt_i + \mu_i + \varepsilon_i\)`
+- then write the FA model: `\(x_i = Wt_i + \mu + \varepsilon_i\)`
 
 So `\(x_i\)` is a linear combinations of `\(K\)` factors, plus a mean, plus some normal error.
 
@@ -470,13 +472,13 @@ So `\(x_i\)` is a linear combinations of `\(K\)` factors, plus a mean, plus some
 
 ### FA does not calculate. It estimates.
 
-Conditionally, `\(x_i | t_i \sim N(Wt_i + \mu_i, \Psi)\)`.
+Conditionally, `\(x_i | t_i \sim N(Wt_i + \mu, \Psi)\)`.
 
-Marginally, `\(x_i \sim N(\mu_i, V)\)`, where `\(V_{p \times p} = WW' + \Psi\)` (communality + uniqueness).
+Marginally, `\(x_i \sim N(\mu, V)\)`, where `\(V_{p \times p} = WW' + \Psi\)` (communality + uniqueness).
 
 Write the marginal log-likelihood: `\(L(\mu, W, \Psi | X) = -\frac{n}{2}[p\ln{(2\pi)} + \ln|V| + \text{tr}(V^{-1}S)]\)`,
 
-where `\(S\)` is the covariance matrix of `\(X\)`: `\(S = \frac{1}{n}\sum_{i = 1}^{n} (x_i - \mu_i)(x_i - \mu_i)'\)`
+where `\(S\)` is the covariance matrix of `\(X\)`: `\(S = \frac{1}{n}\sum_{i = 1}^{n} (x_i - \mu)(x_i - \mu)'\)`
 
 And find the MLE for `\(W, \Psi\)` and predict `\(T\)`.
 
@@ -498,24 +500,24 @@ fa
 ## factanal(x = X, factors = 2, scores = "regression")
 ## 
 ## Uniquenesses:
-## [1] 0.005 0.795 0.891 0.005 0.954
+## [1] 0.692 0.005 0.005 0.615 0.741
 ## 
 ## Loadings:
 ##      Factor1 Factor2
-## [1,] -0.315   0.946 
-## [2,]  0.401  -0.210 
-## [3,]  0.115   0.310 
-## [4,]  0.997         
-## [5,]  0.196         
+## [1,]  0.415  -0.368 
+## [2,]  0.139   0.988 
+## [3,]  0.964   0.255 
+## [4,]  0.618         
+## [5,] -0.394   0.321 
 ## 
 ##                Factor1 Factor2
-## SS loadings      1.307   1.043
-## Proportion Var   0.261   0.209
-## Cumulative Var   0.261   0.470
+## SS loadings      1.659   1.283
+## Proportion Var   0.332   0.257
+## Cumulative Var   0.332   0.588
 ## 
 ## Test of the hypothesis that 2 factors are sufficient.
-## The chi square statistic is 0.14 on 1 degree of freedom.
-## The p-value is 0.711
+## The chi square statistic is 1.1 on 1 degree of freedom.
+## The p-value is 0.295
 ```
 
 ---
@@ -645,11 +647,11 @@ lm(Y ~ x1 + x2 + x3)
 ## lm(formula = Y ~ x1 + x2 + x3)
 ## 
 ## Coefficients:
-##              y1        y2      
-## (Intercept)  -0.01697   1.02580
-## x1            0.98819   2.01583
-## x2            2.05414   2.91387
-## x3            2.99320   3.96213
+##              y1       y2     
+## (Intercept)  0.01523  0.97343
+## x1           1.03092  2.05372
+## x2           1.98863  3.02121
+## x3           2.98822  4.00534
 ```
 
 Though harder to interpret geometrically, it isn't that different:
@@ -688,8 +690,8 @@ x'y: {format(t(x_scaled) %*% y_scaled, digits = 3)}")
 ```
 
 ```
-## pearson: 0.249
-## x'y: 0.249
+## pearson: 0.273
+## x'y: 0.273
 ```
 
 So the Pearson's `\(r\)` can be viewed as the dot product between `\(x\)` and `\(y\)`, when scaled.
@@ -746,8 +748,8 @@ b_y * s_x / s_y: {format(lm_yx$coef[2] * s_x/s_y, digits = 3)}; b_x * s_y / s_x:
 ```
 
 ```
-## pearson: 0.249
-## b_y * s_x / s_y: 0.249; b_x * s_y / s_x: 0.249
+## pearson: 0.273
+## b_y * s_x / s_y: 0.273; b_x * s_y / s_x: 0.273
 ```
 
 ---
