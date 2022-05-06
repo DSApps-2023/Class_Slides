@@ -416,6 +416,26 @@ We got a probabilistic interpretation to PCA!
 
 ---
 
+### Before you go
+
+Question: what do you do if you want to do PCA to on these data
+
+```{r Circle-PCA, out.width="45%", echo=FALSE}
+r <- 1
+s <- 0
+l <- 100
+tibble(x = r * cos(seq(s, s + 2 * pi, length.out = l)),
+       x1 = r * sin(seq(s, s + 2 * pi, length.out = l)) + rnorm(sd = 0.1, l)) %>% ggplot(aes(x, x1)) + geom_point() + theme_bw()
+```
+
+.insight[
+`r emoji("bulb")` Wrong answer: you die.
+
+Right answers: Kernel PCA, Auto-Encoders
+]
+
+---
+
 class: section-slide
 
 # CCA
