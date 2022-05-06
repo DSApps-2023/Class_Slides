@@ -74,6 +74,22 @@ class: section-slide
 
 ---
 
+### A Metaphor.
+
+You're in a corn field. You have no drone. Where do you stand to watch most corns?
+
+```{r Metaphor-PCA, out.width="50%", echo=FALSE}
+library(emoGG)
+
+tibble(x1 = runif(50),
+       x2 = 3 * x1 + rnorm(n = 50, sd = 1)) %>%
+  ggplot(aes(x1, x2)) +
+  geom_emoji(emoji="1f33d") +
+  theme_bw()
+```
+
+---
+
 ### Finding the First PC
 
 We wish to find a vector $t_1$, which is a linear transformation of $X$:
@@ -418,20 +434,21 @@ We got a probabilistic interpretation to PCA!
 
 ### Before you go
 
-Question: what do you do if you want to do PCA to on these data
+Question: Where do you "stand" now?
 
 ```{r Circle-PCA, out.width="45%", echo=FALSE}
 r <- 1
 s <- 0
 l <- 100
-tibble(x = r * cos(seq(s, s + 2 * pi, length.out = l)),
-       x1 = r * sin(seq(s, s + 2 * pi, length.out = l)) + rnorm(sd = 0.1, l)) %>% ggplot(aes(x, x1)) + geom_point() + theme_bw()
+tibble(x1 = r * cos(seq(s, s + 2 * pi, length.out = l)),
+       x2 = r * sin(seq(s, s + 2 * pi, length.out = l)) + rnorm(sd = 0.1, l)) %>%
+  ggplot(aes(x1, x2)) +
+  geom_emoji(emoji="1f33d") +
+  theme_bw()
 ```
 
 .insight[
-`r emoji("bulb")` Wrong answer: you die.
-
-Right answers: Kernel PCA, Auto-Encoders
+`r emoji("bulb")` Right answers: Kernel PCA, Auto-Encoders
 ]
 
 ---

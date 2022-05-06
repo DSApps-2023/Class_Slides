@@ -80,6 +80,14 @@ class: section-slide
 
 ---
 
+### A Metaphor.
+
+You're in a corn field. You have no drone. Where do you stand to watch most corns?
+
+&lt;img src="images/Metaphor-PCA-1.png" width="50%" /&gt;
+
+---
+
 ### Finding the First PC
 
 We wish to find a vector `\(t_1\)`, which is a linear transformation of `\(X\)`:
@@ -159,8 +167,8 @@ pca$rotation
 
 ```
 ##             PC1        PC2
-## [1,] -0.5994642  0.8004016
-## [2,] -0.8004016 -0.5994642
+## [1,] -0.2421897 -0.9702289
+## [2,] -0.9702289  0.2421897
 ```
 
 The PCs:
@@ -171,12 +179,12 @@ pca$x
 ```
 
 ```
-##              PC1         PC2
-## [1,] -0.06884047  0.16795961
-## [2,] -0.45657339 -0.71018795
-## [3,] -1.45965028  0.24358544
-## [4,]  1.58933166 -0.06310632
-## [5,]  0.39573248  0.36174922
+##             PC1        PC2
+## [1,] -0.6076875  0.3671156
+## [2,] -1.7658651 -0.5413065
+## [3,]  1.0664375 -0.4053781
+## [4,]  1.0540485 -0.5582421
+## [5,]  0.2530666  1.1378111
 ```
 
 ---
@@ -189,7 +197,7 @@ pca$sdev ** 2 #compare with apply(pca$x, 2, var)
 ```
 
 ```
-## [1] 1.256589 0.181689
+## [1] 1.4499784 0.5495916
 ```
 
 Check R:
@@ -202,12 +210,12 @@ X_scaled %*% pca$rotation
 ```
 
 ```
-##              PC1         PC2
-## [1,] -0.06884047  0.16795961
-## [2,] -0.45657339 -0.71018795
-## [3,] -1.45965028  0.24358544
-## [4,]  1.58933166 -0.06310632
-## [5,]  0.39573248  0.36174922
+##             PC1        PC2
+## [1,] -0.6076875  0.3671156
+## [2,] -1.7658651 -0.5413065
+## [3,]  1.0664375 -0.4053781
+## [4,]  1.0540485 -0.5582421
+## [5,]  0.2530666  1.1378111
 ```
 
 ---
@@ -221,8 +229,8 @@ eigen(t(X_scaled) %*% X_scaled)$vectors
 
 ```
 ##           [,1]       [,2]
-## [1,] 0.5994642 -0.8004016
-## [2,] 0.8004016  0.5994642
+## [1,] 0.2421897 -0.9702289
+## [2,] 0.9702289  0.2421897
 ```
 
 
@@ -231,7 +239,7 @@ eigen(t(X_scaled) %*% X_scaled)$values / (5 - 1)
 ```
 
 ```
-## [1] 1.256589 0.181689
+## [1] 1.4499784 0.5495916
 ```
 
 .insight[
@@ -500,24 +508,24 @@ fa
 ## factanal(x = X, factors = 2, scores = "regression")
 ## 
 ## Uniquenesses:
-## [1] 0.927 0.585 0.063 0.005 0.974
+## [1] 0.790 0.005 0.005 0.388 0.578
 ## 
 ## Loadings:
 ##      Factor1 Factor2
-## [1,]          0.266 
-## [2,] -0.261  -0.589 
-## [3,]  0.960   0.127 
-## [4,] -0.573   0.816 
-## [5,]  0.160         
+## [1,] -0.458         
+## [2,]          0.996 
+## [3,]  0.990  -0.124 
+## [4,] -0.697   0.354 
+## [5,]  0.236  -0.605 
 ## 
 ##                Factor1 Factor2
-## SS loadings      1.346   1.101
-## Proportion Var   0.269   0.220
-## Cumulative Var   0.269   0.489
+## SS loadings      1.734   1.500
+## Proportion Var   0.347   0.300
+## Cumulative Var   0.347   0.647
 ## 
 ## Test of the hypothesis that 2 factors are sufficient.
-## The chi square statistic is 0.56 on 1 degree of freedom.
-## The p-value is 0.454
+## The chi square statistic is 1.95 on 1 degree of freedom.
+## The p-value is 0.163
 ```
 
 ---
@@ -595,14 +603,12 @@ We got a probabilistic interpretation to PCA!
 
 ### Before you go
 
-Question: what do you do if you want to do PCA to on these data
+Question: Where do you "stand" now?
 
 &lt;img src="images/Circle-PCA-1.png" width="45%" /&gt;
 
 .insight[
-💡 Wrong answer: you die.
-
-Right answers: Kernel PCA, Auto-Encoders
+💡 Right answers: Kernel PCA, Auto-Encoders
 ]
 
 ---
@@ -661,11 +667,11 @@ lm(Y ~ x1 + x2 + x3)
 ## lm(formula = Y ~ x1 + x2 + x3)
 ## 
 ## Coefficients:
-##              y1        y2      
-## (Intercept)  -0.03484   1.01338
-## x1            1.02654   1.94519
-## x2            2.07513   2.99417
-## x3            3.03284   3.99401
+##              y1         y2       
+## (Intercept)  -0.001855   1.021494
+## x1            1.012582   1.987598
+## x2            2.029410   3.002766
+## x3            2.984605   3.980562
 ```
 
 Though harder to interpret geometrically, it isn't that different:
@@ -704,8 +710,8 @@ x'y: {format(t(x_scaled) %*% y_scaled, digits = 3)}")
 ```
 
 ```
-## pearson: 0.254
-## x'y: 0.254
+## pearson: 0.207
+## x'y: 0.207
 ```
 
 So the Pearson's `\(r\)` can be viewed as the dot product between `\(x\)` and `\(y\)`, when scaled.
@@ -762,8 +768,8 @@ b_y * s_x / s_y: {format(lm_yx$coef[2] * s_x/s_y, digits = 3)}; b_x * s_y / s_x:
 ```
 
 ```
-## pearson: 0.254
-## b_y * s_x / s_y: 0.254; b_x * s_y / s_x: 0.254
+## pearson: 0.207
+## b_y * s_x / s_y: 0.207; b_x * s_y / s_x: 0.207
 ```
 
 ---
@@ -842,7 +848,7 @@ Similarly, `\(v_1, ..., v_k\)` are the eigenvectors of the matrix `\(B = (Y'Y)^{
 ### The beauty of CCA
 
 CCA can be viewed as a unified framework for dimensionality reduction in multivariate data analysis, and it generalizes other methods:
-- If we let `\(X = Y\)` and change the constraints to be `\(u'u = 1\)` we get PCA, i.e. finding directions of maximum variance in `\(X\)` (or let `\(X\)` predict itself) 🤯
+- If we let `\(X = Y\)` and change the constraints to be `\(u'u = 1\)` we get PCA, i.e. finding directions of maximum variance in `\(X\)` (or let `\(X\)` predict itself) 😨
 - If we let `\(Y'Y = I\)` we get a result equivalent to multivariate linear regression
 - If `\(X'X = I\)` and `\(Y'Y = I\)` we get symmetrical Partial Least Squares (PLS), i.e. `\(u\)` and `\(v\)` would maximize the sample covariance `\(u'X'Yv\)`
 
