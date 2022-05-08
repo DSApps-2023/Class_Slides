@@ -9,20 +9,20 @@ true_df <- read_rds("C:/Users/gsimchoni/Downloads/ebay_women_shoes_test_with_pri
   select(id, price) %>%
   mutate(true = log(price))
 
-pred_df <- read_csv("C:/Users/gsimchoni/Downloads/model02.txt") %>%
+pred_df <- read_csv("C:/Users/gsimchoni/Downloads/model01.csv") %>%
   rename(pred = price_pred)
 
-bind_cols(true_df, pred_df) %>%
+inner_join(true_df, pred_df) %>%
   ggplot(aes(true, pred)) +
   geom_point(alpha = 0.5, color = "red") +
-  theme_classic()
+  theme_bw()
 
 rmse_vec(true_df$true, pred_df$pred)
 
 # update local copy of leaderboard
 leaderboard <- read_csv("leaderboard.csv")
 
-leaderboard <- bind_rows(leaderboard, list(Student="royinnplay", Model="model02",
+leaderboard <- bind_rows(leaderboard, list(Student="etayn", Model="model01",
                                            RMSE=rmse_vec(true_df$true, pred_df$pred)))
 leaderboard <- leaderboard %>% arrange(RMSE)
 leaderboard
