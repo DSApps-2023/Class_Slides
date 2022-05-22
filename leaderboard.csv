@@ -1,5 +1,5 @@
 Student,Model,RMSE
-OrFaina,model04_2,0.47452775889458987
+OrFaina,model04_2,0.4745277588945898
 OrFaina,model04,0.480209985517585
 OrFaina,model03,0.4829106595658227
 roihezkiyahu,model02,0.487755058
@@ -56,6 +56,7 @@ nivshazar,model03,0.6093412552049777
 etayn,model02,0.610102543
 DorisKogan,model01,0.6178472321017159
 yuvalAlfia,model01,0.618947237
+DorisKogan,model02,0.628174342863132
 nivshazar,model01,0.630923943
 gsimchoni,model01,0.6316467
 BatelRotem,model_01,0.661140403
