@@ -728,6 +728,10 @@ pred_manual = Z2_exp / Z2_exp_sum
 pred_manual[:3]
 ```
 
+.insight[
+`r emoji("bulb")` Say hi to the MLP (Multi-Layer Perceptron). Guess how long it's been around.
+]
+
 ---
 
 ### Activation Functions: Tanh
@@ -769,6 +773,12 @@ plt.show()
 
 ---
 
+### Activation Functions: Linear?
+
+See HW7.
+
+---
+
 class: section-slide
 
 # Add Regularization
@@ -779,7 +789,7 @@ class: section-slide
 
 You might have noticed neural networks intice you to add more and more params.
 
-Therefore, NN are infamous for overfitting the training data, and some kind of regulariztion is a must.
+Therefore, NN are infamous for overfitting the training data, and some kind of regularization is a must.
 
 Instead of minimizing some loss $L$ (e.g. Cross Entropy) we add a penalty to the weights: $\min_W{L(y, f(X; W)] + P(W)}$
 
@@ -890,7 +900,7 @@ from tensorflow import keras
 
 ### Malaria!
 
-The [Malaria](https://lhncbc.nlm.nih.gov/publication/pub9932) dataset contains over 27K (processed and segmented) cell images with equal instances of parasitized and uninfected cells, from hundreds of patients in Bangaladesh. The images were taken by a mobile application that runs on a standard Android smartphone attached to a conventional light microscope. The goal is "reduce the burden for microscopists in resource-constrained regions and improve diagnostic accuracy".
+The [Malaria](https://lhncbc.nlm.nih.gov/LHC-research/LHC-projects/image-processing/malaria-datasheet.html) dataset contains over 27K (processed and segmented) cell images with equal instances of parasitized and uninfected cells, from hundreds of patients in Bangaladesh. The images were taken by a mobile application that runs on a standard Android smartphone attached to a conventional light microscope. The goal is "reduce the burden for microscopists in resource-constrained regions and improve diagnostic accuracy".
 
 This dataset is part of the [`tensorflow_dataset`](https://www.tensorflow.org/datasets) library which gives you easy access to dozens of varied datasets.
 
@@ -1114,7 +1124,7 @@ print(0.6630000114440918)
 print({'lrt': 0.01678485252717544, 'n_hidden': 0, 'n_neurons': 15})
 ```
 
-See also sklearn's [`GridSearchCV()`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV) and [KerasTuner](https://blog.tensorflow.org/2020/01/hyperparameter-tuning-with-keras-tuner.html) for a more robust solution.
+See also sklearn's [`GridSearchCV()`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV) and [KerasTuner](https://keras.io/keras_tuner/) for a more robust solution.
 
 ---
 

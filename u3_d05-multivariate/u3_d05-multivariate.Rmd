@@ -67,6 +67,7 @@ class: section-slide
   - (Especially for old-school models, old-school computation)
   - $p$ is so large we cannot apply our ML model of choice
   - Features decorrelation: Models which suffer from multicollinearity (which?)
+  - Clustering (e.g. K-Means, community detection)
 
 - Feature Engineering!
 
