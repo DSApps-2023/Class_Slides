@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Intro to Autoencoders</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Giora Simchoni" />
+    <meta name="date" content="2022-05-28" />
+    <script src="u4_d04-autoencoders_files/header-attrs-2.11/header-attrs.js"></script>
+    <head>
+      <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
+      <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
+    </head>
+    <link rel="stylesheet" href="../slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+class: logo-slide
+
+---
+
+class: title-slide
+
+### Intro to Autoencoders
+
+### Applications of Data Science - Class 19
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com and add #dsapps in subject`
+
+### Stat. and OR Department, TAU
+### 2022-05-28
+
+---
+
+
+
+layout: true
+
+&lt;div class="my-footer"&gt;
+  &lt;span&gt;
+    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;/a&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+---
+
+
+
+
+
+class: section-slide
+
+# Stacked Autoencoders (SAE)
+
+#### (Heavily inspired by Geron 2019)
+
+---
+
+### Remember me? 😢
+
+`\(\max_{w_1}{w'_1X'Xw_1} \text{ s.t.} ||w_1|| = 1\)`
+
+PCA is a linear encoder. Sort of.
+
+&lt;img src="images/pca_in_nn.png" style="width: 75%" /&gt;
+
+---
+
+### NN "PCA"
+
+
+
+```python
+X_train = generate_3d_data(60)
+X_train = X_train - X_train.mean(axis=0, keepdims=0)
+```
+
+&lt;img src="images/3D-data-1.png" width="60%" /&gt;
+
+---
+
+
+
+
+```python
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+pca.fit(X_train)
+```
+
+```
+## PCA(n_components=2)
+```
+
+
+```python
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense, Flatten, Reshape
+
+encoder = Sequential([Dense(2, input_shape=[3])])
+decoder = Sequential([Dense(3, input_shape=[2])])
+autoencoder = Sequential([encoder, decoder])
+
+autoencoder.compile(loss='mse', optimizer='adam')
+
+*history = autoencoder.fit(X_train, X_train, epochs=20, verbose=0)
+```
+
+
+```python
+codings = encoder.predict(X_train)
+pcs = pca.transform(X_train)
+
+print(f'codings shape: {codings.shape}, pcs shape: {pcs.shape}')
+```
+
+```
+## codings shape: (60, 2), pcs shape: (60, 2)
+```
+
+---
+
+How did NN "PCA" do?
+
+
+```python
+plt.scatter(codings[:,0], codings[:, 1])
+plt.xlabel("$'PC'_1$", fontsize=18)
+plt.ylabel("$'PC'_2$", fontsize=18, rotation=0)
+plt.show()
+```
+
+&lt;img src="images/PCs-comparison0-3.png" width="50%" /&gt;
+
+---
+
+Is it PCA though?
+
+
+```python
+plt.scatter(pcs[:, 0], codings[:, 0])
+plt.show()
+```
+
+&lt;img src="images/PCs-comparison1-5.png" width="50%" /&gt;
+
+---
+
+Is it PCA though?
+
+
+```python
+plt.scatter(pcs[:, 1], codings[:, 1])
+plt.show()
+```
+
+&lt;img src="images/PCs-comparison2-7.png" width="50%" /&gt;
+
+.insight[
+💡 Can you make it PCA?
+]
+
+---
+
+Will non-linearity help?
+
+
+```python
+encoder = Sequential([Dense(20, input_shape=[3], activation='relu'),
+  Dense(2)])
+decoder = Sequential([Dense(20, input_shape=[2], activation='relu'),
+  Dense(3)])
+autoencoder = Sequential([encoder, decoder])
+autoencoder.compile(loss='mse', optimizer='adam')
+history = autoencoder.fit(X_train, X_train, epochs=20, verbose=0)
+```
+
+&lt;img src="images/PCs-comparison3-9.png" width="50%" /&gt;
+
+---
+
+### Stacked Autoencoders
+
+Stacked autoencoders have been around for NLPCA for over 30 years (see e.g. [Kramer 1991](https://aiche.onlinelibrary.wiley.com/doi/abs/10.1002/aic.690370209)).
+
+&lt;img src="images/ae.png" style="width: 75%" /&gt;
+
+---
+
+### SAE on FNIST
+
+
+
+
+```python
+from tensorflow.keras.datasets import fashion_mnist
+
+(X_train, y_train), (X_test, y_test) = fashion_mnist.load_data()
+X_train = X_train.astype(np.float32) / 255
+X_test = X_test.astype(np.float32) / 255
+
+stacked_encoder = Sequential([
+    Flatten(input_shape=[28, 28]),
+    Dense(100, activation="relu"),
+    Dense(30, activation="relu"),
+])
+stacked_decoder = Sequential([
+    Dense(100, activation="relu", input_shape=[30]),
+    Dense(28 * 28, activation="sigmoid"),
+    Reshape([28, 28])
+])
+stacked_ae = Sequential([stacked_encoder, stacked_decoder])
+
+stacked_ae.compile(loss='mse', optimizer='adam')
+
+history = stacked_ae.fit(X_train, X_train, epochs=20, verbose=1)
+```
+
+---
+
+Can it reconstruct?
+
+
+```python
+def show_reconstructions(sae, images, n_images=5):
+  reconstructions = sae.predict(images[:n_images])
+  fig = plt.figure(figsize=(n_images * 1.5, 3))
+  for image_index in range(n_images):
+      plt.subplot(2, n_images, 1 + image_index)
+      plt.imshow(images[image_index], cmap="binary")
+      plt.axis("off")
+      plt.subplot(2, n_images, 1 + n_images + image_index)
+      plt.imshow(reconstructions[image_index], cmap="binary")
+      plt.axis("off")
+
+show_reconstructions(stacked_ae, X_test)
+plt.show()
+```
+
+&lt;img src="images/SAE-recon-11.png" width="80%" /&gt;
+
+---
+
+Can it "denoise"?
+
+
+```python
+shoe_encoded = stacked_encoder.predict(X_test[np.newaxis, 0,:])
+shoe_encoded
+```
+
+```
+## array([[ 2.92097   , 10.338918  ,  0.        ,  1.4428661 ,  2.6388376 ,
+##          2.3139865 ,  2.5651445 ,  3.1734047 ,  3.2220273 ,  4.8254766 ,
+##          3.1547084 ,  3.3593066 ,  1.6458672 ,  2.6469245 ,  4.6263247 ,
+##          3.5413108 ,  1.239067  ,  9.445068  ,  0.75500596,  5.3597875 ,
+##          0.        ,  4.605066  , 10.533057  ,  4.6313896 ,  6.31067   ,
+##          3.82158   ,  6.353969  ,  3.82279   ,  3.3340364 ,  0.9221499 ]],
+##       dtype=float32)
+```
+
+
+```python
+shoe1 = stacked_decoder.predict(shoe_encoded)[0]
+```
+
+```
+## WARNING:tensorflow:5 out of the last 7 calls to &lt;function Model.make_predict_function.&lt;locals&gt;.predict_function at 0x0000000296A30E50&gt; triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has experimental_relax_shapes=True option that relaxes argument shapes that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+```
+
+```python
+shoe2 = stacked_decoder.predict(shoe_encoded +np.random.normal(scale=1))[0]
+shoe3 = stacked_decoder.predict(shoe_encoded +np.random.normal(scale=5))[0]
+```
+
+---
+
+
+```python
+fig, axes = plt.subplots(1, 3, figsize=(6, 3))
+axes[0].imshow(shoe1, cmap="binary")
+axes[1].imshow(shoe2, cmap="binary")
+axes[2].imshow(shoe3, cmap="binary")
+_ = axes[0].axis('off')
+_ = axes[1].axis('off')
+_ = axes[2].axis('off')
+plt.show()
+```
+
+&lt;img src="images/Shoe-decoded-13.png" width="80%" /&gt;
+
+---
+
+Can it average?
+
+
+```python
+shirt_encoded = stacked_encoder.predict(X_test[np.newaxis, 1,:])
+mean_encoded = (shoe_encoded + shirt_encoded) / 2
+
+fig, axes = plt.subplots(1, 3, figsize=(6, 3))
+_ = axes[0].imshow(X_test[0,:], cmap="binary")
+_ = axes[1].imshow(X_test[1,:], cmap="binary")
+_ = axes[2].imshow(stacked_decoder.predict(mean_encoded)[0], cmap="binary")
+_ = axes[0].axis('off')
+_ = axes[1].axis('off')
+_ = axes[2].axis('off')
+plt.show()
+```
+
+&lt;img src="images/Mean-decoded-15.png" width="80%" /&gt;
+
+---
+
+Can it **generate**?
+
+
+```python
+X_test_compressed = stacked_encoder.predict(X_test)
+mins = X_test_compressed.min(axis=0)
+maxs = X_test_compressed.max(axis=0)
+
+_ = plt.imshow(stacked_decoder.predict(
+  np.random.uniform(mins, maxs, size=30)[np.newaxis, :]
+  )[0], cmap="binary")
+_ = plt.axis('off')
+plt.show()
+```
+
+&lt;img src="images/Random-decoded-17.png" width="80%" /&gt;
+
+---
+
+class: section-slide
+
+# Variational Autoencoders (VAE)
+
+---
+
+How does SAE latent space look like?
+
+
+```python
+from sklearn.manifold import TSNE
+
+tsne = TSNE()
+X_test_2D = tsne.fit_transform(X_test_compressed)
+X_test_2D = (X_test_2D - X_test_2D.min()) / (X_test_2D.max() - X_test_2D.min())
+
+_ = plt.scatter(X_test_2D[:, 0], X_test_2D[:, 1], c=y_test, s=10, cmap='tab10')
+_ = plt.axis('off')
+plt.show()
+```
+
+&lt;img src="images/SAE-TSNE-19.png" style="width: 75%" /&gt;
+
+---
+
+### Road to VAE
+
+* The latent space has many "holes", it is "irregular"
+* If we sample from these areas and decode, we cannot expect to get a meaningful element in the input space, result would be **unlikely**
+* And why should we? Reconstruction loss is "king", it is overfitting! We not to regularize.
+
+&lt;img src="images/vae2.png" style="width: 75%" /&gt;
+
+.font80percent[Source: [Rocca 2019](https://towardsdatascience.com/understanding-variational-autoencoders-vaes-f70510919f73)]
+
+---
+
+### Road to VAE
+
+In a landmark paper, [Kingma &amp; Welling (2013)](https://arxiv.org/abs/1312.6114) suggest:
+
+* Suppose there's a latent variable (LV) `\(z\)`
+* The **probabilistic** encoder is defined by `\(p(z|x)\)`
+* The **probabilistic** decoder is defined by `\(p(x|z)\)`
+* Make `\(p(z)\)`, the prior of the LV, `\(N(0, I)\)` - so the posterior encoder `\(p(z|x)\)` cannot "run away"
+* Make `\(p(x|z)\)` be `\(N(f_{\theta}(z), \sigma^2I)\)` where `\(f\)` would be modeled by DNN
+
+* Goal: make the `\(x\)`'s produced by the decoder **likely**, i.e. maximize the marginal likelihood: `\(p(x) = \int p(x|z)p(z)dz\)`
+
+But what is the posterior `\(p(z|x)\)`?
+
+---
+
+### Variational Inference (VI)
+
+* A technique to approximate complex distributions (posteriors)
+* Set a parametrised family of distribution `\(q(z)\)` (for example the family of Gaussians)
+* Look for the best approximation of our target distribution among this family: `\(q(z) \approx p(z|x)\)`
+* The best element in the family is one that minimizes: `\(D_{KL}(q(z)||p(z|x)) = \int q(z) \log \frac{q(z)}{p(z|x)}\)` 
+* Mark `\(q\)` as `\(q(z|x)\)`, so that this "family" would be `\(N(g_{\eta}(x), h_{\psi}(x))\)`
+* This is how it will depend on the data `\(x\)`, and `\(g, h\)` will be found with the encoder network, minimizing the KL loss
+
+---
+
+Now dig this:
+
+$$
+`\begin{align}
+D_{KL}(q(z|x)||p(z|x)) &amp;= \int q(z|x) \log \frac{q(z|x)}{p(z|x)} \\ 
+&amp;= E_q[\log(q(z|x)) - \log(p(z|x))] \\
+&amp;= E_q[\log(q(z|x)) - \log \frac{p(z)p(x|z)}{p(x)}] \\
+&amp;= E_q[\log(q(z|x)) - \log(p(z))] \\
+&amp; - E_q[\log(p(x|z))] + \log(p(x)) \\
+&amp;= D_{KL}(q(z|x) || p(z)) - E_q[\log(p(x|z))] + \log(p(x))
+\end{align}`
+$$
+
+But we want to maximize `\(p(x)\)`!
+
+---
+
+When writing
+
+$$
+\log(p(x)) - D_{KL}(q(z|x)||p(z|x)) = E_q[\log(p(x|z))] - D_{KL}(q(z|x) || p(z)),
+$$
+
+we see that maximizing log-likelihood `\(\log(p(x))\)` combined with minimizing KL-divergence `\(D_{KL}(q(z|x)||p(z|x))\)` boils down to maximizing the RHS or maximizing the **Evidence Lower BOund**:
+
+$$
+ELBO(\theta, \eta, \psi|X) = E_q[\log(p(x|z))] - D_{KL}(q(z|x) || p(z))
+$$
+
+Which is called like this since `\(D_{KL} \ge 0\)` always, so `\(log(p(x)) \ge ELBO\)`, it is an "evidence lower bound".
+
+Turning this to a loss function we need to minimize: 
+
+$$
+-ELBO(\theta_f, \theta_g, \theta_h|X) = -E_q[\log(p(x|z))] + D_{KL}(q(z|x) || p(z))
+$$
+
+---
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="../libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
