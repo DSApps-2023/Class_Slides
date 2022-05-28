@@ -270,7 +270,7 @@ shoe1 = stacked_decoder.predict(shoe_encoded)[0]
 ```
 
 ```
-## WARNING:tensorflow:5 out of the last 7 calls to &lt;function Model.make_predict_function.&lt;locals&gt;.predict_function at 0x0000000296A30E50&gt; triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has experimental_relax_shapes=True option that relaxes argument shapes that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+## WARNING:tensorflow:5 out of the last 7 calls to &lt;function Model.make_predict_function.&lt;locals&gt;.predict_function at 0x0000000276CD0E50&gt; triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has experimental_relax_shapes=True option that relaxes argument shapes that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
 ```
 
 ```python
@@ -398,6 +398,10 @@ But what is the posterior `\(p(z|x)\)`?
 * Mark `\(q\)` as `\(q(z|x)\)`, so that this "family" would be `\(N(g_{\eta}(x), h_{\psi}(x))\)`
 * This is how it will depend on the data `\(x\)`, and `\(g, h\)` will be found with the encoder network, minimizing the KL loss
 
+.insight[
+💡 Our encoder finds means and variances for a distribution! When we have them we would sample from that distribution.
+]
+
 ---
 
 Now dig this:
@@ -417,27 +421,218 @@ But we want to maximize `\(p(x)\)`!
 
 ---
 
-When writing
+When writing:
 
-$$
-\log(p(x)) - D_{KL}(q(z|x)||p(z|x)) = E_q[\log(p(x|z))] - D_{KL}(q(z|x) || p(z)),
-$$
+`\(\log(p(x)) - D_{KL}(q(z|x)||p(z|x)) = E_q[\log(p(x|z))] - D_{KL}(q(z|x) || p(z))\)`
 
 we see that maximizing log-likelihood `\(\log(p(x))\)` combined with minimizing KL-divergence `\(D_{KL}(q(z|x)||p(z|x))\)` boils down to maximizing the RHS or maximizing the **Evidence Lower BOund**:
 
-$$
-ELBO(\theta, \eta, \psi|X) = E_q[\log(p(x|z))] - D_{KL}(q(z|x) || p(z))
-$$
+`\(ELBO(\theta, \eta, \psi|X) = E_q[\log(p(x|z))] - D_{KL}(q(z|x) || p(z))\)`
 
-Which is called like this since `\(D_{KL} \ge 0\)` always, so `\(log(p(x)) \ge ELBO\)`, it is an "evidence lower bound".
+Which is called like this since `\(D_{KL} \ge 0\)` always, so `\(log(p(x)) \ge ELBO\)`.
 
 Turning this to a loss function we need to minimize: 
 
-$$
--ELBO(\theta_f, \theta_g, \theta_h|X) = -E_q[\log(p(x|z))] + D_{KL}(q(z|x) || p(z))
-$$
+`\(-ELBO(\theta_f, \theta_g, \theta_h|X) = -E_q[\log(p(x|z))] + D_{KL}(q(z|x) || p(z))\)`
 
 ---
+
+#### Almost there (I)
+
+Fortunately `\(D_{KL}\)` for two Gaussians has closed form:
+
+For `\(p_1 = N(\mu_1,\Sigma_1)\)` and `\(p_2 = N(\mu_2,\Sigma_2)\)`:
+
+$$
+D_{KL}(p_1\mid\mid p_2) =
+\frac{1}{2}\left[\log\frac{|\Sigma_2|}{|\Sigma_1|} - n + \text{tr} \{ \Sigma_2^{-1}\Sigma_1 \} + (\mu_2 - \mu_1)^T \Sigma_2^{-1}(\mu_2 - \mu_1)\right]
+$$
+
+In our case `\(\mu_1=g_\eta(x) = \mu\)`, `\(\Sigma_1 = h_\psi(x) = \Sigma\)`, where `\(\Sigma\)` is diagonal with `\(\sigma^2_i\)` on its diagonal, `\(\mu_2=\vec{0}\)`, `\(\Sigma_2=I\)`, so:
+
+$$
+D_{KL}(q(z|x) || p(z)) = -\frac{1}{2}\sum_i\left[1 + \gamma_i - \text{exp}(\gamma_i) - \mu^2_i\right]\\
+$$
+
+where `\(\gamma_i = \log\sigma^2_i\)` for better stability. See [here](https://stats.stackexchange.com/questions/318748/deriving-the-kl-divergence-loss-for-vaes) for a full proof.
+
+**Here `\(i\)` goes over number of neurons in the latent layer, `\(D\)`**.
+
+---
+
+#### Almost there (II)
+
+Since we assumed `\(p(x|z)\)` is `\(N(f_\theta(z), \sigma^2I)\)`: 
+
+`\(-E_q[\log(p(x|z))] = C ⋅ E_q[||x - f_\theta(z)||^2] = C ⋅ E_q[||x - \hat{x}||^2],\)`
+
+where `\(C\)` is some constant depndent on `\(\sigma^2\)`.
+
+We use standard mini-batch SGD for approximation that expectation.
+
+So our final loss optimized with SGD, is the sum of MSE and KL:
+
+`\(\text{VAE-Loss}(\theta, \eta, \psi|X)\)`
+
+`\(= C \cdot \sum_{batch} (x_{batch} - \hat{x}_{batch})^2 -\frac{1}{2}\sum_i\left[1 + \gamma_i - \text{exp}(\gamma_i) - \mu^2_i\right]\)`
+
+.insight[
+💡 Reconstruction loss + Regularization!
+]
+
+---
+
+#### Still not there
+
+&lt;img src="images/vae_bad.png" style="width: 90%" /&gt;
+
+.insight[
+💡 Why wouldn't this work?
+]
+
+---
+
+#### Reparametrisation trick
+
+&lt;img src="images/vae_good.png" style="width: 90%" /&gt;
+
+In terms of `\(\gamma = \log\sigma^2\)`, this means: `\(z = \varepsilon \cdot \frac{\text{exp}(\gamma)}{2} + \mu\)`
+
+---
+
+### VAE in Keras
+
+
+```python
+from tensorflow.keras.layers import Layer, Input
+from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras import Model
+import tensorflow.keras.backend as K
+
+# need a sampling layer which takes \mu and \gamma, samples \varepsilon ~N(0,1)
+# and turns it to N(\mu, "\gamma")
+class Sampling(Layer):
+    def call(self, inputs):
+        mean, log_var = inputs
+        return K.random_normal(tf.shape(log_var)) * K.exp(log_var / 2) + mean
+      
+D = 10
+
+inputs = Input(shape=[28, 28])
+z = Flatten()(inputs)
+z = Dense(150, activation="relu")(z)
+z = Dense(100, activation="relu")(z)
+codings_mean = Dense(D)(z)
+codings_log_var = Dense(D)(z)
+codings = Sampling()([codings_mean, codings_log_var])
+variational_encoder = Model(
+    inputs=[inputs], outputs=[codings_mean, codings_log_var, codings]
+)
+```
+
+---
+
+
+```python
+decoder_inputs = Input(shape=[D])
+x = Dense(100, activation="relu")(decoder_inputs)
+x = Dense(150, activation="relu")(x)
+x = Dense(28 * 28, activation="sigmoid")(x) # make output 0-1
+outputs = Reshape([28, 28])(x)
+variational_decoder = Model(inputs=[decoder_inputs], outputs=[outputs])
+
+_, _, codings = variational_encoder(inputs)
+reconstructions = variational_decoder(codings)
+variational_ae = Model(inputs=[inputs], outputs=[reconstructions])
+
+kl_loss = -0.5 * K.sum(
+  1 + codings_log_var - K.exp(codings_log_var) - K.square(codings_mean),
+  axis=-1)
+reconstruction_loss = MeanSquaredError(inputs, outputs) * 784
+vae_loss = K.mean(reconstruction_loss + kl_loss)
+
+variational_ae.add_loss(vae_loss)
+variational_ae.compile(optimizer='adam')
+
+history = variational_ae.fit(X_train, X_train, epochs=20, verbose=1)
+```
+
+---
+
+Can it reconstruct?
+
+
+```python
+show_reconstructions(variational_ae, X_test)
+plt.show()
+```
+
+---
+
+Can it "denoise"?
+
+
+```python
+shoe_encoded = variational_encoder.predict(X_test[np.newaxis, 0,:])
+shoe_encoded
+```
+
+
+```python
+shoe1 = variational_decoder.predict(shoe_encoded)[0]
+shoe2 = variational_decoder.predict(shoe_encoded +np.random.normal(scale=1))[0]
+shoe3 = variational_decoder.predict(shoe_encoded +np.random.normal(scale=5))[0]
+```
+
+---
+
+
+```python
+fig, axes = plt.subplots(1, 3, figsize=(6, 3))
+axes[0].imshow(shoe1, cmap="binary")
+axes[1].imshow(shoe2, cmap="binary")
+axes[2].imshow(shoe3, cmap="binary")
+_ = axes[0].axis('off')
+_ = axes[1].axis('off')
+_ = axes[2].axis('off')
+plt.show()
+```
+
+---
+
+Can it average?
+
+
+```python
+shirt_encoded = variational_encoder.predict(X_test[np.newaxis, 1,:])
+mean_encoded = (shoe_encoded + shirt_encoded) / 2
+
+fig, axes = plt.subplots(1, 3, figsize=(6, 3))
+_ = axes[0].imshow(X_test[0,:], cmap="binary")
+_ = axes[1].imshow(X_test[1,:], cmap="binary")
+_ = axes[2].imshow(variational_decoder.predict(mean_encoded)[0], cmap="binary")
+_ = axes[0].axis('off')
+_ = axes[1].axis('off')
+_ = axes[2].axis('off')
+plt.show()
+```
+
+---
+
+Can it **generate**?
+
+
+```python
+X_test_compressed = variational_encoder.predict(X_test)
+mins = X_test_compressed.min(axis=0)
+maxs = X_test_compressed.max(axis=0)
+
+_ = plt.imshow(variational_decoder.predict(
+  np.random.uniform(mins, maxs, size=30)[np.newaxis, :]
+  )[0], cmap="binary")
+_ = plt.axis('off')
+plt.show()
+```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="../libs/remark-latest.min.js"></script>
