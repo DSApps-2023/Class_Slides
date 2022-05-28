@@ -404,7 +404,13 @@ Clearly we're losing info.
 `r emoji("bulb")` A 2x2 max pooling layer would reduce the size of the previous layer by how many percents?
 ]
 
-But maybe sometimes it's a *good* thing to ignore some neurons? Where did we get this crazy idea from?
+.insight[
+`r emoji("bulb")` But maybe sometimes it's a *good* thing to ignore some neurons?
+]
+
+.insight[
+`r emoji("bulb")` Is CNN a linear operator?
+]
 
 ---
 
@@ -778,7 +784,7 @@ model.add(Dense(10, activation = 'softmax'))
 
 .font80percent[Source: [Krizhevsky et. al. 2012](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)]
 
-See a Keras implementation e.g. [here](https://engmrk.com/alexnet-implementation-using-keras/)
+See a Keras implementation e.g. [here](https://medium.datadriveninvestor.com/alexnet-implementation-using-keras-7c10d1bb6715)
 
 ---
 
@@ -794,7 +800,7 @@ See a Keras implementation e.g. [here](https://engmrk.com/alexnet-implementation
 
 - Source: [He et. al.](https://arxiv.org/pdf/1512.03385.pdf)
 - This is ResNet-34 (34 layers)
-- ResNet-152 (152 layers!) achieved 4.5% To-5 error rate with single model
+- ResNet-152 (152 layers!) achieved 4.5% Top-5 error rate with single model
 
 <img src = "images/ru.png" style="width: 80%">
 
@@ -857,6 +863,10 @@ johann_breed = decode_predictions(johann_pred, top=5)
 for _, breed, score in johann_breed[0]:
   print('%s: %.2f' % (breed, score))
 ```
+
+.insight[
+`r emoji("bulb")` Look mom, no killing fish in the ocean!
+]
 
 ---
 

@@ -4,7 +4,7 @@
     <title>Convolutional Neural Networks</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-01-02" />
+    <meta name="date" content="2022-05-28" />
     <script src="u4_d02-cnn_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-01-02
+### 2022-05-28
 
 ---
 
@@ -447,7 +447,13 @@ Clearly we're losing info.
 💡 A 2x2 max pooling layer would reduce the size of the previous layer by how many percents?
 ]
 
-But maybe sometimes it's a *good* thing to ignore some neurons? Where did we get this crazy idea from?
+.insight[
+💡 But maybe sometimes it's a *good* thing to ignore some neurons?
+]
+
+.insight[
+💡 Is CNN a linear operator?
+]
 
 ---
 
@@ -856,7 +862,7 @@ model.add(Dense(10, activation = 'softmax'))
 
 .font80percent[Source: [Krizhevsky et. al. 2012](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)]
 
-See a Keras implementation e.g. [here](https://engmrk.com/alexnet-implementation-using-keras/)
+See a Keras implementation e.g. [here](https://medium.datadriveninvestor.com/alexnet-implementation-using-keras-7c10d1bb6715)
 
 ---
 
@@ -872,7 +878,7 @@ See a Keras implementation e.g. [here](https://engmrk.com/alexnet-implementation
 
 - Source: [He et. al.](https://arxiv.org/pdf/1512.03385.pdf)
 - This is ResNet-34 (34 layers)
-- ResNet-152 (152 layers!) achieved 4.5% To-5 error rate with single model
+- ResNet-152 (152 layers!) achieved 4.5% Top-5 error rate with single model
 
 &lt;img src = "images/ru.png" style="width: 80%"&gt;
 
@@ -947,6 +953,10 @@ for _, breed, score in johann_breed[0]:
 ## German_shepherd: 0.14
 ## malamute: 0.06
 ```
+
+.insight[
+💡 Look mom, no killing fish in the ocean!
+]
 
 ---
 
@@ -1076,7 +1086,7 @@ print(np.mean(y_true == y_pred))
 ```
 
 ```
-## 0.65
+## 0.625
 ```
 
 ```python
@@ -1089,7 +1099,7 @@ pd.DataFrame(
 
 ```
 ##           pred:yes  pred:no
-## true:yes        15        5
+## true:yes        14        6
 ## true:no          9       11
 ```
 
