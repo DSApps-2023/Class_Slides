@@ -4,7 +4,7 @@
     <title>Intro to Autoencoders</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-05-29" />
+    <meta name="date" content="2022-05-30" />
     <script src="u4_d04-autoencoders_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-05-29
+### 2022-05-30
 
 ---
 
@@ -270,7 +270,7 @@ shoe1 = stacked_decoder.predict(shoe_encoded)[0]
 ```
 
 ```
-## WARNING:tensorflow:5 out of the last 7 calls to &lt;function Model.make_predict_function.&lt;locals&gt;.predict_function at 0x0000000295630E50&gt; triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has experimental_relax_shapes=True option that relaxes argument shapes that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+## WARNING:tensorflow:5 out of the last 7 calls to &lt;function Model.make_predict_function.&lt;locals&gt;.predict_function at 0x0000000295F74040&gt; triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has experimental_relax_shapes=True option that relaxes argument shapes that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
 ```
 
 ```python
@@ -365,7 +365,7 @@ plt.show()
 
 * The latent space has many "holes", it is "irregular"
 * If we sample from these areas and decode, we cannot expect to get a meaningful element in the input space, result would be **unlikely**
-* And why should we? Reconstruction loss is "king", it is overfitting! We not to regularize.
+* And why should we? Reconstruction loss is "king", it is overfitting! We need to regularize.
 
 &lt;img src="images/vae2.png" style="width: 75%" /&gt;
 
@@ -575,7 +575,7 @@ plt.show()
 &lt;img src="images/VAE-recon-19.png" width="80%" /&gt;
 
 .insight[
-💡 So you see the difference in comparison to SAE?
+💡 Do you see the difference in comparison to SAE?
 ]
 
 ---

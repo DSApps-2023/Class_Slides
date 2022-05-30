@@ -381,7 +381,7 @@ plt.show()
 
 * The latent space has many "holes", it is "irregular"
 * If we sample from these areas and decode, we cannot expect to get a meaningful element in the input space, result would be **unlikely**
-* And why should we? Reconstruction loss is "king", it is overfitting! We not to regularize.
+* And why should we? Reconstruction loss is "king", it is overfitting! We need to regularize.
 
 <img src="images/vae2.png" style="width: 75%" />
 
