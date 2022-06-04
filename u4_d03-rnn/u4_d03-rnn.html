@@ -4,7 +4,7 @@
     <title>Recurrent Neural Networks</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-01-02" />
+    <meta name="date" content="2022-06-04" />
     <script src="u4_d03-rnn_files/header-attrs-2.11/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-01-02
+### 2022-06-04
 
 ---
 
@@ -190,9 +190,9 @@ def gradient_descent(alpha, w, grad):
 
 ### Forward Propagation
 
-`$$\hat{y}_1 = \tanh(w_0 + w_1 \cdot x_1 + w2 \cdot y_{0}) \\
+`$$\hat{y}_1 = \tanh(w_0 + w_1 \cdot x_1 + w_2 \cdot y_{0}) \\
 \vdots \\
-\hat{y}_T = tanh(w_0 + w_1 \cdot x_T + w2 \cdot \hat{y}_{T - 1}) \\
+\hat{y}_T = tanh(w_0 + w_1 \cdot x_T + w_2 \cdot \hat{y}_{T - 1}) \\
 L = MSE = \frac{1}{N}\sum_{i = 1}^{N}(y_{i} - \hat{y}_{iT})^2$$`
 
 
@@ -343,7 +343,7 @@ plt.show()
 .insight[
 💡 Are you surprised? How could we easily improve?
 
-What would be a better aproach for this simple dataset?
+What would be a better approach for this simple dataset?
 ]
 
 ---
@@ -391,7 +391,7 @@ print(model.get_weights()[2], model.get_weights()[0], model.get_weights()[1])
 ```
 
 ```
-## [-0.05025314] [[0.89638424]] [[0.4493833]]
+## [-0.05025313] [[0.8963843]] [[0.44938323]]
 ```
 
 ```python
@@ -400,7 +400,7 @@ print(np.mean((y - y_pred) **2))
 ```
 
 ```
-## 0.04377151824928343
+## 0.04377151881286946
 ```
 
 ```python
@@ -489,7 +489,7 @@ print(np.mean((y - y_pred) **2))
 ```
 
 ```
-## 0.025966283960601952
+## 0.02624883636777101
 ```
 
 ```python
@@ -980,7 +980,13 @@ lstm = Sequential([
   LSTM(n_cells, return_sequences=True),
   LSTM(1, activation='sigmoid')
 ])
+```
 
+```
+## WARNING:tensorflow:Layer lstm_1 will not use cuDNN kernel since it doesn't meet the cuDNN kernel criteria. It will use generic GPU kernel as fallback when running on GPU
+```
+
+```python
 lstm.compile(loss = 'binary_crossentropy',
   optimizer='adam', metrics='accuracy')
 ```
