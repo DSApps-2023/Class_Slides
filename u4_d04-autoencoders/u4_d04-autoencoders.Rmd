@@ -512,7 +512,7 @@ $= C \cdot \sum_{batch} (x_{batch} - \hat{x}_{batch})^2 -\frac{1}{2}\sum_i\left[
 
 <img src="images/vae_good.png" style="width: 90%" />
 
-In terms of $\gamma = \log\sigma^2$, this means: $z = \varepsilon \cdot \frac{\text{exp}(\gamma)}{2} + \mu$
+In terms of $\gamma = \log\sigma^2$, this means: $z = \varepsilon \cdot \text{exp}(\frac{\gamma}{2}) + \mu$
 
 ---
 
