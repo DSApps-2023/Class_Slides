@@ -4,8 +4,8 @@
     <title>Introduction</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-02-18" />
-    <script src="u0_d01-intro_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-23" />
+    <script src="u0_d01-intro_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-02-18
+### 2022-12-23
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -65,7 +65,7 @@ layout: true
 
 # I must insist.
 
-- You have a terminal, a.k.a shell (Mac/Windows 10 - See installation instructions [here](https://github.com/DSApps-2022/Class_Slides/blob/main/Apps_of_DS_installations.pdf). Windows 7 and less - 😧)
+- You have a terminal, a.k.a shell (Mac/Windows 10 - See installation instructions [here](https://github.com/DSApps-2023/Class_Slides/blob/main/Apps_of_DS_installations.pdf). Windows 7 and less - 😧)
 - You start becoming friendly with your terminal
 &lt;br&gt;&lt;/br&gt;
 - You have git on your system
@@ -82,7 +82,7 @@ layout: true
 
 ### Or:
 
-- You have the latest R (4.1.X) and latest RStudio IDE (2022.X) and you are able to install packages with `install.packages(“package_name”)`
+- You have the latest R (4.2.X) and latest RStudio IDE (2022.X) and you are able to install packages with `install.packages(“package_name”)`
 - You have Python (at least 3.6), Jupyter, and you are able to install packages with `pip install`. Consider working with Anaconda/~~PyCharm~~ VSCode.
 
 ---
@@ -120,11 +120,11 @@ layout: true
 
 # Grade
 
-- 6-7 home assignments (10% each)
+- 7 home assignments (50%)
   - Miss one or have your lowest grade dismissed
   - HW6 is cool and mandatory 👠
   - Submitted via Github, more on that later
-- One final project (100% - (n_assignments - 1) * 10%)
+- One final project (50%)
   - Something you can show other humans
   - More on that later
 
@@ -182,7 +182,7 @@ class: center, middle
   &lt;img src="images/nadia.gif"/&gt;
 &lt;/p&gt;
 
-Go to: [bit.ly/dsapps2022_tidyverse](http://bit.ly/dsapps2022_tidyverse)
+Go to: [bit.ly/dsapps2023_tidyverse](http://bit.ly/dsapps2023_tidyverse)
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="../libs/remark-latest.min.js"></script>
@@ -230,6 +230,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable

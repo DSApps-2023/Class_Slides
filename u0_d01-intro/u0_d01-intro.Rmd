@@ -58,7 +58,7 @@ library(tidyverse)
 
 # I must insist.
 
-- You have a terminal, a.k.a shell (Mac/Windows 10 - See installation instructions [here](https://github.com/DSApps-2022/Class_Slides/blob/main/Apps_of_DS_installations.pdf). Windows 7 and less - 😧)
+- You have a terminal, a.k.a shell (Mac/Windows 10 - See installation instructions [here](https://github.com/DSApps-2023/Class_Slides/blob/main/Apps_of_DS_installations.pdf). Windows 7 and less - 😧)
 - You start becoming friendly with your terminal
 <br></br>
 - You have git on your system
@@ -75,7 +75,7 @@ library(tidyverse)
 
 ### Or:
 
-- You have the latest R (4.1.X) and latest RStudio IDE (2022.X) and you are able to install packages with `install.packages(“package_name”)`
+- You have the latest R (4.2.X) and latest RStudio IDE (2022.X) and you are able to install packages with `install.packages(“package_name”)`
 - You have Python (at least 3.6), Jupyter, and you are able to install packages with `pip install`. Consider working with Anaconda/~~PyCharm~~ VSCode.
 
 ---
@@ -113,11 +113,11 @@ library(tidyverse)
 
 # Grade
 
-- 6-7 home assignments (10% each)
+- 7 home assignments (50%)
   - Miss one or have your lowest grade dismissed
   - HW6 is cool and mandatory 👠
   - Submitted via Github, more on that later
-- One final project (100% - (n_assignments - 1) * 10%)
+- One final project (50%)
   - Something you can show other humans
   - More on that later
 
@@ -175,4 +175,4 @@ class: center, middle
   <img src="images/nadia.gif"/>
 </p>
 
-Go to: [bit.ly/dsapps2022_tidyverse](http://bit.ly/dsapps2022_tidyverse)
+Go to: [bit.ly/dsapps2023_tidyverse](http://bit.ly/dsapps2023_tidyverse)
