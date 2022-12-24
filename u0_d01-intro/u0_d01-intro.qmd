@@ -1,0 +1,72 @@
+---
+format:
+  revealjs:
+    slide-number: true
+css: "../slides_quarto.css"
+standalone: false
+include-in-header: "../header_quarto.html"
+logo: "../DSApps_logo_white.jpg"
+pagetitle: "Introduction"
+callout-appearance: simple
+smaller: true
+execute:
+  echo: true
+code-line-numbers: false
+code-block-border-left: true
+highlight-style: github
+footer: "[Applications of Data Science](https://dsapps-2023.github.io/Class_Slides/){target='_blank'}"
+---
+
+## {.logo-slide}
+
+## Introduction {.title-slide}
+
+### Applications of Data Science - Class 0
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com` and add `#dsapps` in subject
+
+### Stat. and OR Department, TAU
+### `r Sys.Date()`
+
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+
+
+## Understanding Images {.title-slide}
+
+
+## Bullets
+
+When you click the **Render** button a document will be generated that includes:
+
+-   Content authored with markdown
+-   Output from executable code
+
+## Code
+
+When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+
+```{python}
+#| fig-width: 5
+#| fig-asp: 0.5
+#| code-line-numbers: "|3|4"
+#| 
+import matplotlib.pyplot as plt
+
+plt.plot(range(5))
+plt.show()
+```
+
+::: {.callout-tip}
+This is an example of a callout with a caption.
+:::
