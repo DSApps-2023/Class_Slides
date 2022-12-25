@@ -4,8 +4,8 @@
     <title>The Pandasverse</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-12-30" />
-    <script src="u1_d06-pandasverse_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-25" />
+    <script src="u1_d06-pandasverse_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-12-30
+### 2022-12-25
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -65,9 +65,6 @@ mean([1, 2, 3, 4, 5])
 
 &lt;pre style="color: red;"&gt;&lt;code&gt;## Error in py_call_impl(callable, dots$args, dots$keywords): NameError: name
 'mean' is not defined
-##
-## Detailed traceback:
-## File "&lt;string&gt;", line 1, in &lt;module&gt;
 &lt;/code&gt;&lt;/pre&gt;
 
 Enter `Numpy` to the rescue:
@@ -537,7 +534,7 @@ stats.ttest_ind(rvs1,rvs2)
 ```
 
 ```
-## Ttest_indResult(statistic=-1.6166495846125672, pvalue=0.10626996745282191)
+## Ttest_indResult(statistic=1.0377292684520516, pvalue=0.29964747232400946)
 ```
 
 ---
@@ -584,12 +581,12 @@ print(df)
 
 ```
 ##           A         B         C         D
-## 0  0.395705 -1.351591 -0.995388  0.664308
-## 1  1.224010 -1.063609 -1.618350  1.118686
-## 2  0.377863 -0.742693 -0.090493  1.693598
-## 3  1.391554  0.606553 -0.412569 -1.167988
-## 4 -1.713975 -0.189819  0.441481 -0.062738
-## 5  0.318958 -0.588284  0.775266  0.048133
+## 0  2.336461 -0.799173 -0.100900 -0.363282
+## 1 -1.199725  0.481213  1.079013 -0.408038
+## 2  1.206423 -0.464873 -0.363908 -0.789262
+## 3 -0.338281  0.560705 -0.381236  1.177010
+## 4  0.628597  0.705888 -0.663440 -0.340013
+## 5 -0.200101  0.377324 -0.903386 -0.802663
 ```
 
 ---
@@ -1076,6 +1073,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
