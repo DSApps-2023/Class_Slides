@@ -4,8 +4,8 @@
     <title>Tidy Data Wrangling - Part B</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-02-26" />
-    <script src="u1_d03-wranglingB_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-25" />
+    <script src="u1_d03-wranglingB_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-02-26
+### 2022-12-25
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -86,20 +86,20 @@ glimpse(characters)
 ```
 ## Rows: 173
 ## Columns: 14
-## $ character_id &lt;int&gt; 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, ~
-## $ name         &lt;chr&gt; "Luke Skywalker", "Luke Skywalker", "Luke Skywalker", "Lu~
-## $ gender       &lt;chr&gt; "male", "male", "male", "male", "male", NA, NA, NA, NA, N~
-## $ homeworld_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 8, 8, 8, 8, 8, 8, 1, ~
-## $ height       &lt;dbl&gt; 172, 172, 172, 172, 172, 167, 167, 167, 167, 167, 167, 96~
-## $ mass         &lt;dbl&gt; 77, 77, 77, 77, 77, 75, 75, 75, 75, 75, 75, 32, 32, 32, 3~
-## $ hair_color   &lt;chr&gt; "blond", "blond", "blond", "blond", "blond", NA, NA, NA, ~
-## $ skin_color   &lt;chr&gt; "fair", "fair", "fair", "fair", "fair", "gold", "gold", "~
-## $ eye_color    &lt;chr&gt; "blue", "blue", "blue", "blue", "blue", "yellow", "yellow~
-## $ birth_year   &lt;dbl&gt; 19.0, 19.0, 19.0, 19.0, 19.0, 112.0, 112.0, 112.0, 112.0,~
-## $ film_id      &lt;dbl&gt; 1, 2, 3, 6, 7, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 1, ~
-## $ species      &lt;list&gt; "http://swapi.co/api/species/1/", "http://swapi.co/api/s~
-## $ vehicles     &lt;list&gt; &lt;"http://swapi.co/api/vehicles/14/", "http://swapi.co/ap~
-## $ starships    &lt;list&gt; &lt;"http://swapi.co/api/starships/12/", "http://swapi.co/a~
+## $ character_id &lt;int&gt; 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, …
+## $ name         &lt;chr&gt; "Luke Skywalker", "Luke Skywalker", "Luke Skywalker", "Lu…
+## $ gender       &lt;chr&gt; "male", "male", "male", "male", "male", NA, NA, NA, NA, N…
+## $ homeworld_id &lt;dbl&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 8, 8, 8, 8, 8, 8, 1, …
+## $ height       &lt;dbl&gt; 172, 172, 172, 172, 172, 167, 167, 167, 167, 167, 167, 96…
+## $ mass         &lt;dbl&gt; 77, 77, 77, 77, 77, 75, 75, 75, 75, 75, 75, 32, 32, 32, 3…
+## $ hair_color   &lt;chr&gt; "blond", "blond", "blond", "blond", "blond", NA, NA, NA, …
+## $ skin_color   &lt;chr&gt; "fair", "fair", "fair", "fair", "fair", "gold", "gold", "…
+## $ eye_color    &lt;chr&gt; "blue", "blue", "blue", "blue", "blue", "yellow", "yellow…
+## $ birth_year   &lt;dbl&gt; 19.0, 19.0, 19.0, 19.0, 19.0, 112.0, 112.0, 112.0, 112.0,…
+## $ film_id      &lt;dbl&gt; 1, 2, 3, 6, 7, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 7, 1, …
+## $ species      &lt;list&gt; "http://swapi.co/api/species/1/", "http://swapi.co/api/s…
+## $ vehicles     &lt;list&gt; &lt;"http://swapi.co/api/vehicles/14/", "http://swapi.co/ap…
+## $ starships    &lt;list&gt; &lt;"http://swapi.co/api/starships/12/", "http://swapi.co/a…
 ```
 
 ---
@@ -112,16 +112,16 @@ glimpse(planets)
 ```
 ## Rows: 61
 ## Columns: 10
-## $ planet_id       &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,~
-## $ name            &lt;chr&gt; "Tatooine", "Alderaan", "Yavin IV", "Hoth", "Dagobah",~
-## $ rotation_period &lt;dbl&gt; 23, 24, 24, 23, 23, 12, 18, 26, 24, 27, 30, 27, 36, 26~
-## $ orbital_period  &lt;dbl&gt; 304, 364, 4818, 549, 341, 5110, 402, 312, 368, 463, 25~
-## $ diameter        &lt;dbl&gt; 10465, 12500, 10200, 7200, 8900, 118000, 4900, 12120, ~
-## $ climate         &lt;chr&gt; "arid", "temperate", "temperate, tropical", "frozen", ~
-## $ gravity         &lt;chr&gt; "1 standard", "1 standard", "1 standard", "1.1 standar~
-## $ terrain         &lt;chr&gt; "desert", "grasslands, mountains", "jungle, rainforest~
-## $ surface_water   &lt;dbl&gt; 1.0, 40.0, 8.0, 100.0, 8.0, 0.0, 8.0, 12.0, NA, 100.0,~
-## $ population      &lt;dbl&gt; 2.0e+05, 2.0e+09, 1.0e+03, NA, NA, 6.0e+06, 3.0e+07, 4~
+## $ planet_id       &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,…
+## $ name            &lt;chr&gt; "Tatooine", "Alderaan", "Yavin IV", "Hoth", "Dagobah",…
+## $ rotation_period &lt;dbl&gt; 23, 24, 24, 23, 23, 12, 18, 26, 24, 27, 30, 27, 36, 26…
+## $ orbital_period  &lt;dbl&gt; 304, 364, 4818, 549, 341, 5110, 402, 312, 368, 463, 25…
+## $ diameter        &lt;dbl&gt; 10465, 12500, 10200, 7200, 8900, 118000, 4900, 12120, …
+## $ climate         &lt;chr&gt; "arid", "temperate", "temperate, tropical", "frozen", …
+## $ gravity         &lt;chr&gt; "1 standard", "1 standard", "1 standard", "1.1 standar…
+## $ terrain         &lt;chr&gt; "desert", "grasslands, mountains", "jungle, rainforest…
+## $ surface_water   &lt;dbl&gt; 1.0, 40.0, 8.0, 100.0, 8.0, 0.0, 8.0, 12.0, NA, 100.0,…
+## $ population      &lt;dbl&gt; 2.0e+05, 2.0e+09, 1.0e+03, NA, NA, 6.0e+06, 3.0e+07, 4…
 ```
 
 
@@ -133,12 +133,12 @@ glimpse(films)
 ## Rows: 7
 ## Columns: 7
 ## $ film_id       &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7
-## $ title         &lt;chr&gt; "A New Hope", "The Empire Strikes Back", "Return of the ~
+## $ title         &lt;chr&gt; "A New Hope", "The Empire Strikes Back", "Return of the …
 ## $ episode_id    &lt;int&gt; 4, 5, 6, 1, 2, 3, 7
-## $ opening_crawl &lt;chr&gt; "It is a period of civil war.\r\nRebel spaceships, strik~
-## $ director      &lt;chr&gt; "George Lucas", "Irvin Kershner", "Richard Marquand", "G~
-## $ producer      &lt;chr&gt; "Gary Kurtz, Rick McCallum", "Gary Kutz, Rick McCallum",~
-## $ release_date  &lt;chr&gt; "1977-05-25", "1980-05-17", "1983-05-25", "1999-05-19", ~
+## $ opening_crawl &lt;chr&gt; "It is a period of civil war.\r\nRebel spaceships, strik…
+## $ director      &lt;chr&gt; "George Lucas", "Irvin Kershner", "Richard Marquand", "G…
+## $ producer      &lt;chr&gt; "Gary Kurtz, Rick McCallum", "Gary Kutz, Rick McCallum",…
+## $ release_date  &lt;chr&gt; "1977-05-25", "1980-05-17", "1983-05-25", "1999-05-19", …
 ```
 
 ---
@@ -265,7 +265,7 @@ characters %&gt;%
 ```
 
 ```
-## # A tibble: 7 x 5
+## # A tibble: 7 × 5
 ##   character_id name           film_id title                   director        
 ##          &lt;int&gt; &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;                   &lt;chr&gt;           
 ## 1            1 Luke Skywalker       1 A New Hope              George Lucas    
@@ -294,16 +294,16 @@ characters %&gt;%
 ```
 
 ```
-## # A tibble: 7 x 7
-##   character_id name.x         film_id title          director     name.y climate
-##          &lt;int&gt; &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt;  
-## 1            1 Luke Skywalker       1 A New Hope     George Lucas Tatoo~ arid   
-## 2            1 Luke Skywalker       2 The Empire St~ Irvin Kersh~ Tatoo~ arid   
-## 3            1 Luke Skywalker       3 Return of the~ Richard Mar~ Tatoo~ arid   
-## 4            1 Luke Skywalker       6 Revenge of th~ George Lucas Tatoo~ arid   
-## 5            1 Luke Skywalker       7 The Force Awa~ J. J. Abrams Tatoo~ arid   
-## 6            2 C-3PO                1 A New Hope     George Lucas Tatoo~ arid   
-## 7            2 C-3PO                2 The Empire St~ Irvin Kersh~ Tatoo~ arid
+## # A tibble: 7 × 7
+##   character_id name.x         film_id title              director name.y climate
+##          &lt;int&gt; &lt;chr&gt;            &lt;dbl&gt; &lt;chr&gt;              &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;  
+## 1            1 Luke Skywalker       1 A New Hope         George … Tatoo… arid   
+## 2            1 Luke Skywalker       2 The Empire Strike… Irvin K… Tatoo… arid   
+## 3            1 Luke Skywalker       3 Return of the Jedi Richard… Tatoo… arid   
+## 4            1 Luke Skywalker       6 Revenge of the Si… George … Tatoo… arid   
+## 5            1 Luke Skywalker       7 The Force Awakens  J. J. A… Tatoo… arid   
+## 6            2 C-3PO                1 A New Hope         George … Tatoo… arid   
+## 7            2 C-3PO                2 The Empire Strike… Irvin K… Tatoo… arid
 ```
 
 ---
@@ -317,14 +317,14 @@ lines %&gt;%
 ```
 
 ```
-## # A tibble: 6 x 6
+## # A tibble: 6 × 6
 ##   film_id scene_id minute_id character_id line                          location
 ##     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;                         &lt;chr&gt;   
-## 1       1        1         1           23 blah blah blah                spacesh~
-## 2       1        1         2           15 something something           Alderaa~
-## 3       1        1         2           23 something something to you to Alderaa~
-## 4       1        1         3           15 &lt;NA&gt;                          spacesh~
-## 5       1        1         3           23 &lt;NA&gt;                          spacesh~
+## 1       1        1         1           23 blah blah blah                spacesh…
+## 2       1        1         2           15 something something           Alderaa…
+## 3       1        1         2           23 something something to you to Alderaa…
+## 4       1        1         3           15 &lt;NA&gt;                          spacesh…
+## 5       1        1         3           23 &lt;NA&gt;                          spacesh…
 ## 6       1        1         4            8 whatever whatever             bar
 ```
 
@@ -473,7 +473,7 @@ class: section-slide
 
 ## The Migration Dataset
 
-- Straight from the [UN, Dept. of Economic and Social Affairs, Population Division](https://www.un.org/en/development/desa/population/index.asp)
+- Straight from the [UN, Dept. of Economic and Social Affairs, Population Division](https://www.un.org/development/desa/pd/#:~:text=The%20Population%20Division%20of%20the,analyse%20population%20data%20and%20information.)
 - "Monitoring global population trends"
 - For each country, how many (men, women and total) migrated to each country
 - In 1990, 1995, 2000, 2005, 2010, 2015, 2019
@@ -527,7 +527,7 @@ migration
 ```
 
 ```
-## # A tibble: 3,248 x 236
+## # A tibble: 3,248 × 236
 ##    gender  year  code country_dest afghanistan albania algeria american_samoa
 ##    &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt;
 ##  1 men     1990   108 burundi                0       0       0              0
@@ -540,13 +540,13 @@ migration
 ##  8 men     1990   454 malawi                 0       0       0              0
 ##  9 men     1990   480 mauritius              0       0       0              0
 ## 10 men     1990   175 mayotte                0       0       0              0
-## # ... with 3,238 more rows, and 228 more variables: andorra &lt;dbl&gt;,
-## #   angola &lt;dbl&gt;, anguilla &lt;dbl&gt;, antigua_and_barbuda &lt;dbl&gt;, argentina &lt;dbl&gt;,
-## #   armenia &lt;dbl&gt;, aruba &lt;dbl&gt;, australia &lt;dbl&gt;, austria &lt;dbl&gt;,
-## #   azerbaijan &lt;dbl&gt;, bahamas &lt;dbl&gt;, bahrain &lt;dbl&gt;, bangladesh &lt;dbl&gt;,
-## #   barbados &lt;dbl&gt;, belarus &lt;dbl&gt;, belgium &lt;dbl&gt;, belize &lt;dbl&gt;, benin &lt;dbl&gt;,
-## #   bermuda &lt;dbl&gt;, bhutan &lt;dbl&gt;, bolivia_plurinational_state_of &lt;dbl&gt;,
-## #   bonaire_sint_eustatius_and_saba &lt;dbl&gt;, bosnia_and_herzegovina &lt;dbl&gt;, ...
+## # … with 3,238 more rows, and 228 more variables: andorra &lt;dbl&gt;, angola &lt;dbl&gt;,
+## #   anguilla &lt;dbl&gt;, antigua_and_barbuda &lt;dbl&gt;, argentina &lt;dbl&gt;, armenia &lt;dbl&gt;,
+## #   aruba &lt;dbl&gt;, australia &lt;dbl&gt;, austria &lt;dbl&gt;, azerbaijan &lt;dbl&gt;,
+## #   bahamas &lt;dbl&gt;, bahrain &lt;dbl&gt;, bangladesh &lt;dbl&gt;, barbados &lt;dbl&gt;,
+## #   belarus &lt;dbl&gt;, belgium &lt;dbl&gt;, belize &lt;dbl&gt;, benin &lt;dbl&gt;, bermuda &lt;dbl&gt;,
+## #   bhutan &lt;dbl&gt;, bolivia_plurinational_state_of &lt;dbl&gt;,
+## #   bonaire_sint_eustatius_and_saba &lt;dbl&gt;, bosnia_and_herzegovina &lt;dbl&gt;, …
 ```
 
 ---
@@ -591,7 +591,7 @@ migration %&gt;%
   pull(n_migrants)
 ```
 
-Then we could put in a (simpler) function and call the opposite:
+Then we could put it in a (simpler) function and call the opposite:
 
 
 ```r
@@ -625,7 +625,7 @@ migration_long
 ```
 
 ```
-## # A tibble: 753,536 x 6
+## # A tibble: 753,536 × 6
 ##    gender  year  code country_dest country_orig        n_migrants
 ##    &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;                    &lt;dbl&gt;
 ##  1 men     1990   108 burundi      afghanistan                  0
@@ -638,7 +638,7 @@ migration_long
 ##  8 men     1990   108 burundi      antigua_and_barbuda          0
 ##  9 men     1990   108 burundi      argentina                    0
 ## 10 men     1990   108 burundi      armenia                      0
-## # ... with 753,526 more rows
+## # … with 753,526 more rows
 ```
 
 ---
@@ -664,7 +664,7 @@ migration_wide
 ```
 
 ```
-## # A tibble: 3,248 x 236
+## # A tibble: 3,248 × 236
 ##    gender  year  code country_dest afghanistan albania algeria american_samoa
 ##    &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt;
 ##  1 men     1990   108 burundi                0       0       0              0
@@ -677,13 +677,13 @@ migration_wide
 ##  8 men     1990   454 malawi                 0       0       0              0
 ##  9 men     1990   480 mauritius              0       0       0              0
 ## 10 men     1990   175 mayotte                0       0       0              0
-## # ... with 3,238 more rows, and 228 more variables: andorra &lt;dbl&gt;,
-## #   angola &lt;dbl&gt;, anguilla &lt;dbl&gt;, antigua_and_barbuda &lt;dbl&gt;, argentina &lt;dbl&gt;,
-## #   armenia &lt;dbl&gt;, aruba &lt;dbl&gt;, australia &lt;dbl&gt;, austria &lt;dbl&gt;,
-## #   azerbaijan &lt;dbl&gt;, bahamas &lt;dbl&gt;, bahrain &lt;dbl&gt;, bangladesh &lt;dbl&gt;,
-## #   barbados &lt;dbl&gt;, belarus &lt;dbl&gt;, belgium &lt;dbl&gt;, belize &lt;dbl&gt;, benin &lt;dbl&gt;,
-## #   bermuda &lt;dbl&gt;, bhutan &lt;dbl&gt;, bolivia_plurinational_state_of &lt;dbl&gt;,
-## #   bonaire_sint_eustatius_and_saba &lt;dbl&gt;, bosnia_and_herzegovina &lt;dbl&gt;, ...
+## # … with 3,238 more rows, and 228 more variables: andorra &lt;dbl&gt;, angola &lt;dbl&gt;,
+## #   anguilla &lt;dbl&gt;, antigua_and_barbuda &lt;dbl&gt;, argentina &lt;dbl&gt;, armenia &lt;dbl&gt;,
+## #   aruba &lt;dbl&gt;, australia &lt;dbl&gt;, austria &lt;dbl&gt;, azerbaijan &lt;dbl&gt;,
+## #   bahamas &lt;dbl&gt;, bahrain &lt;dbl&gt;, bangladesh &lt;dbl&gt;, barbados &lt;dbl&gt;,
+## #   belarus &lt;dbl&gt;, belgium &lt;dbl&gt;, belize &lt;dbl&gt;, benin &lt;dbl&gt;, bermuda &lt;dbl&gt;,
+## #   bhutan &lt;dbl&gt;, bolivia_plurinational_state_of &lt;dbl&gt;,
+## #   bonaire_sint_eustatius_and_saba &lt;dbl&gt;, bosnia_and_herzegovina &lt;dbl&gt;, …
 ```
 
 ---
@@ -736,7 +736,7 @@ table3
 ```
 
 ```
-## # A tibble: 315 x 3
+## # A tibble: 315 × 3
 ##    religion      yob pct_straight
 ##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;       
 ##  1 atheist      1950 26/29       
@@ -749,7 +749,7 @@ table3
 ##  8 atheist      1951 31/33       
 ##  9 buddhist     1951 11/11       
 ## 10 christian    1951 23/24       
-## # ... with 305 more rows
+## # … with 305 more rows
 ```
 
 ---
@@ -765,7 +765,7 @@ table3_tidy
 ```
 
 ```
-## # A tibble: 315 x 4
+## # A tibble: 315 × 4
 ##    religion      yob straight total
 ##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;
 ##  1 atheist      1950 26       29   
@@ -778,7 +778,7 @@ table3_tidy
 ##  8 atheist      1951 31       33   
 ##  9 buddhist     1951 11       11   
 ## 10 christian    1951 23       24   
-## # ... with 305 more rows
+## # … with 305 more rows
 ```
 
 ---
@@ -794,7 +794,7 @@ table3_tidy %&gt;%
 ```
 
 ```
-## # A tibble: 315 x 3
+## # A tibble: 315 × 3
 ##    religion      yob pct_straight
 ##    &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;       
 ##  1 atheist      1950 26/29       
@@ -807,7 +807,7 @@ table3_tidy %&gt;%
 ##  8 atheist      1951 31/33       
 ##  9 buddhist     1951 11/11       
 ## 10 christian    1951 23/24       
-## # ... with 305 more rows
+## # … with 305 more rows
 ```
 
 ---
@@ -865,9 +865,9 @@ microbenchmark(nchar_loop(), nchar_vectorized())
 
 ```
 ## Unit: nanoseconds
-##                expr  min   lq  mean median   uq     max neval
-##        nchar_loop() 2000 2000 37721   2100 2200 3557100   100
-##  nchar_vectorized()  300  300 10403    400  400 1001600   100
+##                expr  min   lq     mean median   uq     max neval
+##        nchar_loop() 2701 2802 48088.16   2901 3101 4493702   100
+##  nchar_vectorized()  800  901 13575.99    902 1001 1259601   100
 ```
 
 - So why should iterating through a `data.frame` columns or rows be any different?
@@ -883,12 +883,12 @@ okcupid %&gt;% select(essay0:essay2) %&gt;% head(3)
 ```
 
 ```
-## # A tibble: 3 x 3
-##   essay0                     essay1                    essay2                   
-##   &lt;chr&gt;                      &lt;chr&gt;                     &lt;chr&gt;                    
-## 1 "about me:&lt;br /&gt;\n&lt;br /&gt;\~ "currently working as an~ "making people laugh.&lt;br~
-## 2 "i am a chef: this is wha~ "dedicating everyday to ~ "being silly. having rid~
-## 3 "i'm not ashamed of much,~ "i make nerdy software f~ "improvising in differen~
+## # A tibble: 3 × 3
+##   essay0                                                           essay1 essay2
+##   &lt;chr&gt;                                                            &lt;chr&gt;  &lt;chr&gt; 
+## 1 "about me:&lt;br /&gt;\n&lt;br /&gt;\ni would love to think that i was some… "curr… "maki…
+## 2 "i am a chef: this is what that means.&lt;br /&gt;\n1. i am a workaho… "dedi… "bein…
+## 3 "i'm not ashamed of much, but writing public text on an online\… "i ma… "impr…
 ```
 
 - I want to apply some transformation to one or more columns (say the length of each `essay` question for each user)
@@ -964,13 +964,8 @@ my_func(10)
 my_func(1:5)
 ```
 
-&lt;pre style="color: red;"&gt;&lt;code&gt;## Warning in if (x%%2 == 0) return("even"): the condition has length &gt; 1 and only
-## the first element will be used
+&lt;pre style="color: red;"&gt;&lt;code&gt;## Error in if (x%%2 == 0) return("even"): the condition has length &gt; 1
 &lt;/code&gt;&lt;/pre&gt;
-
-```
-## [1] "odd"
-```
 
 .insight[
 💡 This is a silly example, do you know how to easily vectorize this function?
@@ -1069,16 +1064,16 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;%
 ```
 
 ```
-## # A tibble: 6 x 3
+## # A tibble: 6 × 3
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          157. FALSE  
-## 2 f          163. FALSE  
+## 1 f          173. TRUE   
+## 2 f          165. TRUE   
 ## 3 f          168. TRUE   
-## 4 m          185. TRUE   
-## 5 m          185. TRUE   
-## 6 m          180. TRUE
+## 4 m          183. TRUE   
+## 5 m          180. TRUE   
+## 6 m          183. TRUE
 ```
 
 .font80percent[This specific example might not be *that* bad with `ifelse()`, what will you do with 5 variables?]
@@ -1101,16 +1096,16 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;% group_by(sex) %&gt;% slice
 ```
 
 ```
-## # A tibble: 6 x 3
+## # A tibble: 6 × 3
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          157. FALSE  
-## 2 f          170. TRUE   
-## 3 f          165. TRUE   
-## 4 m          183. TRUE   
-## 5 m          180. TRUE   
-## 6 m          175. FALSE
+## 1 f          178. TRUE   
+## 2 f          175. TRUE   
+## 3 f          168. TRUE   
+## 4 m          170. FALSE  
+## 5 m          188. TRUE   
+## 6 m          178. FALSE
 ```
 
 ---
@@ -1151,13 +1146,13 @@ okcupid %&gt;%
 ```
 
 ```
-## # A tibble: 3 x 20
-##   essay0  essay1  essay2  essay3  essay4  essay5  essay6  essay7  essay8  essay9
-##   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; 
-## 1 "about~ "curre~ "makin~ "the w~ "books~ "food.~ dualit~ "tryin~ "i am ~ "you ~
-## 2 "i am ~ "dedic~ "being~  &lt;NA&gt;   "i am ~ "delic~ &lt;NA&gt;     &lt;NA&gt;   "i am ~  &lt;NA&gt; 
-## 3 "i'm n~ "i mak~ "impro~ "my la~ "okay ~ "movem~ &lt;NA&gt;    "viewi~ "when ~ "you ~
-## # ... with 10 more variables: essay0_len &lt;int&gt;, essay1_len &lt;int&gt;,
+## # A tibble: 3 × 20
+##   essay0          essay1 essay2 essay3 essay4 essay5 essay6 essay7 essay8 essay9
+##   &lt;chr&gt;           &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt; 
+## 1 "about me:&lt;br … "curr… "maki… "the … "book… "food… duali… "tryi… "i am… "you …
+## 2 "i am a chef: … "dedi… "bein…  &lt;NA&gt;  "i am… "deli… &lt;NA&gt;    &lt;NA&gt;  "i am…  &lt;NA&gt; 
+## 3 "i'm not asham… "i ma… "impr… "my l… "okay… "move… &lt;NA&gt;   "view… "when… "you …
+## # … with 10 more variables: essay0_len &lt;int&gt;, essay1_len &lt;int&gt;,
 ## #   essay2_len &lt;int&gt;, essay3_len &lt;int&gt;, essay4_len &lt;int&gt;, essay5_len &lt;int&gt;,
 ## #   essay6_len &lt;int&gt;, essay7_len &lt;int&gt;, essay8_len &lt;int&gt;, essay9_len &lt;int&gt;
 ```
@@ -1170,7 +1165,7 @@ okcupid %&gt;%
 
 ~~For each user, compute the average `essay` length:~~
 
-Wait, before that, for each user compute the average of the 3 first `essay`s:
+Wait, before that, for each user compute the average of the first 3 `essay`s:
 
 
 ```r
@@ -1187,11 +1182,11 @@ okcupid %&gt;%
 ```
 
 ```
-## # A tibble: 2 x 4
-##   essay0                essay1                essay2               essay3_avglen
-##   &lt;chr&gt;                 &lt;chr&gt;                 &lt;chr&gt;                        &lt;dbl&gt;
-## 1 "about me:&lt;br /&gt;\n&lt;b~ "currently working a~ "making people laug~          557.
-## 2 "i am a chef: this i~ "dedicating everyday~ "being silly. havin~          280.
+## # A tibble: 2 × 4
+##   essay0                                             essay1 essay2 essay3_avglen
+##   &lt;chr&gt;                                              &lt;chr&gt;  &lt;chr&gt;          &lt;dbl&gt;
+## 1 "about me:&lt;br /&gt;\n&lt;br /&gt;\ni would love to think t… "curr… "maki…          557.
+## 2 "i am a chef: this is what that means.&lt;br /&gt;\n1. … "dedi… "bein…          280.
 ```
 
 ---
@@ -1213,12 +1208,12 @@ okcupid %&gt;%
 ```
 
 ```
-## # A tibble: 3 x 4
-##   essay0                essay1                essay2                essay_avglen
-##   &lt;chr&gt;                 &lt;chr&gt;                 &lt;chr&gt;                        &lt;dbl&gt;
-## 1 "about me:&lt;br /&gt;\n&lt;b~ "currently working a~ "making people laugh~         264.
-## 2 "i am a chef: this i~ "dedicating everyday~ "being silly. having~         241.
-## 3 "i'm not ashamed of ~ "i make nerdy softwa~ "improvising in diff~         612
+## # A tibble: 3 × 4
+##   essay0                                              essay1 essay2 essay_avglen
+##   &lt;chr&gt;                                               &lt;chr&gt;  &lt;chr&gt;         &lt;dbl&gt;
+## 1 "about me:&lt;br /&gt;\n&lt;br /&gt;\ni would love to think th… "curr… "maki…         264.
+## 2 "i am a chef: this is what that means.&lt;br /&gt;\n1. i… "dedi… "bein…         241.
+## 3 "i'm not ashamed of much, but writing public text … "i ma… "impr…         612
 ```
 
 ---
@@ -1242,7 +1237,7 @@ okcupid %&gt;% select(essay0) %&gt;% map_dfc(essay0_features) %&gt;% head(4)
 ```
 
 ```
-## # A tibble: 4 x 3
+## # A tibble: 4 × 3
 ##   essay0_love essay0_obama essay0_rel
 ##   &lt;lgl&gt;       &lt;lgl&gt;        &lt;lgl&gt;     
 ## 1 TRUE        FALSE        FALSE     
@@ -1269,20 +1264,20 @@ okcupid %&gt;%
 ```
 
 ```
-## # A tibble: 59,946 x 6
+## # A tibble: 59,946 × 6
 ##      age sex   essay0                        essay0_love essay0_obama essay0_rel
 ##    &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;                         &lt;lgl&gt;       &lt;lgl&gt;        &lt;lgl&gt;     
-##  1    22 m     "about me:&lt;br /&gt;\n&lt;br /&gt;\ni ~ TRUE        FALSE        FALSE     
-##  2    35 m     "i am a chef: this is what t~ TRUE        FALSE        FALSE     
-##  3    38 m     "i'm not ashamed of much, bu~ TRUE        FALSE        FALSE     
-##  4    23 m     "i work in a library and go ~ FALSE       FALSE        FALSE     
-##  5    29 m     "hey how's it going? current~ FALSE       FALSE        FALSE     
-##  6    29 m     "i'm an australian living in~ TRUE        FALSE        FALSE     
-##  7    32 f     "life is about the little th~ TRUE        FALSE        FALSE     
+##  1    22 m     "about me:&lt;br /&gt;\n&lt;br /&gt;\ni … TRUE        FALSE        FALSE     
+##  2    35 m     "i am a chef: this is what t… TRUE        FALSE        FALSE     
+##  3    38 m     "i'm not ashamed of much, bu… TRUE        FALSE        FALSE     
+##  4    23 m     "i work in a library and go … FALSE       FALSE        FALSE     
+##  5    29 m     "hey how's it going? current… FALSE       FALSE        FALSE     
+##  6    29 m     "i'm an australian living in… TRUE        FALSE        FALSE     
+##  7    32 f     "life is about the little th… TRUE        FALSE        FALSE     
 ##  8    31 f      &lt;NA&gt;                         NA          NA           NA        
 ##  9    24 f      &lt;NA&gt;                         NA          NA           NA        
-## 10    37 m     "my names jake.&lt;br /&gt;\ni'm a~ TRUE        FALSE        FALSE     
-## # ... with 59,936 more rows
+## 10    37 m     "my names jake.&lt;br /&gt;\ni'm a… TRUE        FALSE        FALSE     
+## # … with 59,936 more rows
 ```
 
 
@@ -1498,6 +1493,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable

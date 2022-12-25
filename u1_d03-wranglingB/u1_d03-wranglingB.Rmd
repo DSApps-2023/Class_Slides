@@ -354,7 +354,7 @@ class: section-slide
 
 ## The Migration Dataset
 
-- Straight from the [UN, Dept. of Economic and Social Affairs, Population Division](https://www.un.org/en/development/desa/population/index.asp)
+- Straight from the [UN, Dept. of Economic and Social Affairs, Population Division](https://www.un.org/development/desa/pd/#:~:text=The%20Population%20Division%20of%20the,analyse%20population%20data%20and%20information.)
 - "Monitoring global population trends"
 - For each country, how many (men, women and total) migrated to each country
 - In 1990, 1995, 2000, 2005, 2010, 2015, 2019
@@ -437,7 +437,7 @@ migration %>%
   pull(n_migrants)
 ```
 
-Then we could put in a (simpler) function and call the opposite:
+Then we could put it in a (simpler) function and call the opposite:
 
 ```{r Migration5, eval=FALSE}
 get_1way_migration <- function(orig, dest, gen, .year) {
@@ -713,7 +713,7 @@ Where "Single" means "single vector/column input", "Two" means "two vectors/colu
 
 Take a clearly not-vectorized function:
 
-```{r Map-Example1A}
+```{r Map-Example1A, error=TRUE, linewidth=80}
 my_func <- function(x) {
   if (x %% 2 == 0) return("even")
   "odd"
@@ -842,7 +842,7 @@ okcupid %>%
 
 ~~For each user, compute the average `essay` length:~~
 
-Wait, before that, for each user compute the average of the 3 first `essay`s:
+Wait, before that, for each user compute the average of the first 3 `essay`s:
 
 ```{r Example3B}
 mean_length_3essay <- function(x, y, z) {
