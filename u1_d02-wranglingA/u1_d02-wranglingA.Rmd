@@ -127,7 +127,7 @@ okcupid %>%
 ```
 
 .insight[
-`r emoji("bulb")` Many, many such gifts, see [`tidyselect`](https://tidyselect.r-lib.org/reference/select_helpers.html)
+`r emoji("bulb")` Many, many such gifts, see [`tidyselect`](https://tidyselect.r-lib.org/reference/language.html)
 ]
 
 ---
@@ -363,7 +363,7 @@ okcupid %>%
 Same but select only non-negative columns:
 
 ```{r Mutate-All4}
-is_non_negative <- function(x) is.numeric(x) && (is.na(x) || x >= 0)
+is_non_negative <- function(x) all(is.numeric(x) & (is.na(x) | x >= 0))
 
 okcupid %>%
   na_if(-1) %>%
