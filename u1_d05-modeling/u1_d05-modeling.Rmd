@@ -110,7 +110,7 @@ class: section-slide
 - Dataset was published as part of the [UCI ML Repository](https://archive.ics.uci.edu/ml/datasets/BlogFeedback) initiative
 - Comes from [Buza 2014](http://www.cs.bme.hu/~buza/pdfs/gfkl2012_blogs.pdf)
 - 280 numeric heavily engineered features on blogs and posts published in the last 72 hours
-- can we predict no. of comments in the next 24 hours?
+- Can we predict no. of comments in the next 24 hours?
 
 <img src="images/hungarian_blog.png" style="width: 70%" />
 
@@ -167,7 +167,11 @@ class: section-slide
 # WARNING
 
 .warning[
-`r emoji("bulb")` What you're about to see is not a good modeling/prediction flow. This is just an intro to tidy modeling. Some of the issues with how things are done here will be raised, some will have to wait till later in the course.
+`r emoji("bulb")` What you're about to see is not a good modeling/prediction flow.
+
+This is just an intro to tidy modeling.
+
+Some of the issues with how things are done here will be raised, some will have to wait till later in the course.
 ]
 ---
 
@@ -362,7 +366,7 @@ glue("train no. of rows: {nrow(blogs_tr)}
 
 ### Preprocess .font80percent[(but we're not gonna use it)]
 
-The `recipe()` function is from the `recipes` package. It allows you to specify a python-like pipe you can later apply to any dataset, including all preprocessing steps:
+The `recipe()` function is from the `recipes` package. It allows you to specify a sklearn-like pipe you can later apply to any dataset, including all preprocessing steps:
 
 ```{r}
 blogs_rec <- recipe(fb ~ ., data = blogs_tr)
@@ -373,6 +377,7 @@ blogs_rec
 
 ```{r}
 blogs_rec <-  blogs_rec %>%
+  step_zv(all_numeric()) %>%
   step_normalize(all_numeric())
 ```
 
@@ -397,8 +402,8 @@ blogs_rec$var_info
 ---
 
 ```{r}
-blogs_rec$steps[[1]]$means |> head()
-blogs_rec$steps[[1]]$sds |> head()
+blogs_rec$steps[[2]]$means |> head()
+blogs_rec$steps[[2]]$sds |> head()
 ```
 
 ---
@@ -410,10 +415,10 @@ blogs_tr2 <- blogs_rec %>% bake(blogs_tr)
 blogs_te2 <- blogs_rec %>% bake(blogs_te)
 
 glue("mean of comments in orig training: {format(mean(blogs_tr$X51), digits = 3)}, sd: {format(sd(blogs_tr$X51), digits = 3)}
-     mean of comments in baked training: {format(mean(blogs_tr2$X51), digits = 0)}, sd: {format(sd(blogs_tr2$X51), digits = 3)}")
+     mean of comments in baked training: {format(mean(blogs_tr2$X51), digits = 1)}, sd: {format(sd(blogs_tr2$X51), digits = 3)}")
 
 glue("mean of comments in orig testing: {format(mean(blogs_te$X51), digits = 3)}, sd: {format(sd(blogs_te$X51), digits = 3)}
-     mean of comments in baked testing: {format(mean(blogs_te2$X51), digits = 0)}, sd: {format(sd(blogs_te2$X51), digits = 3)}")
+     mean of comments in baked testing: {format(mean(blogs_te2$X51), digits = 1)}, sd: {format(sd(blogs_te2$X51), digits = 3)}")
 ```
 
 ---
@@ -422,6 +427,7 @@ Or you can do it all in a single pipe:
 
 ```{r}
 blogs_rec <- recipe(fb ~ ., data = blogs_tr) %>%
+  step_zv(all_numeric()) %>%
   step_normalize(all_numeric()) %>%
   prep(blogs_tr)
 
@@ -429,10 +435,10 @@ blogs_tr2 <- blogs_rec %>% bake(blogs_tr)
 blogs_te2 <- blogs_rec %>% bake(blogs_te)
 
 glue("mean of comments in orig training: {format(mean(blogs_tr$X51), digits = 3)}, sd: {format(sd(blogs_tr$X51), digits = 3)}
-     mean of comments in baked training: {format(mean(blogs_tr2$X51), digits = 0)}, sd: {format(sd(blogs_tr2$X51), digits = 3)}")
+     mean of comments in baked training: {format(mean(blogs_tr2$X51), digits = 1)}, sd: {format(sd(blogs_tr2$X51), digits = 3)}")
 
 glue("mean of comments in orig testing: {format(mean(blogs_te$X51), digits = 3)}, sd: {format(sd(blogs_te$X51), digits = 3)}
-     mean of comments in baked testing: {format(mean(blogs_te2$X51), digits = 0)}, sd: {format(sd(blogs_te2$X51), digits = 3)}")
+     mean of comments in baked testing: {format(mean(blogs_te2$X51), digits = 1)}, sd: {format(sd(blogs_te2$X51), digits = 3)}")
 ```
 
 ---
