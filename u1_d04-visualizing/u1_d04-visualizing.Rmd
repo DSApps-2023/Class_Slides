@@ -443,7 +443,7 @@ characters %>%
   group_by(film_id) %>%
   summarise(n_char = n_distinct(character_id)) %>%
   ggplot(aes(film_id, n_char)) +
-  geom_line(lwd = 2) + #<<
+  geom_line(linewidth = 2) + #<<
   labs(x = "", y = "No. of Characters",
        title = "Star Wars Films No. of Unique Characters") +
   scale_x_continuous(breaks = 1:7, labels = films$title) +
@@ -460,7 +460,7 @@ characters %>%
   group_by(film_id) %>%
   summarise(n_char = n_distinct(character_id)) %>%
   ggplot(aes(film_id, n_char)) +
-  geom_line(lwd = 2) +
+  geom_line(linewidth = 2) +
   labs(x = "", y = "No. of Characters",
        title = "Star Wars Films No. of Unique Characters") +
   scale_x_continuous(breaks = 1:7, labels = films$title) +
@@ -937,7 +937,7 @@ characters %>%
   group_by(film_id) %>%
   summarise(n_char = n_distinct(character_id)) %>%
   ggplot(aes(film_id, n_char)) +
-  geom_line(lwd = 2) +
+  geom_line(linewidth = 2) +
   geom_point(aes(group = seq_along(film_id)), size = 5) +
   labs(x = "", y = "No. of Characters",
        title = "No. of Unique Characters: {films$title[frame %/% 15 + 1]}") +
