@@ -65,7 +65,7 @@ class: section-slide
 
 [Excel might be the most dangerous software on the planet](https://www.forbes.com/sites/timworstall/2013/02/13/microsofts-excel-might-be-the-most-dangerous-software-on-the-planet/#667084f5633d) (Forbes)
 
-[Excel horror stories](http://www.eusprig.org/index.htm)
+[Excel horror stories](https://eusprig.org/research-info/horror-stories/)
 
 ---
 
@@ -244,7 +244,7 @@ okcupid$income[okcupid$income == -1] <- NA
 okcupid$height_cm <- okcupid$height * 2.54
 ```
 
-```{r Viz-Base, out.width = "40%"}
+```{r Viz-Base, out.width="70%", fig.asp = 0.6}
 plot(okcupid$height_cm, log10(okcupid$income + 1),
      col = c("red", "green")[as.factor(okcupid$sex)])
 ```
@@ -252,7 +252,7 @@ plot(okcupid$height_cm, log10(okcupid$income + 1),
 
 ---
 
-```{r Viz-Tidy, out.width = "50%"}
+```{r Viz-Tidy, out.width="70%", fig.asp = 0.6}
 ggplot(okcupid, aes(height_cm, log10(income + 1), color = sex)) +
   geom_point()
 ```
@@ -444,7 +444,7 @@ table1
 
 ### A Tidy dataset will be much easier to plot
 
-```{r Table1-Plot, warning=FALSE, out.width = "50%"}
+```{r Table1-Plot, warning=FALSE, out.width="70%", fig.asp = 0.6}
 ggplot(table1, aes(x = yob, y = pct_straight, color = religion)) +
   geom_smooth(method = "loess", formula = y ~ x, se = FALSE)
 ```
@@ -518,15 +518,15 @@ data.frame(x = 1:5, y = x^2)
 - Will never turn your strings into factors, will never change your column names:
 
 ```{r Read_CSV}
-tib1 <- readr::read_csv("../data/bad_args_test.csv", col_types = cols())
+tib1 <- readr::read_csv("../data/another_bad_test_args.csv", col_types = cols())
 colnames(tib1)
-tib1$col3
+tib1$`col 3`
 ```
 
 ```{r Read.CSV}
-df1 <- read.csv("../data/bad_args_test.csv")
+df1 <- read.csv("../data/another_bad_test_args.csv")
 colnames(df1)
-df1$col3
+df1$col.3
 ```
 
 ---
