@@ -53,7 +53,7 @@ class: section-slide
 
 ---
 
-Our two previous modeling attempts, with [Modeling in the Tidyverse](https://dsapps-2022.github.io/Class_Slides/u1_d05-modeling/u1_d05-modeling.html) and in [The Trees](https://dsapps-2022.github.io/Class_Slides/u3_d01-trees/u3_d01-trees.html) where problematic.
+Our two previous modeling attempts, with [Modeling in the Tidyverse](https://dsapps-2023.github.io/Class_Slides/u1_d05-modeling/u1_d05-modeling.html) and in [The Trees](https://dsapps-2023.github.io/Class_Slides/u3_d01-trees/u3_d01-trees.html) where problematic.
 
 - Using a "sinked" split, not using `set.seed()` - reproducible but wasteful
 - "Lazy" feature engineering, not using the entire data, not creative
@@ -929,7 +929,7 @@ cv_res_missing_meds <- cv_res_missing %>%
 ```{r Ok-Miss10, out.width="100%", fig.asp=0.5}
 cv_res_missing %>%
   ggplot(aes(income, AUC, group = id, color = id)) +
-  geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, lwd = 2) +
+  geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_missing_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
     guides(color = "none") + facet_wrap(. ~ categorical) +
     theme_light()
@@ -1188,7 +1188,7 @@ cv_res_missing %>%
   group_by(id, income, essay) %>%
   summarise(AUC = mean(AUC)) %>%
   ggplot(aes(income, AUC, group = id, color = id)) +
-    geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, lwd = 2) +
+    geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_missing_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
     guides(color = "none") + facet_wrap(. ~ essay) +
     theme_light()
@@ -1231,7 +1231,7 @@ class: section-slide
 
 ### Class Imbalance
 
-.font80percent[(We already gave a decent review in [last class](https://dsapps-2022.github.io/Class_Slides/u3_d02-classtopics/u3_d02-classtopics.html))]
+.font80percent[(We already gave a decent review in [last class](https://dsapps-2023.github.io/Class_Slides/u3_d02-classtopics/u3_d02-classtopics.html))]
 
 We'll choose between 3 strategies:
 - Upsample
@@ -1351,7 +1351,7 @@ cv_res_imbalance_meds <- cv_res_imbalance %>%
 ```{r Ok-Imb1, out.width="100%", fig.asp=0.5}
 cv_res_imbalance %>%
   ggplot(aes(recipe, AUC, group = id, color = id)) +
-    geom_line() + geom_line(data = cv_res_imbalance_meds, color = "black", alpha = 0.2, lwd = 2) +
+    geom_line() + geom_line(data = cv_res_imbalance_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_imbalance_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
     guides(color = "none") +
     theme_light()
@@ -1800,7 +1800,7 @@ recipe(pets ~ ., data = ok_tr_eng %>% select(pets, location)) %>%
 
 #### Dimensionality Reduction (Embeddings)
 
-See our `word2vec` detour when we learned about [Networks Community Detection](https://dsapps-2022.github.io/Class_Slides/u2_d04-community/u2_d04-community.html).
+See our `word2vec` detour when we learned about [Networks Community Detection](https://dsapps-2023.github.io/Class_Slides/u2_d04-community/u2_d04-community.html).
 
 If you have `tensorflow` and `keras` installed, you could train your own embeddings to turn each `location` into a `num_terms` long vector of features:
 
@@ -1933,7 +1933,7 @@ cv_res_catdog %>%
   ggplot(aes(recipe, AUC, group = id, color = id)) +
   geom_line() +
   geom_line(data = cv_res_catdog_meds, color = "black",
-            alpha = 0.2, lwd = 2) +
+            alpha = 0.2, linewidth = 2) +
   geom_point() +
   geom_point(data = cv_res_catdog_meds, color = "black",
              alpha = 0.2, size = 5, pch = 17) +
@@ -2392,7 +2392,7 @@ cv_res_eng %>%
   mutate(recipe = fct_relevel(recipe,
                               c("notext", "hashtext", "textfeat", "fulltext", "commonsense"))) %>%
   ggplot(aes(recipe, AUC, group = id, color = id)) +
-  geom_line() + geom_line(data = cv_res_eng_meds %>% bind_rows(cv_res_cs_meds), color = "black", alpha = 0.2, lwd = 2) +
+  geom_line() + geom_line(data = cv_res_eng_meds %>% bind_rows(cv_res_cs_meds), color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_eng_meds %>% bind_rows(cv_res_cs_meds), color = "black", alpha = 0.2, size = 5, pch = 17) +
   guides(color = "none") + theme_light()
 ```
@@ -2539,7 +2539,7 @@ How will the fit look like?
 ```{r Income-Age-Scatter2, warning=FALSE, out.width="100%", fig.asp=0.5}
 ggplot(ok_tr_eng[!is.na(ok_tr_eng$income), ]) +
   geom_point(aes(age, log(income))) +
-  geom_line(aes(age, mod_lm_bs$fit), color = "red", lwd = 2, alpha = 0.4) +
+  geom_line(aes(age, mod_lm_bs$fit), color = "red", linewidth = 2, alpha = 0.4) +
   theme_light()
 ```
 
@@ -2551,7 +2551,7 @@ Or with a simple cubic spline with one knot in `bs()`
 mod_lm_bs2 <- lm(log(income) ~ bs(age, knots = 45), data = ok_tr_eng)
 ggplot(ok_tr_eng[!is.na(ok_tr_eng$income), ]) +
   geom_point(aes(age, log(income))) +
-  geom_line(aes(age, mod_lm_bs2$fit), color = "red", lwd = 2, alpha = 0.4) +
+  geom_line(aes(age, mod_lm_bs2$fit), color = "red", linewidth = 2, alpha = 0.4) +
   theme_light()
 ```
 
@@ -2720,7 +2720,7 @@ We can plot no. of features selected by `glmnet` by lambda
 mod_lr_res %>%
   count(lambda) %>%
   ggplot(aes(lambda, n)) +
-  geom_line(lwd = 2, color = "red", alpha = 0.5) +
+  geom_line(linewidth = 2, color = "red", alpha = 0.5) +
   labs(y = "N features selected by glmnet") +
   theme_light()
 ```
@@ -2819,7 +2819,7 @@ What are those people with all `ethnicity` columns with zero?
 
 ```{r}
 main_data %>% select(starts_with("ethnicity")) %>%
-  filter(across(everything(), ~.x == 0))
+  filter(if_all(everything(), ~.x == 0))
 ```
 
 ---
@@ -3055,7 +3055,7 @@ cv_res_int_meds <- cv_res_int %>%
 cv_res_int %>%
   mutate(recipe = fct_relevel(recipe, c("noint", "sex", "topmain", "topints", "all"))) %>%
   ggplot(aes(recipe, AUC, group = id, color = id)) +
-  geom_line() + geom_line(data = cv_res_int_meds, color = "black", alpha = 0.2, lwd = 2) +
+  geom_line() + geom_line(data = cv_res_int_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_int_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
   guides(color = "none") + theme_light()
 ```

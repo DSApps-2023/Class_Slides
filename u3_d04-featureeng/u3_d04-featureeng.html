@@ -4,8 +4,8 @@
     <title>Feature Engineering</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-04-30" />
-    <script src="u3_d04-featureeng_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-26" />
+    <script src="u3_d04-featureeng_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-04-30
+### 2022-12-26
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -56,7 +56,7 @@ class: section-slide
 
 ---
 
-Our two previous modeling attempts, with [Modeling in the Tidyverse](https://dsapps-2022.github.io/Class_Slides/u1_d05-modeling/u1_d05-modeling.html) and in [The Trees](https://dsapps-2022.github.io/Class_Slides/u3_d01-trees/u3_d01-trees.html) where problematic.
+Our two previous modeling attempts, with [Modeling in the Tidyverse](https://dsapps-2023.github.io/Class_Slides/u1_d05-modeling/u1_d05-modeling.html) and in [The Trees](https://dsapps-2023.github.io/Class_Slides/u3_d01-trees/u3_d01-trees.html) where problematic.
 
 - Using a "sinked" split, not using `set.seed()` - reproducible but wasteful
 - "Lazy" feature engineering, not using the entire data, not creative
@@ -272,7 +272,7 @@ okcupid_train %&gt;% count(pets) %&gt;% mutate(pct = n / sum(n))
 ```
 
 ```
-## # A tibble: 2 x 3
+## # A tibble: 2 × 3
 ##   pets      n   pct
 ##   &lt;chr&gt; &lt;int&gt; &lt;dbl&gt;
 ## 1 cats   2097 0.165
@@ -284,7 +284,7 @@ okcupid_test %&gt;% count(pets) %&gt;% mutate(pct = n / sum(n))
 ```
 
 ```
-## # A tibble: 2 x 3
+## # A tibble: 2 × 3
 ##   pets      n   pct
 ##   &lt;chr&gt; &lt;int&gt; &lt;dbl&gt;
 ## 1 cats    693 0.173
@@ -317,36 +317,36 @@ glimpse(okcupid_train)
 ```
 ## Rows: 12,729
 ## Columns: 30
-## $ age         &lt;dbl&gt; 39, 19, 27, 24, 29, 24, 25, 25, 21, 25, 28, 25, 21, 19, 26~
-## $ body_type   &lt;chr&gt; "fit", "curvy", NA, "fit", "fit", "fit", "athletic", "aver~
-## $ diet        &lt;chr&gt; "mostly anything", "mostly vegetarian", "mostly anything",~
-## $ drinks      &lt;chr&gt; "socially", "rarely", NA, "socially", "socially", "sociall~
-## $ drugs       &lt;chr&gt; "never", "sometimes", NA, NA, "never", NA, "never", "never~
-## $ education   &lt;chr&gt; "graduated from college/university", NA, NA, "graduated fr~
-## $ essay0      &lt;chr&gt; "i am a very positive person who loves to laugh and enjoy ~
-## $ essay1      &lt;chr&gt; "i work in the health and wellness industry and i try to a~
-## $ essay2      &lt;chr&gt; "making people smile or laugh.", "ummmm everything? :d&lt;br ~
-## $ essay3      &lt;chr&gt; "my eyes", "my boobs. definitely.&lt;br /&gt;\nand the fact that~
-## $ essay4      &lt;chr&gt; "i enjoy malcolm gladwell, blink, tipping point, outliers;~
-## $ essay5      &lt;chr&gt; "water,steak,chocolate,comfy jeans,transportation,friends"~
-## $ essay6      &lt;chr&gt; "food, naps, women, and health", "caffeine, my baby chihua~
-## $ essay7      &lt;chr&gt; "doing whatever has come up or has been planned. dinner, c~
-## $ essay8      &lt;chr&gt; "i am totally deaf in my right ear", "i love animals more ~
-## $ essay9      &lt;chr&gt; "you enjoy having fun, love to laugh, have a positive atti~
-## $ ethnicity   &lt;chr&gt; "white", "white", NA, "white", "asian, pacific islander", ~
-## $ height      &lt;dbl&gt; 70, 60, 72, 65, 69, 72, 70, 67, 66, 67, 63, 63, 62, 67, 66~
-## $ income      &lt;dbl&gt; 8e+04, NA, NA, NA, 3e+04, 5e+04, 1e+05, NA, 2e+04, NA, NA,~
-## $ job         &lt;chr&gt; "medicine / health", "sales / marketing / biz dev", "medic~
-## $ location    &lt;chr&gt; "mountain view, california", "pleasant hill, california", ~
-## $ offspring   &lt;chr&gt; "doesn&amp;rsquo;t have kids, but might want them", NA, "doesn~
-## $ orientation &lt;chr&gt; "straight", "straight", "straight", "straight", "straight"~
-## $ pets        &lt;chr&gt; "dogs", "dogs", "dogs", "dogs", "dogs", "dogs", "dogs", "d~
-## $ religion    &lt;chr&gt; "atheism", "agnosticism and laughing about it", "agnostici~
-## $ sex         &lt;chr&gt; "m", "f", "m", "f", "m", "m", "m", "m", "f", "m", "f", "f"~
-## $ sign        &lt;chr&gt; "capricorn", "libra and it matters a lot", NA, NA, "libra ~
-## $ smokes      &lt;chr&gt; "no", "yes", NA, "no", "no", NA, "no", "sometimes", "no", ~
-## $ speaks      &lt;chr&gt; "english", "english (fluently)", "english", "english (flue~
-## $ status      &lt;chr&gt; "single", "seeing someone", "single", "single", "single", ~
+## $ age         &lt;dbl&gt; 39, 19, 27, 24, 29, 24, 25, 25, 21, 25, 28, 25, 21, 19, 26…
+## $ body_type   &lt;chr&gt; "fit", "curvy", NA, "fit", "fit", "fit", "athletic", "aver…
+## $ diet        &lt;chr&gt; "mostly anything", "mostly vegetarian", "mostly anything",…
+## $ drinks      &lt;chr&gt; "socially", "rarely", NA, "socially", "socially", "sociall…
+## $ drugs       &lt;chr&gt; "never", "sometimes", NA, NA, "never", NA, "never", "never…
+## $ education   &lt;chr&gt; "graduated from college/university", NA, NA, "graduated fr…
+## $ essay0      &lt;chr&gt; "i am a very positive person who loves to laugh and enjoy …
+## $ essay1      &lt;chr&gt; "i work in the health and wellness industry and i try to a…
+## $ essay2      &lt;chr&gt; "making people smile or laugh.", "ummmm everything? :d&lt;br …
+## $ essay3      &lt;chr&gt; "my eyes", "my boobs. definitely.&lt;br /&gt;\nand the fact that…
+## $ essay4      &lt;chr&gt; "i enjoy malcolm gladwell, blink, tipping point, outliers;…
+## $ essay5      &lt;chr&gt; "water,steak,chocolate,comfy jeans,transportation,friends"…
+## $ essay6      &lt;chr&gt; "food, naps, women, and health", "caffeine, my baby chihua…
+## $ essay7      &lt;chr&gt; "doing whatever has come up or has been planned. dinner, c…
+## $ essay8      &lt;chr&gt; "i am totally deaf in my right ear", "i love animals more …
+## $ essay9      &lt;chr&gt; "you enjoy having fun, love to laugh, have a positive atti…
+## $ ethnicity   &lt;chr&gt; "white", "white", NA, "white", "asian, pacific islander", …
+## $ height      &lt;dbl&gt; 70, 60, 72, 65, 69, 72, 70, 67, 66, 67, 63, 63, 62, 67, 66…
+## $ income      &lt;dbl&gt; 8e+04, NA, NA, NA, 3e+04, 5e+04, 1e+05, NA, 2e+04, NA, NA,…
+## $ job         &lt;chr&gt; "medicine / health", "sales / marketing / biz dev", "medic…
+## $ location    &lt;chr&gt; "mountain view, california", "pleasant hill, california", …
+## $ offspring   &lt;chr&gt; "doesn&amp;rsquo;t have kids, but might want them", NA, "doesn…
+## $ orientation &lt;chr&gt; "straight", "straight", "straight", "straight", "straight"…
+## $ pets        &lt;chr&gt; "dogs", "dogs", "dogs", "dogs", "dogs", "dogs", "dogs", "d…
+## $ religion    &lt;chr&gt; "atheism", "agnosticism and laughing about it", "agnostici…
+## $ sex         &lt;chr&gt; "m", "f", "m", "f", "m", "m", "m", "m", "f", "m", "f", "f"…
+## $ sign        &lt;chr&gt; "capricorn", "libra and it matters a lot", NA, NA, "libra …
+## $ smokes      &lt;chr&gt; "no", "yes", NA, "no", "no", NA, "no", "sometimes", "no", …
+## $ speaks      &lt;chr&gt; "english", "english (fluently)", "english", "english (flue…
+## $ status      &lt;chr&gt; "single", "seeing someone", "single", "single", "single", …
 ```
 
 ---
@@ -476,16 +476,16 @@ ok_tr_eng &lt;- testing(ok_tuning_split)
 
 
 ```
-## # A tibble: 7 x 4
+## # A tibble: 7 × 4
 ##   name        df                    n_rows cats_rate
 ##   &lt;chr&gt;       &lt;list&gt;                 &lt;dbl&gt;     &lt;dbl&gt;
-## 1 missing     &lt;tibble [2,000 x 30]&gt;   2000     0.164
-## 2 imbalance   &lt;tibble [2,000 x 30]&gt;   2000     0.164
-## 3 engineering &lt;tibble [3,000 x 30]&gt;   3000     0.165
-## 4 interaction &lt;tibble [2,000 x 30]&gt;   2000     0.164
-## 5 tuning      &lt;tibble [3,000 x 30]&gt;   3000     0.165
-## 6 cutoff      &lt;tibble [729 x 30]&gt;      729     0.165
-## 7 test        &lt;tibble [4,000 x 30]&gt;   4000     0.173
+## 1 missing     &lt;tibble [2,000 × 30]&gt;   2000     0.164
+## 2 imbalance   &lt;tibble [2,000 × 30]&gt;   2000     0.164
+## 3 engineering &lt;tibble [3,000 × 30]&gt;   3000     0.165
+## 4 interaction &lt;tibble [2,000 × 30]&gt;   2000     0.164
+## 5 tuning      &lt;tibble [3,000 × 30]&gt;   3000     0.165
+## 6 cutoff      &lt;tibble [729 × 30]&gt;      729     0.165
+## 7 test        &lt;tibble [4,000 × 30]&gt;   4000     0.173
 ```
 
 ---
@@ -560,7 +560,7 @@ ok_tr_missing %&gt;%
 ```
 
 ```
-## # A tibble: 2 x 4
+## # A tibble: 2 × 4
 ##   pets  `FALSE` `TRUE` pct_missing
 ##   &lt;chr&gt;   &lt;int&gt;  &lt;int&gt;       &lt;dbl&gt;
 ## 1 cats       73    256       0.778
@@ -607,7 +607,7 @@ ok_tr_missing %&gt;%
 ```
 
 ```
-## # A tibble: 4 x 4
+## # A tibble: 4 × 4
 ##   status         `FALSE` `TRUE` pct_missing
 ##   &lt;chr&gt;            &lt;int&gt;  &lt;int&gt;       &lt;dbl&gt;
 ## 1 available           49      3      0.0577
@@ -633,7 +633,7 @@ ok_tr_missing %&gt;%
 ```
 
 ```
-## # A tibble: 2 x 4
+## # A tibble: 2 × 4
 ##   drugs_missing `FALSE` `TRUE` pct_missing
 ##   &lt;lgl&gt;           &lt;int&gt;  &lt;int&gt;       &lt;dbl&gt;
 ## 1 FALSE            1423     93      0.0613
@@ -816,7 +816,7 @@ cv_splits_missing
 
 ```
 ## #  10-fold cross-validation using stratification 
-## # A tibble: 10 x 2
+## # A tibble: 10 × 2
 ##    splits             id    
 ##    &lt;list&gt;             &lt;chr&gt; 
 ##  1 &lt;split [1799/201]&gt; Fold01
@@ -856,13 +856,13 @@ cv_splits_missing$rec_miss_unk_none_none[[1]]$term_info %&gt;%
 ```
 
 ```
-## # A tibble: 4 x 4
-##   variable                  type    role      source 
-##   &lt;chr&gt;                     &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt;  
-## 1 speaks_english..fluently. numeric predictor derived
-## 2 speaks_other1             numeric predictor derived
-## 3 speaks_new                numeric predictor derived
-## 4 speaks_unknown            numeric predictor derived
+## # A tibble: 4 × 4
+##   variable                  type      role      source 
+##   &lt;chr&gt;                     &lt;list&gt;    &lt;chr&gt;     &lt;chr&gt;  
+## 1 speaks_english..fluently. &lt;chr [2]&gt; predictor derived
+## 2 speaks_other1             &lt;chr [2]&gt; predictor derived
+## 3 speaks_new                &lt;chr [2]&gt; predictor derived
+## 4 speaks_unknown            &lt;chr [2]&gt; predictor derived
 ```
 
 ---
@@ -967,12 +967,12 @@ t.test(cv_splits_missing$step_unknown,
 ## 
 ## data:  cv_splits_missing$step_unknown and cv_splits_missing$step_mode
 ## t = -1.721, df = 9, p-value = 0.1194
-## alternative hypothesis: true difference in means is not equal to 0
+## alternative hypothesis: true mean difference is not equal to 0
 ## 95 percent confidence interval:
 ##  -0.024242337  0.003293326
 ## sample estimates:
-## mean of the differences 
-##             -0.01047451
+## mean difference 
+##     -0.01047451
 ```
 
 ---
@@ -1059,7 +1059,7 @@ cv_res_missing
 ```
 
 ```
-## # A tibble: 40 x 4
+## # A tibble: 40 × 4
 ##    id     categorical income   AUC
 ##    &lt;chr&gt;  &lt;chr&gt;       &lt;chr&gt;  &lt;dbl&gt;
 ##  1 Fold01 unknown     none   0.690
@@ -1072,7 +1072,7 @@ cv_res_missing
 ##  8 Fold02 mode        mean   0.689
 ##  9 Fold03 unknown     none   0.720
 ## 10 Fold03 mode        none   0.719
-## # ... with 30 more rows
+## # … with 30 more rows
 ```
 
 ---
@@ -1085,7 +1085,7 @@ Comparing AUCs with a plot
 ```r
 cv_res_missing %&gt;%
   ggplot(aes(income, AUC, group = id, color = id)) +
-  geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, lwd = 2) +
+  geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_missing_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
     guides(color = "none") + facet_wrap(. ~ categorical) +
     theme_light()
@@ -1199,7 +1199,7 @@ cv_res_missing %&gt;%
   group_by(id, income, essay) %&gt;%
   summarise(AUC = mean(AUC)) %&gt;%
   ggplot(aes(income, AUC, group = id, color = id)) +
-    geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, lwd = 2) +
+    geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_missing_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
     guides(color = "none") + facet_wrap(. ~ essay) +
     theme_light()
@@ -1250,7 +1250,7 @@ cv_res_missing %&gt;%
 ```
 
 ```
-## # A tibble: 10 x 4
+## # A tibble: 10 × 4
 ## # Groups:   categorical, income [6]
 ##    categorical income essay   AUC
 ##    &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt; &lt;dbl&gt;
@@ -1280,7 +1280,7 @@ class: section-slide
 
 ### Class Imbalance
 
-.font80percent[(We already gave a decent review in [last class](https://dsapps-2022.github.io/Class_Slides/u3_d02-classtopics/u3_d02-classtopics.html))]
+.font80percent[(We already gave a decent review in [last class](https://dsapps-2023.github.io/Class_Slides/u3_d02-classtopics/u3_d02-classtopics.html))]
 
 We'll choose between 3 strategies:
 - Upsample
@@ -1398,12 +1398,12 @@ print(summary(aov_imbalance))
 ## 
 ## Error: factor(id)
 ##           Df  Sum Sq  Mean Sq F value Pr(&gt;F)
-## Residuals  9 0.03596 0.003996               
+## Residuals  9 0.05132 0.005703               
 ## 
 ## Error: Within
 ##                Df   Sum Sq   Mean Sq F value Pr(&gt;F)  
-## factor(recipe)  2 0.004985 0.0024925   3.648 0.0468 *
-## Residuals      18 0.012298 0.0006832                 
+## factor(recipe)  2 0.001787 0.0008935   2.869 0.0829 .
+## Residuals      18 0.005605 0.0003114                 
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -1418,7 +1418,7 @@ Plotting...
 ```r
 cv_res_imbalance %&gt;%
   ggplot(aes(recipe, AUC, group = id, color = id)) +
-    geom_line() + geom_line(data = cv_res_imbalance_meds, color = "black", alpha = 0.2, lwd = 2) +
+    geom_line() + geom_line(data = cv_res_imbalance_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_imbalance_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
     guides(color = "none") +
     theme_light()
@@ -1436,12 +1436,12 @@ print(cv_res_imbalance %&gt;%
 ```
 
 ```
-## # A tibble: 3 x 2
+## # A tibble: 3 × 2
 ##   recipe     mean_auc
 ##   &lt;chr&gt;         &lt;dbl&gt;
-## 1 downsample    0.685
-## 2 smote         0.674
-## 3 upsample      0.705
+## 1 downsample    0.682
+## 2 smote         0.686
+## 3 upsample      0.700
 ```
 
 .insight[
@@ -1513,7 +1513,7 @@ head(one_hot)
 ```
 
 ```
-## # A tibble: 6 x 3
+## # A tibble: 6 × 3
 ##       y  x1_a  x1_b
 ##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1 0.915     1     0
@@ -1530,7 +1530,7 @@ head(non_one_hot)
 ```
 
 ```
-## # A tibble: 6 x 2
+## # A tibble: 6 × 2
 ##       y  x1_b
 ##   &lt;dbl&gt; &lt;dbl&gt;
 ## 1 0.915     0
@@ -1777,7 +1777,7 @@ head(one_hot)
 ```
 
 ```
-## # A tibble: 6 x 6
+## # A tibble: 6 × 6
 ##       y  x1_a  x1_b  x2_c  x2_d  x2_e
 ##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1 0.915     1     0     1     0     0
@@ -1794,7 +1794,7 @@ head(non_one_hot)
 ```
 
 ```
-## # A tibble: 6 x 4
+## # A tibble: 6 × 4
 ##       y  x1_b  x2_d  x2_e
 ##   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 ## 1 0.915     0     0     0
@@ -2055,7 +2055,7 @@ ok_tr_eng %&gt;% count(location)
 ```
 
 ```
-## # A tibble: 67 x 2
+## # A tibble: 67 × 2
 ##    location                          n
 ##    &lt;chr&gt;                         &lt;int&gt;
 ##  1 alameda, california              49
@@ -2068,7 +2068,7 @@ ok_tr_eng %&gt;% count(location)
 ##  8 bolinas, california               1
 ##  9 brisbane, california              4
 ## 10 burlingame, california           13
-## # ... with 57 more rows
+## # … with 57 more rows
 ```
 
 ---
@@ -2113,7 +2113,7 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 ```
 
 ```
-## # A tibble: 4 x 2
+## # A tibble: 4 × 2
 ##   location                      n
 ##   &lt;fct&gt;                     &lt;int&gt;
 ## 1 berkeley, california        185
@@ -2162,7 +2162,7 @@ ok_tr_eng %&gt;% count(sign)
 ```
 
 ```
-## # A tibble: 47 x 2
+## # A tibble: 47 × 2
 ##    sign                                           n
 ##    &lt;chr&gt;                                      &lt;int&gt;
 ##  1 aquarius                                      58
@@ -2175,7 +2175,7 @@ ok_tr_eng %&gt;% count(sign)
 ##  8 aries but it doesn&amp;rsquo;t matter             78
 ##  9 cancer                                        56
 ## 10 cancer and it&amp;rsquo;s fun to think about      66
-## # ... with 37 more rows
+## # … with 37 more rows
 ```
 
 ---
@@ -2194,7 +2194,7 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, sign)) %&gt;%
 ```
 
 ```
-## # A tibble: 13 x 2
+## # A tibble: 13 × 2
 ##    sign            n
 ##    &lt;fct&gt;       &lt;int&gt;
 ##  1 aries         212
@@ -2228,7 +2228,7 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 ```
 
 ```
-## # A tibble: 5 x 2
+## # A tibble: 5 × 2
 ##   location     n
 ##   &lt;fct&gt;    &lt;int&gt;
 ## 1 1         1935
@@ -2251,7 +2251,7 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 ```
 
 ```
-## # A tibble: 3,000 x 5
+## # A tibble: 3,000 × 5
 ##    location                  locationL_X2 locationL_X3 locationL_X4 locationL_X5
 ##    &lt;fct&gt;                            &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;
 ##  1 palo alto, california                0            1            0            0
@@ -2264,7 +2264,7 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 ##  8 alameda, california                  1            0            0            0
 ##  9 berkeley, california                 1            0            0            0
 ## 10 san francisco, california            0            0            0            0
-## # ... with 2,990 more rows
+## # … with 2,990 more rows
 ```
 
 ---
@@ -2296,24 +2296,26 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 ```
 
 ```
-## # A tibble: 3,000 x 17
-##    location_hash01 location_hash02 location_hash03 location_hash04
-##              &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;
-##  1               0               0               1               0
-##  2               0               0               1               0
-##  3               0               0               1               0
-##  4               0               0               1               0
-##  5               0               0               1               0
-##  6               0               1               1               0
-##  7               0               0               1               0
-##  8               0               0               1               0
-##  9               0               0               1               0
-## 10               0               0               1               0
-## # ... with 2,990 more rows, and 13 more variables: location_hash05 &lt;dbl&gt;,
-## #   location_hash06 &lt;dbl&gt;, location_hash07 &lt;dbl&gt;, location_hash08 &lt;dbl&gt;,
-## #   location_hash09 &lt;dbl&gt;, location_hash10 &lt;dbl&gt;, location_hash11 &lt;dbl&gt;,
-## #   location_hash12 &lt;dbl&gt;, location_hash13 &lt;dbl&gt;, location_hash14 &lt;dbl&gt;,
-## #   location_hash15 &lt;dbl&gt;, location_hash16 &lt;dbl&gt;, pets &lt;fct&gt;
+## # A tibble: 3,000 × 17
+##    texthash_location_01 texthash_location_02 texthash_location_03
+##                   &lt;int&gt;                &lt;int&gt;                &lt;int&gt;
+##  1                    0                    0                    1
+##  2                    0                    0                    1
+##  3                    0                    0                    1
+##  4                    0                    0                    1
+##  5                    0                    0                    1
+##  6                    0                    1                    1
+##  7                    0                    0                    1
+##  8                    0                    0                    1
+##  9                    0                    0                    1
+## 10                    0                    0                    1
+## # … with 2,990 more rows, and 14 more variables: texthash_location_04 &lt;int&gt;,
+## #   texthash_location_05 &lt;int&gt;, texthash_location_06 &lt;int&gt;,
+## #   texthash_location_07 &lt;int&gt;, texthash_location_08 &lt;int&gt;,
+## #   texthash_location_09 &lt;int&gt;, texthash_location_10 &lt;int&gt;,
+## #   texthash_location_11 &lt;int&gt;, texthash_location_12 &lt;int&gt;,
+## #   texthash_location_13 &lt;int&gt;, texthash_location_14 &lt;int&gt;,
+## #   texthash_location_15 &lt;int&gt;, texthash_location_16 &lt;int&gt;, pets &lt;fct&gt;
 ```
 
 ---
@@ -2361,7 +2363,7 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 ```
 
 ```
-## # A tibble: 3,000 x 3
+## # A tibble: 3,000 × 3
 ##    location pets  location2                
 ##       &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;                    
 ##  1    -1.73 dogs  palo alto, california    
@@ -2374,7 +2376,7 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 ##  8    -1.49 dogs  alameda, california      
 ##  9    -1.08 cats  berkeley, california     
 ## 10    -1.74 cats  san francisco, california
-## # ... with 2,990 more rows
+## # … with 2,990 more rows
 ```
 
 ---
@@ -2410,7 +2412,7 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 ```
 
 ```
-## # A tibble: 100 x 3
+## # A tibble: 100 × 3
 ##    location pets  location2                
 ##       &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;                    
 ##  1    -1.41 dogs  palo alto, california    
@@ -2423,14 +2425,14 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 ##  8    -1.41 dogs  alameda, california      
 ##  9    -1.44 cats  berkeley, california     
 ## 10    -1.49 cats  san francisco, california
-## # ... with 90 more rows
+## # … with 90 more rows
 ```
 
 ---
 
 #### Dimensionality Reduction (Embeddings)
 
-See our `word2vec` detour when we learned about [Networks Community Detection](https://dsapps-2022.github.io/Class_Slides/u2_d04-community/u2_d04-community.html).
+See our `word2vec` detour when we learned about [Networks Community Detection](https://dsapps-2023.github.io/Class_Slides/u2_d04-community/u2_d04-community.html).
 
 If you have `tensorflow` and `keras` installed, you could train your own embeddings to turn each `location` into a `num_terms` long vector of features:
 
@@ -2473,20 +2475,20 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 ```
 
 ```
-## # A tibble: 3,000 x 12
+## # A tibble: 3,000 × 12
 ##    pets  old_location   PC01    PC02    PC03     PC04     PC05     PC06     PC07
 ##    &lt;fct&gt; &lt;fct&gt;         &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-##  1 dogs  palo alto, ~ -1.28  -0.823   1.33   -1.85    -6.80     1.23    -0.524  
-##  2 dogs  san leandro~ -1.28  -0.803   1.25   -1.16     2.65     6.85    -1.17   
-##  3 cats  hayward, ca~ -1.27  -0.773   1.14   -0.720    0.802   -1.04     1.12   
-##  4 dogs  vallejo, ca~ -1.26  -0.741   1.04   -0.508    0.455   -0.460    0.358  
-##  5 dogs  san francis~  1.15   0.0647 -0.0406  0.00565 -0.00343  0.00269 -0.00171
-##  6 dogs  oakland, ca~ -1.61   2.51   -0.588   0.0601  -0.0353   0.0272  -0.0171 
-##  7 dogs  berkeley, c~ -1.40  -1.92   -3.33    0.146   -0.0817   0.0615  -0.0382 
-##  8 dogs  alameda, ca~ -0.445 -0.0625  0.0430 -0.00633  0.00388 -0.00304  0.00194
-##  9 cats  berkeley, c~ -1.40  -1.92   -3.33    0.146   -0.0817   0.0615  -0.0382 
-## 10 cats  san francis~  1.15   0.0647 -0.0406  0.00565 -0.00343  0.00269 -0.00171
-## # ... with 2,990 more rows, and 3 more variables: PC08 &lt;dbl&gt;, PC09 &lt;dbl&gt;,
+##  1 dogs  palo alto, … -1.28  -0.823   1.33   -1.85    -6.80     1.23    -0.524  
+##  2 dogs  san leandro… -1.28  -0.803   1.25   -1.16     2.65     6.85    -1.17   
+##  3 cats  hayward, ca… -1.27  -0.773   1.14   -0.720    0.802   -1.04     1.12   
+##  4 dogs  vallejo, ca… -1.26  -0.741   1.04   -0.508    0.455   -0.460    0.358  
+##  5 dogs  san francis…  1.15   0.0647 -0.0406  0.00565 -0.00343  0.00269 -0.00171
+##  6 dogs  oakland, ca… -1.61   2.51   -0.588   0.0601  -0.0353   0.0272  -0.0171 
+##  7 dogs  berkeley, c… -1.40  -1.92   -3.33    0.146   -0.0817   0.0615  -0.0382 
+##  8 dogs  alameda, ca… -0.445 -0.0625  0.0430 -0.00633  0.00388 -0.00304  0.00194
+##  9 cats  berkeley, c… -1.40  -1.92   -3.33    0.146   -0.0817   0.0615  -0.0382 
+## 10 cats  san francis…  1.15   0.0647 -0.0406  0.00565 -0.00343  0.00269 -0.00171
+## # … with 2,990 more rows, and 3 more variables: PC08 &lt;dbl&gt;, PC09 &lt;dbl&gt;,
 ## #   PC10 &lt;dbl&gt;
 ```
 
@@ -2609,8 +2611,8 @@ print(textfeatures::word_dims(
 ```
 
 ```
-## INFO  [20:39:50.612] early stopping at 20 iteration 
-## INFO  [20:39:50.687] early stopping at 20 iteration 
+## INFO  [14:55:46.886] early stopping at 20 iteration
+## INFO  [14:55:46.930] early stopping at 20 iteration
 ##   w1 w2   w3   w4  w5 w6   w7  w8 w9  w10
 ## 1  0  0 0.05 0.05 0.1  0 0.05 0.7  0 0.05
 ```
@@ -2643,7 +2645,7 @@ recipe(pets ~ ., data = ok_tr_eng2 %&gt;% select(pets, essays)) %&gt;%
 ```
 
 ```
-## # A tibble: 10 x 3
+## # A tibble: 10 × 3
 ##    t_essays_n_uq_words t_essays_n_hashtags t_essays_sent_bing
 ##                  &lt;dbl&gt;               &lt;dbl&gt;              &lt;dbl&gt;
 ##  1                   0                   0                  0
@@ -2688,7 +2690,7 @@ tidy_essays %&gt;% head()
 ```
 
 ```
-## # A tibble: 6 x 3
+## # A tibble: 6 × 3
 ##      id pets  word      
 ##   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;     
 ## 1     2 dogs  bay       
@@ -2752,7 +2754,7 @@ or_res
 ```
 
 ```
-## # A tibble: 818 x 7
+## # A tibble: 818 × 7
 ##    word        cats  dogs fisher_obj          OR  p_val   fdr
 ##    &lt;chr&gt;      &lt;int&gt; &lt;int&gt; &lt;list&gt;           &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
 ##  1 ability       17    47 &lt;named list [2]&gt; 1.86  0.0392 0.163
@@ -2765,7 +2767,7 @@ or_res
 ##  8 add           15    55 &lt;named list [2]&gt; 1.39  0.255  0.486
 ##  9 adele          8    47 &lt;named list [2]&gt; 0.859 0.855  0.958
 ## 10 admit         26   105 &lt;named list [2]&gt; 1.27  0.280  0.513
-## # ... with 808 more rows
+## # … with 808 more rows
 ```
 
 ---
@@ -2780,7 +2782,7 @@ cd_words
 ```
 
 ```
-## # A tibble: 10 x 7
+## # A tibble: 10 × 7
 ##    word     cats  dogs fisher_obj          OR    p_val      fdr
 ##    &lt;chr&gt;   &lt;int&gt; &lt;int&gt; &lt;list&gt;           &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
 ##  1 cat        44    33 &lt;named list [2]&gt; 7.30  2.11e-16 1.73e-13
@@ -3033,7 +3035,7 @@ cv_res_eng %&gt;%
   mutate(recipe = fct_relevel(recipe,
                               c("notext", "hashtext", "textfeat", "fulltext", "commonsense"))) %&gt;%
   ggplot(aes(recipe, AUC, group = id, color = id)) +
-  geom_line() + geom_line(data = cv_res_eng_meds %&gt;% bind_rows(cv_res_cs_meds), color = "black", alpha = 0.2, lwd = 2) +
+  geom_line() + geom_line(data = cv_res_eng_meds %&gt;% bind_rows(cv_res_cs_meds), color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_eng_meds %&gt;% bind_rows(cv_res_cs_meds), color = "black", alpha = 0.2, size = 5, pch = 17) +
   guides(color = "none") + theme_light()
 ```
@@ -3261,7 +3263,7 @@ How will the fit look like?
 ```r
 ggplot(ok_tr_eng[!is.na(ok_tr_eng$income), ]) +
   geom_point(aes(age, log(income))) +
-  geom_line(aes(age, mod_lm_bs$fit), color = "red", lwd = 2, alpha = 0.4) +
+  geom_line(aes(age, mod_lm_bs$fit), color = "red", linewidth = 2, alpha = 0.4) +
   theme_light()
 ```
 
@@ -3289,7 +3291,7 @@ recipe(income ~ age, ok_tr_eng) %&gt;%
 ```
 
 ```
-## # A tibble: 6 x 4
+## # A tibble: 6 × 4
 ##     age income left_relu_age right_relu_age
 ##   &lt;dbl&gt;  &lt;dbl&gt;         &lt;dbl&gt;          &lt;dbl&gt;
 ## 1    26  20000            19              0
@@ -3315,7 +3317,7 @@ recipe(income ~ age, ok_tr_eng) %&gt;%
 ```
 
 ```
-## # A tibble: 6 x 4
+## # A tibble: 6 × 4
 ##   income age_bs_1 age_bs_2 age_bs_3
 ##    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
 ## 1  20000    0.335  0.0622  0.00386 
@@ -3488,20 +3490,20 @@ mod_lr_res
 ```
 
 ```
-## # A tibble: 6,287 x 5
+## # A tibble: 4,648 × 5
 ##    term         step  estimate lambda dev.ratio
 ##    &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;
-##  1 (Intercept)     1 -2.45e-13 0.0889  2.60e-13
-##  2 (Intercept)     2 -1.07e- 2 0.0810  8.86e- 3
-##  3 (Intercept)     3 -7.48e- 3 0.0738  2.15e- 2
-##  4 (Intercept)     4 -3.68e- 3 0.0672  3.29e- 2
-##  5 (Intercept)     5  6.13e- 3 0.0613  4.46e- 2
-##  6 (Intercept)     6  5.02e- 2 0.0558  5.83e- 2
-##  7 (Intercept)     7  9.30e- 2 0.0509  7.25e- 2
-##  8 (Intercept)     8  1.34e- 1 0.0464  8.54e- 2
-##  9 (Intercept)     9  1.95e- 1 0.0422  9.80e- 2
-## 10 (Intercept)    10  2.57e- 1 0.0385  1.09e- 1
-## # ... with 6,277 more rows
+##  1 (Intercept)     1  5.14e-14 0.0909  8.81e-14
+##  2 (Intercept)     2 -4.70e- 3 0.0828  9.49e- 3
+##  3 (Intercept)     3 -2.94e- 3 0.0754  2.23e- 2
+##  4 (Intercept)     4 -3.97e- 4 0.0687  3.48e- 2
+##  5 (Intercept)     5  1.66e- 3 0.0626  4.57e- 2
+##  6 (Intercept)     6  1.34e- 2 0.0571  5.80e- 2
+##  7 (Intercept)     7  7.74e- 2 0.0520  7.19e- 2
+##  8 (Intercept)     8  1.28e- 1 0.0474  8.53e- 2
+##  9 (Intercept)     9  1.72e- 1 0.0432  9.80e- 2
+## 10 (Intercept)    10  2.06e- 1 0.0393  1.09e- 1
+## # … with 4,638 more rows
 ```
 
 ---
@@ -3513,7 +3515,7 @@ We can plot no. of features selected by `glmnet` by lambda
 mod_lr_res %&gt;%
   count(lambda) %&gt;%
   ggplot(aes(lambda, n)) +
-  geom_line(lwd = 2, color = "red", alpha = 0.5) +
+  geom_line(linewidth = 2, color = "red", alpha = 0.5) +
   labs(y = "N features selected by glmnet") +
   theme_light()
 ```
@@ -3533,22 +3535,21 @@ mod_lr_res %&gt;%
 ```
 
 ```
-## # A tibble: 13 x 2
-##    term               estimate
-##    &lt;chr&gt;                 &lt;dbl&gt;
-##  1 w_my_cat           -0.470  
-##  2 religion_christian  0.298  
-##  3 w_my_dog            0.294  
-##  4 status_all_else    -0.277  
-##  5 w_dog               0.0843 
-##  6 w_cats             -0.0679 
-##  7 body_type_all_else -0.0580 
-##  8 drugs_sometimes    -0.0515 
-##  9 w_cat              -0.0509 
-## 10 (Intercept)         0.0502 
-## 11 drinks_socially     0.0233 
-## 12 location_sf         0.00278
-## 13 age                -0.00122
+## # A tibble: 12 × 2
+##    term                estimate
+##    &lt;chr&gt;                  &lt;dbl&gt;
+##  1 w_my_cat           -0.455   
+##  2 status_all_else    -0.343   
+##  3 religion_christian  0.307   
+##  4 w_my_dog            0.227   
+##  5 w_dog               0.115   
+##  6 w_cat              -0.0552  
+##  7 drugs_sometimes    -0.0376  
+##  8 drinks_socially     0.0273  
+##  9 w_cats             -0.0159  
+## 10 (Intercept)         0.0134  
+## 11 body_type_all_else -0.0117  
+## 12 age                -0.000603
 ```
 
 ---
@@ -3618,7 +3619,7 @@ pairwise_ints
 ```
 
 ```
-## # A tibble: 10 x 4
+## # A tibble: 10 × 4
 ##    var1               var2                      p_val      fdr
 ##    &lt;chr&gt;              &lt;chr&gt;                     &lt;dbl&gt;    &lt;dbl&gt;
 ##  1 ethnicity_other    location_other         2.68e-14 2.06e-10
@@ -3643,7 +3644,7 @@ ok_tr_combined %&gt;% count(ethnicity, sort = TRUE)
 ```
 
 ```
-## # A tibble: 6 x 2
+## # A tibble: 6 × 2
 ##   ethnicity     n
 ##   &lt;fct&gt;     &lt;int&gt;
 ## 1 white      3802
@@ -3660,7 +3661,7 @@ main_data %&gt;% select(starts_with("ethnicity")) %&gt;% head()
 ```
 
 ```
-## # A tibble: 6 x 4
+## # A tibble: 6 × 4
 ##   ethnicity_other ethnicity_white ethnicity_all_else ethnicity_new
 ##             &lt;dbl&gt;           &lt;dbl&gt;              &lt;dbl&gt;         &lt;dbl&gt;
 ## 1               0               1                  0             0
@@ -3678,11 +3679,11 @@ What are those people with all `ethnicity` columns with zero?
 
 ```r
 main_data %&gt;% select(starts_with("ethnicity")) %&gt;%
-  filter(across(everything(), ~.x == 0))
+  filter(if_all(everything(), ~.x == 0))
 ```
 
 ```
-## # A tibble: 1,064 x 4
+## # A tibble: 1,039 × 4
 ##    ethnicity_other ethnicity_white ethnicity_all_else ethnicity_new
 ##              &lt;dbl&gt;           &lt;dbl&gt;              &lt;dbl&gt;         &lt;dbl&gt;
 ##  1               0               0                  0             0
@@ -3695,7 +3696,7 @@ main_data %&gt;% select(starts_with("ethnicity")) %&gt;%
 ##  8               0               0                  0             0
 ##  9               0               0                  0             0
 ## 10               0               0                  0             0
-## # ... with 1,054 more rows
+## # … with 1,029 more rows
 ```
 
 ---
@@ -3708,7 +3709,7 @@ ok_tr_combined %&gt;% count(location, sort = TRUE)
 ```
 
 ```
-## # A tibble: 4 x 2
+## # A tibble: 4 × 2
 ##   location     n
 ##   &lt;fct&gt;    &lt;int&gt;
 ## 1 sf        3739
@@ -3723,14 +3724,14 @@ main_data %&gt;% select(starts_with("location")) %&gt;% head()
 ```
 
 ```
-## # A tibble: 6 x 4
+## # A tibble: 6 × 4
 ##   location_other location_sf location_all_else location_new
 ##            &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;        &lt;dbl&gt;
 ## 1              1           0                 0            0
 ## 2              1           0                 0            0
 ## 3              0           1                 0            0
 ## 4              0           1                 0            0
-## 5              0           1                 0            0
+## 5              0           0                 0            0
 ## 6              0           0                 0            0
 ```
 
@@ -3841,28 +3842,24 @@ topmain_ints
 ```
 ## ~age:w_cat + age:w_dog + age:w_cats + age:w_my_cat + age:w_my_dog + 
 ##     age:body_type_all_else + age:drinks_socially + age:drugs_sometimes + 
-##     age:location_sf + age:religion_christian + age:status_all_else + 
-##     w_cat:w_dog + w_cat:w_cats + w_cat:w_my_cat + w_cat:w_my_dog + 
-##     w_cat:body_type_all_else + w_cat:drinks_socially + w_cat:drugs_sometimes + 
-##     w_cat:location_sf + w_cat:religion_christian + w_cat:status_all_else + 
-##     w_dog:w_cats + w_dog:w_my_cat + w_dog:w_my_dog + w_dog:body_type_all_else + 
-##     w_dog:drinks_socially + w_dog:drugs_sometimes + w_dog:location_sf + 
+##     age:religion_christian + age:status_all_else + w_cat:w_dog + 
+##     w_cat:w_cats + w_cat:w_my_cat + w_cat:w_my_dog + w_cat:body_type_all_else + 
+##     w_cat:drinks_socially + w_cat:drugs_sometimes + w_cat:religion_christian + 
+##     w_cat:status_all_else + w_dog:w_cats + w_dog:w_my_cat + w_dog:w_my_dog + 
+##     w_dog:body_type_all_else + w_dog:drinks_socially + w_dog:drugs_sometimes + 
 ##     w_dog:religion_christian + w_dog:status_all_else + w_cats:w_my_cat + 
 ##     w_cats:w_my_dog + w_cats:body_type_all_else + w_cats:drinks_socially + 
-##     w_cats:drugs_sometimes + w_cats:location_sf + w_cats:religion_christian + 
-##     w_cats:status_all_else + w_my_cat:w_my_dog + w_my_cat:body_type_all_else + 
-##     w_my_cat:drinks_socially + w_my_cat:drugs_sometimes + w_my_cat:location_sf + 
-##     w_my_cat:religion_christian + w_my_cat:status_all_else + 
-##     w_my_dog:body_type_all_else + w_my_dog:drinks_socially + 
-##     w_my_dog:drugs_sometimes + w_my_dog:location_sf + w_my_dog:religion_christian + 
+##     w_cats:drugs_sometimes + w_cats:religion_christian + w_cats:status_all_else + 
+##     w_my_cat:w_my_dog + w_my_cat:body_type_all_else + w_my_cat:drinks_socially + 
+##     w_my_cat:drugs_sometimes + w_my_cat:religion_christian + 
+##     w_my_cat:status_all_else + w_my_dog:body_type_all_else + 
+##     w_my_dog:drinks_socially + w_my_dog:drugs_sometimes + w_my_dog:religion_christian + 
 ##     w_my_dog:status_all_else + body_type_all_else:drinks_socially + 
-##     body_type_all_else:drugs_sometimes + body_type_all_else:location_sf + 
-##     body_type_all_else:religion_christian + body_type_all_else:status_all_else + 
-##     drinks_socially:drugs_sometimes + drinks_socially:location_sf + 
+##     body_type_all_else:drugs_sometimes + body_type_all_else:religion_christian + 
+##     body_type_all_else:status_all_else + drinks_socially:drugs_sometimes + 
 ##     drinks_socially:religion_christian + drinks_socially:status_all_else + 
-##     drugs_sometimes:location_sf + drugs_sometimes:religion_christian + 
-##     drugs_sometimes:status_all_else + location_sf:religion_christian + 
-##     location_sf:status_all_else + religion_christian:status_all_else
+##     drugs_sometimes:religion_christian + drugs_sometimes:status_all_else + 
+##     religion_christian:status_all_else
 ```
 
 ---
@@ -3982,7 +3979,7 @@ cv_res_int_meds &lt;- cv_res_int %&gt;%
 cv_res_int %&gt;%
   mutate(recipe = fct_relevel(recipe, c("noint", "sex", "topmain", "topints", "all"))) %&gt;%
   ggplot(aes(recipe, AUC, group = id, color = id)) +
-  geom_line() + geom_line(data = cv_res_int_meds, color = "black", alpha = 0.2, lwd = 2) +
+  geom_line() + geom_line(data = cv_res_int_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_int_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
   guides(color = "none") + theme_light()
 ```
@@ -4045,7 +4042,7 @@ collect_metrics_tune_res
 
 
 ```
-## # A tibble: 77 x 7
+## # A tibble: 77 × 7
 ##     penalty mixture .metric .estimator  mean     n std_err
 ##       &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
 ##  1 0.000001     0   roc_auc binary     0.775    10  0.0173
@@ -4058,7 +4055,7 @@ collect_metrics_tune_res
 ##  8 0.000001     0.7 roc_auc binary     0.767    10  0.0168
 ##  9 0.000001     0.8 roc_auc binary     0.767    10  0.0168
 ## 10 0.000001     0.9 roc_auc binary     0.767    10  0.0167
-## # ... with 67 more rows
+## # … with 67 more rows
 ```
 
 ---
@@ -4083,7 +4080,7 @@ show_best(tune_res, n = 10, metric = "roc_auc")
 
 
 ```
-## # A tibble: 10 x 7
+## # A tibble: 10 × 7
 ##    penalty mixture .metric .estimator  mean     n std_err
 ##      &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
 ##  1    0.01     0.6 roc_auc binary     0.783    10  0.0166
@@ -4173,17 +4170,17 @@ coords(roc_obj, x = cutoffs,
 
 ```
 ##                   [,1]      [,2]      [,3]      [,4]      [,5]      [,6]
-## accuracy    0.20987654 0.2743484 0.4334705 0.5939643 0.7352538 0.7969822
-## recall      1.00000000 0.9916667 0.9166667 0.8166667 0.6416667 0.4666667
-## precision   0.17241379 0.1839258 0.2144250 0.2634409 0.3392070 0.4000000
-## specificity 0.05418719 0.1330049 0.3382594 0.5500821 0.7536946 0.8620690
-## npv         1.00000000 0.9878049 0.9537037 0.9383754 0.9143426 0.8913413
+## accuracy    0.21124829 0.2729767 0.4458162 0.5967078 0.7256516 0.8038409
+## recall      1.00000000 0.9916667 0.9250000 0.8000000 0.6500000 0.4416667
+## precision   0.17266187 0.1836420 0.2193676 0.2622951 0.3305085 0.4108527
+## specificity 0.05582923 0.1313629 0.3513957 0.5566502 0.7405583 0.8752053
+## npv         1.00000000 0.9876543 0.9596413 0.9338843 0.9148073 0.8883333
 ##                  [,7]      [,8]      [,9]
-## accuracy    0.8340192 0.8587106 0.8518519
-## recall      0.2916667 0.2333333 0.1250000
-## precision   0.4929577 0.7179487 0.8333333
-## specificity 0.9408867 0.9819376 0.9950739
-## npv         0.8708207 0.8666667 0.8523207
+## accuracy    0.8326475 0.8573388 0.8532236
+## recall      0.2833333 0.2333333 0.1333333
+## precision   0.4857143 0.7000000 0.8421053
+## specificity 0.9408867 0.9802956 0.9950739
+## npv         0.8694992 0.8664731 0.8535211
 ```
 
 ---
@@ -4215,7 +4212,7 @@ okcupid_test2 %&gt;% count(pets) %&gt;% mutate(pct = n / sum(n))
 ```
 
 ```
-## # A tibble: 2 x 3
+## # A tibble: 2 × 3
 ##   pets      n   pct
 ##   &lt;fct&gt; &lt;int&gt; &lt;dbl&gt;
 ## 1 cats    653 0.165
@@ -4246,7 +4243,7 @@ roc_auc(pred_test, truth, .pred_cats)
 ```
 
 ```
-## # A tibble: 1 x 3
+## # A tibble: 1 × 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
 ## 1 roc_auc binary         0.788
@@ -4282,12 +4279,12 @@ coords(roc_obj, x = cutoffs,
 ```
 
 ```
-##                  [,1]      [,2]       [,3]
-## accuracy    0.4351010 0.7292929 0.85000000
-## recall      0.9295559 0.6906585 0.09647779
-## precision   0.2169407 0.3414080 0.94029851
-## specificity 0.3374660 0.7369217 0.99879044
-## npv         0.9604131 0.9234559 0.84844593
+##                  [,1]      [,2]      [,3]
+## accuracy    0.4409091 0.7310606 0.8510101
+## recall      0.9280245 0.6845329 0.1041348
+## precision   0.2185359 0.3422665 0.9315068
+## specificity 0.3447233 0.7402480 0.9984881
+## npv         0.9604044 0.9223813 0.8494983
 ```
 
 ---
@@ -4304,29 +4301,29 @@ tidy(mod_lr_test) %&gt;%
 ```
 
 ```
-## # A tibble: 20 x 3
+## # A tibble: 20 × 3
 ##    term               estimate penalty
 ##    &lt;chr&gt;                 &lt;dbl&gt;   &lt;dbl&gt;
-##  1 w_my_cat             -2.13     0.01
-##  2 w_my_dog              1.66     0.01
-##  3 w_kitt               -1.23     0.01
-##  4 w_love_dog            0.912    0.01
-##  5 religion_christian    0.832    0.01
-##  6 w_cats               -0.787    0.01
-##  7 w_dog                 0.617    0.01
-##  8 (Intercept)          -0.585    0.01
-##  9 diet_all_else        -0.540    0.01
-## 10 drugs_all_else       -0.528    0.01
-## 11 body_type_all_else   -0.520    0.01
-## 12 drugs_sometimes      -0.495    0.01
-## 13 status_all_else      -0.473    0.01
-## 14 ethnicity_white      -0.417    0.01
-## 15 w_pupp                0.399    0.01
-## 16 location_sf           0.379    0.01
-## 17 w_fantasy            -0.370    0.01
-## 18 speaks_spanish        0.356    0.01
-## 19 drinks_all_else      -0.352    0.01
-## 20 body_type_average    -0.350    0.01
+##  1 w_my_cat             -2.14     0.01
+##  2 w_my_dog              1.58     0.01
+##  3 w_kitt               -1.26     0.01
+##  4 religion_christian    0.827    0.01
+##  5 w_love_dog            0.823    0.01
+##  6 w_cats               -0.813    0.01
+##  7 w_dog                 0.668    0.01
+##  8 status_all_else      -0.563    0.01
+##  9 diet_all_else        -0.543    0.01
+## 10 body_type_all_else   -0.516    0.01
+## 11 drugs_sometimes      -0.510    0.01
+## 12 ethnicity_white      -0.460    0.01
+## 13 drugs_all_else       -0.436    0.01
+## 14 drinks_all_else      -0.394    0.01
+## 15 (Intercept)           0.374    0.01
+## 16 speaks_spanish        0.372    0.01
+## 17 religion_all_else     0.369    0.01
+## 18 w_pupp                0.368    0.01
+## 19 location_sf           0.361    0.01
+## 20 body_type_average    -0.341    0.01
 ```
 
 ---
@@ -4409,6 +4406,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
