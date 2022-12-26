@@ -4,8 +4,8 @@
     <title>Convolutional Neural Networks</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-05-28" />
-    <script src="u4_d02-cnn_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-26" />
+    <script src="u4_d02-cnn_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-05-28
+### 2022-12-26
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -592,21 +592,24 @@ model.summary()
 ```
 ## Model: "sequential"
 ## _________________________________________________________________
-## Layer (type)                 Output Shape              Param #   
+##  Layer (type)                Output Shape              Param #   
 ## =================================================================
-## conv2d (Conv2D)              (None, 100, 100, 32)      896       
-## _________________________________________________________________
-## max_pooling2d (MaxPooling2D) (None, 50, 50, 32)        0         
-## _________________________________________________________________
-## conv2d_1 (Conv2D)            (None, 48, 48, 64)        18496     
-## _________________________________________________________________
-## max_pooling2d_1 (MaxPooling2 (None, 24, 24, 64)        0         
-## _________________________________________________________________
-## flatten (Flatten)            (None, 36864)             0         
-## _________________________________________________________________
-## dropout (Dropout)            (None, 36864)             0         
-## _________________________________________________________________
-## dense (Dense)                (None, 1)                 36865     
+##  conv2d (Conv2D)             (None, 100, 100, 32)      896       
+##                                                                  
+##  max_pooling2d (MaxPooling2D  (None, 50, 50, 32)       0         
+##  )                                                               
+##                                                                  
+##  conv2d_1 (Conv2D)           (None, 48, 48, 64)        18496     
+##                                                                  
+##  max_pooling2d_1 (MaxPooling  (None, 24, 24, 64)       0         
+##  2D)                                                             
+##                                                                  
+##  flatten (Flatten)           (None, 36864)             0         
+##                                                                  
+##  dropout (Dropout)           (None, 36864)             0         
+##                                                                  
+##  dense (Dense)               (None, 1)                 36865     
+##                                                                  
 ## =================================================================
 ## Total params: 56,257
 ## Trainable params: 56,257
@@ -668,7 +671,7 @@ plt.show()
 ```python
 from sklearn.metrics import confusion_matrix
 
-y_pred = (model.predict(X_test) &gt; 0.5).astype(int).reshape(y_test.shape)
+y_pred = (model.predict(X_test, verbose=0) &gt; 0.5).astype(int).reshape(y_test.shape)
 ```
 
 
@@ -936,7 +939,7 @@ johann = resize(johann, (224, 224))
 johann = johann.reshape(1, 224, 224, 3) * 255
 johann = preprocess_input(johann)
 
-johann_pred = model.predict(johann)
+johann_pred = model.predict(johann, verbose=0)
 
 print(johann_pred.shape)
 
@@ -948,9 +951,9 @@ for _, breed, score in johann_breed[0]:
 
 ```
 ## Norwegian_elkhound: 0.30
-## Eskimo_dog: 0.28
+## Eskimo_dog: 0.27
 ## Siberian_husky: 0.17
-## German_shepherd: 0.14
+## German_shepherd: 0.15
 ## malamute: 0.06
 ```
 
@@ -1003,7 +1006,7 @@ train_generator = train_datagen.flow_from_directory(
   batch_size = 10,
   class_mode = 'binary',
   shuffle = True,
-  seed = 42
+  seed = 41
 )
 ```
 
@@ -1079,14 +1082,14 @@ history = model.fit(train_generator, steps_per_epoch = step_size_train,
 
 ```python
 y_true = test_generator.classes
-y_pred = model.predict(test_generator, steps = step_size_test)
+y_pred = model.predict(test_generator, steps = step_size_test, verbose=0)
 y_pred = (y_pred &gt; 0.5).astype(int).reshape(y_true.shape)
 
 print(np.mean(y_true == y_pred))
 ```
 
 ```
-## 0.625
+## 0.575
 ```
 
 ```python
@@ -1099,7 +1102,7 @@ pd.DataFrame(
 
 ```
 ##           pred:yes  pred:no
-## true:yes        14        6
+## true:yes        12        8
 ## true:no          9       11
 ```
 
@@ -1232,7 +1235,7 @@ history = model.fit(train_generator, steps_per_epoch = step_size_train,
 
 ```python
 y_true = test_generator.classes
-y_pred = model.predict(test_generator, steps = step_size_test)
+y_pred = model.predict(test_generator, steps = step_size_test, verbose = 0)
 y_pred = (y_pred &gt; 0.5).astype(int).reshape(y_true.shape)
 
 print(np.mean(y_true == y_pred))
@@ -1336,6 +1339,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable

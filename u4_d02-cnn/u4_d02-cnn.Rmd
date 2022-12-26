@@ -51,6 +51,7 @@ seed_value= 0
 # 1. Set `PYTHONHASHSEED` environment variable at a fixed value
 import os
 os.environ['PYTHONHASHSEED']=str(seed_value)
+os.environ['CUDA_VISIBLE_DEVICES'] = "-1" # disabling GPU as CUDA causes probs with tf.nn.conv2d()
 
 # 2. Set `python` built-in pseudo-random generator at a fixed value
 import random
@@ -576,7 +577,7 @@ import pandas as pd
 
 pd.DataFrame(history.history).to_csv('malaria_cnn_history.csv', index=False)
 
-y_pred = (model.predict(X_test) > 0.5).astype(int).reshape(y_test.shape)
+y_pred = (model.predict(X_test, verbose=0) > 0.5).astype(int).reshape(y_test.shape)
 np.save('y_pred.npy', y_pred)
 ```
 ---
@@ -610,7 +611,7 @@ y_pred = np.load('y_pred.npy')
 ```{python, eval=FALSE}
 from sklearn.metrics import confusion_matrix
 
-y_pred = (model.predict(X_test) > 0.5).astype(int).reshape(y_test.shape)
+y_pred = (model.predict(X_test, verbose=0) > 0.5).astype(int).reshape(y_test.shape)
 ```
 
 ```{python}
@@ -854,7 +855,7 @@ johann = resize(johann, (224, 224))
 johann = johann.reshape(1, 224, 224, 3) * 255
 johann = preprocess_input(johann)
 
-johann_pred = model.predict(johann)
+johann_pred = model.predict(johann, verbose=0)
 
 print(johann_pred.shape)
 
@@ -911,7 +912,7 @@ train_generator = train_datagen.flow_from_directory(
   batch_size = 10,
   class_mode = 'binary',
   shuffle = True,
-  seed = 42
+  seed = 41
 )
 ```
 
@@ -971,7 +972,7 @@ history = model.fit(train_generator, steps_per_epoch = step_size_train,
 
 ```{python}
 y_true = test_generator.classes
-y_pred = model.predict(test_generator, steps = step_size_test)
+y_pred = model.predict(test_generator, steps = step_size_test, verbose=0)
 y_pred = (y_pred > 0.5).astype(int).reshape(y_true.shape)
 
 print(np.mean(y_true == y_pred))
@@ -1091,7 +1092,7 @@ history = model.fit(train_generator, steps_per_epoch = step_size_train,
 
 ```{python, eval=FALSE}
 y_true = test_generator.classes
-y_pred = model.predict(test_generator, steps = step_size_test)
+y_pred = model.predict(test_generator, steps = step_size_test, verbose = 0)
 y_pred = (y_pred > 0.5).astype(int).reshape(y_true.shape)
 
 print(np.mean(y_true == y_pred))
