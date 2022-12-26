@@ -4,8 +4,8 @@
     <title>Topics in Classification</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-01-02" />
-    <script src="u3_d02-classtopics_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-26" />
+    <script src="u3_d02-classtopics_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-01-02
+### 2022-12-26
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -178,7 +178,7 @@ spotify_songs %&gt;% count(playlist_genre)
 ```
 
 ```
-## # A tibble: 6 x 2
+## # A tibble: 6 × 2
 ##   playlist_genre     n
 ##   &lt;chr&gt;          &lt;int&gt;
 ## 1 edm             6043
@@ -232,7 +232,7 @@ sptfy_tr_small %&gt;% count(playlist_genre)
 ```
 
 ```
-## # A tibble: 6 x 2
+## # A tibble: 6 × 2
 ##   playlist_genre     n
 ##   &lt;chr&gt;          &lt;int&gt;
 ## 1 edm               20
@@ -291,7 +291,7 @@ mod_pred
 ```
 
 ```
-## # A tibble: 18,640 x 6
+## # A tibble: 18,640 × 6
 ##    .pred_edm .pred_latin .pred_pop .pred_rap .pred_rnb .pred_rock
 ##        &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
 ##  1   0.851      0.0785     0.0531    0.0105   0.00253     0.00413
@@ -304,7 +304,7 @@ mod_pred
 ##  8   0.0807     0.464      0.246     0.0934   0.106       0.00940
 ##  9   0.0225     0.00112    0.933     0.00173  0.0301      0.0117 
 ## 10   0.129      0.367      0.379     0.0908   0.00663     0.0277 
-## # ... with 18,630 more rows
+## # … with 18,630 more rows
 ```
 
 ---
@@ -322,7 +322,7 @@ mod_te_pred_class %&gt;%
 ```
 
 ```
-## # A tibble: 1 x 3
+## # A tibble: 1 × 3
 ##   .metric  .estimator .estimate
 ##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
 ## 1 accuracy multiclass     0.380
@@ -352,7 +352,7 @@ mod_te_pred_class %&gt;%
 ```
 
 ```
-## # A tibble: 6 x 3
+## # A tibble: 6 × 3
 ##   playlist_genre recall precision
 ##   &lt;fct&gt;           &lt;dbl&gt;     &lt;dbl&gt;
 ## 1 edm             0.556     0.550
@@ -402,7 +402,7 @@ mod_unc
 ```
 
 ```
-## # A tibble: 18,640 x 3
+## # A tibble: 18,640 × 3
 ##       lc margin entropy
 ##    &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
 ##  1 0.851 0.773   -0.578
@@ -415,7 +415,7 @@ mod_unc
 ##  8 0.464 0.218   -1.41 
 ##  9 0.933 0.903   -0.326
 ## 10 0.379 0.0123  -1.35 
-## # ... with 18,630 more rows
+## # … with 18,630 more rows
 ```
 
 Obviously these are correlated:
@@ -470,19 +470,19 @@ sptfy_tr_large_with_unc %&gt;%
 ```
 
 ```
-## # A tibble: 10 x 6
-##    track_name                track_artist   playlist_genre    lc  margin entropy
-##    &lt;chr&gt;                     &lt;chr&gt;          &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-##  1 Good Thing                Tritonal       edm            0.208 5.76e-3   -1.76
-##  2 &lt;U+042F&gt; &lt;U+0441&gt;&lt;U+043C&gt;&lt;U+043E&gt;&lt;U+0442&gt;&lt;U+0440&gt;&lt;U+044E&gt; &lt;U+043D&gt;&lt;U+0430&gt; &lt;U+043D&gt;&lt;U+0435&gt;&lt;U+0431&gt;&lt;U+043E&gt;          Basta          rap            0.211 1.55e-2   -1.78
-##  3 Eenie Meenie              Justin Bieber  latin          0.215 1.40e-2   -1.77
-##  4 Can't Stop Me (feat. She~ Afrojack       edm            0.216 2.10e-2   -1.73
-##  5 Revival                   Gregory Porter pop            0.222 1.04e-2   -1.72
-##  6 Take It To Reality        Alison Wonder~ pop            0.223 2.58e-2   -1.77
-##  7 Drops                     Solarrio       rnb            0.224 1.52e-2   -1.72
-##  8 Fría Como El Viento       Luis Miguel    latin          0.224 7.62e-5   -1.72
-##  9 Tu No Eres Para Mi        Fanny Lu       latin          0.224 2.27e-2   -1.75
-## 10 Symphony (feat. Zara Lar~ Clean Bandit   edm            0.224 1.56e-4   -1.72
+## # A tibble: 10 × 6
+##    track_name                  track_artist playlist_genre    lc  margin entropy
+##    &lt;chr&gt;                       &lt;chr&gt;        &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1 Good Thing                  Tritonal     edm            0.208 5.76e-3   -1.76
+##  2 Я смотрю на небо            Basta        rap            0.211 1.55e-2   -1.78
+##  3 Eenie Meenie                Justin Bieb… latin          0.215 1.40e-2   -1.77
+##  4 Can't Stop Me (feat. Sherm… Afrojack     edm            0.216 2.10e-2   -1.73
+##  5 Revival                     Gregory Por… pop            0.222 1.04e-2   -1.72
+##  6 Take It To Reality          Alison Wond… pop            0.223 2.58e-2   -1.77
+##  7 Drops                       Solarrio     rnb            0.224 1.52e-2   -1.72
+##  8 Fría Como El Viento         Luis Miguel  latin          0.224 7.62e-5   -1.72
+##  9 Tu No Eres Para Mi          Fanny Lu     latin          0.224 2.27e-2   -1.75
+## 10 Symphony (feat. Zara Larss… Clean Bandit edm            0.224 1.56e-4   -1.72
 ```
 
 ---
@@ -495,19 +495,19 @@ sptfy_tr_large_with_unc %&gt;%
 ```
 
 ```
-## # A tibble: 10 x 6
-##    track_name               track_artist    playlist_genre    lc  margin entropy
-##    &lt;chr&gt;                    &lt;chr&gt;           &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-##  1 Back in My Life          Alice DJ        pop            0.438 1.99e-5   -1.05
-##  2 Fría Como El Viento      Luis Miguel     latin          0.224 7.62e-5   -1.72
-##  3 Into The Night           Benny Mardones  rock           0.226 1.01e-4   -1.75
-##  4 El Taxi                  Pitbull         latin          0.332 1.01e-4   -1.23
-##  5 Symphony (feat. Zara La~ Clean Bandit    edm            0.224 1.56e-4   -1.72
-##  6 I Can't Get No           JETFIRE         edm            0.407 1.63e-4   -1.28
-##  7 Two Fine People          Yusuf / Cat St~ rock           0.228 1.95e-4   -1.68
-##  8 Y Si Te Digo - Version ~ Fanny Lu        latin          0.306 2.19e-4   -1.40
-##  9 Under My Thumb           The Rolling St~ rock           0.356 2.40e-4   -1.29
-## 10 Vente Pa' Ca             Ricky Martin    latin          0.322 2.49e-4   -1.54
+## # A tibble: 10 × 6
+##    track_name                  track_artist playlist_genre    lc  margin entropy
+##    &lt;chr&gt;                       &lt;chr&gt;        &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1 Back in My Life             Alice DJ     pop            0.438 1.99e-5   -1.05
+##  2 Fría Como El Viento         Luis Miguel  latin          0.224 7.62e-5   -1.72
+##  3 Into The Night              Benny Mardo… rock           0.226 1.01e-4   -1.75
+##  4 El Taxi                     Pitbull      latin          0.332 1.01e-4   -1.23
+##  5 Symphony (feat. Zara Larss… Clean Bandit edm            0.224 1.56e-4   -1.72
+##  6 I Can't Get No              JETFIRE      edm            0.407 1.63e-4   -1.28
+##  7 Two Fine People             Yusuf / Cat… rock           0.228 1.95e-4   -1.68
+##  8 Y Si Te Digo - Version Mer… Fanny Lu     latin          0.306 2.19e-4   -1.40
+##  9 Under My Thumb              The Rolling… rock           0.356 2.40e-4   -1.29
+## 10 Vente Pa' Ca                Ricky Martin latin          0.322 2.49e-4   -1.54
 ```
 
 ---
@@ -520,10 +520,10 @@ sptfy_tr_large_with_unc %&gt;%
 ```
 
 ```
-## # A tibble: 10 x 6
+## # A tibble: 10 × 6
 ##    track_name             track_artist      playlist_genre    lc  margin entropy
 ##    &lt;chr&gt;                  &lt;chr&gt;             &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-##  1 &lt;U+042F&gt; &lt;U+0441&gt;&lt;U+043C&gt;&lt;U+043E&gt;&lt;U+0442&gt;&lt;U+0440&gt;&lt;U+044E&gt; &lt;U+043D&gt;&lt;U+0430&gt; &lt;U+043D&gt;&lt;U+0435&gt;&lt;U+0431&gt;&lt;U+043E&gt;       Basta             rap            0.211 1.55e-2   -1.78
+##  1 Я смотрю на небо       Basta             rap            0.211 1.55e-2   -1.78
 ##  2 Eenie Meenie           Justin Bieber     latin          0.215 1.40e-2   -1.77
 ##  3 Take It To Reality     Alison Wonderland pop            0.223 2.58e-2   -1.77
 ##  4 Good Thing             Tritonal          edm            0.208 5.76e-3   -1.76
@@ -531,7 +531,7 @@ sptfy_tr_large_with_unc %&gt;%
 ##  6 Into The Night         Benny Mardones    rock           0.226 1.01e-4   -1.75
 ##  7 Cold Ain't For Me      Oceans            pop            0.250 4.65e-2   -1.75
 ##  8 Come Back              Green Tea         rnb            0.260 6.29e-2   -1.74
-##  9 Fortunate Son          Creedence Clearw~ rock           0.235 3.61e-2   -1.74
+##  9 Fortunate Son          Creedence Clearw… rock           0.235 3.61e-2   -1.74
 ## 10 Never Getting Over You Lost Stars        pop            0.257 5.94e-2   -1.74
 ```
 
@@ -585,7 +585,7 @@ mod_pred
 ```
 
 ```
-## # A tibble: 18,640 x 6
+## # A tibble: 18,640 × 6
 ##    .pred_class...1 .pred_class...2 .pred_class...3 .pred_class...4
 ##    &lt;fct&gt;           &lt;fct&gt;           &lt;fct&gt;           &lt;fct&gt;          
 ##  1 rap             pop             rnb             pop            
@@ -598,7 +598,7 @@ mod_pred
 ##  8 latin           rnb             edm             rap            
 ##  9 edm             rap             edm             pop            
 ## 10 latin           edm             pop             pop            
-## # ... with 18,630 more rows, and 2 more variables: .pred_class...5 &lt;fct&gt;,
+## # … with 18,630 more rows, and 2 more variables: .pred_class...5 &lt;fct&gt;,
 ## #   .pred_class...6 &lt;fct&gt;
 ```
 
@@ -625,7 +625,7 @@ sptfy_tr_large_with_qbc %&gt;%
 ```
 
 ```
-## # A tibble: 278 x 6
+## # A tibble: 278 × 6
 ##    .pred_class...17 .pred_class...18 .pred_class...19 .pred_class...20
 ##    &lt;fct&gt;            &lt;fct&gt;            &lt;fct&gt;            &lt;fct&gt;           
 ##  1 edm              pop              rap              rnb             
@@ -638,7 +638,7 @@ sptfy_tr_large_with_qbc %&gt;%
 ##  8 rock             rnb              edm              latin           
 ##  9 rnb              rock             rap              latin           
 ## 10 rock             rap              latin            pop             
-## # ... with 268 more rows, and 2 more variables: .pred_class...21 &lt;fct&gt;,
+## # … with 268 more rows, and 2 more variables: .pred_class...21 &lt;fct&gt;,
 ## #   .pred_class...22 &lt;fct&gt;
 ```
 
@@ -697,7 +697,7 @@ ok_train %&gt;%
 ```
 
 ```
-## # A tibble: 2 x 3
+## # A tibble: 2 × 3
 ##   pets      n   pct
 ##   &lt;fct&gt; &lt;int&gt; &lt;dbl&gt;
 ## 1 cats   1624  0.16
@@ -996,7 +996,7 @@ In words: the likelihood of seeing an observation like `\(x_i\)` in all class `\
 💡 What increases `\(P(C_k|x_i)\)`? What decreases it?
 ]
 
-But if we have, say 100 predictors, each categorical with 2 levels - we'd have to pre-compute `\(2^{100}\)` possible for each `\(C_k\)`!
+But if we have, say 100 predictors, each categorical with 2 levels - we'd have to pre-compute `\(2^{100}\)` possibilities for each `\(C_k\)`!
 
 ---
 
@@ -1129,7 +1129,7 @@ juice(rec_gbt) %&gt;% count(pets)
 ```
 
 ```
-## # A tibble: 2 x 2
+## # A tibble: 2 × 2
 ##   pets      n
 ##   &lt;fct&gt; &lt;int&gt;
 ## 1 cats   1624
@@ -1141,7 +1141,7 @@ bake(rec_gbt, ok_valid) %&gt;% count(pets)
 ```
 
 ```
-## # A tibble: 2 x 2
+## # A tibble: 2 × 2
 ##   pets      n
 ##   &lt;fct&gt; &lt;int&gt;
 ## 1 cats    473
@@ -1165,7 +1165,7 @@ table(true_class, pred_gbt_class)
 ```
 ##           pred_gbt_class
 ## true_class cats dogs
-##       cats  335  138
+##       cats  323  150
 ##       dogs  733 1523
 ```
 
@@ -1174,12 +1174,12 @@ report_accuracy_and_auc(true_class, pred_gbt)
 ```
 
 ```
-## AUC: 0.749
-## ACC: 0.681
-## Cats: Recall: 0.708
-##       Precision: 0.314
+## AUC: 0.734
+## ACC: 0.676
+## Cats: Recall: 0.683
+##       Precision: 0.306
 ## Dogs: Recall: 0.675
-##       Precision: 0.917
+##       Precision: 0.91
 ```
 
 ---
@@ -1215,8 +1215,8 @@ table(true_class, pred_gbt_class)
 ```
 ##           pred_gbt_class
 ## true_class cats dogs
-##       cats  263  210
-##       dogs  499 1757
+##       cats  262  211
+##       dogs  497 1759
 ```
 
 ```r
@@ -1225,10 +1225,10 @@ report_accuracy_and_auc(true_class, pred_gbt)
 
 ```
 ## AUC: 0.739
-## ACC: 0.74
-## Cats: Recall: 0.556
+## ACC: 0.741
+## Cats: Recall: 0.554
 ##       Precision: 0.345
-## Dogs: Recall: 0.779
+## Dogs: Recall: 0.78
 ##       Precision: 0.893
 ```
 
@@ -1262,7 +1262,7 @@ df %&gt;% count(y)
 ```
 
 ```
-## # A tibble: 2 x 2
+## # A tibble: 2 × 2
 ##   y         n
 ##   &lt;fct&gt; &lt;int&gt;
 ## 1 0        29
@@ -1284,7 +1284,7 @@ df_smoted %&gt;% count(y)
 ```
 
 ```
-## # A tibble: 2 x 2
+## # A tibble: 2 × 2
 ##   y         n
 ##   &lt;fct&gt; &lt;int&gt;
 ## 1 0        71
@@ -1309,7 +1309,7 @@ juice(rec_gbt) %&gt;% count(pets)
 ```
 
 ```
-## # A tibble: 2 x 2
+## # A tibble: 2 × 2
 ##   pets      n
 ##   &lt;fct&gt; &lt;int&gt;
 ## 1 cats   2436
@@ -1335,8 +1335,8 @@ table(true_class, pred_gbt_class)
 ```
 ##           pred_gbt_class
 ## true_class cats dogs
-##       cats  274  199
-##       dogs  492 1764
+##       cats  282  191
+##       dogs  500 1756
 ```
 
 ```r
@@ -1344,12 +1344,12 @@ report_accuracy_and_auc(true_class, pred_gbt)
 ```
 
 ```
-## AUC: 0.745
+## AUC: 0.744
 ## ACC: 0.747
-## Cats: Recall: 0.579
-##       Precision: 0.358
-## Dogs: Recall: 0.782
-##       Precision: 0.899
+## Cats: Recall: 0.596
+##       Precision: 0.361
+## Dogs: Recall: 0.778
+##       Precision: 0.902
 ```
 
 ---
@@ -1397,8 +1397,8 @@ table(true_class, pred_gbt_class)
 ```
 ##           pred_gbt_class
 ## true_class cats dogs
-##       cats  153  115
-##       dogs  231 1378
+##       cats  156  103
+##       dogs  239 1324
 ```
 
 ---
@@ -1427,12 +1427,12 @@ report_accuracy_and_auc2(true_class, pred_gbt)
 ```
 
 ```
-## Predicted: 0.688
-## ACC: 0.816
-## Cats: Recall: 0.571
-##       Precision: 0.398
-## Dogs: Recall: 0.856
-##       Precision: 0.923
+## Predicted: 0.668
+## ACC: 0.812
+## Cats: Recall: 0.602
+##       Precision: 0.395
+## Dogs: Recall: 0.847
+##       Precision: 0.928
 ```
 
     </textarea>
@@ -1482,6 +1482,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable

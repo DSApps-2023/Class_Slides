@@ -897,9 +897,9 @@ ggplot(tibble(cats_score = pred_gbt), aes(cats_score)) +
   geom_histogram(bins = 50) +
   labs(x = "Score(cat)", y = "Frequency") +
   theme_light() +
-  geom_vline(xintercept = 0.05, lty = 2, col = "red", lwd = 1) +
-  geom_vline(xintercept = 0.17, lty = 2, col = "red", lwd = 1) +
-  geom_vline(xintercept = 0.8, lty = 2, col = "red", lwd = 1) +
+  geom_vline(xintercept = 0.05, lty = 2, col = "red", linewidth = 1) +
+  geom_vline(xintercept = 0.17, lty = 2, col = "red", linewidth = 1) +
+  geom_vline(xintercept = 0.8, lty = 2, col = "red", linewidth = 1) +
   annotate("text", x = 0.05 + 0.01, y = 100, label = "Cut: 0.05\nRecall:97%\nPerc:19%", size = 3.5, col = "white", hjust = 0) +
   annotate("text", x = 0.17 + 0.01, y = 200, label = "Cut: 0.17\nRecall:72%\nPerc:34%", size = 3.5, col = "red", hjust = 0) +
   annotate("text", x = 0.8 + 0.01, y = 200, label = "Cut: 0.80\nRecall:1%\nPerc:71%", size = 3.5, col = "red", hjust = 0)
