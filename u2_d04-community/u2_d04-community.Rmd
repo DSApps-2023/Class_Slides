@@ -188,7 +188,7 @@ from sklearn.cluster import SpectralClustering
 
 scifi_edgelist = pd.read_csv('../data/sci_fi_final_edgelist.csv')
 G = nx.from_pandas_edgelist(scifi_edgelist, 'book', 'book2', ['corr'])
-A = nx.to_numpy_matrix(G)
+A = nx.to_numpy_array(G)
 sc = SpectralClustering(2, affinity='precomputed', n_init=100,
   assign_labels='discretize')
 communities = sc.fit_predict(A)
@@ -826,7 +826,7 @@ In addition they point out that the two common search strategies BFS and DFS "pl
 
 For each node $v$, the "search bias" $\alpha_{vx}$ of advancing to the following node $x$ after coming from node $t$ is computed before hand, using parameters $p$ and $q$:
 
-- if node $x$ is $t$ iteslf: $1/p$
+- if node $x$ is $t$ itself: $1/p$
 - if node $x$ is connected to $t$: 1
 - if node $x$ isn't connected to $t$: $1/q$
 

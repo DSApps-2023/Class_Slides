@@ -136,7 +136,7 @@ cent_eig = nx.eigenvector_centrality(G)
 pretty_print(get_top_n_dict(cent_eig))
 
 # Compare this to:
-# A = nx.to_numpy_matrix(G)
+# A = nx.to_numpy_array(G)
 # eigenvalues, eigenvectors = np.linalg.eigh(A)
 # eigenvectors[:, -1]
 ```
@@ -167,7 +167,7 @@ A = np.array([
 [0, 0, 0, 0, 1],
 [0, 0, 0, 0, 0]
 ])
-Dag = nx.from_numpy_matrix(A.transpose(), create_using=nx.DiGraph)
+Dag = nx.from_numpy_array(A.transpose(), create_using=nx.DiGraph)
 ```
 
 ---

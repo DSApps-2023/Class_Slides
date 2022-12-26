@@ -539,7 +539,7 @@ A = np.array([
 [0, 0, 0, 0, 0],
 [0, 1, 1, 0, 0]])
 
-G = nx.from_numpy_matrix(A)
+G = nx.from_numpy_array(A)
 nx.draw_networkx(G, node_size=0, font_size=40)
 plt.show()
 ```
@@ -742,7 +742,7 @@ You've seen how to project an incidence matrix with numpy:
 ```python
 P = B.transpose() @ B
 np.fill_diagonal(P, 0)
-Gc = nx.from_numpy_matrix(P)
+Gc = nx.from_numpy_array(P)
 
 id_to_char = {id: char for id, char in enumerate(characters)}
 Gc = nx.relabel_nodes(Gc, id_to_char)
@@ -880,11 +880,11 @@ class: section-slide
 
 ### Adjacency Matrix
 
-You can get a Numpy matrix with `to_numpy_matrix()`:
+You can get a Numpy array with `to_numpy_array()`:
 
 
 ```python
-A = nx.to_numpy_matrix(G)
+A = nx.to_numpy_array(G)
 
 print(A.shape)
 ```
@@ -898,10 +898,10 @@ A[:4, :4]
 ```
 
 ```
-## matrix([[0., 1., 0., 0.],
-##         [1., 0., 1., 1.],
-##         [0., 1., 0., 1.],
-##         [0., 1., 1., 0.]])
+## array([[0., 1., 0., 0.],
+##        [1., 0., 1., 1.],
+##        [0., 1., 0., 1.],
+##        [0., 1., 1., 0.]])
 ```
 
 .insight[
@@ -1134,7 +1134,7 @@ list(cc)
 ```
 
 ```
-## [{'The Lord of the Rings', 'Flowers for Algernon', 'The Hunger Games', 'Contact', 'World War Z', 'Solaris', 'Frankenstein', 'Twenty Thousand Leagues Under the Sea', 'A Song of Ice and Fire', 'Journey to the Center of the Earth', 'American Gods', 'Babel 17', 'The Princess Bride', 'Watership Down', 'The Dune Chronicles', 'Brave New World', 'I, Robot', '2001: A Space Odyssey', 'The Lion, the Witch and the Wardrobe', "The Handmaid's Tale", "Ender's Game", 'Harry Potter Series', "The Hitchhiker's Guide to the Galaxy"}]
+## [{'The Dune Chronicles', 'The Hunger Games', "The Hitchhiker's Guide to the Galaxy", "Ender's Game", 'Brave New World', 'World War Z', "The Handmaid's Tale", 'Frankenstein', 'Twenty Thousand Leagues Under the Sea', 'The Lord of the Rings', 'Harry Potter Series', 'Flowers for Algernon', 'The Princess Bride', 'The Lion, the Witch and the Wardrobe', 'Solaris', '2001: A Space Odyssey', 'I, Robot', 'Contact', 'American Gods', 'Journey to the Center of the Earth', 'Babel 17', 'Watership Down', 'A Song of Ice and Fire'}]
 ```
 
 Get component of a specific node:
@@ -1145,7 +1145,7 @@ nx.node_connected_component(G, 'Contact')
 ```
 
 ```
-## {'The Lord of the Rings', 'Flowers for Algernon', 'The Hunger Games', 'Contact', 'World War Z', 'Solaris', 'Frankenstein', 'Twenty Thousand Leagues Under the Sea', 'A Song of Ice and Fire', 'Journey to the Center of the Earth', 'American Gods', 'Babel 17', 'Watership Down', 'The Princess Bride', 'Brave New World', 'The Dune Chronicles', 'I, Robot', '2001: A Space Odyssey', 'The Lion, the Witch and the Wardrobe', "The Handmaid's Tale", "Ender's Game", 'Harry Potter Series', "The Hitchhiker's Guide to the Galaxy"}
+## {'The Dune Chronicles', 'The Hunger Games', "The Hitchhiker's Guide to the Galaxy", "Ender's Game", 'Brave New World', 'World War Z', "The Handmaid's Tale", 'Frankenstein', 'Twenty Thousand Leagues Under the Sea', 'The Lord of the Rings', 'Harry Potter Series', 'Flowers for Algernon', 'The Princess Bride', 'Solaris', 'The Lion, the Witch and the Wardrobe', '2001: A Space Odyssey', 'I, Robot', 'Contact', 'American Gods', 'Journey to the Center of the Earth', 'Babel 17', 'Watership Down', 'A Song of Ice and Fire'}
 ```
 
 ---

@@ -414,7 +414,7 @@ A = np.array([
 [0, 0, 0, 0, 0],
 [0, 1, 1, 0, 0]])
 
-G = nx.from_numpy_matrix(A)
+G = nx.from_numpy_array(A)
 nx.draw_networkx(G, node_size=0, font_size=40)
 plt.show()
 ```
@@ -574,7 +574,7 @@ You've seen how to project an incidence matrix with numpy:
 ```{python Bipartite4, out.width = "50%"}
 P = B.transpose() @ B
 np.fill_diagonal(P, 0)
-Gc = nx.from_numpy_matrix(P)
+Gc = nx.from_numpy_array(P)
 
 id_to_char = {id: char for id, char in enumerate(characters)}
 Gc = nx.relabel_nodes(Gc, id_to_char)
@@ -669,10 +669,10 @@ class: section-slide
 
 ### Adjacency Matrix
 
-You can get a Numpy matrix with `to_numpy_matrix()`:
+You can get a Numpy array with `to_numpy_array()`:
 
 ```{python}
-A = nx.to_numpy_matrix(G)
+A = nx.to_numpy_array(G)
 
 print(A.shape)
 
