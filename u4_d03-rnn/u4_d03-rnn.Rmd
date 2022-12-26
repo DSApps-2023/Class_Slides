@@ -359,7 +359,7 @@ from tensorflow.keras.optimizers import Adam
 model = Sequential([
   SimpleRNN(1, input_shape=(None, 1))
 ])
-model.compile(optimizer=Adam(lr=0.01), loss='mse')
+model.compile(optimizer=Adam(learning_rate=0.01), loss='mse')
 
 X = X[:, :, np.newaxis]
 y = y[:, np.newaxis]
@@ -414,7 +414,7 @@ model = Sequential([
   SimpleRNN(1)
 ])
 
-model.compile(optimizer=Adam(lr=0.01), loss='mse')
+model.compile(optimizer=Adam(learning_rate=0.01), loss='mse')
 ```
 
 ---
@@ -423,10 +423,11 @@ model.compile(optimizer=Adam(lr=0.01), loss='mse')
 model.summary()
 ```
 
+.font80percent[
 * 10 neurons each having: 1 inputs, 1 bias, all other 10 outputs in layer: 10 * (1 + 1 + 10)
 * 5 neurons each having: 10 inputs, 1 bias, all other 5 outputs in layer: 5 * (10 + 1 + 5)
 * 1 neurons each having: 5 inputs, 1 bias, all other 1 outputs in layer: 1 * (5 + 1 + 1)
-
+]
 ---
 
 ```{python, DeepRNN-Scatter-Fit, out.width="50%"}
@@ -844,7 +845,7 @@ from tensorflow.keras.regularizers import l2
 
 max_features = 50000
 tokenizer = text.Tokenizer(num_words=max_features)
-tokenizer.fit_on_texts(quora_df['question1'].append(quora_df['question2']).unique())
+tokenizer.fit_on_texts(pd.concat([quora_df['question1'], quora_df['question2']]).unique())
 
 question1 = tokenizer.texts_to_sequences(quora_df['question1'])
 question2 = tokenizer.texts_to_sequences(quora_df['question2'])

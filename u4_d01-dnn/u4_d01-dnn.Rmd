@@ -533,7 +533,7 @@ from tensorflow.keras.optimizers import SGD
 model = Sequential()
 model.add(Dense(1, input_shape=(X.shape[1], ),
   activation='sigmoid', use_bias=False))
-sgd = SGD(lr=0.1)
+sgd = SGD(learning_rate=0.1)
 model.compile(loss='binary_crossentropy', optimizer=sgd)
 model.fit(X, y, batch_size=100, epochs=50)
 ```
@@ -608,7 +608,7 @@ y_categorical = to_categorical(y)
 model = Sequential()
 model.add(Dense(2, input_shape=(X.shape[1], ),
   activation='softmax', use_bias=False))
-sgd = SGD(lr=0.1)
+sgd = SGD(learning_rate=0.1)
 model.compile(loss='categorical_crossentropy', optimizer=sgd)
 model.fit(X, y_categorical, batch_size=100, epochs=50)
 ```
@@ -662,7 +662,7 @@ Where $g()$ is some non-linear *activation function*, e.g. sigmoid (but not ofte
 model = Sequential()
 model.add(Dense(4, input_shape=(X.shape[1], ), activation='sigmoid'))
 model.add(Dense(2, activation='softmax'))
-sgd = SGD(lr=0.1)
+sgd = SGD(learning_rate=0.1)
 model.compile(loss='categorical_crossentropy', optimizer=sgd)
 history = model.fit(X, y_categorical, batch_size=100, epochs=50, verbose=0)
 model.summary()
@@ -672,7 +672,7 @@ model.summary()
 model = Sequential()
 model.add(Dense(4, input_shape=(X.shape[1], ), activation='sigmoid'))
 model.add(Dense(2, activation='softmax'))
-sgd = SGD(lr=0.1)
+sgd = SGD(learning_rate=0.1)
 model.compile(loss='categorical_crossentropy', optimizer=sgd)
 history = model.fit(X, y_categorical, batch_size=100, epochs=50, verbose=0)
 model.summary()
@@ -811,7 +811,7 @@ model.add(Dense(4, input_shape=(X.shape[1], ), activation='relu',
   bias_regularizer=regularizers.l2(0.01)))
 model.add(Dense(2, activation='softmax',
   kernel_regularizer=regularizers.l1_l2(l1=0.01, l2=0.01)))
-sgd = SGD(lr=0.1)
+sgd = SGD(learning_rate=0.1)
 model.compile(loss='categorical_crossentropy', optimizer=sgd)
 model.fit(X, y_categorical, batch_size=100, epochs=50, verbose=0)
 ```
@@ -843,7 +843,7 @@ model = Sequential()
 model.add(Dense(4, input_shape=(X.shape[1], ), activation='relu'))
 model.add(Dropout(0.2))
 model.add(Dense(2, activation='softmax'))
-sgd = SGD(lr=0.1)
+sgd = SGD(learning_rate=0.1)
 model.compile(loss='categorical_crossentropy', optimizer=sgd)
 model.fit(X, y_categorical, batch_size=100, epochs=50, verbose=0)
 ```
@@ -861,7 +861,7 @@ model = Sequential()
 model.add(Dense(4, input_shape=(X.shape[1], ), activation='relu'))
 model.add(Dropout(0.2))
 model.add(Dense(2, activation='softmax'))
-sgd = SGD(lr=0.1)
+sgd = SGD(learning_rate=0.1)
 callbacks = [EarlyStopping(monitor='val_loss', patience=5)]
 model.compile(loss='categorical_crossentropy', optimizer=sgd)
 model.fit(X, y_categorical, batch_size=100, epochs=50,
@@ -1090,7 +1090,7 @@ def malaria_model(n_hidden=1, n_neurons=30, lrt=3e-3):
     model.add(Dense(n_neurons, activation='relu'))
   model.add(Dense(1, activation='sigmoid'))
   model.compile(loss="binary_crossentropy",
-    optimizer=SGD(lr=lrt),
+    optimizer=SGD(learning_rate=lrt),
     metrics=["accuracy"])
   return model
 

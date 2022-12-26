@@ -4,8 +4,8 @@
     <title>Recurrent Neural Networks</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-06-04" />
-    <script src="u4_d03-rnn_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-26" />
+    <script src="u4_d03-rnn_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-06-04
+### 2022-12-26
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -359,7 +359,7 @@ from tensorflow.keras.optimizers import Adam
 model = Sequential([
   SimpleRNN(1, input_shape=(None, 1))
 ])
-model.compile(optimizer=Adam(lr=0.01), loss='mse')
+model.compile(optimizer=Adam(learning_rate=0.01), loss='mse')
 
 X = X[:, :, np.newaxis]
 y = y[:, np.newaxis]
@@ -391,7 +391,7 @@ print(model.get_weights()[2], model.get_weights()[0], model.get_weights()[1])
 ```
 
 ```
-## [-0.05025313] [[0.8963843]] [[0.44938323]]
+## [-0.05025314] [[0.89638436]] [[0.4493832]]
 ```
 
 ```python
@@ -400,7 +400,7 @@ print(np.mean((y - y_pred) **2))
 ```
 
 ```
-## 0.04377151881286946
+## 0.0437715170171821
 ```
 
 ```python
@@ -447,7 +447,7 @@ model = Sequential([
   SimpleRNN(1)
 ])
 
-model.compile(optimizer=Adam(lr=0.01), loss='mse')
+model.compile(optimizer=Adam(learning_rate=0.01), loss='mse')
 ```
 
 ---
@@ -460,13 +460,14 @@ model.summary()
 ```
 ## Model: "sequential_1"
 ## _________________________________________________________________
-## Layer (type)                 Output Shape              Param #   
+##  Layer (type)                Output Shape              Param #   
 ## =================================================================
-## simple_rnn_1 (SimpleRNN)     (None, None, 10)          120       
-## _________________________________________________________________
-## simple_rnn_2 (SimpleRNN)     (None, None, 5)           80        
-## _________________________________________________________________
-## simple_rnn_3 (SimpleRNN)     (None, 1)                 7         
+##  simple_rnn_1 (SimpleRNN)    (None, None, 10)          120       
+##                                                                  
+##  simple_rnn_2 (SimpleRNN)    (None, None, 5)           80        
+##                                                                  
+##  simple_rnn_3 (SimpleRNN)    (None, 1)                 7         
+##                                                                  
 ## =================================================================
 ## Total params: 207
 ## Trainable params: 207
@@ -474,10 +475,11 @@ model.summary()
 ## _________________________________________________________________
 ```
 
+.font80percent[
 * 10 neurons each having: 1 inputs, 1 bias, all other 10 outputs in layer: 10 * (1 + 1 + 10)
 * 5 neurons each having: 10 inputs, 1 bias, all other 5 outputs in layer: 5 * (10 + 1 + 5)
 * 1 neurons each having: 5 inputs, 1 bias, all other 1 outputs in layer: 1 * (5 + 1 + 1)
-
+]
 ---
 
 
@@ -489,7 +491,7 @@ print(np.mean((y - y_pred) **2))
 ```
 
 ```
-## 0.02624883636777101
+## 0.027710174771783818
 ```
 
 ```python
@@ -757,13 +759,14 @@ mlp.summary()
 ```
 ## Model: "sequential_2"
 ## _________________________________________________________________
-## Layer (type)                 Output Shape              Param #   
+##  Layer (type)                Output Shape              Param #   
 ## =================================================================
-## embedding_1 (Embedding)      (None, None, 50)          500050    
-## _________________________________________________________________
-## dense (Dense)                (None, None, 10)          510       
-## _________________________________________________________________
-## dense_1 (Dense)              (None, None, 1)           11        
+##  embedding_1 (Embedding)     (None, None, 50)          500050    
+##                                                                  
+##  dense (Dense)               (None, None, 10)          510       
+##                                                                  
+##  dense_1 (Dense)             (None, None, 1)           11        
+##                                                                  
 ## =================================================================
 ## Total params: 500,571
 ## Trainable params: 500,571
@@ -805,13 +808,14 @@ rnn.summary()
 ```
 ## Model: "sequential_3"
 ## _________________________________________________________________
-## Layer (type)                 Output Shape              Param #   
+##  Layer (type)                Output Shape              Param #   
 ## =================================================================
-## embedding_2 (Embedding)      (None, None, 50)          500050    
-## _________________________________________________________________
-## simple_rnn_4 (SimpleRNN)     (None, None, 10)          610       
-## _________________________________________________________________
-## simple_rnn_5 (SimpleRNN)     (None, 1)                 12        
+##  embedding_2 (Embedding)     (None, None, 50)          500050    
+##                                                                  
+##  simple_rnn_4 (SimpleRNN)    (None, None, 10)          610       
+##                                                                  
+##  simple_rnn_5 (SimpleRNN)    (None, 1)                 12        
+##                                                                  
 ## =================================================================
 ## Total params: 500,672
 ## Trainable params: 500,672
@@ -886,15 +890,16 @@ rnn_conv1d.summary()
 ```
 ## Model: "sequential_4"
 ## _________________________________________________________________
-## Layer (type)                 Output Shape              Param #   
+##  Layer (type)                Output Shape              Param #   
 ## =================================================================
-## embedding_3 (Embedding)      (None, None, 50)          500050    
-## _________________________________________________________________
-## conv1d (Conv1D)              (None, None, 5)           505       
-## _________________________________________________________________
-## simple_rnn_6 (SimpleRNN)     (None, None, 10)          160       
-## _________________________________________________________________
-## simple_rnn_7 (SimpleRNN)     (None, 1)                 12        
+##  embedding_3 (Embedding)     (None, None, 50)          500050    
+##                                                                  
+##  conv1d (Conv1D)             (None, None, 5)           505       
+##                                                                  
+##  simple_rnn_6 (SimpleRNN)    (None, None, 10)          160       
+##                                                                  
+##  simple_rnn_7 (SimpleRNN)    (None, 1)                 12        
+##                                                                  
 ## =================================================================
 ## Total params: 500,727
 ## Trainable params: 500,727
@@ -983,7 +988,7 @@ lstm = Sequential([
 ```
 
 ```
-## WARNING:tensorflow:Layer lstm_1 will not use cuDNN kernel since it doesn't meet the cuDNN kernel criteria. It will use generic GPU kernel as fallback when running on GPU
+## WARNING:tensorflow:Layer lstm_1 will not use cuDNN kernels since it doesn't meet the criteria. It will use a generic GPU kernel as fallback when running on GPU.
 ```
 
 ```python
@@ -1005,13 +1010,14 @@ lstm.summary()
 ```
 ## Model: "sequential_5"
 ## _________________________________________________________________
-## Layer (type)                 Output Shape              Param #   
+##  Layer (type)                Output Shape              Param #   
 ## =================================================================
-## embedding_4 (Embedding)      (None, None, 50)          500050    
-## _________________________________________________________________
-## lstm (LSTM)                  (None, None, 10)          2440      
-## _________________________________________________________________
-## lstm_1 (LSTM)                (None, 1)                 48        
+##  embedding_4 (Embedding)     (None, None, 50)          500050    
+##                                                                  
+##  lstm (LSTM)                 (None, None, 10)          2440      
+##                                                                  
+##  lstm_1 (LSTM)               (None, 1)                 48        
+##                                                                  
 ## =================================================================
 ## Total params: 502,538
 ## Trainable params: 502,538
@@ -1100,7 +1106,7 @@ from tensorflow.keras.regularizers import l2
 
 max_features = 50000
 tokenizer = text.Tokenizer(num_words=max_features)
-tokenizer.fit_on_texts(quora_df['question1'].append(quora_df['question2']).unique())
+tokenizer.fit_on_texts(pd.concat([quora_df['question1'], quora_df['question2']]).unique())
 
 question1 = tokenizer.texts_to_sequences(quora_df['question1'])
 question2 = tokenizer.texts_to_sequences(quora_df['question2'])
@@ -1250,6 +1256,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
