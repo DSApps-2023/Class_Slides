@@ -4,8 +4,8 @@
     <title>Intro to Web Scraping</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2021-12-31" />
-    <script src="u0_d02-webscraping_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-26" />
+    <script src="u0_d02-webscraping_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2021-12-31
+### 2022-12-26
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -292,17 +292,17 @@ html_obj %&gt;% html_nodes("a")
 ##  [6] &lt;a href="https://www.triviaquestionsnow.com/for/math-trivia"&gt;Math Trivia ...
 ##  [7] &lt;a href="https://www.triviaquestionsnow.com/categories"&gt;Categories&lt;/a&gt;
 ##  [8] &lt;a href="https://www.triviaquestionsnow.com/all"&gt;All Trivia&lt;/a&gt;
-##  [9] &lt;a href="https://www.triviaquestionsnow.com/question/what-male-tennis-pl ...
+##  [9] &lt;a href="https://www.triviaquestionsnow.com/question/popular-1973-battle ...
 ## [10] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [11] &lt;a href="https://www.triviaquestionsnow.com/question/state-the-pro-footb ...
+## [11] &lt;a href="https://www.triviaquestionsnow.com/question/nba-personality-cri ...
 ## [12] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [13] &lt;a href="https://www.triviaquestionsnow.com/question/team-to-win-first-e ...
+## [13] &lt;a href="https://www.triviaquestionsnow.com/question/defeated-by-andy-mu ...
 ## [14] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [15] &lt;a href="https://www.triviaquestionsnow.com/question/player-from-1998-nf ...
+## [15] &lt;a href="https://www.triviaquestionsnow.com/question/who-were-the-victor ...
 ## [16] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [17] &lt;a href="https://www.triviaquestionsnow.com/question/football" class="da ...
+## [17] &lt;a href="https://www.triviaquestionsnow.com/question/the-2000-french-ope ...
 ## [18] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [19] &lt;a href="https://www.triviaquestionsnow.com/question/andre-agassi-lost-t ...
+## [19] &lt;a href="https://www.triviaquestionsnow.com/question/injury-type-patriot ...
 ## [20] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
 ## ...
 ```
@@ -335,49 +335,49 @@ html_obj %&gt;% html_nodes("a") %&gt;% html_attr("href")
 ```
 
 ```
-##  [1] "/"                                                                                                                                
-##  [2] "https://www.triviaquestionsnow.com"                                                                                               
-##  [3] "https://www.triviaquestionsnow.com/easy-trivia-questions"                                                                         
-##  [4] "https://www.triviaquestionsnow.com/for/sports-trivia"                                                                             
-##  [5] "https://www.triviaquestionsnow.com/for/music-trivia"                                                                              
-##  [6] "https://www.triviaquestionsnow.com/for/math-trivia"                                                                               
-##  [7] "https://www.triviaquestionsnow.com/categories"                                                                                    
-##  [8] "https://www.triviaquestionsnow.com/all"                                                                                           
-##  [9] "https://www.triviaquestionsnow.com/question/what-male-tennis-player-has-won-the-most-grand-slam-titles"                           
-## [10] "#"                                                                                                                                
-## [11] "https://www.triviaquestionsnow.com/question/state-the-pro-football-hall-of-fame-is-located"                                       
-## [12] "#"                                                                                                                                
-## [13] "https://www.triviaquestionsnow.com/question/team-to-win-first-ever-super-bowl"                                                    
-## [14] "#"                                                                                                                                
-## [15] "https://www.triviaquestionsnow.com/question/player-from-1998-nfl-draft-considered-to-be-biggest-draft-bust-ever"                  
-## [16] "#"                                                                                                                                
-## [17] "https://www.triviaquestionsnow.com/question/football"                                                                             
-## [18] "#"                                                                                                                                
-## [19] "https://www.triviaquestionsnow.com/question/andre-agassi-lost-the-wimbledon-championship-final-in-1999-to"                        
-## [20] "#"                                                                                                                                
-## [21] "https://www.triviaquestionsnow.com/question/andre-agassi-won-his-first-olympic-gold-medal-in-which-year"                          
-## [22] "#"                                                                                                                                
-## [23] "https://www.triviaquestionsnow.com/question/which-male-golfer-was-the-winner-of-2018-u-s-open-champion"                           
-## [24] "#"                                                                                                                                
-## [25] "https://www.triviaquestionsnow.com/question/novak-djokovic-won-the-2013-australian-open-tournament-who-did-he-defeat-in-the-final"
-## [26] "#"                                                                                                                                
-## [27] "https://www.triviaquestionsnow.com/question/only-player-in-nfl-history-to-have-rushed-for-99-yard-touchdown-until-2018"           
-## [28] "#"                                                                                                                                
-## [29] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                      
-## [30] "https://www.triviaquestionsnow.com/for/sports-trivia?page=3"                                                                      
-## [31] "https://www.triviaquestionsnow.com/for/sports-trivia?page=4"                                                                      
-## [32] "https://www.triviaquestionsnow.com/for/sports-trivia?page=5"                                                                      
-## [33] "https://www.triviaquestionsnow.com/for/sports-trivia?page=6"                                                                      
-## [34] "https://www.triviaquestionsnow.com/for/sports-trivia?page=7"                                                                      
-## [35] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                      
-## [36] "https://www.triviaquestionsnow.com/for/food-drink-trivia"                                                                         
-## [37] "https://www.triviaquestionsnow.com/for/science-trivia"                                                                            
-## [38] "https://www.triviaquestionsnow.com/for/bible-trivia"                                                                              
-## [39] "https://www.triviaquestionsnow.com/for/kids-trivia"                                                                               
-## [40] "https://www.triviaquestionsnow.com/for/history-trivia"                                                                            
-## [41] "https://www.triviaquestionsnow.com/for/video-games-trivia"                                                                        
-## [42] "https://www.triviaquestionsnow.com/categories"                                                                                    
-## [43] "javascript:void(0);"                                                                                                              
+##  [1] "/"                                                                                                                                    
+##  [2] "https://www.triviaquestionsnow.com"                                                                                                   
+##  [3] "https://www.triviaquestionsnow.com/easy-trivia-questions"                                                                             
+##  [4] "https://www.triviaquestionsnow.com/for/sports-trivia"                                                                                 
+##  [5] "https://www.triviaquestionsnow.com/for/music-trivia"                                                                                  
+##  [6] "https://www.triviaquestionsnow.com/for/math-trivia"                                                                                   
+##  [7] "https://www.triviaquestionsnow.com/categories"                                                                                        
+##  [8] "https://www.triviaquestionsnow.com/all"                                                                                               
+##  [9] "https://www.triviaquestionsnow.com/question/popular-1973-battle-of-sexes-was-tennis-match-between-bobby-riggs-and-which-female-player"
+## [10] "#"                                                                                                                                    
+## [11] "https://www.triviaquestionsnow.com/question/nba-personality-criticized-in-2016-for-using-word-posse-in-a-racist-way"                  
+## [12] "#"                                                                                                                                    
+## [13] "https://www.triviaquestionsnow.com/question/defeated-by-andy-murray-in-semi-finals-to-qualify-for-2012-mens-singles-us-open-final"    
+## [14] "#"                                                                                                                                    
+## [15] "https://www.triviaquestionsnow.com/question/who-were-the-victors-of-the-womens-doubles-of-the-2008-australian-open-tournament"        
+## [16] "#"                                                                                                                                    
+## [17] "https://www.triviaquestionsnow.com/question/the-2000-french-open-mens-singles-championship-was-won-by-whom"                           
+## [18] "#"                                                                                                                                    
+## [19] "https://www.triviaquestionsnow.com/question/injury-type-patriots-wide-receiver-julian-edelman-was-sidelined-in-2017-season"           
+## [20] "#"                                                                                                                                    
+## [21] "https://www.triviaquestionsnow.com/question/average-total-length-of-nfl-football-game"                                                
+## [22] "#"                                                                                                                                    
+## [23] "https://www.triviaquestionsnow.com/question/which-of-the-following-golf-clubs-is-not-located-in-canada"                               
+## [24] "#"                                                                                                                                    
+## [25] "https://www.triviaquestionsnow.com/question/year-vince-lombardi-name-of-super-bowl-winners-trophy-die"                                
+## [26] "#"                                                                                                                                    
+## [27] "https://www.triviaquestionsnow.com/question/which-country-won-the-2018-fed-cup"                                                       
+## [28] "#"                                                                                                                                    
+## [29] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                          
+## [30] "https://www.triviaquestionsnow.com/for/sports-trivia?page=3"                                                                          
+## [31] "https://www.triviaquestionsnow.com/for/sports-trivia?page=4"                                                                          
+## [32] "https://www.triviaquestionsnow.com/for/sports-trivia?page=5"                                                                          
+## [33] "https://www.triviaquestionsnow.com/for/sports-trivia?page=6"                                                                          
+## [34] "https://www.triviaquestionsnow.com/for/sports-trivia?page=7"                                                                          
+## [35] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                          
+## [36] "https://www.triviaquestionsnow.com/for/food-drink-trivia"                                                                             
+## [37] "https://www.triviaquestionsnow.com/for/science-trivia"                                                                                
+## [38] "https://www.triviaquestionsnow.com/for/bible-trivia"                                                                                  
+## [39] "https://www.triviaquestionsnow.com/for/kids-trivia"                                                                                   
+## [40] "https://www.triviaquestionsnow.com/for/history-trivia"                                                                                
+## [41] "https://www.triviaquestionsnow.com/for/video-games-trivia"                                                                            
+## [42] "https://www.triviaquestionsnow.com/categories"                                                                                        
+## [43] "javascript:void(0);"                                                                                                                  
 ## [44] "https://www.triviaquestionsnow.com/privacy"
 ```
 
@@ -393,49 +393,49 @@ html_obj %&gt;% html_nodes("a") %&gt;% html_text()
 ```
 
 ```
-##  [1] "\n                "                                                                                                           
-##  [2] "\n                            "                                                                                               
-##  [3] "Easy Trivia"                                                                                                                  
-##  [4] "Sports Trivia"                                                                                                                
-##  [5] "Music Trivia"                                                                                                                 
-##  [6] "Math Trivia"                                                                                                                  
-##  [7] "Categories"                                                                                                                   
-##  [8] "All Trivia"                                                                                                                   
-##  [9] "\n                What male tennis player has won the most Grand Slam titles?\n            "                                  
-## [10] "Show Answer"                                                                                                                  
-## [11] "\n                In what state is the Pro Football Hall of Fame located?\n            "                                      
-## [12] "Show Answer"                                                                                                                  
-## [13] "\n                Which team won the first Super Bowl ever?\n            "                                                    
-## [14] "Show Answer"                                                                                                                  
-## [15] "\n                Which player from the 1998 NFL Draft is considered by many to be the biggest draft bust ever?\n            "
-## [16] "Show Answer"                                                                                                                  
-## [17] "\n                In American football, how many points is a touchdown worth?\n            "                                  
-## [18] "Show Answer"                                                                                                                  
-## [19] "\n                Andre Agassi lost the Wimbledon Championship final in 1999. Which player did he lose to?\n            "     
-## [20] "Show Answer"                                                                                                                  
-## [21] "\n                Andre Agassi won his first Olympic gold medal in which year?\n            "                                 
-## [22] "Show Answer"                                                                                                                  
-## [23] "\n                Which male golfer was the winner of 2018 U.S. Open Champion?\n            "                                 
-## [24] "Show Answer"                                                                                                                  
-## [25] "\n                Novak Djokovic won the 2013 Australian Open tournament. Who did he defeat in the final?\n            "      
-## [26] "Show Answer"                                                                                                                  
-## [27] "\n                Up until 2018, who was the only player in NFL history to have rushed for a 99-yard touchdown?\n            "
-## [28] "Show Answer"                                                                                                                  
-## [29] "2"                                                                                                                            
-## [30] "3"                                                                                                                            
-## [31] "4"                                                                                                                            
-## [32] "5"                                                                                                                            
-## [33] "6"                                                                                                                            
-## [34] "7"                                                                                                                            
-## [35] "\r\n                        Next\r\n                    "                                                                     
-## [36] "\n                                    \n                    Food &amp; Drink Trivia\n                \n            "              
-## [37] "\n                                    \n                    Science Trivia\n                \n            "                   
-## [38] "\n                                    \n                    Bible Trivia\n                \n            "                     
-## [39] "\n                                    \n                    Kids Trivia\n                \n            "                      
-## [40] "\n                                    \n                    History Trivia\n                \n            "                   
-## [41] "\n                                    \n                    Video Games Trivia\n                \n            "               
-## [42] "See All Categories"                                                                                                           
-## [43] "feedback box"                                                                                                                 
+##  [1] "\n                "                                                                                                                             
+##  [2] "\n                            "                                                                                                                 
+##  [3] "Easy Trivia"                                                                                                                                    
+##  [4] "Sports Trivia"                                                                                                                                  
+##  [5] "Music Trivia"                                                                                                                                   
+##  [6] "Math Trivia"                                                                                                                                    
+##  [7] "Categories"                                                                                                                                     
+##  [8] "All Trivia"                                                                                                                                     
+##  [9] "\n                The popular 1973 \"Battle of the Sexes\" was a tennis match between Bobby Riggs and which female tennis player?\n            "
+## [10] "Show Answer"                                                                                                                                    
+## [11] "\n                Which NBA personality came under fire in 2016 for using the word \"posse\" in a way many people deemed racist?\n            " 
+## [12] "Show Answer"                                                                                                                                    
+## [13] "\n                Who did Andy Murray defeat in the semi-finals to qualify for the 2012 men's singles U.S. Open final?\n            "           
+## [14] "Show Answer"                                                                                                                                    
+## [15] "\n                Who were the victors of the women's doubles of the 2008 Australian Open Tournament?\n            "                            
+## [16] "Show Answer"                                                                                                                                    
+## [17] "\n                The 2000 French Open men's singles Championship was won by whom?\n            "                                               
+## [18] "Show Answer"                                                                                                                                    
+## [19] "\n                During the entire 2017 season, Patriots' wide receiver Julian Edelman was sidelined with which type of injury?\n            " 
+## [20] "Show Answer"                                                                                                                                    
+## [21] "\n                What is the average total length of a NFL football game?\n            "                                                       
+## [22] "Show Answer"                                                                                                                                    
+## [23] "\n                Which of the following golf clubs is not located in Canada?\n            "                                                    
+## [24] "Show Answer"                                                                                                                                    
+## [25] "\n                In what year did Vince Lombardi, the man whom the trophy awarded to the Super Bowl winners is named after, die?\n            "
+## [26] "Show Answer"                                                                                                                                    
+## [27] "\n                Which Country won the 2018 Fed Cup?\n            "                                                                            
+## [28] "Show Answer"                                                                                                                                    
+## [29] "2"                                                                                                                                              
+## [30] "3"                                                                                                                                              
+## [31] "4"                                                                                                                                              
+## [32] "5"                                                                                                                                              
+## [33] "6"                                                                                                                                              
+## [34] "7"                                                                                                                                              
+## [35] "\r\n                        Next\r\n                    "                                                                                       
+## [36] "\n                                    \n                    Food &amp; Drink Trivia\n                \n            "                                
+## [37] "\n                                    \n                    Science Trivia\n                \n            "                                     
+## [38] "\n                                    \n                    Bible Trivia\n                \n            "                                       
+## [39] "\n                                    \n                    Kids Trivia\n                \n            "                                        
+## [40] "\n                                    \n                    History Trivia\n                \n            "                                     
+## [41] "\n                                    \n                    Video Games Trivia\n                \n            "                                 
+## [42] "See All Categories"                                                                                                                             
+## [43] "feedback box"                                                                                                                                   
 ## [44] "Privacy Policy"
 ```
 
@@ -462,7 +462,7 @@ Look at the page source, get some identifier yourself (class, ID, link)
 ## {html_node}
 ## &lt;div class="question callout" ng-controller="QuestionController as question"&gt;
 ## [1] &lt;input type="hidden" ng-model="question.data.id" ng-init="question.data.i ...
-## [2] &lt;span class="float-right light-grey bold l-cush-10"&gt;Medium&lt;/span&gt;
+## [2] &lt;span class="float-right light-grey bold l-cush-10"&gt;Hard&lt;/span&gt;
 ## [3] &lt;h3 class="fs-1 bold"&gt;\n            &lt;a href="https://www.triviaquestionsn ...
 ## [4] &lt;div class="t-pad-10"&gt;\n            &lt;a href="#" class="click-to-show bold ...
 ```
@@ -481,16 +481,16 @@ html_obj %&gt;%
 ```
 
 ```
-##  [1] "What male tennis player has won the most Grand Slam titles?"                                  
-##  [2] "In what state is the Pro Football Hall of Fame located?"                                      
-##  [3] "Which team won the first Super Bowl ever?"                                                    
-##  [4] "Which player from the 1998 NFL Draft is considered by many to be the biggest draft bust ever?"
-##  [5] "In American football, how many points is a touchdown worth?"                                  
-##  [6] "Andre Agassi lost the Wimbledon Championship final in 1999. Which player did he lose to?"     
-##  [7] "Andre Agassi won his first Olympic gold medal in which year?"                                 
-##  [8] "Which male golfer was the winner of 2018 U.S. Open Champion?"                                 
-##  [9] "Novak Djokovic won the 2013 Australian Open tournament. Who did he defeat in the final?"      
-## [10] "Up until 2018, who was the only player in NFL history to have rushed for a 99-yard touchdown?"
+##  [1] "The popular 1973 \"Battle of the Sexes\" was a tennis match between Bobby Riggs and which female tennis player?"
+##  [2] "Which NBA personality came under fire in 2016 for using the word \"posse\" in a way many people deemed racist?" 
+##  [3] "Who did Andy Murray defeat in the semi-finals to qualify for the 2012 men's singles U.S. Open final?"           
+##  [4] "Who were the victors of the women's doubles of the 2008 Australian Open Tournament?"                            
+##  [5] "The 2000 French Open men's singles Championship was won by whom?"                                               
+##  [6] "During the entire 2017 season, Patriots' wide receiver Julian Edelman was sidelined with which type of injury?" 
+##  [7] "What is the average total length of a NFL football game?"                                                       
+##  [8] "Which of the following golf clubs is not located in Canada?"                                                    
+##  [9] "In what year did Vince Lombardi, the man whom the trophy awarded to the Super Bowl winners is named after, die?"
+## [10] "Which Country won the 2018 Fed Cup?"
 ```
 
 ---
@@ -527,19 +527,19 @@ extract_questions_and_answers_from_page(url)
 ```
 
 ```
-## # A tibble: 10 x 3
-##    level    question                                              answer        
-##    &lt;chr&gt;    &lt;chr&gt;                                                 &lt;chr&gt;         
-##  1 Easy     "The winning team of the Davis Cup is called?"        World Champio~
-##  2 Hard     "What was the duration of the longest playoff drough~ 44 years      
-##  3 Hard     "In which year did Fred Couples win his first major ~ 1992          
-##  4 Hard     "Which player graced the cover of the videogame \"Ma~ Rob Gronkowski
-##  5 Medium   "In 2010, which NBA player posed nude for an issue o~ Amare Stoudam~
-##  6 VeryHard "Which Super Bowl had the most points ever scored?"   Super Bowl XX~
-##  7 Easy     "Which country won the 2012 Fed Cup?"                 Czech Republic
-##  8 Easy     "Bernhard Langer is a distinguished golfer. Which co~ Germany       
-##  9 Easy     "What year was the first Super Bowl played?"          1967          
-## 10 VeryHard "In 2016, Giants' wide receiver Odell Beckham, Jr. a~ Code Black
+## # A tibble: 10 × 3
+##    level  question                                                        answer
+##    &lt;chr&gt;  &lt;chr&gt;                                                           &lt;chr&gt; 
+##  1 Easy   Which of the following are not types of tennis court?           Soft …
+##  2 Easy   What country was host to the 1930 inaugural FIFA Football Worl… Urugu…
+##  3 Easy   Which Country won the 2015 Davis Cup?                           Great…
+##  4 Medium Who won the title for the men's singles of the 2011 Australian… Novak…
+##  5 Medium Which tennis player won the 2016 Laurens World Sports Award?    Novak…
+##  6 Easy   In what year were women first allowed to participate in the mo… 1900 …
+##  7 Easy   Which country lost to Croatia in the 2018 Davis Cup final matc… France
+##  8 Medium Where did the sport of curling originate?                       Scotl…
+##  9 Medium How long is a football end zone?                                10 Ya…
+## 10 Medium As of the 2016 Olympics, which NBA player has been on the US O… Carme…
 ```
 
 ---
@@ -577,20 +577,20 @@ extract_multiple_pages_single_topic("sports")
 
 
 ```
-## # A tibble: 50 x 4
-##    level    question                                       answer          topic
-##    &lt;chr&gt;    &lt;chr&gt;                                          &lt;chr&gt;           &lt;chr&gt;
-##  1 VeryHard "In 1948, which NBA basketball team did the H~ Minneapolis La~ spor~
-##  2 Medium   "The Jacksonville Jaguars and Carolina Panthe~ 1995            spor~
-##  3 Hard     "An automatic progression by a player to the ~ Bye             spor~
-##  4 VeryHard "In 2016, Giants' wide receiver Odell Beckham~ Code Black      spor~
-##  5 Hard     "Which NBA player broke the record for most p~ Jeremy Lin      spor~
-##  6 Medium   "Before relocating to Foxborough, Massachuset~ Boston          spor~
-##  7 Easy     "What is the term for the historic jerseys to~ Throwback Jers~ spor~
-##  8 Medium   "Who served as the starting center of the Gol~ Andrew Bogut    spor~
-##  9 Easy     "In what year was the 4 minute mile achieved?" 1954 by Roger ~ spor~
-## 10 Hard     "Who was the first tennis player to complete ~ Don Budge       spor~
-## # ... with 40 more rows
+## # A tibble: 50 × 4
+##    level    question                                                answer topic
+##    &lt;chr&gt;    &lt;chr&gt;                                                   &lt;chr&gt;  &lt;chr&gt;
+##  1 VeryHard "In 1948, which NBA basketball team did the Harlem Glo… Minne… spor…
+##  2 Medium   "The Jacksonville Jaguars and Carolina Panthers entere… 1995   spor…
+##  3 Hard     "An automatic progression by a player to the next stag… Bye    spor…
+##  4 VeryHard "In 2016, Giants' wide receiver Odell Beckham, Jr. app… Code … spor…
+##  5 Hard     "Which NBA player broke the record for most points sco… Jerem… spor…
+##  6 Medium   "Before relocating to Foxborough, Massachusetts, what … Boston spor…
+##  7 Easy     "What is the term for the historic jerseys today worn … Throw… spor…
+##  8 Medium   "Who served as the starting center of the Golden State… Andre… spor…
+##  9 Easy     "In what year was the 4 minute mile achieved?"          1954 … spor…
+## 10 Hard     "Who was the first tennis player to complete a \"Grand… Don B… spor…
+## # … with 40 more rows
 ```
 
 ---
@@ -611,7 +611,7 @@ df_all %&gt;% count(topic)
 
 
 ```
-## # A tibble: 8 x 2
+## # A tibble: 8 × 2
 ##   topic           n
 ##   &lt;chr&gt;       &lt;int&gt;
 ## 1 bible          50
@@ -687,7 +687,7 @@ link_objs[3].text
 ```
 
 ```
-## 'media franchise'
+## 'reality television'
 ```
 
 ```python
@@ -695,7 +695,7 @@ link_objs[3].attrs
 ```
 
 ```
-## {'href': '/wiki/Media_franchise', 'title': 'Media franchise'}
+## {'href': '/wiki/Reality_television', 'title': 'Reality television'}
 ```
 
 See the actual link in the [page](https://en.wikipedia.org/wiki/List_of_The_Real_Housewives_cast_members).
@@ -714,7 +714,7 @@ print(len(rows))
 ```
 
 ```
-## 142
+## 155
 ```
 
 ```python
@@ -780,7 +780,7 @@ h_df.head()
 ## 1           Jeana Keough           /wiki/Jeana_Keough
 ## 2         Heather Dubrow         /wiki/Heather_Dubrow
 ## 3  Shannon Storms Beador  /wiki/Shannon_Storms_Beador
-## 4       Bethenny Frankel       /wiki/Bethenny_Frankel
+## 4            Meghan King            /wiki/Meghan_King
 ```
 
 ---
@@ -797,11 +797,11 @@ l[0].head()
 ```
 ##      Installment       Housewives  ... Number of seasons      
 ##      Installment       Housewives  ...            Friend Guest
-## 0  Orange County  Kimberly Bryant  ...               0.0   3.0
-## 1  Orange County    Jo De La Rosa  ...               0.0   2.0
-## 2  Orange County  Vicki Gunvalson  ...               1.0   0.0
-## 3  Orange County     Jeana Keough  ...               1.0   4.0
-## 4  Orange County   Lauri Peterson  ...               1.0   1.0
+## 0  Orange County  Kimberly Bryant  ...                 0     3
+## 1  Orange County    Jo De La Rosa  ...                 0     2
+## 2  Orange County  Vicki Gunvalson  ...                 1     0
+## 3  Orange County     Jeana Keough  ...                 1     5
+## 4  Orange County   Lauri Peterson  ...                 1     1
 ## 
 ## [5 rows x 7 columns]
 ```
@@ -906,6 +906,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
