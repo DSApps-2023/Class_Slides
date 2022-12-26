@@ -52,7 +52,7 @@ class: section-slide
 
 ## Pros
 
-- It's just a set of if-else statements my ~~7~~ ~~8~~ 9 y/o can get
+- It's just a set of if-else statements my ~~7~~ ~~8~~ ~~9~~ 10 y/o can get
 - Highly interpretable (when tree is not large)
 - Easy to implement
 - Fast? (to predict)
