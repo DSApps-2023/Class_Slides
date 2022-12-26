@@ -84,6 +84,11 @@ class: section-slide
 
 Undirected:
 
+```{python, echo=FALSE}
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+```
+
 ```{python}
 import networkx as nx
 
@@ -830,7 +835,7 @@ nx.strongly_connected_components(D)
 
 ### Laplacian
 
-```{python}
+```{python, warning=FALSE}
 L = nx.laplacian_matrix(G)
 
 L.todense()[:5, :5]
