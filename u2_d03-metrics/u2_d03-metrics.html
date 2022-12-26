@@ -4,8 +4,8 @@
     <title>Network Metrics</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-03-18" />
-    <script src="u2_d03-metrics_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-26" />
+    <script src="u2_d03-metrics_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-03-18
+### 2022-12-26
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -214,18 +214,9 @@ nx.eigenvector_centrality(Dag)
 ```
 
 &lt;pre style="color: red;"&gt;&lt;code&gt;## Error in py_call_impl(callable, dots$args, dots$keywords):
-PowerIterationFailedConvergence: (PowerIterationFailedConvergence(...), 'power
-iteration failed to converge within 100 iterations')
-##
-## Detailed traceback:
-## File "&lt;string&gt;", line 1, in &lt;module&gt;
-## File "&lt;class 'networkx.utils.decorators.argmap'&gt; compilation 16", line 4, in
-argmap_eigenvector_centrality_13
-## from pathlib import Path
-## File
-"C:\Users\GSIMCH~1\AppData\Local\Programs\Python\Python38\lib\site-packages\networkx\algorithms\centrality\eigenvector.py",
-line 138, in eigenvector_centrality
-## raise nx.PowerIterationFailedConvergence(max_iter)
+networkx.exception.PowerIterationFailedConvergence:
+(PowerIterationFailedConvergence(...), 'power iteration failed to converge
+within 100 iterations')
 &lt;/code&gt;&lt;/pre&gt;
 
 ---
@@ -639,11 +630,11 @@ pretty_print(sim_jaccard_top5)
 ```
 
 ```
+## ("Ender's Game", 'I, Robot'): 0.50
 ## ('The Lion, the Witch and the Wardrobe', 'The Princess Bride'): 0.50
-## ('I, Robot', "Ender's Game"): 0.50
-## ('2001: A Space Odyssey', 'Babel 17'): 0.43
 ## ('Brave New World', 'Solaris'): 0.43
-## ('The Lord of the Rings', 'Journey to the Center of the Earth'): 0.43
+## ('Babel 17', '2001: A Space Odyssey'): 0.43
+## ('Harry Potter Series', 'The Hunger Games'): 0.43
 ```
 
 ---
@@ -820,6 +811,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
