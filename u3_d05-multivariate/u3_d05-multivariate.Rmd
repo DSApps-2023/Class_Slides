@@ -80,6 +80,7 @@ class: section-slide
 You're in a corn field. You have no drone. Where do you stand to watch most corns?
 
 ```{r Metaphor-PCA, out.width="50%", echo=FALSE}
+# remotes::install_github("dill/emoGG")
 library(emoGG)
 
 tibble(x1 = runif(50),
@@ -211,12 +212,12 @@ But we're good for now.
 ### PCA on Netflix data
 
 ```{r}
-con <- url("http://www.tau.ac.il/~saharon/StatsLearn2020/train_ratings_all.dat")
+con <- url("http://www.tau.ac.il/~saharon/StatsLearn2022/train_ratings_all.dat")
 netflix <- as_tibble(
   read.table(con, colClasses = c(rep("integer", 14), rep("NULL", 99 - 14)))
 )
 
-con <- url("http://www.tau.ac.il/~saharon/StatsLearn2020/movie_titles.txt")
+con <- url("http://www.tau.ac.il/~saharon/StatsLearn2022/movie_titles.txt")
 titles <- read.table(con, sep = ",", nrows = 14)
 colnames(netflix) <- janitor::make_clean_names(str_sub(titles[,2], 1, 15))
 
@@ -290,7 +291,7 @@ Suppose your job is to predict the viewers rating of [Miss Congeniality](https:/
 How would viewers low/high on PC2 rate it?
 
 ```{r}
-con <- url("http://www.tau.ac.il/~saharon/StatsLearn2020/train_y_rating.dat")
+con <- url("http://www.tau.ac.il/~saharon/StatsLearn2022/train_y_rating.dat")
 mc <- as_tibble(read.table(con))
 colnames(mc) <- "mc_score"
 

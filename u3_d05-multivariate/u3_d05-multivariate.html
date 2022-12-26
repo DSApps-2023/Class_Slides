@@ -4,8 +4,8 @@
     <title>Intro. to Multivariate Methods</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-05-06" />
-    <script src="u3_d05-multivariate_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-26" />
+    <script src="u3_d05-multivariate_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-05-06
+### 2022-12-26
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -73,6 +73,7 @@ class: section-slide
   - (Especially for old-school models, old-school computation)
   - `\(p\)` is so large we cannot apply our ML model of choice
   - Features decorrelation: Models which suffer from multicollinearity (which?)
+  - Clustering (e.g. K-Means, community detection)
 
 - Feature Engineering!
 
@@ -166,9 +167,9 @@ pca$rotation
 ```
 
 ```
-##             PC1        PC2
-## [1,] -0.2421897 -0.9702289
-## [2,] -0.9702289  0.2421897
+##             PC1       PC2
+## [1,] -0.9300713 0.3673791
+## [2,]  0.3673791 0.9300713
 ```
 
 The PCs:
@@ -179,12 +180,12 @@ pca$x
 ```
 
 ```
-##             PC1        PC2
-## [1,] -0.6076875  0.3671156
-## [2,] -1.7658651 -0.5413065
-## [3,]  1.0664375 -0.4053781
-## [4,]  1.0540485 -0.5582421
-## [5,]  0.2530666  1.1378111
+##              PC1        PC2
+## [1,] -0.58032309  0.3166279
+## [2,] -1.05943800 -0.1812795
+## [3,]  0.84344476 -0.1061266
+## [4,]  0.73126676  0.1247415
+## [5,]  0.06504958 -0.1539632
 ```
 
 ---
@@ -197,7 +198,7 @@ pca$sdev ** 2 #compare with apply(pca$x, 2, var)
 ```
 
 ```
-## [1] 1.4499784 0.5495916
+## [1] 0.67739134 0.04591085
 ```
 
 Check R:
@@ -210,12 +211,12 @@ X_scaled %*% pca$rotation
 ```
 
 ```
-##             PC1        PC2
-## [1,] -0.6076875  0.3671156
-## [2,] -1.7658651 -0.5413065
-## [3,]  1.0664375 -0.4053781
-## [4,]  1.0540485 -0.5582421
-## [5,]  0.2530666  1.1378111
+##              PC1        PC2
+## [1,] -0.58032309  0.3166279
+## [2,] -1.05943800 -0.1812795
+## [3,]  0.84344476 -0.1061266
+## [4,]  0.73126676  0.1247415
+## [5,]  0.06504958 -0.1539632
 ```
 
 ---
@@ -228,9 +229,9 @@ eigen(t(X_scaled) %*% X_scaled)$vectors
 ```
 
 ```
-##           [,1]       [,2]
-## [1,] 0.2421897 -0.9702289
-## [2,] 0.9702289  0.2421897
+##            [,1]       [,2]
+## [1,] -0.9300713 -0.3673791
+## [2,]  0.3673791 -0.9300713
 ```
 
 
@@ -239,7 +240,7 @@ eigen(t(X_scaled) %*% X_scaled)$values / (5 - 1)
 ```
 
 ```
-## [1] 1.4499784 0.5495916
+## [1] 0.67739134 0.04591085
 ```
 
 .insight[
@@ -254,12 +255,12 @@ But we're good for now.
 
 
 ```r
-con &lt;- url("http://www.tau.ac.il/~saharon/StatsLearn2020/train_ratings_all.dat")
+con &lt;- url("http://www.tau.ac.il/~saharon/StatsLearn2022/train_ratings_all.dat")
 netflix &lt;- as_tibble(
   read.table(con, colClasses = c(rep("integer", 14), rep("NULL", 99 - 14)))
 )
 
-con &lt;- url("http://www.tau.ac.il/~saharon/StatsLearn2020/movie_titles.txt")
+con &lt;- url("http://www.tau.ac.il/~saharon/StatsLearn2022/movie_titles.txt")
 titles &lt;- read.table(con, sep = ",", nrows = 14)
 colnames(netflix) &lt;- janitor::make_clean_names(str_sub(titles[,2], 1, 15))
 
@@ -267,7 +268,7 @@ netflix
 ```
 
 ```
-## # A tibble: 10,000 x 14
+## # A tibble: 10,000 × 14
 ##    independence_da the_patriot the_day_after_t pirates_of_the pretty_woman
 ##              &lt;int&gt;       &lt;int&gt;           &lt;int&gt;          &lt;int&gt;        &lt;int&gt;
 ##  1               2           4               4              4            5
@@ -280,7 +281,7 @@ netflix
 ##  8               3           5               3              4            4
 ##  9               5           5               5              5            5
 ## 10               4           4               4              4            5
-## # ... with 9,990 more rows, and 9 more variables: forrest_gump &lt;int&gt;,
+## # … with 9,990 more rows, and 9 more variables: forrest_gump &lt;int&gt;,
 ## #   the_green_mile &lt;int&gt;, con_air &lt;int&gt;, twister &lt;int&gt;, sweet_home_alab &lt;int&gt;,
 ## #   pearl_harbor &lt;int&gt;, armageddon &lt;int&gt;, the_rock &lt;int&gt;, what_women_want &lt;int&gt;
 ```
@@ -303,7 +304,7 @@ W2
 ```
 
 ```
-## # A tibble: 14 x 4
+## # A tibble: 14 × 4
 ##    title           mean_rating   PC1      PC2
 ##    &lt;chr&gt;                 &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;
 ##  1 independence_da        4.15 0.248 -0.259  
@@ -383,7 +384,7 @@ How would viewers low/high on PC2 rate it?
 
 
 ```r
-con &lt;- url("http://www.tau.ac.il/~saharon/StatsLearn2020/train_y_rating.dat")
+con &lt;- url("http://www.tau.ac.il/~saharon/StatsLearn2022/train_y_rating.dat")
 mc &lt;- as_tibble(read.table(con))
 colnames(mc) &lt;- "mc_score"
 
@@ -399,7 +400,7 @@ mc[PC2_top100,] %&gt;% count(mc_score)
 ```
 
 ```
-## # A tibble: 4 x 2
+## # A tibble: 4 × 2
 ##   mc_score     n
 ##      &lt;int&gt; &lt;int&gt;
 ## 1        2    12
@@ -414,7 +415,7 @@ mc[PC2_bottom100,] %&gt;% count(mc_score)
 ```
 
 ```
-## # A tibble: 5 x 2
+## # A tibble: 5 × 2
 ##   mc_score     n
 ##      &lt;int&gt; &lt;int&gt;
 ## 1        1    17
@@ -508,24 +509,24 @@ fa
 ## factanal(x = X, factors = 2, scores = "regression")
 ## 
 ## Uniquenesses:
-## [1] 0.790 0.005 0.005 0.388 0.578
+## [1] 0.683 0.010 0.828 0.005 0.228
 ## 
 ## Loadings:
 ##      Factor1 Factor2
-## [1,] -0.458         
-## [2,]          0.996 
-## [3,]  0.990  -0.124 
-## [4,] -0.697   0.354 
-## [5,]  0.236  -0.605 
+## [1,]  0.563         
+## [2,] -0.405   0.909 
+## [3,]  0.174   0.377 
+## [4,] -0.974   0.214 
+## [5,]  0.856   0.198 
 ## 
 ##                Factor1 Factor2
-## SS loadings      1.734   1.500
-## Proportion Var   0.347   0.300
-## Cumulative Var   0.347   0.647
+## SS loadings      2.193   1.053
+## Proportion Var   0.439   0.211
+## Cumulative Var   0.439   0.649
 ## 
 ## Test of the hypothesis that 2 factors are sufficient.
-## The chi square statistic is 1.95 on 1 degree of freedom.
-## The p-value is 0.163
+## The chi square statistic is 0.4 on 1 degree of freedom.
+## The p-value is 0.526
 ```
 
 ---
@@ -551,7 +552,7 @@ W2
 ```
 
 ```
-## # A tibble: 14 x 4
+## # A tibble: 14 × 4
 ##    title           mean_rating Factor1 Factor2
 ##    &lt;chr&gt;                 &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
 ##  1 independence_da        4.15   0.555   0.191
@@ -667,11 +668,11 @@ lm(Y ~ x1 + x2 + x3)
 ## lm(formula = Y ~ x1 + x2 + x3)
 ## 
 ## Coefficients:
-##              y1         y2       
-## (Intercept)  -0.001855   1.021494
-## x1            1.012582   1.987598
-## x2            2.029410   3.002766
-## x3            2.984605   3.980562
+##              y1        y2      
+## (Intercept)  -0.03955   0.99723
+## x1            0.96308   1.97034
+## x2            1.99257   3.02369
+## x3            2.98476   4.02250
 ```
 
 Though harder to interpret geometrically, it isn't that different:
@@ -710,8 +711,8 @@ x'y: {format(t(x_scaled) %*% y_scaled, digits = 3)}")
 ```
 
 ```
-## pearson: 0.207
-## x'y: 0.207
+## pearson: 0.268
+## x'y: 0.268
 ```
 
 So the Pearson's `\(r\)` can be viewed as the dot product between `\(x\)` and `\(y\)`, when scaled.
@@ -768,8 +769,8 @@ b_y * s_x / s_y: {format(lm_yx$coef[2] * s_x/s_y, digits = 3)}; b_x * s_y / s_x:
 ```
 
 ```
-## pearson: 0.207
-## b_y * s_x / s_y: 0.207; b_x * s_y / s_x: 0.207
+## pearson: 0.268
+## b_y * s_x / s_y: 0.268; b_x * s_y / s_x: 0.268
 ```
 
 ---
@@ -848,7 +849,7 @@ Similarly, `\(v_1, ..., v_k\)` are the eigenvectors of the matrix `\(B = (Y'Y)^{
 ### The beauty of CCA
 
 CCA can be viewed as a unified framework for dimensionality reduction in multivariate data analysis, and it generalizes other methods:
-- If we let `\(X = Y\)` and change the constraints to be `\(u'u = 1\)` we get PCA, i.e. finding directions of maximum variance in `\(X\)` (or let `\(X\)` predict itself) 😨
+- If we let `\(X = Y\)` and change the constraints to be `\(u'u = 1\)` we get PCA, i.e. finding directions of maximum variance in `\(X\)` (or let `\(X\)` predict itself) 🤯
 - If we let `\(Y'Y = I\)` we get a result equivalent to multivariate linear regression
 - If `\(X'X = I\)` and `\(Y'Y = I\)` we get symmetrical Partial Least Squares (PLS), i.e. `\(u\)` and `\(v\)` would maximize the sample covariance `\(u'X'Yv\)`
 
@@ -866,7 +867,7 @@ head(fitness)
 ```
 
 ```
-## # A tibble: 6 x 6
+## # A tibble: 6 × 6
 ##   weight waist pulse chins situps jumps
 ##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
 ## 1    191    36    50     5    162    60
@@ -1250,6 +1251,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
