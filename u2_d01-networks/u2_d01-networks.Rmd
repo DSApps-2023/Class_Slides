@@ -89,7 +89,7 @@ Many types of networks:
 - Physical networks: telephone lines, roads, airline routes, rivers
 - Information networks: WWW, citation networks
 - Social networks: Facebook, Twitter, but not just: this class, Marriage between Royal Houses
-- Biological networks: "food webs" (what eats what?), metabolical networks
+- Biological networks: "food webs" (what eats what?), metabolic networks
 
 ---
 
@@ -98,7 +98,7 @@ Many types of networks:
 <img src = "images/gush_dan_train_system.jpg" style = "width: 60%">
 
 .font80percent[
-[מערכת להסעת המונים במטרופולין תל אביב](https://he.wikipedia.org/wiki/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA_%D7%9C%D7%94%D7%A1%D7%A2%D7%AA_%D7%94%D7%9E%D7%95%D7%A0%D7%99%D7%9D_%D7%91%D7%9E%D7%98%D7%A8%D7%95%D7%A4%D7%95%D7%9C%D7%99%D7%9F_%D7%AA%D7%9C_%D7%90%D7%91%D7%99%D7%91)
+[מערכת להסעת המונים במטרופולין תל אביב](https://he.wikipedia.org/wiki/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA_%D7%9C%D7%94%D7%A1%D7%A2%D7%AA_%D7%94%D7%9E%D7%95%D7%A0%D7%99%D7%9D_%D7%91%D7%9E%D7%98%D7%A8%D7%95%D7%A4%D7%95%D7%9C%D7%99%D7%9F_%D7%AA%D7%9C_%D7%90%D7%91%D7%99%D7%91_-_%D7%A7%D7%95%D7%95%D7%99_%D7%A8%D7%9B%D7%91%D7%AA_%D7%A7%D7%9C%D7%94)
 ]
 ---
 
@@ -148,7 +148,7 @@ Many types of networks:
 <img src = "images/marvel_bipartite_network.png" style = "width: 80%">
 
 .font80percent[
-[Adapted from: Which Marvel Characters and Movies are the Most Central? / Félix Luginbühl](https://felixluginbuhl.com/network/)
+[Adapted from: Which Marvel Characters and Movies are the Most Central? / Félix Luginbühl](https://felixluginbuhl.com/blog/posts/2018-01-26-network/)
 ]
 
 ---

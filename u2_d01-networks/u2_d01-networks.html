@@ -4,8 +4,8 @@
     <title>Introduction to Networks</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-03-13" />
-    <script src="u2_d01-networks_files/header-attrs-2.11/header-attrs.js"></script>
+    <meta name="date" content="2022-12-26" />
+    <script src="u2_d01-networks_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-03-13
+### 2022-12-26
 
 ---
 
@@ -41,7 +41,7 @@ layout: true
 
 &lt;div class="my-footer"&gt;
   &lt;span&gt;
-    &lt;a href="https://dsapps-2022.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
+    &lt;a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank"&gt;Applications of Data Science
     &lt;/a&gt;
   &lt;/span&gt;
 &lt;/div&gt;
@@ -87,7 +87,7 @@ Many types of networks:
 - Physical networks: telephone lines, roads, airline routes, rivers
 - Information networks: WWW, citation networks
 - Social networks: Facebook, Twitter, but not just: this class, Marriage between Royal Houses
-- Biological networks: "food webs" (what eats what?), metabolical networks
+- Biological networks: "food webs" (what eats what?), metabolic networks
 
 ---
 
@@ -96,7 +96,7 @@ Many types of networks:
 &lt;img src = "images/gush_dan_train_system.jpg" style = "width: 60%"&gt;
 
 .font80percent[
-[מערכת להסעת המונים במטרופולין תל אביב](https://he.wikipedia.org/wiki/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA_%D7%9C%D7%94%D7%A1%D7%A2%D7%AA_%D7%94%D7%9E%D7%95%D7%A0%D7%99%D7%9D_%D7%91%D7%9E%D7%98%D7%A8%D7%95%D7%A4%D7%95%D7%9C%D7%99%D7%9F_%D7%AA%D7%9C_%D7%90%D7%91%D7%99%D7%91)
+[מערכת להסעת המונים במטרופולין תל אביב](https://he.wikipedia.org/wiki/%D7%9E%D7%A2%D7%A8%D7%9B%D7%AA_%D7%9C%D7%94%D7%A1%D7%A2%D7%AA_%D7%94%D7%9E%D7%95%D7%A0%D7%99%D7%9D_%D7%91%D7%9E%D7%98%D7%A8%D7%95%D7%A4%D7%95%D7%9C%D7%99%D7%9F_%D7%AA%D7%9C_%D7%90%D7%91%D7%99%D7%91_-_%D7%A7%D7%95%D7%95%D7%99_%D7%A8%D7%9B%D7%91%D7%AA_%D7%A7%D7%9C%D7%94)
 ]
 ---
 
@@ -146,7 +146,7 @@ Many types of networks:
 &lt;img src = "images/marvel_bipartite_network.png" style = "width: 80%"&gt;
 
 .font80percent[
-[Adapted from: Which Marvel Characters and Movies are the Most Central? / Félix Luginbühl](https://felixluginbuhl.com/network/)
+[Adapted from: Which Marvel Characters and Movies are the Most Central? / Félix Luginbühl](https://felixluginbuhl.com/blog/posts/2018-01-26-network/)
 ]
 
 ---
@@ -235,16 +235,16 @@ Math Expression            |          |          |           |            |     
 .font80percent[
 Network                    | Directed | Weighted | Connected | Self-edges | Acyclic | Time-Varied
 -------------------------- | -------- | -------- | --------- | ---------- | ------- | -----------
-Israeli Artists Coops      |          |          |    ✅  |            |         | ✅
-Gush Dan Trains            |          |          |    ✅  |            |         | 
-Wikipedia Site Map         |  ✅   |          |    weakly |            |  ✅  | 
-Israeli Judges Connections |          |          |           |            |         | ✅
-Worm Nervous System        |  ✅   | ✅    |    weakly |  ✅     |         | 
-John Lennon Timeline       |  ✅   |          |    weakly |            |  ✅  | 😭
-Marvel Cinematic Universe  |          |          |    ✅  |            |         | ✅
-Sci-Fi Books               |          |  ✅   |           |            |         | 
+Israeli Artists Coops      |          |          |    ✔️  |            |         | ✔️
+Gush Dan Trains            |          |          |    ✔️  |            |         | 
+Wikipedia Site Map         |  ✔️   |          |    weakly |            |  ✔️  | 
+Israeli Judges Connections |          |          |           |            |         | ✔️
+Worm Nervous System        |  ✔️   | ✔️    |    weakly |  ✔️     |         | 
+John Lennon Timeline       |  ✔️   |          |    weakly |            |  ✔️  | 😞
+Marvel Cinematic Universe  |          |          |    ✔️  |            |         | ✔️
+Sci-Fi Books               |          |  ✔️   |           |            |         | 
 Noordin Terrorist Net      |          |          |           |            |         | 
-Math Expression            |   ✅  |          |    weakly |            | ✅   | 
+Math Expression            |   ✔️  |          |    weakly |            | ✔️   | 
 
 ]
 
@@ -979,6 +979,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
