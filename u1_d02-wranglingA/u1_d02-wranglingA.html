@@ -304,6 +304,28 @@ okcupid %&gt;%
 
 ---
 
+### New in dplyr 1.1: `.by` argument
+
+Do you prefer...
+
+
+```r
+okcupid %&gt;%
+  summarize(avg_height = mean(height_cm, na.rm = TRUE),
+            .by = sex)
+```
+
+```
+## # A tibble: 2 × 2
+##   sex   avg_height
+##   &lt;chr&gt;      &lt;dbl&gt;
+## 1 m           179.
+## 2 f           165.
+```
+
+
+---
+
 Group by multiple variables, get more summaries, arrange by descending average height:
 
 
@@ -845,18 +867,18 @@ okcupid %&gt;% select(drugs, age, income, sex) %&gt;%
 ## # Groups:   drugs [4]
 ##    drugs       age income sex  
 ##    &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;
-##  1 never        23 100000 m    
-##  2 never        22     NA f    
-##  3 never        44     NA m    
-##  4 often        35 150000 m    
-##  5 often        22     NA m    
-##  6 often        19     NA f    
-##  7 sometimes    22     NA m    
-##  8 sometimes    36     NA m    
-##  9 sometimes    35     NA m    
-## 10 &lt;NA&gt;         29     NA m    
-## 11 &lt;NA&gt;         39     NA f    
-## 12 &lt;NA&gt;         29     NA m
+##  1 never        22     NA m    
+##  2 never        29     NA m    
+##  3 never        27     NA m    
+##  4 often        25     NA m    
+##  5 often        19     NA m    
+##  6 often        27     NA m    
+##  7 sometimes    31     NA f    
+##  8 sometimes    26  30000 m    
+##  9 sometimes    26     NA f    
+## 10 &lt;NA&gt;         25     NA m    
+## 11 &lt;NA&gt;         40     NA m    
+## 12 &lt;NA&gt;         22     NA m
 ```
 
 ---

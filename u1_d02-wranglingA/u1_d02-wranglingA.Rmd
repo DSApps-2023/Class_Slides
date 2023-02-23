@@ -191,6 +191,19 @@ okcupid %>%
 
 ---
 
+### New in dplyr 1.1: `.by` argument
+
+Do you prefer...
+
+```{r}
+okcupid %>%
+  summarize(avg_height = mean(height_cm, na.rm = TRUE),
+            .by = sex)
+```
+
+
+---
+
 Group by multiple variables, get more summaries, arrange by descending average height:
 
 ```{r Basics10}
