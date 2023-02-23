@@ -686,7 +686,7 @@ ggradar(okcupid_radar,  grid.max = 0.201, grid.mid = 0.10, values.radar = c("0%"
 
 ## Sankey Diagram (Alluvial Plot)
 
-```{r Sankey, warning=FALSE}
+```{r Sankey}
 library(ggalluvial)
 
 g7 <- c("canada", "france", "germany", "italy", "japan", "united_kingdom", "united_states_of_america")
@@ -694,7 +694,7 @@ g7 <- c("canada", "france", "germany", "italy", "japan", "united_kingdom", "unit
 migration_2019 <- read_rds("../data/migration.rds") %>%
   pivot_longer(cols = -c(1:4), names_to = "country_orig", values_to = "n_migrants") %>%
   filter(year == 2019) %>%
-  filter(across(c("country_orig", "country_dest"), ~.x %in% g7)) %>%
+  filter(if_all(c("country_orig", "country_dest"), ~.x %in% g7)) %>%
   mutate(across(c("country_orig", "country_dest"), ~case_when(.x == "united_kingdom" ~ "uk", .x == "united_states_of_america" ~ "usa", TRUE ~ .x))) %>%
   group_by(country_orig, country_dest) %>%
   summarise(n_migrants = sum(n_migrants))
@@ -709,7 +709,7 @@ ggplot(migration_2019,
        aes(y = n_migrants, axis1 = country_orig, axis2 = country_dest)) +
   geom_alluvium(aes(fill = country_orig)) + #<<
   geom_stratum(width = 1/12, fill = "black", color = "grey") +
-  geom_label(stat = "stratum", infer.label = TRUE) +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
   scale_x_discrete(limits = c("Origin", "Destination"), expand = c(.05, .05)) +
   scale_fill_brewer(type = "qual", palette = "Set1") +
   guides(fill = "none") +
@@ -725,7 +725,7 @@ ggplot(migration_2019,
        aes(y = n_migrants, axis1 = country_orig, axis2 = country_dest)) +
   geom_alluvium(aes(fill = country_orig)) + #<<
   geom_stratum(width = 1/12, fill = "black", color = "grey") +
-  geom_label(stat = "stratum", infer.label = TRUE) +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
   scale_x_discrete(limits = c("Origin", "Destination"), expand = c(.05, .05)) +
   scale_fill_brewer(type = "qual", palette = "Set1") +
   guides(fill = "none") +
@@ -1000,7 +1000,7 @@ graph <- tbl_graph(nodes = nodes, edges = edges, directed = FALSE)
 
 ---
 
-```{r Ggraph, out.width="100%", fig.asp=0.6}
+```{r Ggraph, out.width="100%", fig.asp=0.45, warning=FALSE}
 library(ggraph)
 ggraph(graph, layout = "fr") + 
   geom_edge_fan(aes(alpha = weight), show.legend = FALSE) + 
