@@ -4,8 +4,8 @@
     <title>Topics in Classification</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-12-26" />
-    <script src="u3_d02-classtopics_files/header-attrs-2.19/header-attrs.js"></script>
+    <meta name="date" content="2023-02-23" />
+    <script src="u3_d02-classtopics_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-12-26
+### 2023-02-23
 
 ---
 
@@ -294,16 +294,16 @@ mod_pred
 ## # A tibble: 18,640 × 6
 ##    .pred_edm .pred_latin .pred_pop .pred_rap .pred_rnb .pred_rock
 ##        &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
-##  1   0.851      0.0785     0.0531    0.0105   0.00253     0.00413
-##  2   0.0673     0.0383     0.123     0.00895  0.0165      0.746  
-##  3   0.00363    0.0233     0.00457   0.962    0.00426     0.00192
-##  4   0.00710    0.612      0.321     0.0322   0.0157      0.0118 
-##  5   0.00596    0.000497   0.0213    0.00191  0.000541    0.970  
-##  6   0.456      0.0792     0.179     0.261    0.00740     0.0175 
-##  7   0.933      0.0141     0.0363    0.00172  0.00598     0.00926
-##  8   0.0807     0.464      0.246     0.0934   0.106       0.00940
-##  9   0.0225     0.00112    0.933     0.00173  0.0301      0.0117 
-## 10   0.129      0.367      0.379     0.0908   0.00663     0.0277 
+##  1   0.926      0.00230    0.0625   0.00202   0.000854   0.00590 
+##  2   0.00472    0.00170    0.0112   0.000684  0.00106    0.981   
+##  3   0.0212     0.613      0.00471  0.300     0.0504     0.00994 
+##  4   0.00220    0.000616   0.00261  0.000749  0.993      0.000780
+##  5   0.913      0.0296     0.0172   0.0347    0.00192    0.00370 
+##  6   0.171      0.237      0.0459   0.514     0.00756    0.0247  
+##  7   0.00155    0.00378    0.0154   0.00124   0.970      0.00794 
+##  8   0.255      0.351      0.00678  0.270     0.114      0.00356 
+##  9   0.00444    0.00184    0.0212   0.000883  0.0409     0.931   
+## 10   0.109      0.589      0.125    0.0267    0.118      0.0325  
 ## # … with 18,630 more rows
 ```
 
@@ -325,7 +325,7 @@ mod_te_pred_class %&gt;%
 ## # A tibble: 1 × 3
 ##   .metric  .estimator .estimate
 ##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
-## 1 accuracy multiclass     0.380
+## 1 accuracy multiclass     0.363
 ```
 
 
@@ -355,12 +355,12 @@ mod_te_pred_class %&gt;%
 ## # A tibble: 6 × 3
 ##   playlist_genre recall precision
 ##   &lt;fct&gt;           &lt;dbl&gt;     &lt;dbl&gt;
-## 1 edm             0.556     0.550
-## 2 latin           0.262     0.269
-## 3 pop             0.236     0.231
-## 4 rap             0.438     0.453
-## 5 rnb             0.278     0.281
-## 6 rock            0.459     0.438
+## 1 edm             0.454     0.517
+## 2 latin           0.376     0.255
+## 3 pop             0.25      0.249
+## 4 rap             0.318     0.406
+## 5 rnb             0.305     0.312
+## 6 rock            0.472     0.487
 ```
 
 ---
@@ -405,16 +405,16 @@ mod_unc
 ## # A tibble: 18,640 × 3
 ##       lc margin entropy
 ##    &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
-##  1 0.851 0.773   -0.578
-##  2 0.746 0.623   -0.893
-##  3 0.962 0.939   -0.205
-##  4 0.612 0.291   -0.929
-##  5 0.970 0.948   -0.162
-##  6 0.456 0.195   -1.32 
-##  7 0.933 0.896   -0.330
-##  8 0.464 0.218   -1.41 
-##  9 0.933 0.903   -0.326
-## 10 0.379 0.0123  -1.35 
+##  1 0.926 0.864  -0.307 
+##  2 0.981 0.969  -0.118 
+##  3 0.613 0.313  -0.964 
+##  4 0.993 0.990  -0.0514
+##  5 0.913 0.878  -0.406 
+##  6 0.514 0.278  -1.25  
+##  7 0.970 0.955  -0.172 
+##  8 0.351 0.0816 -1.37  
+##  9 0.931 0.890  -0.321 
+## 10 0.589 0.464  -1.27  
 ## # … with 18,630 more rows
 ```
 
@@ -473,16 +473,16 @@ sptfy_tr_large_with_unc %&gt;%
 ## # A tibble: 10 × 6
 ##    track_name                  track_artist playlist_genre    lc  margin entropy
 ##    &lt;chr&gt;                       &lt;chr&gt;        &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-##  1 Good Thing                  Tritonal     edm            0.208 5.76e-3   -1.76
-##  2 Я смотрю на небо            Basta        rap            0.211 1.55e-2   -1.78
-##  3 Eenie Meenie                Justin Bieb… latin          0.215 1.40e-2   -1.77
-##  4 Can't Stop Me (feat. Sherm… Afrojack     edm            0.216 2.10e-2   -1.73
-##  5 Revival                     Gregory Por… pop            0.222 1.04e-2   -1.72
-##  6 Take It To Reality          Alison Wond… pop            0.223 2.58e-2   -1.77
-##  7 Drops                       Solarrio     rnb            0.224 1.52e-2   -1.72
-##  8 Fría Como El Viento         Luis Miguel  latin          0.224 7.62e-5   -1.72
-##  9 Tu No Eres Para Mi          Fanny Lu     latin          0.224 2.27e-2   -1.75
-## 10 Symphony (feat. Zara Larss… Clean Bandit edm            0.224 1.56e-4   -1.72
+##  1 Deja                        Ali Aka Mind rap            0.205 5.76e-4   -1.72
+##  2 Bag In Da Box (feat. Orrem… DJ Tune      edm            0.211 2.60e-5   -1.74
+##  3 Return of the Mack - C&amp;J E… Mark Morris… rnb            0.216 3.52e-2   -1.78
+##  4 Mad Money                   Dave Nazza   edm            0.227 1.15e-2   -1.64
+##  5 Banda De Camión (Remix) [f… El Alfa      latin          0.229 3.24e-2   -1.74
+##  6 Told You So                 T.I.         rap            0.232 1.88e-3   -1.67
+##  7 American Boyfriend          Kevin Abstr… rnb            0.234 7.52e-4   -1.73
+##  8 Neptune                     EDX          edm            0.235 1.62e-2   -1.67
+##  9 DJ No Pare (feat. Zion, Da… Justin Quil… latin          0.238 1.09e-2   -1.72
+## 10 tonite                      LCD Soundsy… pop            0.239 6.48e-3   -1.68
 ```
 
 ---
@@ -498,16 +498,16 @@ sptfy_tr_large_with_unc %&gt;%
 ## # A tibble: 10 × 6
 ##    track_name                  track_artist playlist_genre    lc  margin entropy
 ##    &lt;chr&gt;                       &lt;chr&gt;        &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-##  1 Back in My Life             Alice DJ     pop            0.438 1.99e-5   -1.05
-##  2 Fría Como El Viento         Luis Miguel  latin          0.224 7.62e-5   -1.72
-##  3 Into The Night              Benny Mardo… rock           0.226 1.01e-4   -1.75
-##  4 El Taxi                     Pitbull      latin          0.332 1.01e-4   -1.23
-##  5 Symphony (feat. Zara Larss… Clean Bandit edm            0.224 1.56e-4   -1.72
-##  6 I Can't Get No              JETFIRE      edm            0.407 1.63e-4   -1.28
-##  7 Two Fine People             Yusuf / Cat… rock           0.228 1.95e-4   -1.68
-##  8 Y Si Te Digo - Version Mer… Fanny Lu     latin          0.306 2.19e-4   -1.40
-##  9 Under My Thumb              The Rolling… rock           0.356 2.40e-4   -1.29
-## 10 Vente Pa' Ca                Ricky Martin latin          0.322 2.49e-4   -1.54
+##  1 Bag In Da Box (feat. Orrem… DJ Tune      edm            0.211 2.60e-5  -1.74 
+##  2 Right Now (feat. Future, F… Uncle Murda  rap            0.343 9.22e-5  -1.17 
+##  3 Traidora                    Gente De Zo… latin          0.315 9.25e-5  -1.40 
+##  4 Dancing In the Dark         Bruce Sprin… rock           0.290 1.04e-4  -1.52 
+##  5 The Kids Are Coming         Tones and I  pop            0.330 1.21e-4  -1.40 
+##  6 Legacy - Radio Edit         Nicky Romero edm            0.495 1.73e-4  -0.760
+##  7 Cause We Can                SMO          rap            0.288 2.09e-4  -1.61 
+##  8 My Feelings                 DiRTY RADiO  pop            0.389 2.80e-4  -1.24 
+##  9 what you doin'              Masked Man   rap            0.315 2.84e-4  -1.36 
+## 10 Был хулиганом               StaFFord63   rap            0.424 2.95e-4  -1.16
 ```
 
 ---
@@ -521,18 +521,18 @@ sptfy_tr_large_with_unc %&gt;%
 
 ```
 ## # A tibble: 10 × 6
-##    track_name             track_artist      playlist_genre    lc  margin entropy
-##    &lt;chr&gt;                  &lt;chr&gt;             &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-##  1 Я смотрю на небо       Basta             rap            0.211 1.55e-2   -1.78
-##  2 Eenie Meenie           Justin Bieber     latin          0.215 1.40e-2   -1.77
-##  3 Take It To Reality     Alison Wonderland pop            0.223 2.58e-2   -1.77
-##  4 Good Thing             Tritonal          edm            0.208 5.76e-3   -1.76
-##  5 Tu No Eres Para Mi     Fanny Lu          latin          0.224 2.27e-2   -1.75
-##  6 Into The Night         Benny Mardones    rock           0.226 1.01e-4   -1.75
-##  7 Cold Ain't For Me      Oceans            pop            0.250 4.65e-2   -1.75
-##  8 Come Back              Green Tea         rnb            0.260 6.29e-2   -1.74
-##  9 Fortunate Son          Creedence Clearw… rock           0.235 3.61e-2   -1.74
-## 10 Never Getting Over You Lost Stars        pop            0.257 5.94e-2   -1.74
+##    track_name                  track_artist playlist_genre    lc  margin entropy
+##    &lt;chr&gt;                       &lt;chr&gt;        &lt;fct&gt;          &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1 Return of the Mack - C&amp;J E… Mark Morris… rnb            0.216 3.52e-2   -1.78
+##  2 Want Her                    Mustard      rap            0.263 7.40e-2   -1.75
+##  3 When We Face Reality - Khe… Sahar Z      edm            0.258 6.26e-2   -1.74
+##  4 Bag In Da Box (feat. Orrem… DJ Tune      edm            0.211 2.60e-5   -1.74
+##  5 Banda De Camión (Remix) [f… El Alfa      latin          0.229 3.24e-2   -1.74
+##  6 En Su Nota                  Don Omar     latin          0.275 8.87e-2   -1.74
+##  7 Isn't It Time               The Babys    rock           0.283 9.48e-2   -1.74
+##  8 original me (feat. dan rey… YUNGBLUD     rock           0.248 3.36e-2   -1.73
+##  9 Fall in Love                GoldLink     rnb            0.259 3.26e-2   -1.73
+## 10 American Boyfriend          Kevin Abstr… rnb            0.234 7.52e-4   -1.73
 ```
 
 ---
@@ -588,16 +588,16 @@ mod_pred
 ## # A tibble: 18,640 × 6
 ##    .pred_class...1 .pred_class...2 .pred_class...3 .pred_class...4
 ##    &lt;fct&gt;           &lt;fct&gt;           &lt;fct&gt;           &lt;fct&gt;          
-##  1 rap             pop             rnb             pop            
-##  2 rnb             edm             edm             pop            
-##  3 rock            rap             edm             rap            
-##  4 rock            edm             rnb             rnb            
-##  5 rock            latin           pop             rnb            
-##  6 edm             rnb             rap             pop            
-##  7 pop             rnb             pop             edm            
-##  8 latin           rnb             edm             rap            
-##  9 edm             rap             edm             pop            
-## 10 latin           edm             pop             pop            
+##  1 edm             edm             latin           pop            
+##  2 edm             pop             rnb             edm            
+##  3 latin           rnb             edm             latin          
+##  4 rnb             rnb             rock            rap            
+##  5 rnb             rock            rap             latin          
+##  6 rnb             rock            rap             edm            
+##  7 rnb             rap             rock            rap            
+##  8 rap             rnb             rap             rnb            
+##  9 edm             latin           latin           rock           
+## 10 pop             edm             edm             latin          
 ## # … with 18,630 more rows, and 2 more variables: .pred_class...5 &lt;fct&gt;,
 ## #   .pred_class...6 &lt;fct&gt;
 ```
@@ -625,20 +625,20 @@ sptfy_tr_large_with_qbc %&gt;%
 ```
 
 ```
-## # A tibble: 278 × 6
+## # A tibble: 214 × 6
 ##    .pred_class...17 .pred_class...18 .pred_class...19 .pred_class...20
 ##    &lt;fct&gt;            &lt;fct&gt;            &lt;fct&gt;            &lt;fct&gt;           
-##  1 edm              pop              rap              rnb             
-##  2 rock             rap              edm              rnb             
-##  3 rock             pop              rap              edm             
-##  4 latin            rock             pop              edm             
-##  5 edm              pop              rap              latin           
-##  6 edm              pop              latin            rnb             
-##  7 edm              latin            pop              rap             
-##  8 rock             rnb              edm              latin           
-##  9 rnb              rock             rap              latin           
-## 10 rock             rap              latin            pop             
-## # … with 268 more rows, and 2 more variables: .pred_class...21 &lt;fct&gt;,
+##  1 edm              rap              rnb              rock            
+##  2 rap              rnb              latin            pop             
+##  3 rock             latin            rnb              edm             
+##  4 rnb              latin            rap              edm             
+##  5 rock             rnb              edm              rap             
+##  6 edm              rap              rock             latin           
+##  7 rnb              edm              rap              rock            
+##  8 rock             pop              edm              rnb             
+##  9 edm              rnb              pop              rap             
+## 10 pop              rock             rnb              edm             
+## # … with 204 more rows, and 2 more variables: .pred_class...21 &lt;fct&gt;,
 ## #   .pred_class...22 &lt;fct&gt;
 ```
 
