@@ -416,7 +416,7 @@ cat(tab)
 ```
 
 .insight[
-`r emoji("bulb")` Thare *are* Pandas dialects, don't go translating your pipes verbatim.
+`r emoji("bulb")` There *are* Pandas dialects, don't go translating your pipes verbatim.
 ]
 
 ---

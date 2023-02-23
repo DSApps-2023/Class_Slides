@@ -321,7 +321,7 @@ Take care of those missing observations for me without breaking the pipe:
 
 ```{r Select-If2}
 okcupid %>%
-  na_if(-1) %>%
+  mutate(income = na_if(income, -1)) %>%
   select_if(is.numeric)
 ```
 
@@ -331,7 +331,7 @@ Transform all my numeric columns with `log`:
 
 ```{r Mutate-All}
 okcupid %>%
-  na_if(-1) %>%
+  mutate(income = na_if(income, -1)) %>%
   select_if(is.numeric) %>%
   mutate_all(log)
 ```
@@ -342,7 +342,7 @@ Same but add `sqrt` and keep original columns:
 
 ```{r Mutate-All2}
 okcupid %>%
-  na_if(-1) %>%
+  mutate(income = na_if(income, -1)) %>%
   select_if(is.numeric) %>%
   mutate_all(list(logged = log, sqrted = sqrt))
 ```
@@ -353,7 +353,7 @@ Same but take care of zeros under `log`:
 
 ```{r Mutate-All3}
 okcupid %>%
-  na_if(-1) %>%
+  mutate(income = na_if(income, -1)) %>%
   select_if(is.numeric) %>%
   mutate_all(list(logged = function(x) log(x + 1), sqrted = sqrt))
 ```
@@ -366,7 +366,7 @@ Same but select only non-negative columns:
 is_non_negative <- function(x) all(is.numeric(x) & (is.na(x) | x >= 0))
 
 okcupid %>%
-  na_if(-1) %>%
+  mutate(income = na_if(income, -1)) %>%
   select_if(is_non_negative) %>%
   mutate_all(list(logged = function(x) log(x + 1), sqrted = sqrt))
 ```
@@ -377,7 +377,7 @@ On second thought `log` would probably be appropriate just for `income` and `hei
 
 ```{r Mutate-At}
 okcupid %>%
-  na_if(-1) %>%
+  mutate(income = na_if(income, -1)) %>%
   mutate_at(c("income", "height_cm"),
             list(logged = function(x) log(x + 1), sqrted = sqrt)) %>%
   select(ends_with("logged"), ends_with("sqrted"))

@@ -4,7 +4,7 @@
     <title>Tidy Data Wrangling - Part A</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-12-25" />
+    <meta name="date" content="2023-02-23" />
     <script src="u1_d02-wranglingA_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-12-25
+### 2023-02-23
 
 ---
 
@@ -582,7 +582,7 @@ Take care of those missing observations for me without breaking the pipe:
 
 ```r
 okcupid %&gt;%
-  na_if(-1) %&gt;%
+  mutate(income = na_if(income, -1)) %&gt;%
   select_if(is.numeric)
 ```
 
@@ -610,7 +610,7 @@ Transform all my numeric columns with `log`:
 
 ```r
 okcupid %&gt;%
-  na_if(-1) %&gt;%
+  mutate(income = na_if(income, -1)) %&gt;%
   select_if(is.numeric) %&gt;%
   mutate_all(log)
 ```
@@ -639,7 +639,7 @@ Same but add `sqrt` and keep original columns:
 
 ```r
 okcupid %&gt;%
-  na_if(-1) %&gt;%
+  mutate(income = na_if(income, -1)) %&gt;%
   select_if(is.numeric) %&gt;%
   mutate_all(list(logged = log, sqrted = sqrt))
 ```
@@ -670,7 +670,7 @@ Same but take care of zeros under `log`:
 
 ```r
 okcupid %&gt;%
-  na_if(-1) %&gt;%
+  mutate(income = na_if(income, -1)) %&gt;%
   select_if(is.numeric) %&gt;%
   mutate_all(list(logged = function(x) log(x + 1), sqrted = sqrt))
 ```
@@ -703,7 +703,7 @@ Same but select only non-negative columns:
 is_non_negative &lt;- function(x) all(is.numeric(x) &amp; (is.na(x) | x &gt;= 0))
 
 okcupid %&gt;%
-  na_if(-1) %&gt;%
+  mutate(income = na_if(income, -1)) %&gt;%
   select_if(is_non_negative) %&gt;%
   mutate_all(list(logged = function(x) log(x + 1), sqrted = sqrt))
 ```
@@ -734,7 +734,7 @@ On second thought `log` would probably be appropriate just for `income` and `hei
 
 ```r
 okcupid %&gt;%
-  na_if(-1) %&gt;%
+  mutate(income = na_if(income, -1)) %&gt;%
   mutate_at(c("income", "height_cm"),
             list(logged = function(x) log(x + 1), sqrted = sqrt)) %&gt;%
   select(ends_with("logged"), ends_with("sqrted"))
@@ -845,18 +845,18 @@ okcupid %&gt;% select(drugs, age, income, sex) %&gt;%
 ## # Groups:   drugs [4]
 ##    drugs       age income sex  
 ##    &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;
-##  1 never        49     NA m    
-##  2 never        29     NA f    
-##  3 never        66 150000 m    
-##  4 often        29     NA m    
-##  5 often        20     NA f    
-##  6 often        38  20000 m    
-##  7 sometimes    30  20000 f    
-##  8 sometimes    22     NA m    
-##  9 sometimes    25  40000 f    
-## 10 &lt;NA&gt;         25     NA f    
-## 11 &lt;NA&gt;         46     NA m    
-## 12 &lt;NA&gt;         29     NA f
+##  1 never        23 100000 m    
+##  2 never        22     NA f    
+##  3 never        44     NA m    
+##  4 often        35 150000 m    
+##  5 often        22     NA m    
+##  6 often        19     NA f    
+##  7 sometimes    22     NA m    
+##  8 sometimes    36     NA m    
+##  9 sometimes    35     NA m    
+## 10 &lt;NA&gt;         29     NA m    
+## 11 &lt;NA&gt;         39     NA f    
+## 12 &lt;NA&gt;         29     NA m
 ```
 
 ---
