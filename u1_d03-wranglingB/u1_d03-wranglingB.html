@@ -4,7 +4,7 @@
     <title>Tidy Data Wrangling - Part B</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-12-25" />
+    <meta name="date" content="2023-02-23" />
     <script src="u1_d03-wranglingB_files/header-attrs-2.19/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-12-25
+### 2023-02-23
 
 ---
 
@@ -261,7 +261,7 @@ characters %&gt;%
 ```
 
 ```
-## Joining, by = "film_id"
+## Joining with `by = join_by(film_id)`
 ```
 
 ```
@@ -290,7 +290,7 @@ characters %&gt;%
 ```
 
 ```
-## Joining, by = "film_id"
+## Joining with `by = join_by(film_id)`
 ```
 
 ```
@@ -754,12 +754,14 @@ table3
 
 ---
 
-## `separate()`
+## `separate_wider_delim()`
 
+.font80percent[(Superseded `separate()`)]
 
 ```r
 table3_tidy &lt;- table3 %&gt;%
-  separate(pct_straight, into = c("straight", "total"), sep = "/")
+  separate_wider_delim(pct_straight, delim = "/",
+                       names = c("straight", "total"))
 
 table3_tidy
 ```
@@ -866,8 +868,8 @@ microbenchmark(nchar_loop(), nchar_vectorized())
 ```
 ## Unit: nanoseconds
 ##                expr  min   lq     mean median   uq     max neval
-##        nchar_loop() 2701 2802 48088.16   2901 3101 4493702   100
-##  nchar_vectorized()  800  901 13575.99    902 1001 1259601   100
+##        nchar_loop() 2300 2401 40012.99   2401 2501 3753400   100
+##  nchar_vectorized()  700  701 11867.02    801  801 1088300   100
 ```
 
 - So why should iterating through a `data.frame` columns or rows be any different?
@@ -1068,12 +1070,12 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;%
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          173. TRUE   
-## 2 f          165. TRUE   
-## 3 f          168. TRUE   
-## 4 m          183. TRUE   
-## 5 m          180. TRUE   
-## 6 m          183. TRUE
+## 1 f          160. FALSE  
+## 2 f          163. FALSE  
+## 3 f          165. TRUE   
+## 4 m          185. TRUE   
+## 5 m          152. FALSE  
+## 6 m          175. FALSE
 ```
 
 .font80percent[This specific example might not be *that* bad with `ifelse()`, what will you do with 5 variables?]
@@ -1100,11 +1102,11 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;% group_by(sex) %&gt;% slice
 ## # Groups:   sex [2]
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
-## 1 f          178. TRUE   
-## 2 f          175. TRUE   
-## 3 f          168. TRUE   
-## 4 m          170. FALSE  
-## 5 m          188. TRUE   
+## 1 f          160. FALSE  
+## 2 f          163. FALSE  
+## 3 f          183. TRUE   
+## 4 m          178. FALSE  
+## 5 m          173. FALSE  
 ## 6 m          178. FALSE
 ```
 

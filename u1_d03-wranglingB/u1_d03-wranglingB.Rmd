@@ -570,11 +570,13 @@ table3
 
 ---
 
-## `separate()`
+## `separate_wider_delim()`
 
+.font80percent[(Superseded `separate()`)]
 ```{r Unite}
 table3_tidy <- table3 %>%
-  separate(pct_straight, into = c("straight", "total"), sep = "/")
+  separate_wider_delim(pct_straight, delim = "/",
+                       names = c("straight", "total"))
 
 table3_tidy
 ```
