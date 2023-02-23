@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
     <meta name="date" content="2023-02-23" />
-    <script src="u1_d03-wranglingB_files/header-attrs-2.19/header-attrs.js"></script>
+    <script src="u1_d03-wranglingB_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -868,8 +868,8 @@ microbenchmark(nchar_loop(), nchar_vectorized())
 ```
 ## Unit: nanoseconds
 ##                expr  min   lq     mean median   uq     max neval
-##        nchar_loop() 2300 2401 40012.99   2401 2501 3753400   100
-##  nchar_vectorized()  700  701 11867.02    801  801 1088300   100
+##        nchar_loop() 2200 2301 36360.07   2301 2401 3394201   100
+##  nchar_vectorized()  600  701 13650.95    701  801 1284502   100
 ```
 
 - So why should iterating through a `data.frame` columns or rows be any different?
@@ -1071,11 +1071,11 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;%
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
 ## 1 f          160. FALSE  
-## 2 f          163. FALSE  
-## 3 f          165. TRUE   
-## 4 m          185. TRUE   
-## 5 m          152. FALSE  
-## 6 m          175. FALSE
+## 2 f          168. TRUE   
+## 3 f          173. TRUE   
+## 4 m          165. FALSE  
+## 5 m          178. FALSE  
+## 6 m          173. FALSE
 ```
 
 .font80percent[This specific example might not be *that* bad with `ifelse()`, what will you do with 5 variables?]
@@ -1103,11 +1103,11 @@ okcupid %&gt;% select(sex, height_cm, is_tall) %&gt;% group_by(sex) %&gt;% slice
 ##   sex   height_cm is_tall
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;lgl&gt;  
 ## 1 f          160. FALSE  
-## 2 f          163. FALSE  
-## 3 f          183. TRUE   
+## 2 f          155. FALSE  
+## 3 f          165. TRUE   
 ## 4 m          178. FALSE  
-## 5 m          173. FALSE  
-## 6 m          178. FALSE
+## 5 m          180. TRUE   
+## 6 m          173. FALSE
 ```
 
 ---
