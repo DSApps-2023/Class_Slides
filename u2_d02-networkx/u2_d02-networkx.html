@@ -4,8 +4,8 @@
     <title>NetworkX</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-12-26" />
-    <script src="u2_d02-networkx_files/header-attrs-2.19/header-attrs.js"></script>
+    <meta name="date" content="2023-02-23" />
+    <script src="u2_d02-networkx_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-12-26
+### 2023-02-23
 
 ---
 
@@ -1134,7 +1134,7 @@ list(cc)
 ```
 
 ```
-## [{'The Dune Chronicles', 'The Hunger Games', "The Hitchhiker's Guide to the Galaxy", "Ender's Game", 'Brave New World', 'World War Z', "The Handmaid's Tale", 'Frankenstein', 'Twenty Thousand Leagues Under the Sea', 'The Lord of the Rings', 'Harry Potter Series', 'Flowers for Algernon', 'The Princess Bride', 'The Lion, the Witch and the Wardrobe', 'Solaris', '2001: A Space Odyssey', 'I, Robot', 'Contact', 'American Gods', 'Journey to the Center of the Earth', 'Babel 17', 'Watership Down', 'A Song of Ice and Fire'}]
+## [{'The Hunger Games', 'Solaris', 'World War Z', 'Frankenstein', 'Babel 17', 'The Princess Bride', 'Flowers for Algernon', 'The Lion, the Witch and the Wardrobe', 'Watership Down', 'A Song of Ice and Fire', 'Journey to the Center of the Earth', 'Harry Potter Series', 'I, Robot', 'The Lord of the Rings', 'Contact', "Ender's Game", 'The Dune Chronicles', 'Brave New World', "The Handmaid's Tale", 'Twenty Thousand Leagues Under the Sea', '2001: A Space Odyssey', "The Hitchhiker's Guide to the Galaxy", 'American Gods'}]
 ```
 
 Get component of a specific node:
@@ -1145,7 +1145,7 @@ nx.node_connected_component(G, 'Contact')
 ```
 
 ```
-## {'The Dune Chronicles', 'The Hunger Games', "The Hitchhiker's Guide to the Galaxy", "Ender's Game", 'Brave New World', 'World War Z', "The Handmaid's Tale", 'Frankenstein', 'Twenty Thousand Leagues Under the Sea', 'The Lord of the Rings', 'Harry Potter Series', 'Flowers for Algernon', 'The Princess Bride', 'Solaris', 'The Lion, the Witch and the Wardrobe', '2001: A Space Odyssey', 'I, Robot', 'Contact', 'American Gods', 'Journey to the Center of the Earth', 'Babel 17', 'Watership Down', 'A Song of Ice and Fire'}
+## {'The Hunger Games', 'Solaris', 'World War Z', 'Frankenstein', 'Babel 17', 'The Princess Bride', 'Flowers for Algernon', 'Watership Down', 'The Lion, the Witch and the Wardrobe', 'A Song of Ice and Fire', 'Journey to the Center of the Earth', 'Harry Potter Series', 'I, Robot', 'The Lord of the Rings', "Ender's Game", 'Contact', 'The Dune Chronicles', 'Brave New World', "The Handmaid's Tale", 'Twenty Thousand Leagues Under the Sea', '2001: A Space Odyssey', "The Hitchhiker's Guide to the Galaxy", 'American Gods'}
 ```
 
 ---
@@ -1184,11 +1184,11 @@ L.todense()[:5, :5]
 ```
 
 ```
-## matrix([[ 4, -1,  0,  0,  0],
-##         [-1,  5, -1, -1, -1],
-##         [ 0, -1,  5, -1,  0],
-##         [ 0, -1, -1,  6, -1],
-##         [ 0, -1,  0, -1,  5]], dtype=int32)
+## array([[ 4, -1,  0,  0,  0],
+##        [-1,  5, -1, -1, -1],
+##        [ 0, -1,  5, -1,  0],
+##        [ 0, -1, -1,  6, -1],
+##        [ 0, -1,  0, -1,  5]], dtype=int32)
 ```
 
     </textarea>
