@@ -372,8 +372,9 @@ The `recipe()` function is from the `recipes` package. It allows you to specify 
 blogs_rec <- recipe(fb ~ ., data = blogs_tr)
 blogs_rec
 ```
+---
 
-`recipes` contains more preprocessing [`step_`s](https://tidymodels.github.io/recipes/reference/index.html) than you imagine:
+The `recipes` package contains more preprocessing [`step_`s](https://tidymodels.github.io/recipes/reference/index.html) than you imagine:
 
 ```{r}
 blogs_rec <-  blogs_rec %>%
@@ -391,9 +392,9 @@ blogs_rec <- blogs_rec %>% prep(blogs_tr)
 blogs_rec
 ```
 
-At this point our `recipe` has all necessary `sd` and `mean`s for numeric variables.
-
 ---
+
+At this point our `recipe` has all necessary `sd` and `mean`s for numeric variables.
 
 ```{r}
 blogs_rec$var_info
