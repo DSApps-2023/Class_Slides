@@ -4,8 +4,8 @@
     <title>The Pandasverse</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-12-25" />
-    <script src="u1_d06-pandasverse_files/header-attrs-2.19/header-attrs.js"></script>
+    <meta name="date" content="2023-02-23" />
+    <script src="u1_d06-pandasverse_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-12-25
+### 2023-02-23
 
 ---
 
@@ -63,8 +63,7 @@ class: section-slide
 mean([1, 2, 3, 4, 5])
 ```
 
-&lt;pre style="color: red;"&gt;&lt;code&gt;## Error in py_call_impl(callable, dots$args, dots$keywords): NameError: name
-'mean' is not defined
+&lt;pre style="color: red;"&gt;&lt;code&gt;## Error: NameError: name 'mean' is not defined
 &lt;/code&gt;&lt;/pre&gt;
 
 Enter `Numpy` to the rescue:
@@ -534,7 +533,7 @@ stats.ttest_ind(rvs1,rvs2)
 ```
 
 ```
-## Ttest_indResult(statistic=1.0377292684520516, pvalue=0.29964747232400946)
+## Ttest_indResult(statistic=-1.8602371292231286, pvalue=0.06314598396891209)
 ```
 
 ---
@@ -581,12 +580,12 @@ print(df)
 
 ```
 ##           A         B         C         D
-## 0  2.336461 -0.799173 -0.100900 -0.363282
-## 1 -1.199725  0.481213  1.079013 -0.408038
-## 2  1.206423 -0.464873 -0.363908 -0.789262
-## 3 -0.338281  0.560705 -0.381236  1.177010
-## 4  0.628597  0.705888 -0.663440 -0.340013
-## 5 -0.200101  0.377324 -0.903386 -0.802663
+## 0  2.097306 -0.970186  0.325340 -1.041823
+## 1  0.228915  0.660421 -1.392825 -0.134815
+## 2  0.498497  0.267163 -0.642387  0.979313
+## 3  1.276808  0.255781 -0.723596 -1.357386
+## 4  1.450034  1.447609  0.261728 -0.862350
+## 5 -1.439535  0.774697  0.806284  0.192903
 ```
 
 ---
@@ -696,7 +695,7 @@ okcupid.head(3)
 |`summarize` | `agg`|
 
 .insight[
-💡 Thare *are* Pandas dialects, don't go translating your pipes verbatim.
+💡 There *are* Pandas dialects, don't go translating your pipes verbatim.
 ]
 
 ---
