@@ -646,7 +646,8 @@ okcupid %>%
   filter(sex == "f", age > 30) %>%
   group_by(orientation) %>%
   summarize(across(c(income, age),
-            list(mean = mean, median = median), na.rm = TRUE))
+                   list(mean = ~mean(.x, na.rm = TRUE),
+                        median = ~median(.x, na.rm = TRUE))))
 ```
 
 Now *this* is a language for Data Science.
@@ -664,8 +665,13 @@ okcupid |>
   filter(sex == "f", age > 30) |>
   group_by(orientation) |>
   summarize(across(c(income, age),
-            list(mean = mean, median = median), na.rm = TRUE))
+            list(mean = \(x) mean(x, na.rm = TRUE),
+                 median = \(x) median(x, na.rm = TRUE))))
 ```
+
+.insight[
+`r emoji("bulb")` What else changed in R 4.1?
+]
 
 ---
 
