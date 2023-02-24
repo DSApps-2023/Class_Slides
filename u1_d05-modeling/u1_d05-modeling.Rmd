@@ -372,14 +372,15 @@ The `recipe()` function is from the `recipes` package. It allows you to specify 
 blogs_rec <- recipe(fb ~ ., data = blogs_tr)
 blogs_rec
 ```
+
 ---
 
 The `recipes` package contains more preprocessing [`step_`s](https://tidymodels.github.io/recipes/reference/index.html) than you imagine:
 
 ```{r}
 blogs_rec <-  blogs_rec %>%
-  step_zv(all_numeric()) %>%
-  step_normalize(all_numeric())
+  step_zv(all_numeric_predictors()) %>%
+  step_normalize(all_numeric_predictors())
 ```
 
 ---
@@ -428,8 +429,8 @@ Or you can do it all in a single pipe:
 
 ```{r}
 blogs_rec <- recipe(fb ~ ., data = blogs_tr) %>%
-  step_zv(all_numeric()) %>%
-  step_normalize(all_numeric()) %>%
+  step_zv(all_numeric_predictors()) %>%
+  step_normalize(all_numeric_predictors()) %>%
   prep(blogs_tr)
 
 blogs_tr2 <- blogs_rec %>% bake(blogs_tr)
@@ -440,6 +441,14 @@ glue("mean of comments in orig training: {format(mean(blogs_tr$X51), digits = 3)
 
 glue("mean of comments in orig testing: {format(mean(blogs_te$X51), digits = 3)}, sd: {format(sd(blogs_te$X51), digits = 3)}
      mean of comments in baked testing: {format(mean(blogs_te2$X51), digits = 1)}, sd: {format(sd(blogs_te2$X51), digits = 3)}")
+```
+
+---
+
+Can also `tidy()` a recipe:
+
+```{r}
+tidy(blogs_rec)
 ```
 
 ---
@@ -689,6 +698,159 @@ mod_rf_final %>%
 ```{r, echo=FALSE, message=FALSE}
 read_rds("../data/blogs_mod_rf_te_pred.rds")
 ```
+
+---
+
+### Workflow
+
+As we shall see, this manual approach won't scale, is prone to bugs and will not play nicely with other modeling components:
+
+```{r, eval=FALSE}
+results_test <- mod_ridge %>%
+  predict(new_data = blogs_te, penalty = 0.001) %>%
+  mutate(
+    truth = blogs_te$fb,
+    method = "Ridge"
+  ) %>%
+  bind_rows(mod_lasso %>%
+    predict(new_data = blogs_te) %>%
+    mutate(
+      truth = blogs_te$fb,
+      method = "Lasso"
+  )) %>%
+  bind_rows(mod_rf %>%
+    predict(new_data = blogs_te) %>%
+    mutate(
+      truth = blogs_te$fb,
+      method = "RF"
+  ))
+```
+
+---
+
+Similar to sklearn's `Pipeline()` class, we need a `workflow()`: to bundle together your pre-processing, modeling, and post-processing requests.
+
+```{r}
+mod_rf <- rand_forest(mode = "regression", mtry = 70, trees = 100, min_n = 10) %>%
+  set_engine("ranger")
+
+blogs_rec <- recipe(fb ~ ., data = blogs_tr) %>%
+  step_zv(all_numeric_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+
+wflow_rf <-
+  workflow() %>%
+  add_recipe(blogs_rec) %>%
+  add_model(mod_rf)
+```
+
+---
+
+```{r}
+wflow_rf
+```
+
+---
+
+Calling `fit()` will `prep()` the recipe **and** `fit()` the model:
+
+```{r, echo=FALSE}
+fit_rf <- read_rds("~/blogs_wflow_fitted.rds")
+```
+
+```{r, eval=FALSE}
+fit_rf <- fit(wflow_rf, blogs_tr)
+```
+
+It is still a `workflow()` object:
+
+```{r}
+fit_rf
+```
+
+---
+
+Can extract the prepped recipe:
+
+```{r}
+fit_rf %>%
+  extract_recipe()
+```
+
+---
+
+Can extract the actual parsnip model:
+
+```{r}
+fit_rf %>%
+  extract_fit_parsnip()
+```
+
+---
+
+Calling `predict()` with a new dataset will `bake()` the new dataset using the prepped recipe, and `predict()` the trained model:
+
+```{r}
+res_rf <- predict(fit_rf, blogs_te)
+
+res_rf %>% head(10)
+```
+
+---
+
+Calling `fit_resamples()` or `tune_grid()` works with a `vfold_cv()` splits object:
+
+```{r, echo=FALSE}
+fit_rf_cv <- read_rds("~/blogs_wflow_cv_fitted.rds")
+fit_rf_cv
+```
+
+```{r, eval=FALSE}
+cv_splits <- vfold_cv(blogs_tr, v = 5)
+
+fit_rf_cv <- fit_resamples(wflow_rf, cv_splits, metrics = metric_set(rmse))
+
+fit_rf_cv
+```
+
+Can use `collect_metrics()` etc.
+
+---
+
+But the real advantage of working with `workflow()`s is when comparing different recipes $\times$ different models, via `workflow_set()`:
+
+```{r}
+mod_ridge <- linear_reg(mixture = 0, penalty = 0.001) %>%
+  set_engine(engine = "glmnet")
+
+mod_lasso <- linear_reg(mixture = 1, penalty = 0.001) %>%
+  set_engine(engine = "glmnet")
+
+mod_list <- list(RF = mod_rf, Ridge = mod_ridge, Lasso = mod_lasso)
+
+rec_list <- list(basic = blogs_rec) # can add more..
+
+wset <- workflow_set(rec_list, mod_list) # checkout the cross arg
+
+wset
+```
+
+---
+
+Now use a `purrr`-like mapping function to fit all on all resamples:
+
+```{r, eval=FALSE}
+wset <-
+  wset %>%
+  workflow_map("fit_resamples", resamples = cv_splits)
+```
+
+```{r, echo=FALSE}
+wset <- read_rds("~/blogs_wset.rds")
+wset
+```
+
+And use e.g. `collect_metrics()` to select the best recipe/model combination.
 
 ---
 
