@@ -220,7 +220,7 @@ okcupid <- okcupid %>%
            pets %in% dogs_categories ~ "dogs",
            TRUE ~ NA_character_)) %>%
   drop_na(pets) %>%
-  na_if(-1) %>%
+  mutate(income = na_if(income, -1)) %>%
   select(-last_online)
 
 okcupid[which(is.na(okcupid$height)), "height"] <- 70 # you don't wanna know
@@ -700,25 +700,21 @@ Defining recipes .font80percent[(without `prep()`!)], let's start with 2 to simp
 
 ```{r}
 rec_miss_unk_none_none <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(income, contains("essay"), new_role = "discarded") %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_rm(income, contains("essay")) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>% #<<
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_none_none <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(income, contains("essay"), new_role = "discarded") %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_rm(income, contains("essay")) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>% #<<
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 ```
-
-.font80percent[(pretty sure `step_rm` is a way to discard predictors altogether)]
 
 ---
 
@@ -733,7 +729,7 @@ cv_splits_missing
 
 ---
 
-Applying (two) recipes to all splits
+.font80percent[For educational purposes] Applying (two) recipes to all splits with `prepper()`:
 
 ```{r}
 cv_splits_missing$rec_miss_unk_none_none <- map(
@@ -749,6 +745,8 @@ cv_splits_missing$rec_miss_unk_none_none[[1]]$term_info %>%
   filter(str_detect(variable, "speaks"))
 ```
 
+Notice the `role` and `source` columns.
+
 ---
 
 Defining the model specification
@@ -758,70 +756,56 @@ mod_lr <- logistic_reg(penalty = 0.01) %>%
   set_engine("glmnet")
 ```
 
-Fitting the model to all splits
+Use `workflow_set()` to fit the two recipes on all folds:
 
 ```{r}
-fit_lr <- function(rec_obj) 
-  fit(mod_lr, pets ~ .,
-      data = bake(rec_obj, NULL, all_predictors(), all_outcomes()))
+rec_list <- list(unk = rec_miss_unk_none_none,
+                 mode = rec_miss_mode_none_none)
+mod_list <- list(lr = mod_lr)
+wset <- workflow_set(rec_list, mod_list) # checkout the cross arg
 
-cv_splits_missing$mod_lr_unk <- map(
-  cv_splits_missing$rec_miss_unk_none_none, fit_lr)
-cv_splits_missing$mod_lr_mode <- map(
-  cv_splits_missing$rec_miss_mode_none_none, fit_lr)
+wset
 ```
 
 ---
 
-Predicting on assessment data of each split
+```{r, echo=FALSE}
+set.seed(42)
+cv_splits_missing <- vfold_cv(ok_tr_missing2, v = 10, strata = pets)
+```
 
 ```{r}
-pred_lr <- function(split_obj, rec_obj, model_obj) {
-  mod_data <- bake(rec_obj,
-                   new_data = assessment(split_obj),
-                   all_predictors(), all_outcomes()) 
-  out <- mod_data %>% select(pets)
-  out$predicted <- predict(model_obj, mod_data, type = "prob",
-                           penalty = 0.0001)$.pred_cats
-  out
-}
+wset <- wset %>%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_missing,
+               metrics = metric_set(roc_auc))
 
-cv_splits_missing$pred_unk <- 
-  pmap(
-    lst(
-      split_obj = cv_splits_missing$splits, 
-      rec_obj = cv_splits_missing$rec_miss_unk_none_none, 
-      model_obj = cv_splits_missing$mod_lr_unk
-    ),
-    pred_lr)
-cv_splits_missing$pred_mode <- pmap(lst(
-  split_obj = cv_splits_missing$splits,
-  rec_obj = cv_splits_missing$rec_miss_mode_none_none,
-  model_obj = cv_splits_missing$mod_lr_mode
-),
-pred_lr)
+wset
 ```
 
 ---
 
-Measuring the AUC of each split
+Can use built-in `autoplot()` to see the results, I dislike it:
 
-```{r}
-cv_splits_missing$step_unknown <- map_dfr(
-  cv_splits_missing$pred_unk, roc_auc, pets, predicted)$.estimate
-cv_splits_missing$step_mode <- map_dfr(
-  cv_splits_missing$pred_mode, roc_auc, pets, predicted)$.estimate
+```{r Wset-Autoplot, out.width="90%", fig.asp=0.5}
+library(ggrepel)
+
+autoplot(wset, metric = "roc_auc") +
+  geom_text_repel(aes(label = wflow_id), nudge_x = 1/8, nudge_y = 1/100) +
+  theme_light() +
+  theme(legend.position = "none")
 ```
 
 ---
 
-Comparing AUCs with a plot
+A type of parallel coordinates plot showing all folds is better IMO:
 
-```{r Ok-Miss9, out.width="90%", fig.asp=0.5}
-cv_splits_missing %>%
-  select(id, step_unknown, step_mode) %>%
-  pivot_longer(cols = c(step_unknown, step_mode),
-               names_to = "recipe", values_to = "auc") %>%
+```{r, Ok-Miss9, out.width="90%", fig.asp=0.5}
+res_df <- wset %>%
+  unnest(result) %>%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate))
+
+res_df %>%
   ggplot(aes(recipe, auc, group = id, color = id)) +
   geom_line() +
   geom_point() +
@@ -833,8 +817,8 @@ cv_splits_missing %>%
 Comparing AUCs with a statistical test (paired T test)
 
 ```{r}
-t.test(cv_splits_missing$step_unknown,
-       cv_splits_missing$step_mode, paired = TRUE)
+t.test(with(res_df, auc[recipe == "unk_lr"]),
+       with(res_df, auc[recipe == "mode_lr"]), paired = TRUE)
 ```
 
 ---
@@ -843,92 +827,63 @@ Let's move on to 2 x 2 recipes, adding 2 more recipes for treating the `income` 
 
 ```{r}
 rec_miss_unk_mean_none <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(contains("essay"), new_role = "discarded") %>%
-  step_log(income, offset = 1) %>%
-  step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_rm(contains("essay")) %>%
+  step_log(income, offset = 1) %>% #<<
+  step_impute_mean(income) %>% #<<
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_mean_none <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(contains("essay"), new_role = "discarded") %>%
-  step_log(income, offset = 1) %>%
-  step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_rm(contains("essay")) %>%
+  step_log(income, offset = 1) %>% #<<
+  step_impute_mean(income) %>% #<<
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 ```
 
 ---
 
-Our approach with 2 recipes does not scale, and we don't need to keep all data just final AUC for each recipe. We are writing a `train_recipe()` function!
+And again, using `workflow_set()`, more concise:
 
 ```{r}
-lst_recs <- list("unknown_none" = rec_miss_unk_none_none,
+rec_list <- list("unknown_none" = rec_miss_unk_none_none,
                  "mode_none" = rec_miss_mode_none_none,
                  "unknown_mean" = rec_miss_unk_mean_none,
                  "mode_mean" = rec_miss_mode_mean_none)
 
-train_recipe <- function(rec, rec_name, splits) {
-  splits_prepped <- map(splits, prepper, recipe = rec)
-  splits_fit <- map(splits_prepped, fit_lr)
-  splits_pred <- pmap(
-    lst(
-      split_obj = splits, 
-      rec_obj = splits_prepped, 
-      model_obj = splits_fit
-    ),
-    pred_lr
-  )
-  res <- map_dfr(splits_pred, roc_auc, pets, predicted)$.estimate
-  names(res) <- rec_name
-  res
-}
+wset <- workflow_set(rec_list, mod_list) %>%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_missing,
+               metrics = metric_set(roc_auc))
+
+cv_res_missing <- wset %>%
+  unnest(result) %>%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate))
+
+cv_res_missing %>% select(wflow_id, id, auc)
 ```
 
 ---
 
-Training multiple recipes, saving the AUC for each recipe, each split.
-
-```{r}
-cv_splits_missing <- cv_splits_missing %>%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_missing$splits)
-  )
-```
-
-Processing the results into a nice table:
-
-```{r}
-cv_res_missing <- cv_splits_missing %>%
-    pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %>%
-  select(id, recipe, AUC) %>%
-  separate(recipe, c("categorical", "income"))
-
-cv_res_missing
-```
-
----
-
-Comparing AUCs with a plot
+Comparing AUCs with a plot:
 
 ```{r, echo=FALSE}
 cv_res_missing_meds <- cv_res_missing %>%
+  separate_wider_delim(wflow_id, "_", names = c("categorical", "income", "mod")) %>%
   group_by(income, categorical) %>%
-  summarise(AUC = mean(AUC), id = "All")
+  summarise(auc = mean(auc), id = "All")
 ```
 
-```{r Ok-Miss10, out.width="100%", fig.asp=0.5}
+```{r Ok-Miss10, out.width="90%", fig.asp=0.5}
 cv_res_missing %>%
-  ggplot(aes(income, AUC, group = id, color = id)) +
+  separate_wider_delim(wflow_id, "_", names = c("categorical", "income", "mod")) %>%
+  ggplot(aes(income, auc, group = id, color = id)) +
   geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_missing_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
     guides(color = "none") + facet_wrap(. ~ categorical) +
@@ -937,11 +892,14 @@ cv_res_missing %>%
 
 ---
 
-Comparing AUCs with a statistical test (2x2 Repeated measures ANOVA)
+Comparing AUCs with a statistical test (2x2 Repeated measures ANOVA):
 
 ```{r}
+cv_res_missing <- cv_res_missing %>%
+  separate_wider_delim(wflow_id, "_", names = c("categorical", "income", "mod"))
+
 aov_missing <- aov(
-  AUC ~ factor(categorical) * factor(income) + Error(factor(id)),
+  auc ~ factor(categorical) * factor(income) + Error(factor(id)),
   data = cv_res_missing)
 print(summary(aov_missing))
 ```
@@ -949,7 +907,7 @@ print(summary(aov_missing))
 ---
 
 ```{r Ok-Miss11, out.width="50%"}
-with(cv_res_missing, interaction.plot(categorical, income, AUC))
+with(cv_res_missing, interaction.plot(categorical, income, auc))
 ```
 
 ---
@@ -958,144 +916,132 @@ Ok, now let's go back to our original idea of 18 recipes... see code in slides R
 
 ```{r, echo=FALSE}
 rec_miss_unk_knn_none <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(contains("essay"), new_role = "discarded") %>%
+  step_rm(contains("essay")) %>%
   step_log(income, offset = 1) %>%
   step_impute_knn(income,
                  impute_with = imp_vars(
                    sex, age, starts_with("job"),
                    starts_with("education"))) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_knn_none <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(contains("essay"), new_role = "discarded") %>%
+  step_rm(contains("essay")) %>%
   step_log(income, offset = 1) %>%
   step_impute_knn(income,
                  impute_with = imp_vars(
                    sex, age, height, starts_with("job"),
                    starts_with("education"))) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_unk_none_len <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(income, starts_with("isna"), new_role = "discarded") %>%
+  step_rm(income, starts_with("isna")) %>%
   step_log(starts_with("len"), offset = 1) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_none_len <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(income, starts_with("isna"), new_role = "discarded") %>%
+  step_rm(income, starts_with("isna")) %>%
   step_log(starts_with("len"), offset = 1) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_unk_mean_len <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(starts_with("isna"), new_role = "discarded") %>%
+  step_rm(starts_with("isna")) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
   step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_mean_len <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(starts_with("isna"), new_role = "discarded") %>%
+  step_rm(starts_with("isna")) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
   step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_unk_knn_len <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(starts_with("isna"), new_role = "discarded") %>%
+  step_rm(starts_with("isna")) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
   step_impute_knn(income,
                  impute_with = imp_vars(
                    sex, age, height, starts_with("job"),
                    starts_with("education"))) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_knn_len <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(starts_with("isna"), new_role = "discarded") %>%
+  step_rm(starts_with("isna")) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
   step_impute_knn(income,
                  impute_with = imp_vars(
                    sex, age, height, starts_with("job"),
                    starts_with("education"))) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 ###
 
 rec_miss_unk_none_isna <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(income, new_role = "discarded") %>%
+  step_rm(income) %>%
   step_log(starts_with("len"), offset = 1) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_none_isna <- recipe(pets ~ ., data = ok_tr_missing2) %>%
-  update_role(income, new_role = "discarded") %>%
+  step_rm(income) %>%
   step_log(starts_with("len"), offset = 1) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_unk_mean_isna <- recipe(pets ~ ., data = ok_tr_missing2) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
   step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_mean_isna <- recipe(pets ~ ., data = ok_tr_missing2) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
   step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_unk_knn_isna <- recipe(pets ~ ., data = ok_tr_missing2) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
@@ -1103,12 +1049,11 @@ rec_miss_unk_knn_isna <- recipe(pets ~ ., data = ok_tr_missing2) %>%
                  impute_with = imp_vars(
                    sex, age, height, starts_with("job"),
                    starts_with("education"))) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_knn_isna <- recipe(pets ~ ., data = ok_tr_missing2) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
@@ -1116,16 +1061,15 @@ rec_miss_mode_knn_isna <- recipe(pets ~ ., data = ok_tr_missing2) %>%
                  impute_with = imp_vars(
                    sex, age, height, starts_with("job"),
                    starts_with("education"))) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 ```
 
 ```{r}
-lst_recs <- list("unknown_none_none" = rec_miss_unk_none_none,
+rec_list <- list("unknown_none_none" = rec_miss_unk_none_none,
                  "mode_none_none" = rec_miss_mode_none_none,
                  "unknown_mean_none" = rec_miss_unk_mean_none,
                  "mode_mean_none" = rec_miss_mode_mean_none,
@@ -1146,31 +1090,27 @@ lst_recs <- list("unknown_none_none" = rec_miss_unk_none_none,
                  )
 ```
 
+BTW, I just saw each of these is ~700KB before prepping, ridic.
 ---
 
-```{r}
+```{r, eval=FALSE}
 set.seed(42)
 cv_splits_missing <- vfold_cv(ok_tr_missing2, v = 10, strata = pets)
-```
 
-```{r, eval=FALSE}
-cv_splits_missing <- cv_splits_missing %>%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_missing$splits)
-  )
+wset <- workflow_set(rec_list, mod_list) %>%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_missing,
+               metrics = metric_set(roc_auc))
+
+cv_res_missing <- wset %>%
+  unnest(result) %>%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %>%
+  select(wflow_id, id, auc) %>%
+  separate_wider_delim(wflow_id, "_", names = c("categorical", "income", "essay", "mod"))
 ```
 
 ```{r, echo=FALSE}
 cv_res_missing <- read_rds("../data/Ok_missing_cv_res_auc.rds")
-```
-
-```{r, eval=FALSE}
-cv_res_missing <- cv_splits_missing %>%
-    pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %>%
-  select(id, recipe, AUC) %>%
-  separate(recipe, c("categorical", "income", "essay"))
 ```
 
 ---
@@ -1180,18 +1120,18 @@ Again, see the plot .font80percent[(how would you plot a 2x3x3 experiment result
 ```{r, echo=FALSE}
 cv_res_missing_meds <- cv_res_missing %>%
   group_by(income, essay) %>%
-  summarise(AUC = median(AUC), id = "All")
+  summarise(auc = median(auc), id = "All")
 ```
 
 ```{r Ok-Miss12, out.width="90%", fig.asp=0.5}
 cv_res_missing %>%
   group_by(id, income, essay) %>%
-  summarise(AUC = mean(AUC)) %>%
-  ggplot(aes(income, AUC, group = id, color = id)) +
-    geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, linewidth = 2) +
+  summarise(auc = mean(auc)) %>%
+  ggplot(aes(income, auc, group = id, color = id)) +
+  geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_missing_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
-    guides(color = "none") + facet_wrap(. ~ essay) +
-    theme_light()
+  guides(color = "none") + facet_wrap(. ~ essay) +
+  theme_light()
 ```
 
 ---
@@ -1200,7 +1140,7 @@ Repeated measures ANOVA
 
 ```{r}
 aov_missing <- aov(
-  AUC ~ factor(categorical) * factor(income) + factor(essay) + Error(factor(id)),
+  auc ~ factor(categorical) * factor(income) + factor(essay) + Error(factor(id)),
   data = cv_res_missing)
 summary(aov_missing)
 ```
@@ -1212,8 +1152,8 @@ Or you can just look at the mean numbers...
 ```{r}
 cv_res_missing %>%
   group_by(categorical, income, essay) %>%
-  summarise(AUC = mean(AUC)) %>%
-  arrange(-AUC) %>%
+  summarise(auc = mean(auc)) %>%
+  arrange(-auc) %>%
   head(10)
 ```
 
@@ -1260,80 +1200,56 @@ ok_tr_imbalance2 <- handle_essays(ok_tr_imbalance) %>%
 ```{r, warning=FALSE, message=FALSE}
 library(themis)
 
-rec_imb_upsample <- recipe(pets ~ ., data = ok_tr_imbalance2) %>%
+rec_imb_base <- recipe(pets ~ ., data = ok_tr_imbalance2) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
   step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
+
+rec_imb_upsample <- rec_imb_base %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 
-rec_imb_downsample <- recipe(pets ~ ., data = ok_tr_imbalance2) %>%
-  step_log(income, starts_with("len"), offset = 1) %>%
-  step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+rec_imb_downsample <- rec_imb_base %>%
   step_downsample(pets, under_ratio = 1, seed = 42)
-```
 
----
-
-```{r, warning=FALSE, message=FALSE}
-rec_imb_smote <- recipe(pets ~ ., data = ok_tr_imbalance2) %>%
-  step_log(income, starts_with("len"), offset = 1) %>%
-  step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+rec_imb_smote <- rec_imb_base %>%
   step_downsample(pets, under_ratio = 1.5) %>%
   step_smote(pets, over_ratio = 1, seed = 42)
 ```
 
 ---
 
-CV splits
+CV splits, `workflow_set()`.
 
 ```{r}
 set.seed(42)
 cv_splits_imbalance <- vfold_cv(ok_tr_imbalance2, v = 10, strata = pets)
 
-lst_recs <- list("upsample" = rec_imb_upsample,
+rec_list <- list("upsample" = rec_imb_upsample,
                  "downsample" = rec_imb_downsample,
                  "smote" = rec_imb_smote)
-```
 
-```{r}
-cv_splits_imbalance <- cv_splits_imbalance %>%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_imbalance$splits)
-  )
+wset <- workflow_set(rec_list, mod_list) %>%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_imbalance,
+               metrics = metric_set(roc_auc))
+
+cv_res_imbalance <- wset %>%
+  unnest(result) %>%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %>%
+  select(recipe, id, auc)
 ```
 
 ---
-
-```{r}
-cv_res_imbalance <- cv_splits_imbalance %>%
-    pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %>%
-  select(id, recipe, AUC)
-```
 
 Repeated measures ANOVA:
 
 ```{r}
 aov_imbalance <- aov(
-  AUC ~ factor(recipe) + Error(factor(id)),
+  auc ~ factor(recipe) + Error(factor(id)),
   data = cv_res_imbalance)
 print(summary(aov_imbalance))
 ```
@@ -1345,12 +1261,12 @@ Plotting...
 ```{r, echo=FALSE}
 cv_res_imbalance_meds <- cv_res_imbalance %>%
   group_by(recipe) %>%
-  summarise(AUC = median(AUC), id = "All")
+  summarise(auc = median(auc), id = "All")
 ```
 
 ```{r Ok-Imb1, out.width="100%", fig.asp=0.5}
 cv_res_imbalance %>%
-  ggplot(aes(recipe, AUC, group = id, color = id)) +
+  ggplot(aes(recipe, auc, group = id, color = id)) +
     geom_line() + geom_line(data = cv_res_imbalance_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_imbalance_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
     guides(color = "none") +
@@ -1362,7 +1278,7 @@ cv_res_imbalance %>%
 ```{r}
 print(cv_res_imbalance %>%
         group_by(recipe) %>%
-        summarise(mean_auc = mean(AUC), .groups="drop"))
+        summarise(mean_auc = mean(auc), .groups="drop"))
 ```
 
 .insight[
@@ -1617,8 +1533,8 @@ What % threshold should you use for "Other"?
 
 ```{r}
 recipe(pets ~ ., data = ok_tr_eng %>% select(pets, location)) %>%
-  step_other(all_nominal(), threshold = 0.05) %>%
-  step_novel(all_nominal()) %>%
+  step_other(all_nominal_predictors(), threshold = 0.05) %>%
+  step_novel(all_nominal_predictors()) %>%
   prep(ok_tr_eng) %>%
   bake(new_data = NULL) %>%
   count(location)
@@ -1626,7 +1542,7 @@ recipe(pets ~ ., data = ok_tr_eng %>% select(pets, location)) %>%
 
 ---
 
-You can also insert some creativeness (or plain common sense) in your "Other" strategy:
+You can also insert some creativity (or plain common sense) in your "Other" strategy:
 
 ```{r, eval=FALSE}
 education2 = case_when(
@@ -1860,15 +1776,14 @@ str_count_na <- function(string, pattern = "") {
 
 ```{r}
 rec_eng_notext <- recipe(pets ~ ., data = ok_tr_eng2) %>%
-  update_role(starts_with("essay"), new_role = "discarded") %>%
+  step_rm(starts_with("essay")) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
   step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -1881,15 +1796,14 @@ rec_eng_catdog <- recipe(pets ~ ., data = ok_tr_eng2) %>%
          essay6, essay7, essay8, essay9), str_c),
               n_cat = str_count_na(essays, "cat"),
               n_dog = str_count_na(essays, "dog")) %>%
-  update_role(starts_with("essay"), new_role = "discarded") %>%
+  step_rm(starts_with("essay")) %>%
   step_log(income, starts_with("len"), offset = 1) %>%
   step_impute_mean(income) %>%
-  step_normalize(all_numeric(), -has_role("discarded")) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_normalize(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), other = "other1") %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -1899,23 +1813,25 @@ rec_eng_catdog <- recipe(pets ~ ., data = ok_tr_eng2) %>%
 set.seed(42)
 cv_splits_eng <- vfold_cv(ok_tr_eng2, v = 10, strata = pets)
 
-lst_recs <- list("notext" = rec_eng_notext,
+rec_list <- list("notext" = rec_eng_notext,
                  "catdog" = rec_eng_catdog)
 
-cv_splits_eng <- cv_splits_eng %>%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_eng$splits)
-  )
+wset <- workflow_set(rec_list, mod_list) %>%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_eng,
+               metrics = metric_set(roc_auc))
+
+cv_res_catdog <- wset %>%
+  unnest(result) %>%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %>%
+  select(recipe, id, auc) %>%
+  separate_wider_delim(recipe, "_", names = c("recipe", "mod"))
 ```
 
 
 ```{r Ok-FES1-Cache, out.width="100%", fig.asp = 0.5, eval=FALSE, echo=FALSE}
-cv_splits_eng %>%
-    pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %>%
-  select(id, recipe, AUC) %>%
-  ggplot(aes(recipe, AUC, group = id, color = id)) +
+cv_res_catdog %>%
+  ggplot(aes(recipe, auc, group = id, color = id)) +
   geom_line() +
   geom_point() +
   guides(color = "none") +
@@ -1927,10 +1843,10 @@ cv_res_catdog <- read_rds("../data/Ok_catdog_cv_res_auc.rds")
 
 cv_res_catdog_meds <- cv_res_catdog %>%
   group_by(recipe) %>%
-  summarise(AUC = median(AUC), id = "All")
+  summarise(auc = median(auc), id = "All")
 
 cv_res_catdog %>%
-  ggplot(aes(recipe, AUC, group = id, color = id)) +
+  ggplot(aes(recipe, auc, group = id, color = id)) +
   geom_line() +
   geom_line(data = cv_res_catdog_meds, color = "black",
             alpha = 0.2, linewidth = 2) +
@@ -2118,29 +2034,29 @@ ok_tr_eng3 <- ok_tr_eng2 %>%
 
 ```{r}
 rec_eng_notext <- recipe(pets ~ ., data = ok_tr_eng3) %>%
-  update_role(starts_with("w_"), essays, new_role = "discarded") %>%
+  step_rm(starts_with("w_")) %>%
+  update_role(essays, new_role = "discarded") %>%
   step_log(income, offset = 1) %>%
   step_impute_mean(income) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "other1") %>%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 
 rec_eng_textfeat <- recipe(pets ~ ., data = ok_tr_eng3) %>%
-  update_role(starts_with("w_"), essays, new_role = "discarded") %>%
+  step_rm(starts_with("w_")) %>%
+  update_role(essays, new_role = "discarded") %>%
   step_textfeature(essays, prefix = "t",
                    extract_functions = my_text_funs) %>%
   step_mutate_at(starts_with("t_"), fn = ~ifelse(is.na(.x), 0, .x)) %>%
   step_log(income, starts_with("t_"), -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
-  step_zv(all_numeric()) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_zv(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "other1") %>%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -2154,63 +2070,59 @@ rec_eng_fulltext <- recipe(pets ~ ., data = ok_tr_eng3) %>%
   step_mutate_at(starts_with("t_"), fn = ~ifelse(is.na(.x), 0, .x)) %>%
   step_log(income, starts_with("t_"), -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
-  step_zv(all_numeric()) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_zv(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "other1") %>%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 
 rec_eng_hashtext <- recipe(pets ~ ., data = ok_tr_eng3) %>%
-  update_role(starts_with("w_"), essays, new_role = "discarded") %>%
+  step_rm(starts_with("w_")) %>%
+  update_role(essays, new_role = "discarded") %>%
   step_tokenize(essays) %>%
   step_tokenfilter(essays, min_times = 10) %>%
   step_texthash(essays, num_terms = 2^11) %>%
   step_log(income, offset = 1) %>%
   step_impute_mean(income) %>%
-  step_zv(all_numeric()) %>%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %>%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_zv(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "other1") %>%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
 ---
 
-```{r}
+Using resampling, `workflow_set()`:
+
+```{r, eval=FALSE}
 set.seed(42)
 cv_splits_eng <- vfold_cv(ok_tr_eng3, v = 10, strata = pets)
 
-lst_recs <- list("notext" = rec_eng_notext,
+rec_list <- list("notext" = rec_eng_notext,
                  "textfeat" = rec_eng_textfeat,
                  "fulltext" = rec_eng_fulltext,
                  "hashtext" = rec_eng_hashtext)
-```
 
-```{r, eval=FALSE}
-cv_res_eng <- cv_splits_eng %>%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_eng$splits)
-  ) %>%
-  pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %>%
-  select(id, recipe, AUC)
+wset <- workflow_set(rec_list, mod_list) %>%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_eng,
+               metrics = metric_set(roc_auc))
 
-cv_res_eng_meds <- cv_res_eng %>%
-  group_by(recipe) %>%
-  summarise(AUC = mean(AUC), id = "All")
+cv_res_eng <- wset %>%
+  unnest(result) %>%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %>%
+  select(recipe, id, auc) %>%
+  separate_wider_delim(recipe, "_", names = c("recipe", "mod"))
 ```
 
 ```{r, echo=FALSE}
 cv_res_eng <- read_rds("../data/Ok_eng_cv_res_auc2.rds")
-
 cv_res_eng_meds <- cv_res_eng %>%
   group_by(recipe) %>%
-  summarise(AUC = mean(AUC), id = "All")
+  summarise(auc = mean(auc), id = "All")
 ```
 
 ---
@@ -2341,47 +2253,45 @@ rec_eng_commonsense <- recipe(pets ~ ., data = ok_tr_eng4) %>%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
-  step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
-    other = "all_else", threshold = 0.1) %>%
-  step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_zv(all_numeric_predictors()) %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "other1") %>%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
 ---
 
-```{r}
+```{r, eval=FALSE}
 set.seed(42)
 cv_splits_eng2 <- vfold_cv(ok_tr_eng4, v = 10, strata = pets)
 
-lst_recs <- list("commonsense" = rec_eng_commonsense)
-```
+rec_list <- list("commonsense" = rec_eng_commonsense)
 
-```{r, eval=FALSE}
-cv_res_commonsense <- cv_splits_eng2 %>%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_eng2$splits)
-  ) %>%
-  pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %>%
-  select(id, recipe, AUC)
+wset <- workflow_set(rec_list, mod_list) %>%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_eng2,
+               metrics = metric_set(roc_auc))
+
+cv_res_commonsense <- wset %>%
+  unnest(result) %>%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %>%
+  select(recipe, id, auc) %>%
+  separate_wider_delim(recipe, "_", names = c("recipe", "mod"))
 
 cv_res_cs_meds <- cv_res_commonsense %>%
   group_by(recipe) %>%
-  summarise(AUC = mean(AUC), id = "All")
+  summarise(auc = mean(auc), id = "All")
 ```
+
 
 ```{r, echo=FALSE}
 cv_res_commonsense <- read_rds("../data/Ok_cs_cv_res_auc4.rds")
 
 cv_res_cs_meds <- cv_res_commonsense %>%
   group_by(recipe) %>%
-  summarise(AUC = mean(AUC), id = "All")
+  summarise(auc = mean(auc), id = "All")
 ```
 
 ---
@@ -2391,7 +2301,7 @@ cv_res_eng %>%
   bind_rows(cv_res_commonsense) %>%
   mutate(recipe = fct_relevel(recipe,
                               c("notext", "hashtext", "textfeat", "fulltext", "commonsense"))) %>%
-  ggplot(aes(recipe, AUC, group = id, color = id)) +
+  ggplot(aes(recipe, auc, group = id, color = id)) +
   geom_line() + geom_line(data = cv_res_eng_meds %>% bind_rows(cv_res_cs_meds), color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_eng_meds %>% bind_rows(cv_res_cs_meds), color = "black", alpha = 0.2, size = 5, pch = 17) +
   guides(color = "none") + theme_light()
@@ -2893,15 +2803,15 @@ rec_int_sex <- recipe(pets ~ ., data = ok_tr_interaction2) %>%
            -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
   step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
+    all_nominal_predictors(), -has_role("discarded"),
     other = "all_else", threshold = 0.1) %>%
   step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
+    all_nominal_predictors(), -has_role("discarded")) %>%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_dummy(all_nominal_predictors(),
              -has_role("discarded"), one_hot = FALSE) %>%
   step_interact(~starts_with("sex"):all_numeric()) %>%
-  step_nzv(all_numeric(), freq_cut = 99/1) %>%
+  step_nzv(all_numeric_predictors(), freq_cut = 99/1) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -2939,15 +2849,15 @@ rec_int_topmain <- recipe(pets ~ ., data = ok_tr_interaction2) %>%
            -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
   step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
+    all_nominal_predictors(), -has_role("discarded"),
     other = "all_else", threshold = 0.1) %>%
   step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
+    all_nominal_predictors(), -has_role("discarded")) %>%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_dummy(all_nominal_predictors(),
              -has_role("discarded"), one_hot = FALSE) %>%
   step_interact(topmain_ints) %>%
-  step_nzv(all_numeric(), freq_cut = 99/1) %>%
+  step_nzv(all_numeric_predictors(), freq_cut = 99/1) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -2977,15 +2887,15 @@ rec_int_topints <- recipe(pets ~ ., data = ok_tr_interaction2) %>%
            -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
   step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
+    all_nominal_predictors(), -has_role("discarded"), -all_outcomes(),
     other = "all_else", threshold = 0.1) %>%
   step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
+    all_nominal_predictors(), -has_role("discarded")) %>%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_dummy(all_nominal_predictors(),
              -has_role("discarded"), one_hot = FALSE) %>%
   step_interact(topint_ints) %>%
-  step_nzv(all_numeric(), freq_cut = 99/1) %>%
+  step_nzv(all_numeric_predictors(), freq_cut = 99/1) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -3001,15 +2911,15 @@ rec_int_all <- recipe(pets ~ ., data = ok_tr_interaction2) %>%
            -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
   step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
+    all_nominal_predictors(), -has_role("discarded"),
     other = "all_else", threshold = 0.1) %>%
   step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
+    all_nominal_predictors(), -has_role("discarded")) %>%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_dummy(all_nominal_predictors(),
              -has_role("discarded"), one_hot = FALSE) %>%
-  step_interact(~all_numeric():all_numeric()) %>%
-  step_nzv(all_numeric(), freq_cut = 95/5) %>%
+  step_interact(~all_numeric_predictors():all_numeric_predictors()) %>%
+  step_nzv(all_numeric_predictors(), freq_cut = 95/5) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
