@@ -4,8 +4,8 @@
     <title>Feature Engineering</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-12-26" />
-    <script src="u3_d04-featureeng_files/header-attrs-2.19/header-attrs.js"></script>
+    <meta name="date" content="2023-02-25" />
+    <script src="u3_d04-featureeng_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-12-26
+### 2023-02-25
 
 ---
 
@@ -225,7 +225,7 @@ okcupid &lt;- okcupid %&gt;%
            pets %in% dogs_categories ~ "dogs",
            TRUE ~ NA_character_)) %&gt;%
   drop_na(pets) %&gt;%
-  na_if(-1) %&gt;%
+  mutate(income = na_if(income, -1)) %&gt;%
   select(-last_online)
 
 okcupid[which(is.na(okcupid$height)), "height"] &lt;- 70 # you don't wanna know
@@ -437,6 +437,7 @@ We wish to make sure our samples are stratified by `pets`, so we'll use `initial
 
 ```r
 library(tidymodels)
+tidymodels_prefer()
 
 set.seed(42)
 ok_cutoff_split &lt;- initial_split(okcupid_train,
@@ -782,25 +783,21 @@ Defining recipes .font80percent[(without `prep()`!)], let's start with 2 to simp
 
 ```r
 rec_miss_unk_none_none &lt;- recipe(pets ~ ., data = ok_tr_missing2) %&gt;%
-  update_role(income, contains("essay"), new_role = "discarded") %&gt;%
-  step_normalize(all_numeric(), -has_role("discarded")) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_rm(income, contains("essay")) %&gt;%
+  step_normalize(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors()) %&gt;%
+* step_unknown(all_nominal_predictors()) %&gt;%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_none_none &lt;- recipe(pets ~ ., data = ok_tr_missing2) %&gt;%
-  update_role(income, contains("essay"), new_role = "discarded") %&gt;%
-  step_normalize(all_numeric(), -has_role("discarded")) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_rm(income, contains("essay")) %&gt;%
+  step_normalize(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors()) %&gt;%
+* step_impute_mode(all_nominal_predictors()) %&gt;%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 ```
-
-.font80percent[(pretty sure `step_rm` is a way to discard predictors altogether)]
 
 ---
 
@@ -833,7 +830,7 @@ cv_splits_missing
 
 ---
 
-Applying (two) recipes to all splits
+.font80percent[For educational purposes] Applying (two) recipes to all splits with `prepper()`:
 
 
 ```r
@@ -846,7 +843,7 @@ map_dbl(cv_splits_missing$rec_miss_unk_none_none, ~nrow(.$term_info))
 ```
 
 ```
-##  [1] 113 112 114 114 113 112 111 112 113 112
+##  [1] 92 91 93 93 92 91 90 91 92 91
 ```
 
 
@@ -865,6 +862,8 @@ cv_splits_missing$rec_miss_unk_none_none[[1]]$term_info %&gt;%
 ## 4 speaks_unknown            &lt;chr [2]&gt; predictor derived
 ```
 
+Notice the `role` and `source` columns.
+
 ---
 
 Defining the model specification
@@ -875,81 +874,82 @@ mod_lr &lt;- logistic_reg(penalty = 0.01) %&gt;%
   set_engine("glmnet")
 ```
 
-Fitting the model to all splits
+Use `workflow_set()` to fit the two recipes on all folds:
 
 
 ```r
-fit_lr &lt;- function(rec_obj) 
-  fit(mod_lr, pets ~ .,
-      data = bake(rec_obj, NULL, all_predictors(), all_outcomes()))
+rec_list &lt;- list(unk = rec_miss_unk_none_none,
+                 mode = rec_miss_mode_none_none)
+mod_list &lt;- list(lr = mod_lr)
+wset &lt;- workflow_set(rec_list, mod_list) # checkout the cross arg
 
-cv_splits_missing$mod_lr_unk &lt;- map(
-  cv_splits_missing$rec_miss_unk_none_none, fit_lr)
-cv_splits_missing$mod_lr_mode &lt;- map(
-  cv_splits_missing$rec_miss_mode_none_none, fit_lr)
+wset
+```
+
+```
+## # A workflow set/tibble: 2 × 4
+##   wflow_id info             option    result    
+##   &lt;chr&gt;    &lt;list&gt;           &lt;list&gt;    &lt;list&gt;    
+## 1 unk_lr   &lt;tibble [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
+## 2 mode_lr  &lt;tibble [1 × 4]&gt; &lt;opts[0]&gt; &lt;list [0]&gt;
 ```
 
 ---
 
-Predicting on assessment data of each split
+
 
 
 ```r
-pred_lr &lt;- function(split_obj, rec_obj, model_obj) {
-  mod_data &lt;- bake(rec_obj,
-                   new_data = assessment(split_obj),
-                   all_predictors(), all_outcomes()) 
-  out &lt;- mod_data %&gt;% select(pets)
-  out$predicted &lt;- predict(model_obj, mod_data, type = "prob",
-                           penalty = 0.0001)$.pred_cats
-  out
-}
+wset &lt;- wset %&gt;%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_missing,
+               metrics = metric_set(roc_auc))
 
-cv_splits_missing$pred_unk &lt;- 
-  pmap(
-    lst(
-      split_obj = cv_splits_missing$splits, 
-      rec_obj = cv_splits_missing$rec_miss_unk_none_none, 
-      model_obj = cv_splits_missing$mod_lr_unk
-    ),
-    pred_lr)
-cv_splits_missing$pred_mode &lt;- pmap(lst(
-  split_obj = cv_splits_missing$splits,
-  rec_obj = cv_splits_missing$rec_miss_mode_none_none,
-  model_obj = cv_splits_missing$mod_lr_mode
-),
-pred_lr)
+wset
+```
+
+```
+## # A workflow set/tibble: 2 × 4
+##   wflow_id info             option    result   
+##   &lt;chr&gt;    &lt;list&gt;           &lt;list&gt;    &lt;list&gt;   
+## 1 unk_lr   &lt;tibble [1 × 4]&gt; &lt;opts[2]&gt; &lt;rsmp[+]&gt;
+## 2 mode_lr  &lt;tibble [1 × 4]&gt; &lt;opts[2]&gt; &lt;rsmp[+]&gt;
 ```
 
 ---
 
-Measuring the AUC of each split
+Can use built-in `autoplot()` to see the results, I dislike it:
 
 
 ```r
-cv_splits_missing$step_unknown &lt;- map_dfr(
-  cv_splits_missing$pred_unk, roc_auc, pets, predicted)$.estimate
-cv_splits_missing$step_mode &lt;- map_dfr(
-  cv_splits_missing$pred_mode, roc_auc, pets, predicted)$.estimate
+library(ggrepel)
+
+autoplot(wset, metric = "roc_auc") +
+  geom_text_repel(aes(label = wflow_id), nudge_x = 1/8, nudge_y = 1/100) +
+  theme_light() +
+  theme(legend.position = "none")
 ```
+
+&lt;img src="images/Wset-Autoplot-1.png" width="90%" /&gt;
 
 ---
 
-Comparing AUCs with a plot
+A type of parallel coordinates plot showing all folds is better IMO:
 
 
 ```r
-cv_splits_missing %&gt;%
-  select(id, step_unknown, step_mode) %&gt;%
-  pivot_longer(cols = c(step_unknown, step_mode),
-               names_to = "recipe", values_to = "auc") %&gt;%
+res_df &lt;- wset %&gt;%
+  unnest(result) %&gt;%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate))
+
+res_df %&gt;%
   ggplot(aes(recipe, auc, group = id, color = id)) +
   geom_line() +
   geom_point() +
   guides(color = "none") + theme_light()
 ```
 
-&lt;img src="images/Ok-Miss9-1.png" width="90%" /&gt;
+&lt;img src="images/Ok-Miss9-1.png" width="85%" /&gt;
 
 ---
 
@@ -957,22 +957,22 @@ Comparing AUCs with a statistical test (paired T test)
 
 
 ```r
-t.test(cv_splits_missing$step_unknown,
-       cv_splits_missing$step_mode, paired = TRUE)
+t.test(with(res_df, auc[recipe == "unk_lr"]),
+       with(res_df, auc[recipe == "mode_lr"]), paired = TRUE)
 ```
 
 ```
 ## 
 ## 	Paired t-test
 ## 
-## data:  cv_splits_missing$step_unknown and cv_splits_missing$step_mode
-## t = -1.721, df = 9, p-value = 0.1194
+## data:  with(res_df, auc[recipe == "unk_lr"]) and with(res_df, auc[recipe == "mode_lr"])
+## t = -1.5003, df = 9, p-value = 0.1678
 ## alternative hypothesis: true mean difference is not equal to 0
 ## 95 percent confidence interval:
-##  -0.024242337  0.003293326
+##  -0.013950063  0.002824533
 ## sample estimates:
 ## mean difference 
-##     -0.01047451
+##    -0.005562765
 ```
 
 ---
@@ -982,125 +982,96 @@ Let's move on to 2 x 2 recipes, adding 2 more recipes for treating the `income` 
 
 ```r
 rec_miss_unk_mean_none &lt;- recipe(pets ~ ., data = ok_tr_missing2) %&gt;%
-  update_role(contains("essay"), new_role = "discarded") %&gt;%
-  step_log(income, offset = 1) %&gt;%
-  step_impute_mean(income) %&gt;%
-  step_normalize(all_numeric(), -has_role("discarded")) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_unknown(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_rm(contains("essay")) %&gt;%
+* step_log(income, offset = 1) %&gt;%
+* step_impute_mean(income) %&gt;%
+  step_normalize(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors()) %&gt;%
+  step_unknown(all_nominal_predictors()) %&gt;%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_miss_mode_mean_none &lt;- recipe(pets ~ ., data = ok_tr_missing2) %&gt;%
-  update_role(contains("essay"), new_role = "discarded") %&gt;%
-  step_log(income, offset = 1) %&gt;%
-  step_impute_mean(income) %&gt;%
-  step_normalize(all_numeric(), -has_role("discarded")) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE)
+  step_rm(contains("essay")) %&gt;%
+* step_log(income, offset = 1) %&gt;%
+* step_impute_mean(income) %&gt;%
+  step_normalize(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors()) %&gt;%
+  step_impute_mode(all_nominal_predictors()) %&gt;%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
 ```
 
 ---
 
-Our approach with 2 recipes does not scale, and we don't need to keep all data just final AUC for each recipe. We are writing a `train_recipe()` function!
+And again, using `workflow_set()`, more concise:
 
 
 ```r
-lst_recs &lt;- list("unknown_none" = rec_miss_unk_none_none,
+rec_list &lt;- list("unknown_none" = rec_miss_unk_none_none,
                  "mode_none" = rec_miss_mode_none_none,
                  "unknown_mean" = rec_miss_unk_mean_none,
                  "mode_mean" = rec_miss_mode_mean_none)
 
-train_recipe &lt;- function(rec, rec_name, splits) {
-  splits_prepped &lt;- map(splits, prepper, recipe = rec)
-  splits_fit &lt;- map(splits_prepped, fit_lr)
-  splits_pred &lt;- pmap(
-    lst(
-      split_obj = splits, 
-      rec_obj = splits_prepped, 
-      model_obj = splits_fit
-    ),
-    pred_lr
-  )
-  res &lt;- map_dfr(splits_pred, roc_auc, pets, predicted)$.estimate
-  names(res) &lt;- rec_name
-  res
-}
-```
+wset &lt;- workflow_set(rec_list, mod_list) %&gt;%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_missing,
+               metrics = metric_set(roc_auc))
 
----
+cv_res_missing &lt;- wset %&gt;%
+  unnest(result) %&gt;%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate))
 
-Training multiple recipes, saving the AUC for each recipe, each split.
-
-
-```r
-cv_splits_missing &lt;- cv_splits_missing %&gt;%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_missing$splits)
-  )
-```
-
-Processing the results into a nice table:
-
-
-```r
-cv_res_missing &lt;- cv_splits_missing %&gt;%
-    pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %&gt;%
-  select(id, recipe, AUC) %&gt;%
-  separate(recipe, c("categorical", "income"))
-
-cv_res_missing
+cv_res_missing %&gt;% select(wflow_id, id, auc)
 ```
 
 ```
-## # A tibble: 40 × 4
-##    id     categorical income   AUC
-##    &lt;chr&gt;  &lt;chr&gt;       &lt;chr&gt;  &lt;dbl&gt;
-##  1 Fold01 unknown     none   0.690
-##  2 Fold01 mode        none   0.698
-##  3 Fold01 unknown     mean   0.697
-##  4 Fold01 mode        mean   0.702
-##  5 Fold02 unknown     none   0.677
-##  6 Fold02 mode        none   0.692
-##  7 Fold02 unknown     mean   0.677
-##  8 Fold02 mode        mean   0.689
-##  9 Fold03 unknown     none   0.720
-## 10 Fold03 mode        none   0.719
+## # A tibble: 40 × 3
+##    wflow_id        id       auc
+##    &lt;chr&gt;           &lt;chr&gt;  &lt;dbl&gt;
+##  1 unknown_none_lr Fold01 0.707
+##  2 unknown_none_lr Fold02 0.694
+##  3 unknown_none_lr Fold03 0.735
+##  4 unknown_none_lr Fold04 0.686
+##  5 unknown_none_lr Fold05 0.667
+##  6 unknown_none_lr Fold06 0.599
+##  7 unknown_none_lr Fold07 0.666
+##  8 unknown_none_lr Fold08 0.676
+##  9 unknown_none_lr Fold09 0.648
+## 10 unknown_none_lr Fold10 0.729
 ## # … with 30 more rows
 ```
 
 ---
 
-Comparing AUCs with a plot
+Comparing AUCs with a plot:
 
 
 
 
 ```r
 cv_res_missing %&gt;%
-  ggplot(aes(income, AUC, group = id, color = id)) +
+  separate_wider_delim(wflow_id, "_", names = c("categorical", "income", "mod")) %&gt;%
+  ggplot(aes(income, auc, group = id, color = id)) +
   geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_missing_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
     guides(color = "none") + facet_wrap(. ~ categorical) +
     theme_light()
 ```
 
-&lt;img src="images/Ok-Miss10-1.png" width="100%" /&gt;
+&lt;img src="images/Ok-Miss10-1.png" width="90%" /&gt;
 
 ---
 
-Comparing AUCs with a statistical test (2x2 Repeated measures ANOVA)
+Comparing AUCs with a statistical test (2x2 Repeated measures ANOVA):
 
 
 ```r
+cv_res_missing &lt;- cv_res_missing %&gt;%
+  separate_wider_delim(wflow_id, "_", names = c("categorical", "income", "mod"))
+
 aov_missing &lt;- aov(
-  AUC ~ factor(categorical) * factor(income) + Error(factor(id)),
+  auc ~ factor(categorical) * factor(income) + Error(factor(id)),
   data = cv_res_missing)
 print(summary(aov_missing))
 ```
@@ -1108,15 +1079,15 @@ print(summary(aov_missing))
 ```
 ## 
 ## Error: factor(id)
-##           Df  Sum Sq Mean Sq F value Pr(&gt;F)
-## Residuals  9 0.05751 0.00639               
+##           Df  Sum Sq  Mean Sq F value Pr(&gt;F)
+## Residuals  9 0.05781 0.006424               
 ## 
 ## Error: Within
-##                                    Df   Sum Sq   Mean Sq F value Pr(&gt;F)  
-## factor(categorical)                 1 0.000984 0.0009843   6.985 0.0135 *
-## factor(income)                      1 0.000113 0.0001125   0.799 0.3794  
-## factor(categorical):factor(income)  1 0.000003 0.0000031   0.022 0.8839  
-## Residuals                          27 0.003805 0.0001409                 
+##                                    Df    Sum Sq   Mean Sq F value Pr(&gt;F)  
+## factor(categorical)                 1 0.0002579 2.579e-04   5.333 0.0288 *
+## factor(income)                      1 0.0000310 3.103e-05   0.642 0.4301  
+## factor(categorical):factor(income)  1 0.0000023 2.340e-06   0.048 0.8275  
+## Residuals                          27 0.0013059 4.836e-05                 
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -1125,7 +1096,7 @@ print(summary(aov_missing))
 
 
 ```r
-with(cv_res_missing, interaction.plot(categorical, income, AUC))
+with(cv_res_missing, interaction.plot(categorical, income, auc))
 ```
 
 &lt;img src="images/Ok-Miss11-1.png" width="50%" /&gt;
@@ -1138,7 +1109,7 @@ Ok, now let's go back to our original idea of 18 recipes... see code in slides R
 
 
 ```r
-lst_recs &lt;- list("unknown_none_none" = rec_miss_unk_none_none,
+rec_list &lt;- list("unknown_none_none" = rec_miss_unk_none_none,
                  "mode_none_none" = rec_miss_mode_none_none,
                  "unknown_mean_none" = rec_miss_unk_mean_none,
                  "mode_mean_none" = rec_miss_mode_mean_none,
@@ -1159,33 +1130,27 @@ lst_recs &lt;- list("unknown_none_none" = rec_miss_unk_none_none,
                  )
 ```
 
+BTW, I just saw each of these is ~700KB before prepping, ridic.
 ---
 
 
 ```r
 set.seed(42)
 cv_splits_missing &lt;- vfold_cv(ok_tr_missing2, v = 10, strata = pets)
+
+wset &lt;- workflow_set(rec_list, mod_list) %&gt;%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_missing,
+               metrics = metric_set(roc_auc))
+
+cv_res_missing &lt;- wset %&gt;%
+  unnest(result) %&gt;%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %&gt;%
+  select(wflow_id, id, auc) %&gt;%
+  separate_wider_delim(wflow_id, "_", names = c("categorical", "income", "essay", "mod"))
 ```
 
 
-```r
-cv_splits_missing &lt;- cv_splits_missing %&gt;%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_missing$splits)
-  )
-```
-
-
-
-
-```r
-cv_res_missing &lt;- cv_splits_missing %&gt;%
-    pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %&gt;%
-  select(id, recipe, AUC) %&gt;%
-  separate(recipe, c("categorical", "income", "essay"))
-```
 
 ---
 
@@ -1197,12 +1162,12 @@ Again, see the plot .font80percent[(how would you plot a 2x3x3 experiment result
 ```r
 cv_res_missing %&gt;%
   group_by(id, income, essay) %&gt;%
-  summarise(AUC = mean(AUC)) %&gt;%
-  ggplot(aes(income, AUC, group = id, color = id)) +
-    geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, linewidth = 2) +
+  summarise(auc = mean(auc)) %&gt;%
+  ggplot(aes(income, auc, group = id, color = id)) +
+  geom_line() + geom_line(data = cv_res_missing_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_missing_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
-    guides(color = "none") + facet_wrap(. ~ essay) +
-    theme_light()
+  guides(color = "none") + facet_wrap(. ~ essay) +
+  theme_light()
 ```
 
 &lt;img src="images/Ok-Miss12-1.png" width="90%" /&gt;
@@ -1214,7 +1179,7 @@ Repeated measures ANOVA
 
 ```r
 aov_missing &lt;- aov(
-  AUC ~ factor(categorical) * factor(income) + factor(essay) + Error(factor(id)),
+  auc ~ factor(categorical) * factor(income) + factor(essay) + Error(factor(id)),
   data = cv_res_missing)
 summary(aov_missing)
 ```
@@ -1223,15 +1188,15 @@ summary(aov_missing)
 ## 
 ## Error: factor(id)
 ##           Df Sum Sq Mean Sq F value Pr(&gt;F)
-## Residuals  9 0.1595 0.01772               
+## Residuals  9 0.2215 0.02461               
 ## 
 ## Error: Within
-##                                     Df   Sum Sq   Mean Sq F value  Pr(&gt;F)   
-## factor(categorical)                  1 0.000191 0.0001911   1.975 0.16179   
-## factor(income)                       2 0.000483 0.0002415   2.497 0.08549 . 
-## factor(essay)                        2 0.001101 0.0005503   5.689 0.00409 **
-## factor(categorical):factor(income)   2 0.000007 0.0000036   0.038 0.96300   
-## Residuals                          163 0.015766 0.0000967                   
+##                                     Df   Sum Sq   Mean Sq F value   Pr(&gt;F)    
+## factor(categorical)                  1 0.001649 0.0016491  15.295 0.000135 ***
+## factor(income)                       2 0.000239 0.0001193   1.107 0.333046    
+## factor(essay)                        2 0.000129 0.0000644   0.597 0.551681    
+## factor(categorical):factor(income)   2 0.000013 0.0000065   0.060 0.941812    
+## Residuals                          163 0.017574 0.0001078                     
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -1244,26 +1209,26 @@ Or you can just look at the mean numbers...
 ```r
 cv_res_missing %&gt;%
   group_by(categorical, income, essay) %&gt;%
-  summarise(AUC = mean(AUC)) %&gt;%
-  arrange(-AUC) %&gt;%
+  summarise(auc = mean(auc)) %&gt;%
+  arrange(-auc) %&gt;%
   head(10)
 ```
 
 ```
 ## # A tibble: 10 × 4
-## # Groups:   categorical, income [6]
-##    categorical income essay   AUC
+## # Groups:   categorical, income [4]
+##    categorical income essay   auc
 ##    &lt;chr&gt;       &lt;chr&gt;  &lt;chr&gt; &lt;dbl&gt;
-##  1 mode        mean   len   0.719
-##  2 mode        knn    len   0.719
-##  3 unknown     knn    len   0.718
-##  4 unknown     mean   len   0.718
-##  5 mode        mean   none  0.716
-##  6 mode        none   len   0.716
-##  7 mode        mean   isna  0.715
-##  8 unknown     mean   none  0.715
-##  9 mode        knn    none  0.715
-## 10 unknown     none   len   0.715
+##  1 mode        mean   none  0.688
+##  2 mode        mean   len   0.687
+##  3 mode        mean   isna  0.687
+##  4 mode        none   none  0.686
+##  5 mode        none   len   0.685
+##  6 mode        none   isna  0.685
+##  7 mode        knn    none  0.685
+##  8 mode        knn    len   0.684
+##  9 mode        knn    isna  0.683
+## 10 unknown     mean   none  0.683
 ```
 
 .insight[
@@ -1300,6 +1265,7 @@ handle_essays &lt;- function(ok_df) {
     rename_with(~paste("len", gsub("_len", "", .), sep = "_"),
                 ends_with("_len"))
 }
+
 ok_tr_imbalance2 &lt;- handle_essays(ok_tr_imbalance) %&gt;%
   select(-starts_with("essay")) %&gt;%
   mutate(across(where(is.character), as.factor))
@@ -1311,85 +1277,58 @@ ok_tr_imbalance2 &lt;- handle_essays(ok_tr_imbalance) %&gt;%
 ```r
 library(themis)
 
-rec_imb_upsample &lt;- recipe(pets ~ ., data = ok_tr_imbalance2) %&gt;%
+rec_imb_base &lt;- recipe(pets ~ ., data = ok_tr_imbalance2) %&gt;%
   step_log(income, starts_with("len"), offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_normalize(all_numeric(), -has_role("discarded")) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_normalize(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors()) %&gt;%
+  step_impute_mode(all_nominal_predictors()) %&gt;%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE)
+
+rec_imb_upsample &lt;- rec_imb_base %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 
-rec_imb_downsample &lt;- recipe(pets ~ ., data = ok_tr_imbalance2) %&gt;%
-  step_log(income, starts_with("len"), offset = 1) %&gt;%
-  step_impute_mean(income) %&gt;%
-  step_normalize(all_numeric(), -has_role("discarded")) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+rec_imb_downsample &lt;- rec_imb_base %&gt;%
   step_downsample(pets, under_ratio = 1, seed = 42)
-```
 
----
-
-
-```r
-rec_imb_smote &lt;- recipe(pets ~ ., data = ok_tr_imbalance2) %&gt;%
-  step_log(income, starts_with("len"), offset = 1) %&gt;%
-  step_impute_mean(income) %&gt;%
-  step_normalize(all_numeric(), -has_role("discarded")) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+rec_imb_smote &lt;- rec_imb_base %&gt;%
   step_downsample(pets, under_ratio = 1.5) %&gt;%
   step_smote(pets, over_ratio = 1, seed = 42)
 ```
 
 ---
 
-CV splits
+CV splits, `workflow_set()`.
 
 
 ```r
 set.seed(42)
 cv_splits_imbalance &lt;- vfold_cv(ok_tr_imbalance2, v = 10, strata = pets)
 
-lst_recs &lt;- list("upsample" = rec_imb_upsample,
+rec_list &lt;- list("upsample" = rec_imb_upsample,
                  "downsample" = rec_imb_downsample,
                  "smote" = rec_imb_smote)
-```
 
+wset &lt;- workflow_set(rec_list, mod_list) %&gt;%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_imbalance,
+               metrics = metric_set(roc_auc))
 
-```r
-cv_splits_imbalance &lt;- cv_splits_imbalance %&gt;%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_imbalance$splits)
-  )
+cv_res_imbalance &lt;- wset %&gt;%
+  unnest(result) %&gt;%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %&gt;%
+  select(recipe, id, auc)
 ```
 
 ---
-
-
-```r
-cv_res_imbalance &lt;- cv_splits_imbalance %&gt;%
-    pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %&gt;%
-  select(id, recipe, AUC)
-```
 
 Repeated measures ANOVA:
 
 
 ```r
 aov_imbalance &lt;- aov(
-  AUC ~ factor(recipe) + Error(factor(id)),
+  auc ~ factor(recipe) + Error(factor(id)),
   data = cv_res_imbalance)
 print(summary(aov_imbalance))
 ```
@@ -1398,14 +1337,12 @@ print(summary(aov_imbalance))
 ## 
 ## Error: factor(id)
 ##           Df  Sum Sq  Mean Sq F value Pr(&gt;F)
-## Residuals  9 0.05132 0.005703               
+## Residuals  9 0.02568 0.002854               
 ## 
 ## Error: Within
-##                Df   Sum Sq   Mean Sq F value Pr(&gt;F)  
-## factor(recipe)  2 0.001787 0.0008935   2.869 0.0829 .
-## Residuals      18 0.005605 0.0003114                 
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+##                Df   Sum Sq   Mean Sq F value Pr(&gt;F)
+## factor(recipe)  2 0.001151 0.0005756   2.587  0.103
+## Residuals      18 0.004005 0.0002225
 ```
 
 ---
@@ -1417,7 +1354,7 @@ Plotting...
 
 ```r
 cv_res_imbalance %&gt;%
-  ggplot(aes(recipe, AUC, group = id, color = id)) +
+  ggplot(aes(recipe, auc, group = id, color = id)) +
     geom_line() + geom_line(data = cv_res_imbalance_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_imbalance_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
     guides(color = "none") +
@@ -1432,16 +1369,16 @@ cv_res_imbalance %&gt;%
 ```r
 print(cv_res_imbalance %&gt;%
         group_by(recipe) %&gt;%
-        summarise(mean_auc = mean(AUC), .groups="drop"))
+        summarise(mean_auc = mean(auc), .groups="drop"))
 ```
 
 ```
 ## # A tibble: 3 × 2
-##   recipe     mean_auc
-##   &lt;chr&gt;         &lt;dbl&gt;
-## 1 downsample    0.682
-## 2 smote         0.686
-## 3 upsample      0.700
+##   recipe        mean_auc
+##   &lt;chr&gt;            &lt;dbl&gt;
+## 1 downsample_lr    0.690
+## 2 smote_lr         0.702
+## 3 upsample_lr      0.704
 ```
 
 .insight[
@@ -2105,8 +2042,8 @@ What % threshold should you use for "Other"?
 
 ```r
 recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
-  step_other(all_nominal(), threshold = 0.05) %&gt;%
-  step_novel(all_nominal()) %&gt;%
+  step_other(all_nominal_predictors(), threshold = 0.05) %&gt;%
+  step_novel(all_nominal_predictors()) %&gt;%
   prep(ok_tr_eng) %&gt;%
   bake(new_data = NULL) %&gt;%
   count(location)
@@ -2124,7 +2061,7 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 
 ---
 
-You can also insert some creativeness (or plain common sense) in your "Other" strategy:
+You can also insert some creativity (or plain common sense) in your "Other" strategy:
 
 
 ```r
@@ -2515,15 +2452,14 @@ str_count_na &lt;- function(string, pattern = "") {
 
 ```r
 rec_eng_notext &lt;- recipe(pets ~ ., data = ok_tr_eng2) %&gt;%
-  update_role(starts_with("essay"), new_role = "discarded") %&gt;%
+  step_rm(starts_with("essay")) %&gt;%
   step_log(income, starts_with("len"), offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_normalize(all_numeric(), -has_role("discarded")) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_normalize(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors()) %&gt;%
+  step_impute_mode(all_nominal_predictors()) %&gt;%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -2537,15 +2473,14 @@ rec_eng_catdog &lt;- recipe(pets ~ ., data = ok_tr_eng2) %&gt;%
          essay6, essay7, essay8, essay9), str_c),
               n_cat = str_count_na(essays, "cat"),
               n_dog = str_count_na(essays, "dog")) %&gt;%
-  update_role(starts_with("essay"), new_role = "discarded") %&gt;%
+  step_rm(starts_with("essay")) %&gt;%
   step_log(income, starts_with("len"), offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_normalize(all_numeric(), -has_role("discarded")) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_normalize(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors()) %&gt;%
+  step_impute_mode(all_nominal_predictors()) %&gt;%
+  step_dummy(all_nominal_predictors(), one_hot = FALSE) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -2611,10 +2546,10 @@ print(textfeatures::word_dims(
 ```
 
 ```
-## INFO  [14:55:46.886] early stopping at 20 iteration
-## INFO  [14:55:46.930] early stopping at 20 iteration
-##   w1 w2   w3   w4  w5 w6   w7  w8 w9  w10
-## 1  0  0 0.05 0.05 0.1  0 0.05 0.7  0 0.05
+## INFO  [16:17:28.209] early stopping at 20 iteration
+## INFO  [16:17:28.253] early stopping at 20 iteration
+##     w1   w2   w3  w4 w5   w6 w7 w8 w9 w10
+## 1 0.05 0.05 0.05 0.4  0 0.35  0  0  0 0.1
 ```
 
 ---
@@ -2830,29 +2765,29 @@ ok_tr_eng3 &lt;- ok_tr_eng2 %&gt;%
 
 ```r
 rec_eng_notext &lt;- recipe(pets ~ ., data = ok_tr_eng3) %&gt;%
-  update_role(starts_with("w_"), essays, new_role = "discarded") %&gt;%
+  step_rm(starts_with("w_")) %&gt;%
+  update_role(essays, new_role = "discarded") %&gt;%
   step_log(income, offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 
 rec_eng_textfeat &lt;- recipe(pets ~ ., data = ok_tr_eng3) %&gt;%
-  update_role(starts_with("w_"), essays, new_role = "discarded") %&gt;%
+  step_rm(starts_with("w_")) %&gt;%
+  update_role(essays, new_role = "discarded") %&gt;%
   step_textfeature(essays, prefix = "t",
                    extract_functions = my_text_funs) %&gt;%
   step_mutate_at(starts_with("t_"), fn = ~ifelse(is.na(.x), 0, .x)) %&gt;%
   step_log(income, starts_with("t_"), -t_essays_sent_bing, offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_zv(all_numeric()) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_zv(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -2867,57 +2802,53 @@ rec_eng_fulltext &lt;- recipe(pets ~ ., data = ok_tr_eng3) %&gt;%
   step_mutate_at(starts_with("t_"), fn = ~ifelse(is.na(.x), 0, .x)) %&gt;%
   step_log(income, starts_with("t_"), -t_essays_sent_bing, offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_zv(all_numeric()) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_zv(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 
 rec_eng_hashtext &lt;- recipe(pets ~ ., data = ok_tr_eng3) %&gt;%
-  update_role(starts_with("w_"), essays, new_role = "discarded") %&gt;%
+  step_rm(starts_with("w_")) %&gt;%
+  update_role(essays, new_role = "discarded") %&gt;%
   step_tokenize(essays) %&gt;%
   step_tokenfilter(essays, min_times = 10) %&gt;%
   step_texthash(essays, num_terms = 2^11) %&gt;%
   step_log(income, offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_zv(all_numeric()) %&gt;%
-  step_other(all_nominal(), -has_role("discarded"), other = "other1") %&gt;%
-  step_novel(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_zv(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "other1") %&gt;%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
 ---
+
+Using resampling, `workflow_set()`:
 
 
 ```r
 set.seed(42)
 cv_splits_eng &lt;- vfold_cv(ok_tr_eng3, v = 10, strata = pets)
 
-lst_recs &lt;- list("notext" = rec_eng_notext,
+rec_list &lt;- list("notext" = rec_eng_notext,
                  "textfeat" = rec_eng_textfeat,
                  "fulltext" = rec_eng_fulltext,
                  "hashtext" = rec_eng_hashtext)
-```
 
+wset &lt;- workflow_set(rec_list, mod_list) %&gt;%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_eng,
+               metrics = metric_set(roc_auc))
 
-```r
-cv_res_eng &lt;- cv_splits_eng %&gt;%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_eng$splits)
-  ) %&gt;%
-  pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %&gt;%
-  select(id, recipe, AUC)
-
-cv_res_eng_meds &lt;- cv_res_eng %&gt;%
-  group_by(recipe) %&gt;%
-  summarise(AUC = mean(AUC), id = "All")
+cv_res_eng &lt;- wset %&gt;%
+  unnest(result) %&gt;%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %&gt;%
+  select(recipe, id, auc) %&gt;%
+  separate_wider_delim(recipe, "_", names = c("recipe", "mod"))
 ```
 
 
@@ -2987,14 +2918,11 @@ rec_eng_commonsense &lt;- recipe(pets ~ ., data = ok_tr_eng4) %&gt;%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
-    other = "all_else", threshold = 0.1) %&gt;%
-  step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_zv(all_numeric_predictors()) %&gt;%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %&gt;%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -3005,24 +2933,24 @@ rec_eng_commonsense &lt;- recipe(pets ~ ., data = ok_tr_eng4) %&gt;%
 set.seed(42)
 cv_splits_eng2 &lt;- vfold_cv(ok_tr_eng4, v = 10, strata = pets)
 
-lst_recs &lt;- list("commonsense" = rec_eng_commonsense)
-```
+rec_list &lt;- list("commonsense" = rec_eng_commonsense)
 
+wset &lt;- workflow_set(rec_list, mod_list) %&gt;%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_eng2,
+               metrics = metric_set(roc_auc))
 
-```r
-cv_res_commonsense &lt;- cv_splits_eng2 %&gt;%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_eng2$splits)
-  ) %&gt;%
-  pivot_longer(cols = names(lst_recs),
-                 names_to = "recipe", values_to = "AUC") %&gt;%
-  select(id, recipe, AUC)
+cv_res_commonsense &lt;- wset %&gt;%
+  unnest(result) %&gt;%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %&gt;%
+  select(recipe, id, auc) %&gt;%
+  separate_wider_delim(recipe, "_", names = c("recipe", "mod"))
 
 cv_res_cs_meds &lt;- cv_res_commonsense %&gt;%
   group_by(recipe) %&gt;%
-  summarise(AUC = mean(AUC), id = "All")
+  summarise(auc = mean(auc), id = "All")
 ```
+
 
 
 
@@ -3034,7 +2962,7 @@ cv_res_eng %&gt;%
   bind_rows(cv_res_commonsense) %&gt;%
   mutate(recipe = fct_relevel(recipe,
                               c("notext", "hashtext", "textfeat", "fulltext", "commonsense"))) %&gt;%
-  ggplot(aes(recipe, AUC, group = id, color = id)) +
+  ggplot(aes(recipe, auc, group = id, color = id)) +
   geom_line() + geom_line(data = cv_res_eng_meds %&gt;% bind_rows(cv_res_cs_meds), color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_eng_meds %&gt;% bind_rows(cv_res_cs_meds), color = "black", alpha = 0.2, size = 5, pch = 17) +
   guides(color = "none") + theme_light()
@@ -3428,9 +3356,9 @@ ok_tr_interaction %&gt;% filter(between(height, 60, 80)) %&gt;%
 
 #### You get an interaction! You get an interaction!
 
-With the last `rec_eng_commonsense` recipe we reached over 150 features.
+With the last `rec_eng_commonsense` recipe we reached over 130 features.
 
-So all two-way interactions would mean adding... over 11K features. All three-way interactions would mean adding... over 550K features.
+So all two-way interactions would mean adding... over 8K features. All three-way interactions would mean adding... over 350K features.
 
 .insight[
 💡 What danger comes to mind? How would you defend yourself?
@@ -3475,11 +3403,13 @@ ok_tr_combined &lt;- full_features(ok_tr_combined)
 
 ---
 
-For stage 3 need to screen out "main effects" features which passed `glmnet`
+For stage 3 need to screen out "main effects" features which passed `glmnet`:
 
 
 ```r
-main_data &lt;- rec_eng_commonsense %&gt;% prep(ok_tr_combined) %&gt;% bake(new_data = NULL)
+main_data &lt;- rec_eng_commonsense %&gt;%
+  prep(ok_tr_combined) %&gt;%
+  bake(new_data = NULL)
 
 mod_lr_res &lt;- mod_lr %&gt;%
   fit(pets ~ ., data = main_data) %&gt;%
@@ -3490,7 +3420,7 @@ mod_lr_res
 ```
 
 ```
-## # A tibble: 4,648 × 5
+## # A tibble: 5,450 × 5
 ##    term         step  estimate lambda dev.ratio
 ##    &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;
 ##  1 (Intercept)     1  5.14e-14 0.0909  8.81e-14
@@ -3498,12 +3428,12 @@ mod_lr_res
 ##  3 (Intercept)     3 -2.94e- 3 0.0754  2.23e- 2
 ##  4 (Intercept)     4 -3.97e- 4 0.0687  3.48e- 2
 ##  5 (Intercept)     5  1.66e- 3 0.0626  4.57e- 2
-##  6 (Intercept)     6  1.34e- 2 0.0571  5.80e- 2
-##  7 (Intercept)     7  7.74e- 2 0.0520  7.19e- 2
-##  8 (Intercept)     8  1.28e- 1 0.0474  8.53e- 2
-##  9 (Intercept)     9  1.72e- 1 0.0432  9.80e- 2
-## 10 (Intercept)    10  2.06e- 1 0.0393  1.09e- 1
-## # … with 4,638 more rows
+##  6 (Intercept)     6  3.34e- 3 0.0571  5.87e- 2
+##  7 (Intercept)     7  4.84e- 2 0.0520  7.24e- 2
+##  8 (Intercept)     8  8.18e- 2 0.0474  8.59e- 2
+##  9 (Intercept)     9  1.16e- 1 0.0432  9.84e- 2
+## 10 (Intercept)    10  1.45e- 1 0.0393  1.10e- 1
+## # … with 5,440 more rows
 ```
 
 ---
@@ -3538,18 +3468,18 @@ mod_lr_res %&gt;%
 ## # A tibble: 12 × 2
 ##    term                estimate
 ##    &lt;chr&gt;                  &lt;dbl&gt;
-##  1 w_my_cat           -0.455   
+##  1 w_my_cat           -0.458   
 ##  2 status_all_else    -0.343   
-##  3 religion_christian  0.307   
+##  3 religion_christian  0.304   
 ##  4 w_my_dog            0.227   
-##  5 w_dog               0.115   
-##  6 w_cat              -0.0552  
-##  7 drugs_sometimes    -0.0376  
-##  8 drinks_socially     0.0273  
-##  9 w_cats             -0.0159  
-## 10 (Intercept)         0.0134  
-## 11 body_type_all_else -0.0117  
-## 12 age                -0.000603
+##  5 w_dog               0.114   
+##  6 job_marketing       0.0623  
+##  7 w_cat              -0.0551  
+##  8 drugs_sometimes    -0.0368  
+##  9 drinks_socially     0.0269  
+## 10 w_cats             -0.0147  
+## 11 (Intercept)         0.00334 
+## 12 age                -0.000539
 ```
 
 ---
@@ -3565,19 +3495,26 @@ main_effects &lt;- mod_lr_res %&gt;%
 
 For stage 4 we need to iterate over all possible two-way interactions, each time adding one into a full main effects `glm` model, getting the p-value, and applying FDR adjustment.
 
----
+Start by defining the base model:
 
 
 ```r
 mod_glm_base &lt;- glm(pets ~ .,
                     data = main_data %&gt;% select(-ends_with("_new")),
                     family = "binomial")
+```
 
+---
+
+Then go over all interactions:
+
+
+```r
 extract_interaction_p_val &lt;- function(var1, var2) {
   pb$tick()$print()
   int_term &lt;- str_c(var1, ":", var2)
   int_term2 &lt;- str_c(var2, ":", var1)
-  mod_glm &lt;- quietly(update)(
+  mod_glm &lt;- quietly(stats::update)(
     mod_glm_base, as.formula(str_c(".~.+", int_term))
   )
   if(length(mod_glm$warnings) &gt; 1) {
@@ -3596,16 +3533,19 @@ all_vars &lt;- colnames(main_data %&gt;% select(-ends_with("_new")))
 all_ints &lt;- t(combn(all_vars[-which(all_vars == "pets")], 2))
 colnames(all_ints) &lt;- c("var1", "var2")
 all_ints &lt;- as_tibble(all_ints)
+```
 
-pb &lt;- progress_estimated(nrow(all_ints))
+---
+
+
+```r
+*pb &lt;- progress_estimated(nrow(all_ints))
 all_ints &lt;- all_ints %&gt;%
   mutate(p_val = map2_dbl(var1, var2, extract_interaction_p_val),
          fdr = p.adjust(p_val, method = "fdr"))
 ```
 
 
-
----
 
 Let's filter only the *most* convincing interactions.
 
@@ -3619,19 +3559,27 @@ pairwise_ints
 ```
 
 ```
-## # A tibble: 10 × 4
-##    var1               var2                      p_val      fdr
-##    &lt;chr&gt;              &lt;chr&gt;                     &lt;dbl&gt;    &lt;dbl&gt;
-##  1 ethnicity_other    location_other         2.68e-14 2.06e-10
-##  2 offspring_one_kid  speaks_n_fluently      5.06e-13 1.94e- 9
-##  3 religion_laughing  ethnicity_white        1.15e-11 2.93e- 8
-##  4 len_essay0         education_kind_working 8.94e-11 1.53e- 7
-##  5 offspring_one_kid  speaks_spanish         9.97e-11 1.53e- 7
-##  6 w_possibly         education_all_else     1.23e-10 1.57e- 7
-##  7 w_games            w_possibly             1.86e-10 2.04e- 7
-##  8 w_books            w_sci                  3.98e-10 3.81e- 7
-##  9 w_fi               t_essays_n_uq_words    4.54e-10 3.87e- 7
-## 10 education_all_else status_all_else        8.89e-10 6.81e- 7
+## # A tibble: 18 × 4
+##    var1                   var2                      p_val      fdr
+##    &lt;chr&gt;                  &lt;chr&gt;                     &lt;dbl&gt;    &lt;dbl&gt;
+##  1 offspring_no_kids      offspring_wants_kids   3.60e-19 2.35e-15
+##  2 ethnicity_white        job_hardware           3.08e-12 1.01e- 8
+##  3 t_essays_n_words       education_kind_working 1.07e-10 1.40e- 7
+##  4 t_essays_n_charS       education_kind_working 9.15e-11 1.40e- 7
+##  5 t_essays_n_lowers      education_kind_working 8.64e-11 1.40e- 7
+##  6 t_essays_n_uq_words    education_kind_working 1.40e-10 1.52e- 7
+##  7 t_essays_n_uq_charS    education_kind_working 1.69e-10 1.58e- 7
+##  8 speaks_chinese         t_essays_sent_bing     3.20e-10 2.61e- 7
+##  9 t_essays_n_extraspaces education_kind_working 3.90e-10 2.83e- 7
+## 10 age                    t_essays_n_uq_charS    5.63e-10 3.41e- 7
+## 11 body_type_perfect      ethnicity_white        5.73e-10 3.41e- 7
+## 12 speaks_spanish         speaks_french          8.40e-10 4.58e- 7
+## 13 t_essays_n_periods     education_kind_working 1.28e- 9 6.42e- 7
+## 14 age                    t_essays_n_charS       1.66e- 9 7.25e- 7
+## 15 age                    t_essays_n_lowers      1.65e- 9 7.25e- 7
+## 16 religion_laughing      diet_other             1.96e- 9 8.00e- 7
+## 17 age                    t_essays_n_uq_words    2.50e- 9 9.16e- 7
+## 18 t_essays_n_puncts      education_kind_working 2.52e- 9 9.16e- 7
 ```
 
 ---
@@ -3661,15 +3609,16 @@ main_data %&gt;% select(starts_with("ethnicity")) %&gt;% head()
 ```
 
 ```
-## # A tibble: 6 × 4
-##   ethnicity_other ethnicity_white ethnicity_all_else ethnicity_new
-##             &lt;dbl&gt;           &lt;dbl&gt;              &lt;dbl&gt;         &lt;dbl&gt;
-## 1               0               1                  0             0
-## 2               0               1                  0             0
-## 3               0               1                  0             0
-## 4               1               0                  0             0
-## 5               0               1                  0             0
-## 6               0               1                  0             0
+## # A tibble: 6 × 5
+##   ethnicity_hispanic ethnicity_other ethnicity_white ethnicity_all_else
+##                &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;              &lt;dbl&gt;
+## 1                  0               0               1                  0
+## 2                  0               0               1                  0
+## 3                  0               0               1                  0
+## 4                  0               1               0                  0
+## 5                  0               0               1                  0
+## 6                  0               0               1                  0
+## # … with 1 more variable: ethnicity_new &lt;dbl&gt;
 ```
 
 ---
@@ -3683,20 +3632,20 @@ main_data %&gt;% select(starts_with("ethnicity")) %&gt;%
 ```
 
 ```
-## # A tibble: 1,039 × 4
-##    ethnicity_other ethnicity_white ethnicity_all_else ethnicity_new
-##              &lt;dbl&gt;           &lt;dbl&gt;              &lt;dbl&gt;         &lt;dbl&gt;
-##  1               0               0                  0             0
-##  2               0               0                  0             0
-##  3               0               0                  0             0
-##  4               0               0                  0             0
-##  5               0               0                  0             0
-##  6               0               0                  0             0
-##  7               0               0                  0             0
-##  8               0               0                  0             0
-##  9               0               0                  0             0
-## 10               0               0                  0             0
-## # … with 1,029 more rows
+## # A tibble: 1,039 × 5
+##    ethnicity_hispanic ethnicity_other ethnicity_white ethnicity_all_else
+##                 &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;              &lt;dbl&gt;
+##  1                  0               0               0                  0
+##  2                  0               0               0                  0
+##  3                  0               0               0                  0
+##  4                  0               0               0                  0
+##  5                  0               0               0                  0
+##  6                  0               0               0                  0
+##  7                  0               0               0                  0
+##  8                  0               0               0                  0
+##  9                  0               0               0                  0
+## 10                  0               0               0                  0
+## # … with 1,029 more rows, and 1 more variable: ethnicity_new &lt;dbl&gt;
 ```
 
 ---
@@ -3725,30 +3674,30 @@ main_data %&gt;% select(starts_with("location")) %&gt;% head()
 
 ```
 ## # A tibble: 6 × 4
-##   location_other location_sf location_all_else location_new
-##            &lt;dbl&gt;       &lt;dbl&gt;             &lt;dbl&gt;        &lt;dbl&gt;
-## 1              1           0                 0            0
-## 2              1           0                 0            0
-## 3              0           1                 0            0
-## 4              0           1                 0            0
-## 5              0           0                 0            0
-## 6              0           0                 0            0
+##   location_oakland location_other location_sf location_new
+##              &lt;dbl&gt;          &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;
+## 1                0              1           0            0
+## 2                0              1           0            0
+## 3                0              0           1            0
+## 4                0              0           1            0
+## 5                1              0           0            0
+## 6                1              0           0            0
 ```
 
 ---
 
 
 ```r
-main_data %&gt;% group_by(ethnicity_other, location_other) %&gt;%
-  summarise(pct_cats = mean(pets == "cats"), n = n()) %&gt;% ungroup() %&gt;%
-  mutate(across(c("ethnicity_other", "location_other"), as.factor)) %&gt;%
-  ggplot(aes(ethnicity_other, pct_cats, color = location_other)) +
-  geom_line(aes(group = location_other)) + geom_point(aes(size = n)) +
-  scale_y_continuous(labels = percent_format()) +
-  theme_light()
+main_data %&gt;% group_by(offspring_no_kids, offspring_wants_kids) %&gt;%
+    summarise(pct_cats = mean(pets == "cats"), n = n()) %&gt;% ungroup() %&gt;%
+    mutate(across(c("offspring_no_kids", "offspring_wants_kids"), as.factor)) %&gt;%
+    ggplot(aes(offspring_no_kids, pct_cats, color = offspring_wants_kids)) +
+    geom_line(aes(group = offspring_wants_kids)) + geom_point(aes(size = n)) +
+    scale_y_continuous(labels = percent_format()) +
+    theme_light()
 ```
 
-&lt;img src="images/Ethnicity-Interaction-1.png" width="90%" /&gt;
+&lt;img src="images/Ethnicity-Interaction-1.png" width="80%" /&gt;
 
 .insight[
 💡 Try stating what you see in words.
@@ -3758,32 +3707,18 @@ main_data %&gt;% group_by(ethnicity_other, location_other) %&gt;%
 
 
 ```r
-main_data %&gt;%
-  mutate(speaks_n_fluently = ifelse(speaks_n_fluently &gt;= 3, "3+", speaks_n_fluently)) %&gt;%
-  group_by(speaks_n_fluently, offspring_one_kid) %&gt;%
-  summarise(pct_cats = mean(pets == "cats"), n = n()) %&gt;% ungroup() %&gt;%
-  mutate(across(c("speaks_n_fluently", "offspring_one_kid"), as.factor)) %&gt;%
-  ggplot(aes(speaks_n_fluently, pct_cats, color = offspring_one_kid)) +
-  geom_line(aes(group = offspring_one_kid)) + geom_point(aes(size = n)) +
-  scale_y_continuous(labels = percent_format()) +
-  theme_light()
+main_data %&gt;% group_by(ethnicity_white, job_hardware) %&gt;%
+    summarise(pct_cats = mean(pets == "cats"), n = n()) %&gt;% ungroup() %&gt;%
+    mutate(across(c("ethnicity_white", "job_hardware"), as.factor)) %&gt;%
+    ggplot(aes(ethnicity_white, pct_cats, color = job_hardware)) +
+    geom_line(aes(group = job_hardware)) + geom_point(aes(size = n)) +
+    scale_y_continuous(labels = percent_format()) +
+    theme_light()
 ```
 
 &lt;img src="images/Fluently-Interaction-1.png" width="90%" /&gt;
 
 ---
-
-
-```r
-main_data %&gt;%
-  group_by(religion_laughing, ethnicity_white) %&gt;%
-  summarise(pct_cats = mean(pets == "cats"), n = n()) %&gt;% ungroup() %&gt;%
-  mutate(across(c("religion_laughing", "ethnicity_white"), as.factor)) %&gt;%
-  ggplot(aes(religion_laughing, pct_cats, color = ethnicity_white)) +
-  geom_line(aes(group = ethnicity_white)) + geom_point(aes(size = n)) +
-  scale_y_continuous(labels = percent_format()) +
-  theme_light()
-```
 
 &lt;img src="images/Religion-Interaction-1.png" width="90%" /&gt;
 
@@ -3803,16 +3738,12 @@ rec_int_sex &lt;- recipe(pets ~ ., data = ok_tr_interaction2) %&gt;%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
-    other = "all_else", threshold = 0.1) %&gt;%
-  step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
-  step_interact(~starts_with("sex"):all_numeric()) %&gt;%
-  step_nzv(all_numeric(), freq_cut = 99/1) %&gt;%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %&gt;%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_interact(~starts_with("sex"):all_numeric_predictors()) %&gt;%
+  step_nzv(all_numeric_predictors(), freq_cut = 99/1) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -3841,25 +3772,24 @@ topmain_ints
 
 ```
 ## ~age:w_cat + age:w_dog + age:w_cats + age:w_my_cat + age:w_my_dog + 
-##     age:body_type_all_else + age:drinks_socially + age:drugs_sometimes + 
+##     age:drinks_socially + age:drugs_sometimes + age:job_marketing + 
 ##     age:religion_christian + age:status_all_else + w_cat:w_dog + 
-##     w_cat:w_cats + w_cat:w_my_cat + w_cat:w_my_dog + w_cat:body_type_all_else + 
-##     w_cat:drinks_socially + w_cat:drugs_sometimes + w_cat:religion_christian + 
+##     w_cat:w_cats + w_cat:w_my_cat + w_cat:w_my_dog + w_cat:drinks_socially + 
+##     w_cat:drugs_sometimes + w_cat:job_marketing + w_cat:religion_christian + 
 ##     w_cat:status_all_else + w_dog:w_cats + w_dog:w_my_cat + w_dog:w_my_dog + 
-##     w_dog:body_type_all_else + w_dog:drinks_socially + w_dog:drugs_sometimes + 
+##     w_dog:drinks_socially + w_dog:drugs_sometimes + w_dog:job_marketing + 
 ##     w_dog:religion_christian + w_dog:status_all_else + w_cats:w_my_cat + 
-##     w_cats:w_my_dog + w_cats:body_type_all_else + w_cats:drinks_socially + 
-##     w_cats:drugs_sometimes + w_cats:religion_christian + w_cats:status_all_else + 
-##     w_my_cat:w_my_dog + w_my_cat:body_type_all_else + w_my_cat:drinks_socially + 
-##     w_my_cat:drugs_sometimes + w_my_cat:religion_christian + 
-##     w_my_cat:status_all_else + w_my_dog:body_type_all_else + 
-##     w_my_dog:drinks_socially + w_my_dog:drugs_sometimes + w_my_dog:religion_christian + 
-##     w_my_dog:status_all_else + body_type_all_else:drinks_socially + 
-##     body_type_all_else:drugs_sometimes + body_type_all_else:religion_christian + 
-##     body_type_all_else:status_all_else + drinks_socially:drugs_sometimes + 
+##     w_cats:w_my_dog + w_cats:drinks_socially + w_cats:drugs_sometimes + 
+##     w_cats:job_marketing + w_cats:religion_christian + w_cats:status_all_else + 
+##     w_my_cat:w_my_dog + w_my_cat:drinks_socially + w_my_cat:drugs_sometimes + 
+##     w_my_cat:job_marketing + w_my_cat:religion_christian + w_my_cat:status_all_else + 
+##     w_my_dog:drinks_socially + w_my_dog:drugs_sometimes + w_my_dog:job_marketing + 
+##     w_my_dog:religion_christian + w_my_dog:status_all_else + 
+##     drinks_socially:drugs_sometimes + drinks_socially:job_marketing + 
 ##     drinks_socially:religion_christian + drinks_socially:status_all_else + 
-##     drugs_sometimes:religion_christian + drugs_sometimes:status_all_else + 
-##     religion_christian:status_all_else
+##     drugs_sometimes:job_marketing + drugs_sometimes:religion_christian + 
+##     drugs_sometimes:status_all_else + job_marketing:religion_christian + 
+##     job_marketing:status_all_else + religion_christian:status_all_else
 ```
 
 ---
@@ -3874,16 +3804,12 @@ rec_int_topmain &lt;- recipe(pets ~ ., data = ok_tr_interaction2) %&gt;%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
-    other = "all_else", threshold = 0.1) %&gt;%
-  step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %&gt;%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
   step_interact(topmain_ints) %&gt;%
-  step_nzv(all_numeric(), freq_cut = 99/1) %&gt;%
+  step_nzv(all_numeric_predictors(), freq_cut = 99/1) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -3902,16 +3828,12 @@ rec_int_topints &lt;- recipe(pets ~ ., data = ok_tr_interaction2) %&gt;%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
-    other = "all_else", threshold = 0.1) %&gt;%
-  step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %&gt;%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
   step_interact(topint_ints) %&gt;%
-  step_nzv(all_numeric(), freq_cut = 99/1) %&gt;%
+  step_nzv(all_numeric_predictors(), freq_cut = 99/1) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -3927,16 +3849,12 @@ rec_int_all &lt;- recipe(pets ~ ., data = ok_tr_interaction2) %&gt;%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
-  step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
-    other = "all_else", threshold = 0.1) %&gt;%
-  step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_impute_mode(all_nominal(), -has_role("discarded"), -all_outcomes()) %&gt;%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %&gt;%
-  step_interact(~all_numeric():all_numeric()) %&gt;%
-  step_nzv(all_numeric(), freq_cut = 95/5) %&gt;%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %&gt;%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
+  step_interact(~all_numeric_predictors():all_numeric_predictors()) %&gt;%
+  step_nzv(all_numeric_predictors(), freq_cut = 95/5) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -3947,28 +3865,28 @@ rec_int_all &lt;- recipe(pets ~ ., data = ok_tr_interaction2) %&gt;%
 set.seed(42)
 cv_splits_int &lt;- vfold_cv(ok_tr_interaction2, v = 10, strata = pets)
 
-lst_recs &lt;- list("noint" = rec_int_noint,
+rec_list &lt;- list("noint" = rec_int_noint,
                  "sex" = rec_int_sex,
                  "topmain" = rec_int_topmain,
                  "topints" = rec_int_topints,
                  "all" = rec_int_all)
-```
 
+wset &lt;- workflow_set(rec_list, mod_list) %&gt;%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_int,
+               metrics = metric_set(roc_auc))
 
-```r
-cv_res_int &lt;- cv_splits_int %&gt;%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_int$splits)
-  ) %&gt;%
-  pivot_longer(cols = names(lst_recs),
-               names_to = "recipe", values_to = "AUC") %&gt;%
-  select(id, recipe, AUC)
+cv_res_int &lt;- wset %&gt;%
+  unnest(result) %&gt;%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %&gt;%
+  select(recipe, id, auc) %&gt;%
+  separate_wider_delim(recipe, "_", names = c("recipe", "mod"))
 
 cv_res_int_meds &lt;- cv_res_int %&gt;%
   group_by(recipe) %&gt;%
-  summarise(AUC = mean(AUC), id = "All")
+  summarise(auc = mean(auc), id = "All")
 ```
+
 
 
 
@@ -3978,7 +3896,7 @@ cv_res_int_meds &lt;- cv_res_int %&gt;%
 ```r
 cv_res_int %&gt;%
   mutate(recipe = fct_relevel(recipe, c("noint", "sex", "topmain", "topints", "all"))) %&gt;%
-  ggplot(aes(recipe, AUC, group = id, color = id)) +
+  ggplot(aes(recipe, auc, group = id, color = id)) +
   geom_line() + geom_line(data = cv_res_int_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_int_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
   guides(color = "none") + theme_light()
@@ -4006,8 +3924,6 @@ But let us simply vary Elastic Net `\(\alpha\)` and `\(\lambda\)`:
 
 
 ```r
-library(tune)
-
 mod_en_tune &lt;- logistic_reg(penalty = tune(),
                             mixture = tune()) %&gt;%
   set_engine("glmnet")
@@ -4042,19 +3958,19 @@ collect_metrics_tune_res
 
 
 ```
-## # A tibble: 77 × 7
-##     penalty mixture .metric .estimator  mean     n std_err
-##       &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
-##  1 0.000001     0   roc_auc binary     0.775    10  0.0173
-##  2 0.000001     0.1 roc_auc binary     0.768    10  0.0168
-##  3 0.000001     0.2 roc_auc binary     0.767    10  0.0167
-##  4 0.000001     0.3 roc_auc binary     0.767    10  0.0167
-##  5 0.000001     0.4 roc_auc binary     0.766    10  0.0167
-##  6 0.000001     0.5 roc_auc binary     0.766    10  0.0167
-##  7 0.000001     0.6 roc_auc binary     0.767    10  0.0168
-##  8 0.000001     0.7 roc_auc binary     0.767    10  0.0168
-##  9 0.000001     0.8 roc_auc binary     0.767    10  0.0168
-## 10 0.000001     0.9 roc_auc binary     0.767    10  0.0167
+## # A tibble: 77 × 8
+##     penalty mixture .metric .estimator  mean     n std_err .config              
+##       &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;                
+##  1 0.000001     0   roc_auc binary     0.785    10  0.0120 Preprocessor1_Model01
+##  2 0.00001      0   roc_auc binary     0.785    10  0.0120 Preprocessor1_Model02
+##  3 0.0001       0   roc_auc binary     0.785    10  0.0120 Preprocessor1_Model03
+##  4 0.001        0   roc_auc binary     0.785    10  0.0120 Preprocessor1_Model04
+##  5 0.01         0   roc_auc binary     0.785    10  0.0120 Preprocessor1_Model05
+##  6 0.1          0   roc_auc binary     0.780    10  0.0125 Preprocessor1_Model06
+##  7 1            0   roc_auc binary     0.758    10  0.0135 Preprocessor1_Model07
+##  8 0.000001     0.1 roc_auc binary     0.787    10  0.0113 Preprocessor1_Model08
+##  9 0.00001      0.1 roc_auc binary     0.787    10  0.0113 Preprocessor1_Model09
+## 10 0.0001       0.1 roc_auc binary     0.787    10  0.0113 Preprocessor1_Model10
 ## # … with 67 more rows
 ```
 
@@ -4080,19 +3996,19 @@ show_best(tune_res, n = 10, metric = "roc_auc")
 
 
 ```
-## # A tibble: 10 × 7
-##    penalty mixture .metric .estimator  mean     n std_err
-##      &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
-##  1    0.01     0.6 roc_auc binary     0.783    10  0.0166
-##  2    0.01     0.7 roc_auc binary     0.783    10  0.0165
-##  3    0.01     0.5 roc_auc binary     0.783    10  0.0168
-##  4    0.01     0.8 roc_auc binary     0.783    10  0.0165
-##  5    0.01     0.9 roc_auc binary     0.783    10  0.0163
-##  6    0.01     0.4 roc_auc binary     0.783    10  0.0169
-##  7    0.01     1   roc_auc binary     0.782    10  0.0160
-##  8    0.01     0.3 roc_auc binary     0.781    10  0.0170
-##  9    0.1      0   roc_auc binary     0.781    10  0.0166
-## 10    0.1      0.1 roc_auc binary     0.779    10  0.0157
+## # A tibble: 10 × 8
+##    penalty mixture .metric .estimator  mean     n std_err .config              
+##      &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;                
+##  1   0.01      0.4 roc_auc binary     0.789    10  0.0108 Preprocessor1_Model33
+##  2   0.01      0.5 roc_auc binary     0.789    10  0.0110 Preprocessor1_Model40
+##  3   0.01      0.3 roc_auc binary     0.789    10  0.0110 Preprocessor1_Model26
+##  4   0.01      0.6 roc_auc binary     0.788    10  0.0111 Preprocessor1_Model47
+##  5   0.01      0.2 roc_auc binary     0.788    10  0.0112 Preprocessor1_Model19
+##  6   0.001     1   roc_auc binary     0.788    10  0.0117 Preprocessor1_Model74
+##  7   0.01      0.7 roc_auc binary     0.787    10  0.0111 Preprocessor1_Model54
+##  8   0.001     0.8 roc_auc binary     0.787    10  0.0117 Preprocessor1_Model60
+##  9   0.01      0.8 roc_auc binary     0.787    10  0.0111 Preprocessor1_Model61
+## 10   0.001     0.9 roc_auc binary     0.787    10  0.0117 Preprocessor1_Model67
 ```
 
 .insight[
@@ -4170,17 +4086,17 @@ coords(roc_obj, x = cutoffs,
 
 ```
 ##                   [,1]      [,2]      [,3]      [,4]      [,5]      [,6]
-## accuracy    0.21124829 0.2729767 0.4458162 0.5967078 0.7256516 0.8038409
-## recall      1.00000000 0.9916667 0.9250000 0.8000000 0.6500000 0.4416667
-## precision   0.17266187 0.1836420 0.2193676 0.2622951 0.3305085 0.4108527
-## specificity 0.05582923 0.1313629 0.3513957 0.5566502 0.7405583 0.8752053
-## npv         1.00000000 0.9876543 0.9596413 0.9338843 0.9148073 0.8883333
+## accuracy    0.21262003 0.2949246 0.4663923 0.6159122 0.7503429 0.8052126
+## recall      1.00000000 0.9916667 0.9250000 0.8416667 0.6833333 0.4666667
+## precision   0.17291066 0.1882911 0.2260692 0.2790055 0.3628319 0.4179104
+## specificity 0.05747126 0.1576355 0.3760263 0.5714286 0.7635468 0.8719212
+## npv         1.00000000 0.9896907 0.9621849 0.9482289 0.9244533 0.8924370
 ##                  [,7]      [,8]      [,9]
-## accuracy    0.8326475 0.8573388 0.8532236
-## recall      0.2833333 0.2333333 0.1333333
-## precision   0.4857143 0.7000000 0.8421053
-## specificity 0.9408867 0.9802956 0.9950739
-## npv         0.8694992 0.8664731 0.8535211
+## accuracy    0.8381344 0.8600823 0.8545953
+## recall      0.3166667 0.2333333 0.1333333
+## precision   0.5135135 0.7368421 0.8888889
+## specificity 0.9408867 0.9835796 0.9967159
+## npv         0.8748092 0.8668596 0.8537271
 ```
 
 ---
@@ -4246,7 +4162,7 @@ roc_auc(pred_test, truth, .pred_cats)
 ## # A tibble: 1 × 3
 ##   .metric .estimator .estimate
 ##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
-## 1 roc_auc binary         0.788
+## 1 roc_auc binary         0.792
 ```
 
 ---
@@ -4280,11 +4196,11 @@ coords(roc_obj, x = cutoffs,
 
 ```
 ##                  [,1]      [,2]      [,3]
-## accuracy    0.4409091 0.7310606 0.8510101
-## recall      0.9280245 0.6845329 0.1041348
-## precision   0.2185359 0.3422665 0.9315068
-## specificity 0.3447233 0.7402480 0.9984881
-## npv         0.9604044 0.9223813 0.8494983
+## accuracy    0.4608586 0.7361111 0.8520202
+## recall      0.9356815 0.6875957 0.1056662
+## precision   0.2259615 0.3480620 0.9718310
+## specificity 0.3671001 0.7456910 0.9993952
+## npv         0.9665605 0.9235955 0.8498329
 ```
 
 ---
@@ -4304,26 +4220,26 @@ tidy(mod_lr_test) %&gt;%
 ## # A tibble: 20 × 3
 ##    term               estimate penalty
 ##    &lt;chr&gt;                 &lt;dbl&gt;   &lt;dbl&gt;
-##  1 w_my_cat             -2.14     0.01
-##  2 w_my_dog              1.58     0.01
-##  3 w_kitt               -1.26     0.01
-##  4 religion_christian    0.827    0.01
-##  5 w_love_dog            0.823    0.01
-##  6 w_cats               -0.813    0.01
-##  7 w_dog                 0.668    0.01
-##  8 status_all_else      -0.563    0.01
-##  9 diet_all_else        -0.543    0.01
-## 10 body_type_all_else   -0.516    0.01
-## 11 drugs_sometimes      -0.510    0.01
-## 12 ethnicity_white      -0.460    0.01
-## 13 drugs_all_else       -0.436    0.01
-## 14 drinks_all_else      -0.394    0.01
-## 15 (Intercept)           0.374    0.01
-## 16 speaks_spanish        0.372    0.01
-## 17 religion_all_else     0.369    0.01
-## 18 w_pupp                0.368    0.01
-## 19 location_sf           0.361    0.01
-## 20 body_type_average    -0.341    0.01
+##  1 w_my_cat             -2.13     0.01
+##  2 w_my_dog              1.57     0.01
+##  3 w_kitt               -1.25     0.01
+##  4 w_love_dog            0.840    0.01
+##  5 w_cats               -0.772    0.01
+##  6 religion_christian    0.764    0.01
+##  7 (Intercept)          -0.652    0.01
+##  8 w_dog                 0.648    0.01
+##  9 religion_jewish       0.613    0.01
+## 10 body_type_thin       -0.587    0.01
+## 11 diet_all_else        -0.529    0.01
+## 12 drugs_sometimes      -0.509    0.01
+## 13 status_all_else      -0.508    0.01
+## 14 diet_vegetarian      -0.485    0.01
+## 15 job_marketing         0.480    0.01
+## 16 job_hardware         -0.452    0.01
+## 17 drinks_socially       0.438    0.01
+## 18 ethnicity_white      -0.429    0.01
+## 19 drugs_all_else       -0.388    0.01
+## 20 body_type_all_else   -0.384    0.01
 ```
 
 ---
@@ -4333,7 +4249,7 @@ tidy(mod_lr_test) %&gt;%
 - ✔️ Reproducible model
 - ✔️ Dependable model
 - ✔️ Explainable model
-- ✔️ Small and Fast as hell model
+- ✔️ Small and Fast as hell model .font80percent[(put in on a nanochip!)]
 - ❌ Impressive model
 
 ### Is that the end?

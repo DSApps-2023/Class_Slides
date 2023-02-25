@@ -366,6 +366,7 @@ We wish to make sure our samples are stratified by `pets`, so we'll use `initial
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidymodels)
+tidymodels_prefer()
 
 set.seed(42)
 ok_cutoff_split <- initial_split(okcupid_train,
@@ -800,7 +801,7 @@ autoplot(wset, metric = "roc_auc") +
 
 A type of parallel coordinates plot showing all folds is better IMO:
 
-```{r, Ok-Miss9, out.width="90%", fig.asp=0.5}
+```{r, Ok-Miss9, out.width="85%", fig.asp=0.5}
 res_df <- wset %>%
   unnest(result) %>%
   mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate))
@@ -1190,6 +1191,7 @@ handle_essays <- function(ok_df) {
     rename_with(~paste("len", gsub("_len", "", .), sep = "_"),
                 ends_with("_len"))
 }
+
 ok_tr_imbalance2 <- handle_essays(ok_tr_imbalance) %>%
   select(-starts_with("essay")) %>%
   mutate(across(where(is.character), as.factor))
@@ -2254,7 +2256,7 @@ rec_eng_commonsense <- recipe(pets ~ ., data = ok_tr_eng4) %>%
            -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
   step_zv(all_numeric_predictors()) %>%
-  step_other(all_nominal_predictors(), -has_role("discarded"), other = "other1") %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %>%
   step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
   step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
   step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
@@ -2563,9 +2565,9 @@ ok_tr_interaction %>% filter(between(height, 60, 80)) %>%
 
 #### You get an interaction! You get an interaction!
 
-With the last `rec_eng_commonsense` recipe we reached over 150 features.
+With the last `rec_eng_commonsense` recipe we reached over 130 features.
 
-So all two-way interactions would mean adding... over 11K features. All three-way interactions would mean adding... over 550K features.
+So all two-way interactions would mean adding... over 8K features. All three-way interactions would mean adding... over 350K features.
 
 .insight[
 `r emoji("bulb")` What danger comes to mind? How would you defend yourself?
@@ -2609,10 +2611,12 @@ ok_tr_combined <- full_features(ok_tr_combined)
 
 ---
 
-For stage 3 need to screen out "main effects" features which passed `glmnet`
+For stage 3 need to screen out "main effects" features which passed `glmnet`:
 
 ```{r}
-main_data <- rec_eng_commonsense %>% prep(ok_tr_combined) %>% bake(new_data = NULL)
+main_data <- rec_eng_commonsense %>%
+  prep(ok_tr_combined) %>%
+  bake(new_data = NULL)
 
 mod_lr_res <- mod_lr %>%
   fit(pets ~ ., data = main_data) %>%
@@ -2658,18 +2662,24 @@ main_effects <- mod_lr_res %>%
 
 For stage 4 we need to iterate over all possible two-way interactions, each time adding one into a full main effects `glm` model, getting the p-value, and applying FDR adjustment.
 
----
+Start by defining the base model:
 
 ```{r, eval=FALSE}
 mod_glm_base <- glm(pets ~ .,
                     data = main_data %>% select(-ends_with("_new")),
                     family = "binomial")
+```
 
+---
+
+Then go over all interactions:
+
+```{r, eval=FALSE}
 extract_interaction_p_val <- function(var1, var2) {
   pb$tick()$print()
   int_term <- str_c(var1, ":", var2)
   int_term2 <- str_c(var2, ":", var1)
-  mod_glm <- quietly(update)(
+  mod_glm <- quietly(stats::update)(
     mod_glm_base, as.formula(str_c(".~.+", int_term))
   )
   if(length(mod_glm$warnings) > 1) {
@@ -2688,18 +2698,20 @@ all_vars <- colnames(main_data %>% select(-ends_with("_new")))
 all_ints <- t(combn(all_vars[-which(all_vars == "pets")], 2))
 colnames(all_ints) <- c("var1", "var2")
 all_ints <- as_tibble(all_ints)
+```
 
-pb <- progress_estimated(nrow(all_ints))
+---
+
+```{r, eval=FALSE}
+pb <- progress_estimated(nrow(all_ints)) #<<
 all_ints <- all_ints %>%
   mutate(p_val = map2_dbl(var1, var2, extract_interaction_p_val),
          fdr = p.adjust(p_val, method = "fdr"))
 ```
 
 ```{r, echo=FALSE}
-all_ints <- read_rds("../data/Ok_interaction_fdr2.rds")
+all_ints <- read_rds("../data/Ok_interaction_fdr3.rds")
 ```
-
----
 
 Let's filter only the *most* convincing interactions.
 
@@ -2746,14 +2758,14 @@ main_data %>% select(starts_with("location")) %>% head()
 
 ---
 
-```{r Ethnicity-Interaction, out.width="90%", fig.asp=0.5}
-main_data %>% group_by(ethnicity_other, location_other) %>%
-  summarise(pct_cats = mean(pets == "cats"), n = n()) %>% ungroup() %>%
-  mutate(across(c("ethnicity_other", "location_other"), as.factor)) %>%
-  ggplot(aes(ethnicity_other, pct_cats, color = location_other)) +
-  geom_line(aes(group = location_other)) + geom_point(aes(size = n)) +
-  scale_y_continuous(labels = percent_format()) +
-  theme_light()
+```{r Ethnicity-Interaction, out.width="80%", fig.asp=0.5}
+main_data %>% group_by(offspring_no_kids, offspring_wants_kids) %>%
+    summarise(pct_cats = mean(pets == "cats"), n = n()) %>% ungroup() %>%
+    mutate(across(c("offspring_no_kids", "offspring_wants_kids"), as.factor)) %>%
+    ggplot(aes(offspring_no_kids, pct_cats, color = offspring_wants_kids)) +
+    geom_line(aes(group = offspring_wants_kids)) + geom_point(aes(size = n)) +
+    scale_y_continuous(labels = percent_format()) +
+    theme_light()
 ```
 
 .insight[
@@ -2763,26 +2775,31 @@ main_data %>% group_by(ethnicity_other, location_other) %>%
 ---
 
 ```{r Fluently-Interaction, out.width="90%", fig.asp=0.5}
-main_data %>%
-  mutate(speaks_n_fluently = ifelse(speaks_n_fluently >= 3, "3+", speaks_n_fluently)) %>%
-  group_by(speaks_n_fluently, offspring_one_kid) %>%
-  summarise(pct_cats = mean(pets == "cats"), n = n()) %>% ungroup() %>%
-  mutate(across(c("speaks_n_fluently", "offspring_one_kid"), as.factor)) %>%
-  ggplot(aes(speaks_n_fluently, pct_cats, color = offspring_one_kid)) +
-  geom_line(aes(group = offspring_one_kid)) + geom_point(aes(size = n)) +
-  scale_y_continuous(labels = percent_format()) +
-  theme_light()
+main_data %>% group_by(ethnicity_white, job_hardware) %>%
+    summarise(pct_cats = mean(pets == "cats"), n = n()) %>% ungroup() %>%
+    mutate(across(c("ethnicity_white", "job_hardware"), as.factor)) %>%
+    ggplot(aes(ethnicity_white, pct_cats, color = job_hardware)) +
+    geom_line(aes(group = job_hardware)) + geom_point(aes(size = n)) +
+    scale_y_continuous(labels = percent_format()) +
+    theme_light()
 ```
 
 ---
 
-```{r Religion-Interaction, out.width="90%", fig.asp=0.5}
+```{r Religion-Interaction, out.width="90%", fig.asp=0.5, echo=FALSE}
 main_data %>%
-  group_by(religion_laughing, ethnicity_white) %>%
+  mutate(t_essays_n_words = case_when(
+    t_essays_n_words == 0 ~ "0",
+    t_essays_n_words <= 5 ~ "0-5",
+    t_essays_n_words <= 6 ~ "5-6",
+    t_essays_n_words <= 7 ~ "6-7",
+    TRUE ~ "7+"
+  ))  %>%
+  group_by(t_essays_n_words, education_kind_working) %>%
   summarise(pct_cats = mean(pets == "cats"), n = n()) %>% ungroup() %>%
-  mutate(across(c("religion_laughing", "ethnicity_white"), as.factor)) %>%
-  ggplot(aes(religion_laughing, pct_cats, color = ethnicity_white)) +
-  geom_line(aes(group = ethnicity_white)) + geom_point(aes(size = n)) +
+  mutate(across(c("t_essays_n_words", "education_kind_working"), as.factor)) %>%
+  ggplot(aes(t_essays_n_words, pct_cats, color = education_kind_working)) +
+  geom_line(aes(group = education_kind_working)) + geom_point(aes(size = n)) +
   scale_y_continuous(labels = percent_format()) +
   theme_light()
 ```
@@ -2802,15 +2819,11 @@ rec_int_sex <- recipe(pets ~ ., data = ok_tr_interaction2) %>%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
-  step_other(
-    all_nominal_predictors(), -has_role("discarded"),
-    other = "all_else", threshold = 0.1) %>%
-  step_novel(
-    all_nominal_predictors(), -has_role("discarded")) %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %>%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
   step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
-  step_dummy(all_nominal_predictors(),
-             -has_role("discarded"), one_hot = FALSE) %>%
-  step_interact(~starts_with("sex"):all_numeric()) %>%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
+  step_interact(~starts_with("sex"):all_numeric_predictors()) %>%
   step_nzv(all_numeric_predictors(), freq_cut = 99/1) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
@@ -2848,14 +2861,10 @@ rec_int_topmain <- recipe(pets ~ ., data = ok_tr_interaction2) %>%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
-  step_other(
-    all_nominal_predictors(), -has_role("discarded"),
-    other = "all_else", threshold = 0.1) %>%
-  step_novel(
-    all_nominal_predictors(), -has_role("discarded")) %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %>%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
   step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
-  step_dummy(all_nominal_predictors(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
   step_interact(topmain_ints) %>%
   step_nzv(all_numeric_predictors(), freq_cut = 99/1) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
@@ -2886,14 +2895,10 @@ rec_int_topints <- recipe(pets ~ ., data = ok_tr_interaction2) %>%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
-  step_other(
-    all_nominal_predictors(), -has_role("discarded"), -all_outcomes(),
-    other = "all_else", threshold = 0.1) %>%
-  step_novel(
-    all_nominal_predictors(), -has_role("discarded")) %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %>%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
   step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
-  step_dummy(all_nominal_predictors(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
   step_interact(topint_ints) %>%
   step_nzv(all_numeric_predictors(), freq_cut = 99/1) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
@@ -2910,14 +2915,10 @@ rec_int_all <- recipe(pets ~ ., data = ok_tr_interaction2) %>%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %>%
   step_impute_mean(income) %>%
-  step_other(
-    all_nominal_predictors(), -has_role("discarded"),
-    other = "all_else", threshold = 0.1) %>%
-  step_novel(
-    all_nominal_predictors(), -has_role("discarded")) %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %>%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
   step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
-  step_dummy(all_nominal_predictors(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
   step_interact(~all_numeric_predictors():all_numeric_predictors()) %>%
   step_nzv(all_numeric_predictors(), freq_cut = 95/5) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
@@ -2925,38 +2926,39 @@ rec_int_all <- recipe(pets ~ ., data = ok_tr_interaction2) %>%
 
 ---
 
-```{r}
+```{r, eval=FALSE}
 set.seed(42)
 cv_splits_int <- vfold_cv(ok_tr_interaction2, v = 10, strata = pets)
 
-lst_recs <- list("noint" = rec_int_noint,
+rec_list <- list("noint" = rec_int_noint,
                  "sex" = rec_int_sex,
                  "topmain" = rec_int_topmain,
                  "topints" = rec_int_topints,
                  "all" = rec_int_all)
-```
 
-```{r, eval=FALSE}
-cv_res_int <- cv_splits_int %>%
-  bind_cols(
-    map2_dfc(lst_recs, names(lst_recs), train_recipe,
-             splits = cv_splits_int$splits)
-  ) %>%
-  pivot_longer(cols = names(lst_recs),
-               names_to = "recipe", values_to = "AUC") %>%
-  select(id, recipe, AUC)
+wset <- workflow_set(rec_list, mod_list) %>%
+  workflow_map("fit_resamples",
+               resamples = cv_splits_int,
+               metrics = metric_set(roc_auc))
+
+cv_res_int <- wset %>%
+  unnest(result) %>%
+  mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate)) %>%
+  select(recipe, id, auc) %>%
+  separate_wider_delim(recipe, "_", names = c("recipe", "mod"))
 
 cv_res_int_meds <- cv_res_int %>%
   group_by(recipe) %>%
-  summarise(AUC = mean(AUC), id = "All")
+  summarise(auc = mean(auc), id = "All")
 ```
+
 
 ```{r, echo=FALSE}
-cv_res_int <- read_rds("../data/Ok_int_cv_res_auc2.rds")
+cv_res_int <- read_rds("../data/Ok_int_cv_res_auc3.rds")
 
 cv_res_int_meds <- cv_res_int %>%
   group_by(recipe) %>%
-  summarise(AUC = mean(AUC), id = "All")
+  summarise(auc = mean(auc), id = "All")
 ```
 
 ---
@@ -2964,7 +2966,7 @@ cv_res_int_meds <- cv_res_int %>%
 ```{r Ok-Int, out.width="100%", fig.asp=0.5}
 cv_res_int %>%
   mutate(recipe = fct_relevel(recipe, c("noint", "sex", "topmain", "topints", "all"))) %>%
-  ggplot(aes(recipe, AUC, group = id, color = id)) +
+  ggplot(aes(recipe, auc, group = id, color = id)) +
   geom_line() + geom_line(data = cv_res_int_meds, color = "black", alpha = 0.2, linewidth = 2) +
   geom_point() + geom_point(data = cv_res_int_meds, color = "black", alpha = 0.2, size = 5, pch = 17) +
   guides(color = "none") + theme_light()
@@ -2989,8 +2991,6 @@ But let us simply vary Elastic Net $\alpha$ and $\lambda$:
 $\min_{\beta_0, \beta}\frac{1}{N}\sum_{i = 1}^N w_i l(y_i,\beta_0 + \beta^Tx_i) + \lambda[(1-\alpha)||\beta||^2_2/2 + \alpha||\beta||_1]$
 
 ```{r, warning=FALSE, message=FALSE}
-library(tune)
-
 mod_en_tune <- logistic_reg(penalty = tune(),
                             mixture = tune()) %>%
   set_engine("glmnet")
@@ -3073,7 +3073,7 @@ But if we must, let us provide:
 
 ---
 
-```{r}
+```{r Cutoff}
 ok_tr_combined <- full_features(
   bind_rows(
     ok_tr_missing,
@@ -3169,7 +3169,7 @@ roc_auc(pred_test, truth, .pred_cats)
 
 ---
 
-```{r Ok-Test-ROC-Curve, out.width="60%"}
+```{r Ok-Test-ROC-Curve, out.width="60%", warning=FALSE, message=FALSE}
 roc_lr <- roc_curve(
   tibble(truth = pred_test$truth, cats = pred_test$.pred_cats),
   truth, cats)
@@ -3211,7 +3211,7 @@ tidy(mod_lr_test) %>%
 - `r emoji("heavy_check_mark")` Reproducible model
 - `r emoji("heavy_check_mark")` Dependable model
 - `r emoji("heavy_check_mark")` Explainable model
-- `r emoji("heavy_check_mark")` Small and Fast as hell model
+- `r emoji("heavy_check_mark")` Small and Fast as hell model .font80percent[(put in on a nanochip!)]
 - `r emoji("cross_mark")` Impressive model
 
 ### Is that the end?
