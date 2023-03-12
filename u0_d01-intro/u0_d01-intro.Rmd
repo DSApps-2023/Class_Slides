@@ -86,7 +86,7 @@ library(tidyverse)
   - [DataCamp: Introduction to R](https://www.datacamp.com/courses/free-introduction-to-r)
   - [Swirl](https://swirlstats.com/)
   - [edX: Data Science: R Basics](https://www.edx.org/course/data-science-r-basics-2)
-  - [RStudio: R for Data Science](https://r4ds.had.co.nz/)
+  - [RStudio: R for Data Science](https://r4ds.hadley.nz/)
 - Well you better start (Python):
   - [DataCamp: Introduction to Python](https://www.datacamp.com/courses/intro-to-python-for-data-science)
   - [W3Schools: Python Introduction](https://www.w3schools.com/python/python_intro.asp)
@@ -139,7 +139,7 @@ class: center, middle
 
 ---
 
-## RStudio Cloud, Binder, Colab Demos
+## Posit Cloud, Binder, Colab Demos
 
 <div class = "no_shadow">
   <p align="center">
