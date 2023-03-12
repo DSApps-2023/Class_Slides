@@ -273,6 +273,22 @@ okcupid %>% count(religion2, sort = TRUE)
 
 ---
 
+## Recoding with `case_match()`
+
+For a 1-to-1 or many-to-1 simple recoding, `case_match()` should be faster:
+
+```{r Case-Match}
+okcupid <- okcupid %>% mutate(smokes = case_match(
+  smokes,
+  c("sometimes", "trying to quit", "when drinking") ~ "yes",
+  NA ~ "prefer not to say",
+  .default = smokes))
+
+okcupid %>% count(smokes)
+```
+
+---
+
 ### Getting extreme observations with `slice_max()` and `slice_min()`
 
 .font80percent[(`top_n()` and `top_frac()` were superseded by `slice_min()`/`slice_max()`)]
