@@ -232,6 +232,14 @@ b[0, 0] = 77
 print(a[0, 1])
 ```
 
+To avoid that:
+
+```{python}
+c = a.copy()
+c[0, 1] = 2222
+print(a[0, 1])
+```
+
 ---
 
 Very convenient, R does not have these features without external packages:
@@ -509,6 +517,17 @@ okcupid.groupby('sex')['height_cm'] \
 
 ---
 
+Notice we got a `Series` where the index is the grouping variable `sex`.
+
+We could avoid that to get a `DataFrame`:
+
+```{python}
+okcupid.groupby('sex', as_index=False)['height_cm'] \
+  .agg('mean')
+```
+
+---
+
 Group by multiple variables, get more summaries, arrange by descending average height:
 
 ```{python}
@@ -518,6 +537,17 @@ okcupid \
   .sort_values('median', ascending=False)
 ```
 
+---
+
+Feeding `.agg()` with a dictionary would generalize better:
+
+```{python}
+okcupid \
+  .groupby(['sex', 'status']) \
+  .agg({'height_cm': ['mean', 'median', 'count']})
+```
+
+But notice the `MultiIndex` for rows and columns.
 ---
 
 ### Pro tip: `size()`
@@ -562,6 +592,8 @@ Finally `at` is for accessing a specific value fast:
 okcupid.at[1989, 'body_type']
 ```
 
+But why would you need that?...
+
 ---
 
 class: section-slide
@@ -569,6 +601,8 @@ class: section-slide
 # `seaborn`: Visualization
 
 ---
+
+I have a much more detailed notebook for you, but for completeness:
 
 ```{python Seaborn-Scatterplot, out.width="50%"}
 import matplotlib.pyplot as plt

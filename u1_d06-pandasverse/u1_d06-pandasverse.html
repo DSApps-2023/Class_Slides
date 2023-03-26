@@ -4,7 +4,7 @@
     <title>The Pandasverse</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2023-02-23" />
+    <meta name="date" content="2023-03-26" />
     <script src="u1_d06-pandasverse_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2023-02-23
+### 2023-03-26
 
 ---
 
@@ -382,6 +382,19 @@ print(a[0, 1])
 ## 77
 ```
 
+To avoid that:
+
+
+```python
+c = a.copy()
+c[0, 1] = 2222
+print(a[0, 1])
+```
+
+```
+## 77
+```
+
 ---
 
 Very convenient, R does not have these features without external packages:
@@ -533,7 +546,7 @@ stats.ttest_ind(rvs1,rvs2)
 ```
 
 ```
-## Ttest_indResult(statistic=-1.8602371292231286, pvalue=0.06314598396891209)
+## Ttest_indResult(statistic=0.3521978074862652, pvalue=0.7247642783889419)
 ```
 
 ---
@@ -580,12 +593,12 @@ print(df)
 
 ```
 ##           A         B         C         D
-## 0  2.097306 -0.970186  0.325340 -1.041823
-## 1  0.228915  0.660421 -1.392825 -0.134815
-## 2  0.498497  0.267163 -0.642387  0.979313
-## 3  1.276808  0.255781 -0.723596 -1.357386
-## 4  1.450034  1.447609  0.261728 -0.862350
-## 5 -1.439535  0.774697  0.806284  0.192903
+## 0  1.046093  0.420245 -1.729129  0.086631
+## 1  0.199882 -0.416688 -0.251790 -1.573521
+## 2 -0.164239  0.600506  1.333442  1.060951
+## 3  0.109335 -0.055424  0.029685 -0.178339
+## 4  0.088670 -0.048193  0.784666  0.338081
+## 5  0.632861 -0.240483 -0.039387  0.012136
 ```
 
 ---
@@ -846,6 +859,24 @@ okcupid.groupby('sex')['height_cm'] \
 
 ---
 
+Notice we got a `Series` where the index is the grouping variable `sex`.
+
+We could avoid that to get a `DataFrame`:
+
+
+```python
+okcupid.groupby('sex', as_index=False)['height_cm'] \
+  .agg('mean')
+```
+
+```
+##   sex   height_cm
+## 0   f  165.363837
+## 1   m  178.926471
+```
+
+---
+
 Group by multiple variables, get more summaries, arrange by descending average height:
 
 
@@ -871,6 +902,34 @@ okcupid \
 ##     unknown         160.655000  158.75      4
 ```
 
+---
+
+Feeding `.agg()` with a dictionary would generalize better:
+
+
+```python
+okcupid \
+  .groupby(['sex', 'status']) \
+  .agg({'height_cm': ['mean', 'median', 'count']})
+```
+
+```
+##                      height_cm               
+##                           mean  median  count
+## sex status                                   
+## f   available       166.381616  166.37    656
+##     married         165.871407  165.10    135
+##     seeing someone  165.431745  165.10   1003
+##     single          165.328643  165.10  22318
+##     unknown         160.655000  158.75      4
+## m   available       179.445012  180.34   1209
+##     married         179.454629  180.34    175
+##     seeing someone  179.257926  177.80   1061
+##     single          178.894660  177.80  33376
+##     unknown         177.376667  176.53      6
+```
+
+But notice the `MultiIndex` for rows and columns.
 ---
 
 ### Pro tip: `size()`
@@ -956,6 +1015,8 @@ okcupid.at[1989, 'body_type']
 ## 'average'
 ```
 
+But why would you need that?...
+
 ---
 
 class: section-slide
@@ -963,6 +1024,8 @@ class: section-slide
 # `seaborn`: Visualization
 
 ---
+
+I have a much more detailed notebook for you, but for completeness:
 
 
 ```python
