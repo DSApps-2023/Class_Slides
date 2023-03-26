@@ -364,9 +364,9 @@ glue("train no. of rows: {nrow(blogs_tr)}
 
 ---
 
-### Preprocess .font80percent[(but we're not gonna use it)]
+### Preprocess
 
-The `recipe()` function is from the `recipes` package. It allows you to specify a sklearn-like pipe you can later apply to any dataset, including all preprocessing steps:
+The `recipe()` function is from the `recipes` package. It allows you to specify a preprocessing pipeline you can later apply to any dataset, including multiple steps:
 
 ```{r}
 blogs_rec <- recipe(fb ~ ., data = blogs_tr)
@@ -401,6 +401,9 @@ At this point our `recipe` has all necessary `sd` and `mean`s for numeric variab
 blogs_rec$var_info
 ```
 
+```{r}
+blogs_rec$var_info$type[[1]]
+```
 ---
 
 ```{r}
@@ -456,24 +459,20 @@ tidy(blogs_rec)
 #### Fast Forward 10 weeks from now...
 
 ```{r, eval=FALSE}
-rec_int_topints <- recipe(pets ~ ., data = okcupid_tr) %>%
+rec_int_topints <- recipe(pets ~ ., data = ok_tr_interaction2) %>%
   step_textfeature(essays, prefix = "t",
                    extract_functions = my_text_funs) %>%
   update_role(essays, new_role = "discarded") %>%
   step_mutate_at(starts_with("t_"), fn = ~ifelse(is.na(.x), 0, .x)) %>%
   step_log(income, starts_with("len_"), starts_with("t_"),
            -t_essays_sent_bing, offset = 1) %>%
-  step_meanimpute(income) %>%
-  step_other(
-    all_nominal(), -has_role("discarded"), -all_outcomes(),
-    other = "all_else", threshold = 0.1) %>%
-  step_novel(
-    all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_modeimpute(all_nominal(), -has_role("discarded"), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(),
-             -has_role("discarded"), one_hot = FALSE) %>%
+  step_impute_mean(income) %>%
+  step_other(all_nominal_predictors(), -has_role("discarded"), other = "all_else") %>%
+  step_novel(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %>%
+  step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %>%
   step_interact(topint_ints) %>%
-  step_nzv(all_numeric(), freq_cut = 99/1) %>%
+  step_nzv(all_numeric_predictors(), freq_cut = 99/1) %>%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -800,16 +799,16 @@ res_rf %>% head(10)
 
 Calling `fit_resamples()` or `tune_grid()` works with a `vfold_cv()` splits object:
 
-```{r, echo=FALSE}
-fit_rf_cv <- read_rds("~/blogs_wflow_cv_fitted.rds")
-fit_rf_cv
-```
-
 ```{r, eval=FALSE}
 cv_splits <- vfold_cv(blogs_tr, v = 5)
 
 fit_rf_cv <- fit_resamples(wflow_rf, cv_splits, metrics = metric_set(rmse))
 
+fit_rf_cv
+```
+
+```{r, echo=FALSE}
+fit_rf_cv <- read_rds("~/blogs_wflow_cv_fitted.rds")
 fit_rf_cv
 ```
 
