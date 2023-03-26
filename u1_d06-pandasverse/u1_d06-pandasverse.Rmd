@@ -446,6 +446,26 @@ okcupid['height_cm'] = okcupid['height'] * 2.54
 ```
 
 ---
+### `apply()`
+
+Use `apply()` for a more complex function based on multiple columns, to create new column:
+
+```{python}
+def tall_and_thin(row):
+  thin_body_types = ['skinny', 'fit', 'thin', 'athletic']
+  if row['sex'] == 'm':
+    avg_height = 180
+  else:
+    avg_height = 165
+  return row['height_cm'] > avg_height and row['body_type'] in thin_body_types
+
+okcupid['is_tall_and_thin'] = okcupid.apply(tall_and_thin, axis=1)
+
+okcupid['is_tall_and_thin'].value_counts()
+```
+
+
+---
 
 ### `query()` and `filter()`
 

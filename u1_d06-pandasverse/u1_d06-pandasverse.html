@@ -546,7 +546,7 @@ stats.ttest_ind(rvs1,rvs2)
 ```
 
 ```
-## Ttest_indResult(statistic=0.3521978074862652, pvalue=0.7247642783889419)
+## Ttest_indResult(statistic=-1.4094611678788953, pvalue=0.15901037307219615)
 ```
 
 ---
@@ -593,12 +593,12 @@ print(df)
 
 ```
 ##           A         B         C         D
-## 0  1.046093  0.420245 -1.729129  0.086631
-## 1  0.199882 -0.416688 -0.251790 -1.573521
-## 2 -0.164239  0.600506  1.333442  1.060951
-## 3  0.109335 -0.055424  0.029685 -0.178339
-## 4  0.088670 -0.048193  0.784666  0.338081
-## 5  0.632861 -0.240483 -0.039387  0.012136
+## 0  0.639815 -1.811237 -0.009488  0.256063
+## 1 -2.937159  0.531167 -1.320672  1.068631
+## 2  0.592879 -1.508249  1.009077  0.961632
+## 3  0.350577 -0.590394 -0.774181  0.237004
+## 4  1.230341  0.637944  1.090202 -1.023248
+## 5 -1.023451  1.700754  0.036348 -0.890942
 ```
 
 ---
@@ -730,6 +730,33 @@ If you don't need a pipe just do:
 ```python
 okcupid['height_cm'] = okcupid['height'] * 2.54
 ```
+
+---
+### `apply()`
+
+Use `apply()` for a more complex function based on multiple columns, to create new column:
+
+
+```python
+def tall_and_thin(row):
+  thin_body_types = ['skinny', 'fit', 'thin', 'athletic']
+  if row['sex'] == 'm':
+    avg_height = 180
+  else:
+    avg_height = 165
+  return row['height_cm'] &gt; avg_height and row['body_type'] in thin_body_types
+
+okcupid['is_tall_and_thin'] = okcupid.apply(tall_and_thin, axis=1)
+
+okcupid['is_tall_and_thin'].value_counts()
+```
+
+```
+## False    43422
+## True     16524
+## Name: is_tall_and_thin, dtype: int64
+```
+
 
 ---
 
