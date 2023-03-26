@@ -4,8 +4,8 @@
     <title>Intro to Web Scraping</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2022-12-26" />
-    <script src="u0_d02-webscraping_files/header-attrs-2.19/header-attrs.js"></script>
+    <meta name="date" content="2023-03-26" />
+    <script src="u0_d02-webscraping_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2022-12-26
+### 2023-03-26
 
 ---
 
@@ -292,17 +292,17 @@ html_obj %&gt;% html_nodes("a")
 ##  [6] &lt;a href="https://www.triviaquestionsnow.com/for/math-trivia"&gt;Math Trivia ...
 ##  [7] &lt;a href="https://www.triviaquestionsnow.com/categories"&gt;Categories&lt;/a&gt;
 ##  [8] &lt;a href="https://www.triviaquestionsnow.com/all"&gt;All Trivia&lt;/a&gt;
-##  [9] &lt;a href="https://www.triviaquestionsnow.com/question/popular-1973-battle ...
+##  [9] &lt;a href="https://www.triviaquestionsnow.com/question/which-country-won-t ...
 ## [10] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [11] &lt;a href="https://www.triviaquestionsnow.com/question/nba-personality-cri ...
+## [11] &lt;a href="https://www.triviaquestionsnow.com/question/former-nba-player-w ...
 ## [12] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [13] &lt;a href="https://www.triviaquestionsnow.com/question/defeated-by-andy-mu ...
+## [13] &lt;a href="https://www.triviaquestionsnow.com/question/super-bowl-to-have- ...
 ## [14] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [15] &lt;a href="https://www.triviaquestionsnow.com/question/who-were-the-victor ...
+## [15] &lt;a href="https://www.triviaquestionsnow.com/question/knocked-roger-feder ...
 ## [16] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [17] &lt;a href="https://www.triviaquestionsnow.com/question/the-2000-french-ope ...
+## [17] &lt;a href="https://www.triviaquestionsnow.com/question/first-country-to-wi ...
 ## [18] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
-## [19] &lt;a href="https://www.triviaquestionsnow.com/question/injury-type-patriot ...
+## [19] &lt;a href="https://www.triviaquestionsnow.com/question/in-the-sport-of-ten ...
 ## [20] &lt;a href="#" class="click-to-show bold" ng-click="question.clickShow($eve ...
 ## ...
 ```
@@ -343,25 +343,25 @@ html_obj %&gt;% html_nodes("a") %&gt;% html_attr("href")
 ##  [6] "https://www.triviaquestionsnow.com/for/math-trivia"                                                                                   
 ##  [7] "https://www.triviaquestionsnow.com/categories"                                                                                        
 ##  [8] "https://www.triviaquestionsnow.com/all"                                                                                               
-##  [9] "https://www.triviaquestionsnow.com/question/popular-1973-battle-of-sexes-was-tennis-match-between-bobby-riggs-and-which-female-player"
+##  [9] "https://www.triviaquestionsnow.com/question/which-country-won-the-2015-davis-cup"                                                     
 ## [10] "#"                                                                                                                                    
-## [11] "https://www.triviaquestionsnow.com/question/nba-personality-criticized-in-2016-for-using-word-posse-in-a-racist-way"                  
+## [11] "https://www.triviaquestionsnow.com/question/former-nba-player-with-starring-role-in-the-1980-comedy-movie-airplane"                   
 ## [12] "#"                                                                                                                                    
-## [13] "https://www.triviaquestionsnow.com/question/defeated-by-andy-murray-in-semi-finals-to-qualify-for-2012-mens-singles-us-open-final"    
+## [13] "https://www.triviaquestionsnow.com/question/super-bowl-to-have-most-points-scored-ever"                                               
 ## [14] "#"                                                                                                                                    
-## [15] "https://www.triviaquestionsnow.com/question/who-were-the-victors-of-the-womens-doubles-of-the-2008-australian-open-tournament"        
+## [15] "https://www.triviaquestionsnow.com/question/knocked-roger-federer-out-of-quarterfinals-of-mens-singles-of-2018-wimbledon-championship"
 ## [16] "#"                                                                                                                                    
-## [17] "https://www.triviaquestionsnow.com/question/the-2000-french-open-mens-singles-championship-was-won-by-whom"                           
+## [17] "https://www.triviaquestionsnow.com/question/first-country-to-win-fed-davis-and-hopman-cups-in-a-single-calendar-year"                 
 ## [18] "#"                                                                                                                                    
-## [19] "https://www.triviaquestionsnow.com/question/injury-type-patriots-wide-receiver-julian-edelman-was-sidelined-in-2017-season"           
+## [19] "https://www.triviaquestionsnow.com/question/in-the-sport-of-tennis-the-acronym-atp-stands-for-what"                                   
 ## [20] "#"                                                                                                                                    
-## [21] "https://www.triviaquestionsnow.com/question/average-total-length-of-nfl-football-game"                                                
+## [21] "https://www.triviaquestionsnow.com/question/the-final-of-the-mens-doubles-of-the-2012-us-open-was-won-by-which-set-of-two-players"    
 ## [22] "#"                                                                                                                                    
-## [23] "https://www.triviaquestionsnow.com/question/which-of-the-following-golf-clubs-is-not-located-in-canada"                               
+## [23] "https://www.triviaquestionsnow.com/question/which-of-the-following-is-not-a-possible-outcome-in-an-attempt-to-serve-in-tennis"        
 ## [24] "#"                                                                                                                                    
-## [25] "https://www.triviaquestionsnow.com/question/year-vince-lombardi-name-of-super-bowl-winners-trophy-die"                                
+## [25] "https://www.triviaquestionsnow.com/question/former-nfl-player-starring-in-film-reggies-prayer"                                        
 ## [26] "#"                                                                                                                                    
-## [27] "https://www.triviaquestionsnow.com/question/which-country-won-the-2018-fed-cup"                                                       
+## [27] "https://www.triviaquestionsnow.com/question/the-ground-on-which-the-game-of-golf-is-played-is-known-as"                               
 ## [28] "#"                                                                                                                                    
 ## [29] "https://www.triviaquestionsnow.com/for/sports-trivia?page=2"                                                                          
 ## [30] "https://www.triviaquestionsnow.com/for/sports-trivia?page=3"                                                                          
@@ -393,49 +393,49 @@ html_obj %&gt;% html_nodes("a") %&gt;% html_text()
 ```
 
 ```
-##  [1] "\n                "                                                                                                                             
-##  [2] "\n                            "                                                                                                                 
-##  [3] "Easy Trivia"                                                                                                                                    
-##  [4] "Sports Trivia"                                                                                                                                  
-##  [5] "Music Trivia"                                                                                                                                   
-##  [6] "Math Trivia"                                                                                                                                    
-##  [7] "Categories"                                                                                                                                     
-##  [8] "All Trivia"                                                                                                                                     
-##  [9] "\n                The popular 1973 \"Battle of the Sexes\" was a tennis match between Bobby Riggs and which female tennis player?\n            "
-## [10] "Show Answer"                                                                                                                                    
-## [11] "\n                Which NBA personality came under fire in 2016 for using the word \"posse\" in a way many people deemed racist?\n            " 
-## [12] "Show Answer"                                                                                                                                    
-## [13] "\n                Who did Andy Murray defeat in the semi-finals to qualify for the 2012 men's singles U.S. Open final?\n            "           
-## [14] "Show Answer"                                                                                                                                    
-## [15] "\n                Who were the victors of the women's doubles of the 2008 Australian Open Tournament?\n            "                            
-## [16] "Show Answer"                                                                                                                                    
-## [17] "\n                The 2000 French Open men's singles Championship was won by whom?\n            "                                               
-## [18] "Show Answer"                                                                                                                                    
-## [19] "\n                During the entire 2017 season, Patriots' wide receiver Julian Edelman was sidelined with which type of injury?\n            " 
-## [20] "Show Answer"                                                                                                                                    
-## [21] "\n                What is the average total length of a NFL football game?\n            "                                                       
-## [22] "Show Answer"                                                                                                                                    
-## [23] "\n                Which of the following golf clubs is not located in Canada?\n            "                                                    
-## [24] "Show Answer"                                                                                                                                    
-## [25] "\n                In what year did Vince Lombardi, the man whom the trophy awarded to the Super Bowl winners is named after, die?\n            "
-## [26] "Show Answer"                                                                                                                                    
-## [27] "\n                Which Country won the 2018 Fed Cup?\n            "                                                                            
-## [28] "Show Answer"                                                                                                                                    
-## [29] "2"                                                                                                                                              
-## [30] "3"                                                                                                                                              
-## [31] "4"                                                                                                                                              
-## [32] "5"                                                                                                                                              
-## [33] "6"                                                                                                                                              
-## [34] "7"                                                                                                                                              
-## [35] "\r\n                        Next\r\n                    "                                                                                       
-## [36] "\n                                    \n                    Food &amp; Drink Trivia\n                \n            "                                
-## [37] "\n                                    \n                    Science Trivia\n                \n            "                                     
-## [38] "\n                                    \n                    Bible Trivia\n                \n            "                                       
-## [39] "\n                                    \n                    Kids Trivia\n                \n            "                                        
-## [40] "\n                                    \n                    History Trivia\n                \n            "                                     
-## [41] "\n                                    \n                    Video Games Trivia\n                \n            "                                 
-## [42] "See All Categories"                                                                                                                             
-## [43] "feedback box"                                                                                                                                   
+##  [1] "\n                "                                                                                                                          
+##  [2] "\n                            "                                                                                                              
+##  [3] "Easy Trivia"                                                                                                                                 
+##  [4] "Sports Trivia"                                                                                                                               
+##  [5] "Music Trivia"                                                                                                                                
+##  [6] "Math Trivia"                                                                                                                                 
+##  [7] "Categories"                                                                                                                                  
+##  [8] "All Trivia"                                                                                                                                  
+##  [9] "\n                Which Country won the 2015 Davis Cup?\n            "                                                                       
+## [10] "Show Answer"                                                                                                                                 
+## [11] "\n                Which former NBA player had a starring role in the 1980 comedy movie \"Airplane!\"?\n            "                         
+## [12] "Show Answer"                                                                                                                                 
+## [13] "\n                Which Super Bowl had the most points ever scored?\n            "                                                           
+## [14] "Show Answer"                                                                                                                                 
+## [15] "\n                Who knocked Roger Federer out of the quarterfinals of the men's singles of the 2018 Wimbledon Championship?\n            " 
+## [16] "Show Answer"                                                                                                                                 
+## [17] "\n                Which country was the first to win the Fed Cup, the Davis Cup, and the Hopman Cup in a single calendar year?\n            "
+## [18] "Show Answer"                                                                                                                                 
+## [19] "\n                In the sport of tennis, the acronym ATP stands for what?\n            "                                                    
+## [20] "Show Answer"                                                                                                                                 
+## [21] "\n                The final of the men's doubles of the 2012 U.S. Open was won by which set of two players?\n            "                   
+## [22] "Show Answer"                                                                                                                                 
+## [23] "\n                Which of the following is not a possible outcome in an attempt to serve in tennis?\n            "                          
+## [24] "Show Answer"                                                                                                                                 
+## [25] "\n                \"Reggie's Prayer\" is a film starring with former NFL player?\n            "                                              
+## [26] "Show Answer"                                                                                                                                 
+## [27] "\n                The ground on which the game of golf is played is known as?\n            "                                                 
+## [28] "Show Answer"                                                                                                                                 
+## [29] "2"                                                                                                                                           
+## [30] "3"                                                                                                                                           
+## [31] "4"                                                                                                                                           
+## [32] "5"                                                                                                                                           
+## [33] "6"                                                                                                                                           
+## [34] "7"                                                                                                                                           
+## [35] "\r\n                        Next\r\n                    "                                                                                    
+## [36] "\n                                    \n                    Food &amp; Drink Trivia\n                \n            "                             
+## [37] "\n                                    \n                    Science Trivia\n                \n            "                                  
+## [38] "\n                                    \n                    Bible Trivia\n                \n            "                                    
+## [39] "\n                                    \n                    Kids Trivia\n                \n            "                                     
+## [40] "\n                                    \n                    History Trivia\n                \n            "                                  
+## [41] "\n                                    \n                    Video Games Trivia\n                \n            "                              
+## [42] "See All Categories"                                                                                                                          
+## [43] "feedback box"                                                                                                                                
 ## [44] "Privacy Policy"
 ```
 
@@ -462,7 +462,7 @@ Look at the page source, get some identifier yourself (class, ID, link)
 ## {html_node}
 ## &lt;div class="question callout" ng-controller="QuestionController as question"&gt;
 ## [1] &lt;input type="hidden" ng-model="question.data.id" ng-init="question.data.i ...
-## [2] &lt;span class="float-right light-grey bold l-cush-10"&gt;Hard&lt;/span&gt;
+## [2] &lt;span class="float-right light-grey bold l-cush-10"&gt;Easy&lt;/span&gt;
 ## [3] &lt;h3 class="fs-1 bold"&gt;\n            &lt;a href="https://www.triviaquestionsn ...
 ## [4] &lt;div class="t-pad-10"&gt;\n            &lt;a href="#" class="click-to-show bold ...
 ```
@@ -481,16 +481,16 @@ html_obj %&gt;%
 ```
 
 ```
-##  [1] "The popular 1973 \"Battle of the Sexes\" was a tennis match between Bobby Riggs and which female tennis player?"
-##  [2] "Which NBA personality came under fire in 2016 for using the word \"posse\" in a way many people deemed racist?" 
-##  [3] "Who did Andy Murray defeat in the semi-finals to qualify for the 2012 men's singles U.S. Open final?"           
-##  [4] "Who were the victors of the women's doubles of the 2008 Australian Open Tournament?"                            
-##  [5] "The 2000 French Open men's singles Championship was won by whom?"                                               
-##  [6] "During the entire 2017 season, Patriots' wide receiver Julian Edelman was sidelined with which type of injury?" 
-##  [7] "What is the average total length of a NFL football game?"                                                       
-##  [8] "Which of the following golf clubs is not located in Canada?"                                                    
-##  [9] "In what year did Vince Lombardi, the man whom the trophy awarded to the Super Bowl winners is named after, die?"
-## [10] "Which Country won the 2018 Fed Cup?"
+##  [1] "Which Country won the 2015 Davis Cup?"                                                                       
+##  [2] "Which former NBA player had a starring role in the 1980 comedy movie \"Airplane!\"?"                         
+##  [3] "Which Super Bowl had the most points ever scored?"                                                           
+##  [4] "Who knocked Roger Federer out of the quarterfinals of the men's singles of the 2018 Wimbledon Championship?" 
+##  [5] "Which country was the first to win the Fed Cup, the Davis Cup, and the Hopman Cup in a single calendar year?"
+##  [6] "In the sport of tennis, the acronym ATP stands for what?"                                                    
+##  [7] "The final of the men's doubles of the 2012 U.S. Open was won by which set of two players?"                   
+##  [8] "Which of the following is not a possible outcome in an attempt to serve in tennis?"                          
+##  [9] "\"Reggie's Prayer\" is a film starring with former NFL player?"                                              
+## [10] "The ground on which the game of golf is played is known as?"
 ```
 
 ---
@@ -528,18 +528,18 @@ extract_questions_and_answers_from_page(url)
 
 ```
 ## # A tibble: 10 × 3
-##    level  question                                                        answer
-##    &lt;chr&gt;  &lt;chr&gt;                                                           &lt;chr&gt; 
-##  1 Easy   Which of the following are not types of tennis court?           Soft …
-##  2 Easy   What country was host to the 1930 inaugural FIFA Football Worl… Urugu…
-##  3 Easy   Which Country won the 2015 Davis Cup?                           Great…
-##  4 Medium Who won the title for the men's singles of the 2011 Australian… Novak…
-##  5 Medium Which tennis player won the 2016 Laurens World Sports Award?    Novak…
-##  6 Easy   In what year were women first allowed to participate in the mo… 1900 …
-##  7 Easy   Which country lost to Croatia in the 2018 Davis Cup final matc… France
-##  8 Medium Where did the sport of curling originate?                       Scotl…
-##  9 Medium How long is a football end zone?                                10 Ya…
-## 10 Medium As of the 2016 Olympics, which NBA player has been on the US O… Carme…
+##    level    question                                                      answer
+##    &lt;chr&gt;    &lt;chr&gt;                                                         &lt;chr&gt; 
+##  1 Medium   Which tennis player won the 2016 Laurens World Sports Award?  Novak…
+##  2 Easy     How many teams are there currently in the NFL?                32    
+##  3 Hard     The Doak Walker Award is given annually to the top college p… Runni…
+##  4 VeryHard Who was the first foreign-born NBA player to be selected num… Mycha…
+##  5 Medium   Which NBA player once costarred alongside Jean-Claude Van Da… Denni…
+##  6 Easy     Who was the winner of the men's singles of the 2006 Tennis M… Roger…
+##  7 VeryHard When was the first year the three-point shot was introduced … 1979  
+##  8 Medium   Which player was the MVP of the 2014 NBA Finals?              Kawhi…
+##  9 Medium   In 1999, the Chicago Bulls traded established superstar Scot… Houst…
+## 10 VeryHard Within the first 70 years of NBA history (1947-2017), who wa… Scott…
 ```
 
 ---
@@ -687,7 +687,7 @@ link_objs[3].text
 ```
 
 ```
-## 'reality television'
+## 'Current events'
 ```
 
 ```python
@@ -695,7 +695,7 @@ link_objs[3].attrs
 ```
 
 ```
-## {'href': '/wiki/Reality_television', 'title': 'Reality television'}
+## {'href': '/wiki/Portal:Current_events', 'title': 'Articles related to current events'}
 ```
 
 See the actual link in the [page](https://en.wikipedia.org/wiki/List_of_The_Real_Housewives_cast_members).
@@ -731,7 +731,7 @@ print(rows[0])
 ## &lt;/th&gt;
 ## &lt;th rowspan="2"&gt;Last season&lt;br/&gt;starred
 ## &lt;/th&gt;
-## &lt;th colspan="3"&gt;Number of seasons
+## &lt;th colspan="4"&gt;Number of seasons
 ## &lt;/th&gt;&lt;/tr&gt;
 ```
 
@@ -778,9 +778,9 @@ h_df.head()
 ##                     name                         link
 ## 0        Vicki Gunvalson        /wiki/Vicki_Gunvalson
 ## 1           Jeana Keough           /wiki/Jeana_Keough
-## 2         Heather Dubrow         /wiki/Heather_Dubrow
-## 3  Shannon Storms Beador  /wiki/Shannon_Storms_Beador
-## 4            Meghan King            /wiki/Meghan_King
+## 2            Tamra Judge            /wiki/Tamra_Judge
+## 3         Heather Dubrow         /wiki/Heather_Dubrow
+## 4  Shannon Storms Beador  /wiki/Shannon_Storms_Beador
 ```
 
 ---
@@ -795,15 +795,15 @@ l[0].head()
 ```
 
 ```
-##      Installment       Housewives  ... Number of seasons      
-##      Installment       Housewives  ...            Friend Guest
-## 0  Orange County  Kimberly Bryant  ...                 0     3
-## 1  Orange County    Jo De La Rosa  ...                 0     2
-## 2  Orange County  Vicki Gunvalson  ...                 1     0
-## 3  Orange County     Jeana Keough  ...                 1     5
-## 4  Orange County   Lauri Peterson  ...                 1     1
+##      Installment       Housewives  ... Number of seasons                    
+##      Installment       Housewives  ...             Guest Ultimate Girls Trip
+## 0  Orange County  Kimberly Bryant  ...                 3                   0
+## 1  Orange County    Jo De La Rosa  ...                 2                   0
+## 2  Orange County  Vicki Gunvalson  ...                 0                   2
+## 3  Orange County     Jeana Keough  ...                 5                   0
+## 4  Orange County   Lauri Peterson  ...                 1                   0
 ## 
-## [5 rows x 7 columns]
+## [5 rows x 8 columns]
 ```
 
 ---
