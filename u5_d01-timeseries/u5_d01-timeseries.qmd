@@ -1,0 +1,127 @@
+---
+format:
+  revealjs:
+    slide-number: true
+css: "../slides_quarto.css"
+standalone: false
+include-in-header: "../header_quarto.html"
+logo: "../DSApps_logo_white.jpg"
+pagetitle: "Time Series Intro"
+callout-appearance: simple
+smaller: true
+execute:
+  echo: true
+code-line-numbers: false
+code-block-border-left: true
+highlight-style: github
+footer: "[Applications of Data Science](https://dsapps-2023.github.io/Class_Slides/){target='_blank'}"
+---
+
+## {.logo-slide}
+
+## Time Series Intro {.title-slide}
+
+### Applications of Data Science - Class 20
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com` and add `#dsapps` in subject
+
+### Stat. and OR Department, TAU
+### `r Sys.Date()`
+
+---
+
+### What is a Time Series?
+
+A time series is a sequence of observations taken sequentially in time.
+
+```{r}
+#| label: Calves
+#| echo: true
+#| code-fold: true
+#| warning: false
+#| fig-width: 6
+#| fig-asp: 0.618
+library(tidyverse)
+library(tsibble)
+library(tsibbledata)
+library(fable)
+
+aus_livestock %>%
+  filter(Animal == "Calves") %>%
+  index_by() %>%
+  summarise(Count = sum(Count)) %>%
+  autoplot(log(Count)) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+
+---
+
+### Focus on:
+
+- Discrete measurements
+- Equally-spaced
+- Usually no missing values
+- Not that short (say > 20? 50?)
+- Time is intrinsic, it is not just another feature
+- Could involve time-varying/non-time-varying explaining features
+
+---
+
+### What isn't a Time Series?
+
+E.g. this is more of a longitudinal/growth-curve/cohort dataset:
+
+```{r}
+#| label: UKB-SBP
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-width: 6
+#| fig-asp: 0.618
+
+ukb <- read_csv("~/ukb_sbp_longitudinal.csv")
+ggplot(ukb %>% sample_n(50000),
+       aes(age, sbp, group = factor(id))) +
+  geom_line() +
+  labs(x = "Age", y = "UK Biobank participants systolic blood pressure") +
+  theme_light()
+```
+
+
+## Understanding Images {.title-slide}
+
+
+## Bullets
+
+When you click the **Render** button a document will be generated that includes:
+
+-   Content authored with markdown
+-   Output from executable code
+
+## Code
+
+When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+
+```{python}
+#| fig-width: 5
+#| fig-asp: 0.5
+#| code-line-numbers: "|3|4"
+#| 
+import matplotlib.pyplot as plt
+
+plt.plot(range(5))
+plt.show()
+```
+
+::: {.callout-tip}
+This is an example of a callout with a caption.
+:::

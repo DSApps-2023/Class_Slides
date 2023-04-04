@@ -19,6 +19,11 @@
   color: #000000;
 }
 
+.slide h1, .slide h2, .slide h3, .slide h4, .slide h5{
+  font-family: 'Lato', sans-serif;
+  color: #05263b;
+}
+
 .reveal .title-slide {
   font-family: 'Lato', sans-serif;
   background-color: #05263b;
@@ -84,6 +89,7 @@
     background-color: #ffffff;
     border-top: 1px solid #163f59;
     position: absolute;
+    top: 10%;
     bottom: 0%;
     right: 8%;
     height: 10%;
