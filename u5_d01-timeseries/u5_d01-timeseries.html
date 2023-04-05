@@ -414,7 +414,7 @@
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tsibble)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tsibbledata)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fable)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(feasts)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>aus_livestock <span class="sc">%&gt;%</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Animal <span class="sc">==</span> <span class="st">"Calves"</span>) <span class="sc">%&gt;%</span></span>
@@ -520,7 +520,7 @@
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>now</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2023-04-05 11:21:16 IDT"</code></pre>
+<pre><code>[1] "2023-04-05 12:48:37 IDT"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -528,7 +528,7 @@
 </div>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1680682877</code></pre>
+<pre><code>[1] 1680688118</code></pre>
 </div>
 </div>
 <p>The <code>POSIXlt</code> class will store time in a list with useful elements:</p>
@@ -536,7 +536,7 @@
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>now <span class="ot">&lt;-</span> <span class="fu">as.POSIXlt</span>(now, <span class="at">tz =</span> <span class="st">"GMT"</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>now<span class="sc">$</span>hour</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 8</code></pre>
+<pre><code>[1] 9</code></pre>
 </div>
 </div>
 </section>
@@ -630,7 +630,7 @@
 <ul>
 <li><code>tsibble</code>: The <del><code>data.frame</code></del> <code>tibble</code> re-imagined for temporal data</li>
 <li><code>tsibbledata</code>: TS datasets</li>
-<li><code>feasts</code>: Feature extraction for TS</li>
+<li><code>feasts</code>: Feature extraction for TS + Some useful <code>gg</code> plots</li>
 <li><code>fable</code> and <code>fabletools</code>: <strong>The</strong> modeling and forecasting package</li>
 <li>more and more to come.</li>
 </ul>
@@ -649,18 +649,18 @@
 <span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tsibble: 10 x 2 [1D]
-   date         value
-   &lt;date&gt;       &lt;dbl&gt;
- 1 2017-01-01  1.05  
- 2 2017-01-02  0.706 
- 3 2017-01-03  1.86  
- 4 2017-01-04 -0.518 
- 5 2017-01-05  2.01  
- 6 2017-01-06 -0.658 
- 7 2017-01-07  2.09  
- 8 2017-01-08  1.06  
- 9 2017-01-09  0.144 
-10 2017-01-10  0.0487</code></pre>
+   date        value
+   &lt;date&gt;      &lt;dbl&gt;
+ 1 2017-01-01 -1.32 
+ 2 2017-01-02  0.553
+ 3 2017-01-03  1.41 
+ 4 2017-01-04  1.07 
+ 5 2017-01-05 -0.614
+ 6 2017-01-06  0.271
+ 7 2017-01-07 -0.479
+ 8 2017-01-08  0.774
+ 9 2017-01-09 -1.27 
+10 2017-01-10  1.00 </code></pre>
 </div>
 </div>
 <p>Here, as <code>date</code> is the only <strong><code>Date</code></strong> column, <code>tsibble</code> gets this.</p>
@@ -681,16 +681,16 @@
 # Key:       group [3]
        qtr group  value
      &lt;qtr&gt; &lt;chr&gt;  &lt;dbl&gt;
- 1 2010 Q1 x     -0.771
- 2 2010 Q2 x     -0.620
- 3 2010 Q3 x     -0.287
- 4 2010 Q4 x     -1.66 
- 5 2011 Q1 x     -0.523
- 6 2011 Q2 x      1.15 
- 7 2011 Q3 x     -1.75 
- 8 2011 Q4 x     -0.583
- 9 2012 Q1 x      0.381
-10 2012 Q2 x      0.641
+ 1 2010 Q1 x     -0.447
+ 2 2010 Q2 x      0.449
+ 3 2010 Q3 x      0.659
+ 4 2010 Q4 x      2.05 
+ 5 2011 Q1 x      0.804
+ 6 2011 Q2 x     -1.58 
+ 7 2011 Q3 x      0.275
+ 8 2011 Q4 x     -0.650
+ 9 2012 Q1 x     -0.178
+10 2012 Q2 x      1.02 
 # … with 20 more rows</code></pre>
 </div>
 </div>
@@ -721,57 +721,134 @@
 </section>
 <section class="slide level2">
 
-<p>Wrangling similar to the Tidyverse, only <code>index_by()</code> +<code>summarise()</code> would be the <code>group_by() + summarise()</code> flow:</p>
+<p>Wrangling similar to the Tidyverse, only <code>group_by() + summarise()</code> on a time index would be <code>index_by()</code> + <code>summarise()</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>aus_livestock <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>aus_calves <span class="ot">&lt;-</span> aus_livestock <span class="sc">%&gt;%</span></span>
 <span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Animal <span class="sc">==</span> <span class="st">"Calves"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">index_by</span>(<span class="at">year =</span> <span class="fu">year</span>(Month)) <span class="sc">%&gt;%</span></span>
-<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_count =</span> <span class="fu">sum</span>(Count), <span class="at">max_count =</span> <span class="fu">max</span>(Count))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">index_by</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_count =</span> <span class="fu">sum</span>(Count), <span class="at">max_count =</span> <span class="fu">max</span>(Count))</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>aus_calves</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tsibble: 47 x 3 [1Y]
-    year total_count max_count
-   &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;
- 1  1972      918000    174000
- 2  1973     1357800    186200
- 3  1974     1242700    164100
- 4  1975     1880400    213800
- 5  1976     2495600    270200
- 6  1977     2463700    270600
- 7  1978     2186000    241100
- 8  1979     1576600    231100
- 9  1980     1512400    193000
-10  1981     1447100    203100
-# … with 37 more rows</code></pre>
+<pre><code># A tsibble: 558 x 3 [1M]
+      Month total_count max_count
+      &lt;mth&gt;       &lt;dbl&gt;     &lt;dbl&gt;
+ 1 1972 Jul      196200    132900
+ 2 1972 Aug      250600    174000
+ 3 1972 Sep      170100    106700
+ 4 1972 Oct      128500     68400
+ 5 1972 Nov      103400     40400
+ 6 1972 Dec       69200     23600
+ 7 1973 Jan       87800     29600
+ 8 1973 Feb       71300     27900
+ 9 1973 Mar       78200     28600
+10 1973 Apr       62600     20400
+# … with 548 more rows</code></pre>
 </div>
 </div>
-<p>And seamless integration with <code>ggplot2</code> and friends, use <code>autoplot()</code> from <code>fable</code>:</p>
+</section>
+<section class="slide level2">
+
+<h3 id="feasts"><code>feasts</code></h3>
+<p>Seamless integration with <code>ggplot2</code> and friends, use <code>autoplot()</code> from <code>feasts</code>:</p>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb58" data-code-line-numbers="|2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1"></a>aus_calves <span class="sc">%&gt;%</span></span>
+<span id="cb58-2"><a href="#cb58-2"></a>  <span class="fu">autoplot</span>(<span class="fu">log</span>(total_count)) <span class="sc">+</span></span>
+<span id="cb58-3"><a href="#cb58-3"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">"log no. of calves slaughtered in Australia"</span>) <span class="sc">+</span></span>
+<span id="cb58-4"><a href="#cb58-4"></a>  <span class="fu">scale_x_yearmonth</span>(<span class="at">date_breaks =</span> <span class="st">"5 year"</span>, <span class="at">date_labels =</span> <span class="st">"%Y"</span>) <span class="sc">+</span></span>
+<span id="cb58-5"><a href="#cb58-5"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="u5_d01-timeseries_files/figure-revealjs/Calves-autoplot-1.png" width="576" class="r-stretch"></section>
+<section class="slide level2">
+
+<p>Some more useful plots:</p>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb59" data-code-line-numbers="4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="fu">library</span>(feasts)</span>
+<span id="cb59-2"><a href="#cb59-2"></a></span>
+<span id="cb59-3"><a href="#cb59-3"></a>aus_calves <span class="sc">%&gt;%</span></span>
+<span id="cb59-4"><a href="#cb59-4"></a>  <span class="fu">gg_season</span>(<span class="fu">log</span>(total_count)) <span class="sc">+</span></span>
+<span id="cb59-5"><a href="#cb59-5"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">"log no. of calves slaughtered in Australia"</span>) <span class="sc">+</span></span>
+<span id="cb59-6"><a href="#cb59-6"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="u5_d01-timeseries_files/figure-revealjs/Calves-season-1.png" width="576" class="r-stretch"></section>
+<section class="slide level2">
+
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb60" data-code-line-numbers="2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1"></a>aus_calves <span class="sc">%&gt;%</span></span>
+<span id="cb60-2"><a href="#cb60-2"></a>  <span class="fu">gg_subseries</span>(<span class="fu">log</span>(total_count)) <span class="sc">+</span></span>
+<span id="cb60-3"><a href="#cb60-3"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">"log no. of calves slaughtered in Australia"</span>) <span class="sc">+</span></span>
+<span id="cb60-4"><a href="#cb60-4"></a>  <span class="fu">scale_x_yearmonth</span>(<span class="at">labels =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb60-5"><a href="#cb60-5"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="u5_d01-timeseries_files/figure-revealjs/Calves-subseries-1.png" width="576" class="r-stretch"></section>
+<section class="slide level2">
+
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb61" data-code-line-numbers="2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a>aus_calves <span class="sc">%&gt;%</span></span>
+<span id="cb61-2"><a href="#cb61-2"></a>  <span class="fu">gg_lag</span>(total_count, <span class="at">geom =</span> <span class="st">"point"</span>) <span class="sc">+</span></span>
+<span id="cb61-3"><a href="#cb61-3"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"lag(log(count))"</span>, <span class="at">y =</span> <span class="st">"log no. of calves slaughtered in Australia"</span>) <span class="sc">+</span></span>
+<span id="cb61-4"><a href="#cb61-4"></a>  <span class="fu">scale_x_yearmonth</span>(<span class="at">labels =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb61-5"><a href="#cb61-5"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="u5_d01-timeseries_files/figure-revealjs/Calves-lag-1.png" width="576" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="feasts-1"><code>feasts</code></h3>
+<p>Some useful features for multiple series:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>aus_livestock <span class="sc">%&gt;%</span></span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Animal <span class="sc">==</span> <span class="st">"Calves"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">index_by</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_count =</span> <span class="fu">sum</span>(Count)) <span class="sc">%&gt;%</span></span>
-<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>(<span class="fu">log</span>(total_count)) <span class="sc">+</span></span>
-<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">"log no. of calves slaughtered in Australia"</span>) <span class="sc">+</span></span>
-<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_yearmonth</span>(<span class="at">date_breaks =</span> <span class="st">"5 year"</span>, <span class="at">date_labels =</span> <span class="st">"%Y"</span>) <span class="sc">+</span></span>
-<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>aus_livestock <span class="sc">%&gt;%</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">features</span>(<span class="fu">log</span>(Count), quantile)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 54 × 7
+   Animal                     State            `0%`   `25%`   `50%` `75%` `100%`
+   &lt;fct&gt;                      &lt;fct&gt;           &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+ 1 Bulls, bullocks and steers Australian C… -Inf    -Inf    -Inf     7.60   8.32
+ 2 Bulls, bullocks and steers New South Wa…   10.8    11.1    11.3  11.4   11.9 
+ 3 Bulls, bullocks and steers Northern Ter… -Inf    -Inf       4.61  7.85   9.74
+ 4 Bulls, bullocks and steers Queensland      10.5    11.7    11.9  12.1   12.4 
+ 5 Bulls, bullocks and steers South Austra…    8.59    9.59    9.80  9.96  10.4 
+ 6 Bulls, bullocks and steers Tasmania         8.16    8.75    8.95  9.15   9.67
+ 7 Bulls, bullocks and steers Victoria        10.4    10.8    11.0  11.1   11.8 
+ 8 Bulls, bullocks and steers Western Aust…    8.97    9.62    9.83 10.1   10.7 
+ 9 Calves                     Australian C… -Inf    -Inf    -Inf     4.61   7.17
+10 Calves                     New South Wa…    7.60    9.62    9.83 10.0   11.0 
+# … with 44 more rows</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>aus_livestock <span class="sc">%&gt;%</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Animal) <span class="sc">%&gt;%</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_count =</span> <span class="fu">sum</span>(Count)) <span class="sc">%&gt;%</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">features</span>(<span class="fu">log</span>(total_count), feat_stl) <span class="sc">%&gt;%</span></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Animal, trend_strength, spikiness, linearity)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 4
+  Animal                     trend_strength spikiness linearity
+  &lt;fct&gt;                               &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1 Bulls, bullocks and steers          0.727  8.61e-11    0.0747
+2 Calves                              0.945  6.94e-10   -8.02  
+3 Cattle (excl. calves)               0.818  9.96e-11    0.656 
+4 Cows and heifers                    0.881  1.56e-10    0.955 
+5 Lambs                               0.834  1.34e-10    2.35  
+6 Pigs                                0.930  1.42e-11    2.14  
+7 Sheep                               0.931  6.26e-10   -4.38  </code></pre>
+</div>
 </div>
 </section>
 <section id="code" class="slide level2">
 <h2>Code</h2>
 <p>When you click the <strong>Render</strong> button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2</code></pre>
-</div>
-</div>
-<div class="cell" data-fig.asp="0.5">
-<div class="sourceCode cell-code" id="cb61" data-code-line-numbers="|3|4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb61-2"><a href="#cb61-2"></a></span>
-<span id="cb61-3"><a href="#cb61-3"></a>plt.plot(<span class="bu">range</span>(<span class="dv">5</span>))</span>
-<span id="cb61-4"><a href="#cb61-4"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img data-src="u5_d01-timeseries_files/figure-revealjs/unnamed-chunk-20-1.png" width="480"></p>
 </div>
 </div>
 <div class="callout callout-tip callout-style-simple">
@@ -784,8 +861,8 @@
 </div>
 </div>
 </div>
-<p><img src="../DSApps_logo_white.jpg" class="slide-logo"></p>
-<div class="footer footer-default">
+
+<img src="../DSApps_logo_white.jpg" class="slide-logo r-stretch"><div class="footer footer-default">
 <p><a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank">Applications of Data Science</a></p>
 </div>
 </section>

@@ -46,7 +46,7 @@ A time series is a sequence of observations taken sequentially in time.
 library(tidyverse)
 library(tsibble)
 library(tsibbledata)
-library(fable)
+library(feasts)
 
 aus_livestock %>%
   filter(Animal == "Calves") %>%
@@ -226,7 +226,7 @@ A suite of packages for TSA, the **tidy** way, led by [Rob J. Hyndman](https://r
 
 - `tsibble`: The ~~`data.frame`~~ `tibble` re-imagined for temporal data
 - `tsibbledata`: TS datasets
-- `feasts`: Feature extraction for TS
+- `feasts`: Feature extraction for TS + Some useful `gg` plots
 - `fable` and `fabletools`: **The** modeling and forecasting package
 - more and more to come.
 
@@ -274,28 +274,105 @@ aus_livestock
 
 ---
 
-Wrangling similar to the Tidyverse, only `index_by()` +`summarise()` would be the `group_by() + summarise()` flow:
+Wrangling similar to the Tidyverse, only `group_by() + summarise()` on a time index would be `index_by()` + `summarise()`:
 
 ```{r}
-aus_livestock %>%
-  filter(Animal == "Calves") %>%
-  index_by(year = year(Month)) %>%
-  summarise(total_count = sum(Count), max_count = max(Count))
-```
-
-And seamless integration with `ggplot2` and friends, use `autoplot()` from `fable`:
-
-```{r}
-#| eval: false
-
-aus_livestock %>%
+aus_calves <- aus_livestock %>%
   filter(Animal == "Calves") %>%
   index_by() %>%
-  summarise(total_count = sum(Count)) %>%
+  summarise(total_count = sum(Count), max_count = max(Count))
+
+aus_calves
+```
+
+---
+
+### `feasts`
+
+Seamless integration with `ggplot2` and friends, use `autoplot()` from `feasts`:
+
+```{r}
+#| label: Calves-autoplot
+#| fig-width: 6
+#| fig-asp: 0.618
+#| code-line-numbers: "|2"
+aus_calves %>%
   autoplot(log(total_count)) +
   labs(x = "", y = "log no. of calves slaughtered in Australia") +
   scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
   theme_light()
+```
+
+---
+
+Some more useful plots:
+
+```{r}
+#| label: Calves-season
+#| code-line-numbers: "4"
+#| fig-width: 6
+#| fig-asp: 0.618
+library(feasts)
+
+aus_calves %>%
+  gg_season(log(total_count)) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  theme_light()
+```
+
+---
+
+```{r}
+#| label: Calves-subseries
+#| code-line-numbers: "2"
+#| fig-width: 6
+#| fig-asp: 0.618
+
+aus_calves %>%
+  gg_subseries(log(total_count)) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(labels = NULL) +
+  theme_light()
+```
+
+---
+
+```{r}
+#| label: Calves-lag
+#| code-line-numbers: "2"
+#| fig-width: 6
+#| fig-asp: 0.618
+
+aus_calves %>%
+  gg_lag(total_count, geom = "point") +
+  labs(x = "lag(log(count))", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(labels = NULL) +
+  theme_light()
+```
+
+---
+
+### `feasts`
+
+Some useful features for multiple series:
+
+```{r}
+#| label: feasts-features
+
+aus_livestock %>%
+  features(log(Count), quantile)
+```
+
+---
+
+```{r}
+#| label: feasts-stl
+
+aus_livestock %>%
+  group_by(Animal) %>%
+  summarise(total_count = sum(Count)) %>%
+  features(log(total_count), feat_stl) %>%
+  select(Animal, trend_strength, spikiness, linearity)
 ```
 
 ---
@@ -308,17 +385,6 @@ When you click the **Render** button a presentation will be generated that inclu
 1 + 1
 ```
 
-
-```{python}
-#| fig-width: 5
-#| fig-asp: 0.5
-#| code-line-numbers: "|3|4"
-#| 
-import matplotlib.pyplot as plt
-
-plt.plot(range(5))
-plt.show()
-```
 
 ::: {.callout-tip}
 This is an example of a callout with a caption.
