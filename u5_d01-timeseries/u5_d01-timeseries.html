@@ -402,11 +402,11 @@
 <h3 id="giora-simchoni">Giora Simchoni</h3>
 <h4 id="gsimchonigmail.com-and-add-dsapps-in-subject"><code>gsimchoni@gmail.com</code> and add <code>#dsapps</code> in subject</h4>
 <h3 id="stat.-and-or-department-tau">Stat. and OR Department, TAU</h3>
-<h3 id="section-1">2023-04-04</h3>
+<h3 id="section-1">2023-04-05</h3>
 </section>
 <section class="slide level2">
 
-<h3 id="what-is-a-time-series">What is a Time Series</h3>
+<h3 id="what-is-a-time-series">What is a Time Series?</h3>
 <p>A time series is a sequence of observations taken sequentially in time.</p>
 <div class="cell" data-fig.asp="0.618">
 <details>
@@ -430,49 +430,348 @@
 <img data-src="u5_d01-timeseries_files/figure-revealjs/Calves-1.png" width="576" class="r-stretch"></section>
 <section class="slide level2">
 
-<h3 id="focus-on">Focus on:</h3>
+<h3 id="tsa-focuses-on">TSA Focuses on:</h3>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div>
 <ul>
-<li>Discrete measurements</li>
-<li>Equally-spaced</li>
-<li>Usually no missing values</li>
-<li>Not that short (say &gt; 20? 50?)</li>
-<li>Time is intrinsic, it is not just another feature</li>
-<li>Could involve time-varying/non-time-varying explaining features</li>
+<li class="fragment">Discrete measurements</li>
+<li class="fragment">Equally-spaced</li>
+<li class="fragment">Usually no missing values</li>
+<li class="fragment">Not that short (say &gt; 20? 50?)</li>
+<li class="fragment">Time is intrinsic, it is not just another feature</li>
+<li class="fragment">Could involve time-varying/non-time-varying explaining features</li>
 </ul>
+</div>
+</div><div class="column" style="width:60%;">
+<div class="fragment">
+<p>E.g. this is more of a longitudinal/growth-curve/cohort dataset:</p>
+<div class="cell" data-fig.asp="0.618">
+<div class="cell-output-display">
+<p><img data-src="u5_d01-timeseries_files/figure-revealjs/UKB-SBP-1.png" width="576"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
 </section>
 <section class="slide level2">
 
-<h3 id="what-isnt-a-time-series">What isn’t a Time Series</h3>
-<p>E.g. this is more of a longitudinal/growth-curve/cohort dataset:</p>
-
-<img data-src="u5_d01-timeseries_files/figure-revealjs/UKB-SBP-1.png" width="576" class="r-stretch"></section>
-<section id="understanding-images" class="slide level2 title-slide center">
-<h2>Understanding Images</h2>
-</section>
-<section id="bullets" class="slide level2">
-<h2>Bullets</h2>
-<p>When you click the <strong>Render</strong> button a document will be generated that includes:</p>
+<h3 id="tsa-goals">TSA Goals</h3>
 <ul>
-<li>Content authored with markdown</li>
-<li>Output from executable code</li>
+<li>Forecasting <span style="font-size:16px">(prediction)</span></li>
+<li>Describing the TS dynamics</li>
+<li>Determination of input features contribution</li>
+<li>Planning: control schemes, intervention analyses, sensitivity analyses</li>
+<li>Multivariate TS: interrelationships, clustering</li>
 </ul>
+</section>
+<section id="detour-dates-in-r" class="slide level2 title-slide center">
+<h2>Detour: Dates in R</h2>
+</section>
+<section class="slide level2">
+
+<h4 id="the-date-class">The <code>Date</code> class</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>date_obj <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"1915-6-16"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(date_obj)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Date"</code></pre>
+</div>
+</div>
+<p>Internally, <code>Date</code> objects are stored as the number of days since January 1, 1970, using negative numbers for earlier dates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">typeof</span>(date_obj)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "double"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(date_obj)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -19923</code></pre>
+</div>
+</div>
+<p>So this naturally works:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>date_obj <span class="sc">+</span> <span class="dv">10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "1915-06-26"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(date_obj <span class="sc">+</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "1915-06-16" "1915-06-26"</code></pre>
+</div>
+</div>
+<p>Can also accept different formats and has a few built-in functions:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>date_obj <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"1/15/2001"</span>,<span class="at">format=</span><span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">months</span>(date_obj)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "January"</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="the-posix-classes">The <code>POSIX</code> classes</h4>
+<p><code>POSIX</code> is a slightly more evolved class from UNIX, holding number of seconds since January 1, 1970, and a time zone may be specified:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>now <span class="ot">&lt;-</span> <span class="fu">Sys.time</span>()</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>now</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-04-05 11:21:16 IDT"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "POSIXct" "POSIXt" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1680682877</code></pre>
+</div>
+</div>
+<p>The <code>POSIXlt</code> class will store time in a list with useful elements:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>now <span class="ot">&lt;-</span> <span class="fu">as.POSIXlt</span>(now, <span class="at">tz =</span> <span class="st">"GMT"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>now<span class="sc">$</span>hour</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 8</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h4 id="the-lubridate-package">The <code>lubridate</code> package</h4>
+<p>Parsing dates:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">today</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-04-05"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="st">"2023-01-31"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-01-31"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dmy</span>(<span class="st">"31-Jan-2023"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-01-31"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="dv">20170131</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2017-01-31"</code></pre>
+</div>
+</div>
+<p>Making dates:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make_date</span>(<span class="at">year =</span> <span class="dv">2013</span>, <span class="at">month =</span> <span class="dv">2</span>, <span class="at">day =</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2013-02-12"</code></pre>
+</div>
+</div>
+<p>Converting between formats:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as_datetime</span>(<span class="fu">today</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-04-05 UTC"</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>Getting components:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>datetime <span class="ot">&lt;-</span> <span class="fu">ymd_hms</span>(<span class="st">"2016-07-08 12:34:56"</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">year</span>(datetime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2016</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mday</span>(datetime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 8</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">yday</span>(datetime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 190</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wday</span>(datetime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6</code></pre>
+</div>
+</div>
+<p>Duration, time maths:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">today</span>() <span class="sc">-</span> <span class="fu">ymd</span>(<span class="st">"2020-01-01"</span>) <span class="co">#base R difftime object</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Time difference of 1190 days</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.duration</span>(<span class="fu">today</span>() <span class="sc">-</span> <span class="fu">ymd</span>(<span class="st">"2020-01-01"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "102816000s (~3.26 years)"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">today</span>() <span class="sc">-</span> <span class="fu">dyears</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2022-04-04 18:00:00 UTC"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">today</span>() <span class="sc">+</span> <span class="fu">ddays</span>(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2023-04-15"</code></pre>
+</div>
+</div>
+</section>
+<section id="the-tidyverts" class="slide level2 title-slide center">
+<h2>The Tidyverts</h2>
+</section>
+<section class="slide level2">
+
+<h3 id="the-tidyverts-1">The Tidyverts</h3>
+<p>A suite of packages for TSA, the <strong>tidy</strong> way, led by <a href="https://robjhyndman.com/">Rob J. Hyndman</a>:</p>
+<ul>
+<li><code>tsibble</code>: The <del><code>data.frame</code></del> <code>tibble</code> re-imagined for temporal data</li>
+<li><code>tsibbledata</code>: TS datasets</li>
+<li><code>feasts</code>: Feature extraction for TS</li>
+<li><code>fable</code> and <code>fabletools</code>: <strong>The</strong> modeling and forecasting package</li>
+<li>more and more to come.</li>
+</ul>
+<p>See <a href="https://tidyverts.org/">tidyverts.org</a>.</p>
+</section>
+<section class="slide level2">
+
+<h3 id="tsibble"><code>tsibble</code></h3>
+<p>Need a time <code>index</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tsibble)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tsibble</span>(</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">date =</span> <span class="fu">as.Date</span>(<span class="st">"2017-01-01"</span>) <span class="sc">+</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">9</span>,</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">rnorm</span>(<span class="dv">10</span>)</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tsibble: 10 x 2 [1D]
+   date         value
+   &lt;date&gt;       &lt;dbl&gt;
+ 1 2017-01-01  1.05  
+ 2 2017-01-02  0.706 
+ 3 2017-01-03  1.86  
+ 4 2017-01-04 -0.518 
+ 5 2017-01-05  2.01  
+ 6 2017-01-06 -0.658 
+ 7 2017-01-07  2.09  
+ 8 2017-01-08  1.06  
+ 9 2017-01-09  0.144 
+10 2017-01-10  0.0487</code></pre>
+</div>
+</div>
+<p>Here, as <code>date</code> is the only <strong><code>Date</code></strong> column, <code>tsibble</code> gets this.</p>
+<p><code>[1D]</code> is the tsibble’s <code>interval</code>.</p>
+</section>
+<section class="slide level2">
+
+<p>Grouping variable(s) are specified with <code>key</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tsibble</span>(</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">qtr =</span> <span class="fu">rep</span>(<span class="fu">yearquarter</span>(<span class="st">"2010 Q1"</span>) <span class="sc">+</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">9</span>, <span class="dv">3</span>),</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">"z"</span>), <span class="at">each =</span> <span class="dv">10</span>),</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">rnorm</span>(<span class="dv">30</span>),</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">key =</span> group</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tsibble: 30 x 3 [1Q]
+# Key:       group [3]
+       qtr group  value
+     &lt;qtr&gt; &lt;chr&gt;  &lt;dbl&gt;
+ 1 2010 Q1 x     -0.771
+ 2 2010 Q2 x     -0.620
+ 3 2010 Q3 x     -0.287
+ 4 2010 Q4 x     -1.66 
+ 5 2011 Q1 x     -0.523
+ 6 2011 Q2 x      1.15 
+ 7 2011 Q3 x     -1.75 
+ 8 2011 Q4 x     -0.583
+ 9 2012 Q1 x      0.381
+10 2012 Q2 x      0.641
+# … with 20 more rows</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>Here there are 54 TS combinations:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>aus_livestock</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tsibble: 29,364 x 4 [1M]
+# Key:       Animal, State [54]
+      Month Animal                     State                        Count
+      &lt;mth&gt; &lt;fct&gt;                      &lt;fct&gt;                        &lt;dbl&gt;
+ 1 1976 Jul Bulls, bullocks and steers Australian Capital Territory  2300
+ 2 1976 Aug Bulls, bullocks and steers Australian Capital Territory  2100
+ 3 1976 Sep Bulls, bullocks and steers Australian Capital Territory  2100
+ 4 1976 Oct Bulls, bullocks and steers Australian Capital Territory  1900
+ 5 1976 Nov Bulls, bullocks and steers Australian Capital Territory  2100
+ 6 1976 Dec Bulls, bullocks and steers Australian Capital Territory  1800
+ 7 1977 Jan Bulls, bullocks and steers Australian Capital Territory  1800
+ 8 1977 Feb Bulls, bullocks and steers Australian Capital Territory  1900
+ 9 1977 Mar Bulls, bullocks and steers Australian Capital Territory  2700
+10 1977 Apr Bulls, bullocks and steers Australian Capital Territory  2300
+# … with 29,354 more rows</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>Wrangling similar to the Tidyverse, only <code>index_by()</code> +<code>summarise()</code> would be the <code>group_by() + summarise()</code> flow:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>aus_livestock <span class="sc">%&gt;%</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Animal <span class="sc">==</span> <span class="st">"Calves"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">index_by</span>(<span class="at">year =</span> <span class="fu">year</span>(Month)) <span class="sc">%&gt;%</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_count =</span> <span class="fu">sum</span>(Count), <span class="at">max_count =</span> <span class="fu">max</span>(Count))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tsibble: 47 x 3 [1Y]
+    year total_count max_count
+   &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;
+ 1  1972      918000    174000
+ 2  1973     1357800    186200
+ 3  1974     1242700    164100
+ 4  1975     1880400    213800
+ 5  1976     2495600    270200
+ 6  1977     2463700    270600
+ 7  1978     2186000    241100
+ 8  1979     1576600    231100
+ 9  1980     1512400    193000
+10  1981     1447100    203100
+# … with 37 more rows</code></pre>
+</div>
+</div>
+<p>And seamless integration with <code>ggplot2</code> and friends, use <code>autoplot()</code> from <code>fable</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>aus_livestock <span class="sc">%&gt;%</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Animal <span class="sc">==</span> <span class="st">"Calves"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">index_by</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">total_count =</span> <span class="fu">sum</span>(Count)) <span class="sc">%&gt;%</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>(<span class="fu">log</span>(total_count)) <span class="sc">+</span></span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">"log no. of calves slaughtered in Australia"</span>) <span class="sc">+</span></span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_yearmonth</span>(<span class="at">date_breaks =</span> <span class="st">"5 year"</span>, <span class="at">date_labels =</span> <span class="st">"%Y"</span>) <span class="sc">+</span></span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_light</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 <section id="code" class="slide level2">
 <h2>Code</h2>
 <p>When you click the <strong>Render</strong> button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2</code></pre>
 </div>
 </div>
 <div class="cell" data-fig.asp="0.5">
-<div class="sourceCode cell-code" id="cb4" data-code-line-numbers="|3|4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb4-2"><a href="#cb4-2"></a></span>
-<span id="cb4-3"><a href="#cb4-3"></a>plt.plot(<span class="bu">range</span>(<span class="dv">5</span>))</span>
-<span id="cb4-4"><a href="#cb4-4"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb61" data-code-line-numbers="|3|4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb61-2"><a href="#cb61-2"></a></span>
+<span id="cb61-3"><a href="#cb61-3"></a>plt.plot(<span class="bu">range</span>(<span class="dv">5</span>))</span>
+<span id="cb61-4"><a href="#cb61-4"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img data-src="u5_d01-timeseries_files/figure-revealjs/unnamed-chunk-4-1.png" width="480"></p>
+<p><img data-src="u5_d01-timeseries_files/figure-revealjs/unnamed-chunk-20-1.png" width="480"></p>
 </div>
 </div>
 <div class="callout callout-tip callout-style-simple">

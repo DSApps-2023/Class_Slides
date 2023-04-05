@@ -60,19 +60,21 @@ aus_livestock %>%
 
 ---
 
-### Focus on:
+### TSA Focuses on:
 
+::::: {.columns}
+:::: {.column width="40%"}
+::: {.incremental}
 - Discrete measurements
 - Equally-spaced
 - Usually no missing values
 - Not that short (say > 20? 50?)
 - Time is intrinsic, it is not just another feature
 - Could involve time-varying/non-time-varying explaining features
-
----
-
-### What isn't a Time Series?
-
+:::
+:::
+:::: {.column width="60%"}
+::: {.fragment}
 E.g. this is more of a longitudinal/growth-curve/cohort dataset:
 
 ```{r}
@@ -90,17 +92,213 @@ ggplot(ukb %>% sample_n(50000),
   labs(x = "Age", y = "UK Biobank participants systolic blood pressure") +
   theme_light()
 ```
+:::
+::::
+:::::
 
+---
 
-## Understanding Images {.title-slide}
+### TSA Goals
 
+- Forecasting [(prediction)]{style="font-size:16px"}
+- Describing the TS dynamics
+- Determination of input features contribution
+- Planning: control schemes, intervention analyses, sensitivity analyses
+- Multivariate TS: interrelationships, clustering
 
-## Bullets
+---
 
-When you click the **Render** button a document will be generated that includes:
+## Detour: Dates in R {.title-slide}
 
--   Content authored with markdown
--   Output from executable code
+---
+
+#### The `Date` class
+
+```{r}
+date_obj <- as.Date("1915-6-16")
+
+class(date_obj)
+```
+
+Internally, `Date` objects are stored as the number of days since January 1, 1970, using negative numbers for earlier dates.
+
+```{r}
+typeof(date_obj)
+as.numeric(date_obj)
+```
+
+So this naturally works:
+
+```{r}
+date_obj + 10
+range(date_obj + 0:10)
+```
+
+Can also accept different formats and has a few built-in functions:
+
+```{r}
+date_obj <- as.Date("1/15/2001",format="%m/%d/%Y")
+months(date_obj)
+```
+
+---
+
+#### The `POSIX` classes
+
+`POSIX` is a slightly more evolved class from UNIX, holding number of seconds since January 1, 1970, and a time zone may be specified:
+
+```{r}
+now <- Sys.time()
+
+now
+
+class(now)
+
+as.numeric(now)
+```
+
+The `POSIXlt` class will store time in a list with useful elements:
+
+```{r}
+now <- as.POSIXlt(now, tz = "GMT")
+now$hour
+```
+
+---
+
+#### The `lubridate` package
+
+Parsing dates:
+
+```{r}
+today()
+
+ymd("2023-01-31")
+
+dmy("31-Jan-2023")
+
+ymd(20170131)
+```
+
+Making dates:
+
+```{r}
+make_date(year = 2013, month = 2, day = 12)
+```
+
+Converting between formats:
+
+```{r}
+as_datetime(today())
+```
+
+---
+
+Getting components:
+
+```{r}
+datetime <- ymd_hms("2016-07-08 12:34:56")
+
+year(datetime)
+mday(datetime)
+yday(datetime)
+wday(datetime)
+```
+
+Duration, time maths:
+
+```{r}
+today() - ymd("2020-01-01") #base R difftime object
+as.duration(today() - ymd("2020-01-01"))
+today() - dyears(1)
+today() + ddays(10)
+```
+
+---
+
+## The Tidyverts {.title-slide}
+
+---
+
+### The Tidyverts
+
+A suite of packages for TSA, the **tidy** way, led by [Rob J. Hyndman](https://robjhyndman.com/):
+
+- `tsibble`: The ~~`data.frame`~~ `tibble` re-imagined for temporal data
+- `tsibbledata`: TS datasets
+- `feasts`: Feature extraction for TS
+- `fable` and `fabletools`: **The** modeling and forecasting package
+- more and more to come.
+
+See [tidyverts.org](https://tidyverts.org/).
+
+---
+
+### `tsibble`
+
+Need a time `index`:
+
+```{r}
+library(tsibble)
+
+tsibble(
+  date = as.Date("2017-01-01") + 0:9,
+  value = rnorm(10)
+)
+```
+
+Here, as `date` is the only **`Date`** column, `tsibble` gets this.
+
+`[1D]` is the tsibble's `interval`.
+
+---
+
+Grouping variable(s) are specified with `key`:
+
+```{r}
+tsibble(
+  qtr = rep(yearquarter("2010 Q1") + 0:9, 3),
+  group = rep(c("x", "y", "z"), each = 10),
+  value = rnorm(30),
+  key = group
+)
+```
+
+---
+
+Here there are 54 TS combinations:
+
+```{r}
+aus_livestock
+```
+
+---
+
+Wrangling similar to the Tidyverse, only `index_by()` +`summarise()` would be the `group_by() + summarise()` flow:
+
+```{r}
+aus_livestock %>%
+  filter(Animal == "Calves") %>%
+  index_by(year = year(Month)) %>%
+  summarise(total_count = sum(Count), max_count = max(Count))
+```
+
+And seamless integration with `ggplot2` and friends, use `autoplot()` from `fable`:
+
+```{r}
+#| eval: false
+
+aus_livestock %>%
+  filter(Animal == "Calves") %>%
+  index_by() %>%
+  summarise(total_count = sum(Count)) %>%
+  autoplot(log(total_count)) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+
+---
 
 ## Code
 
