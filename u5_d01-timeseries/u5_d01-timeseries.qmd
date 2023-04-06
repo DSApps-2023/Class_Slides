@@ -311,7 +311,7 @@ Some more useful plots:
 
 ```{r}
 #| label: Calves-season
-#| code-line-numbers: "4"
+#| code-line-numbers: "|4"
 
 library(feasts)
 
@@ -362,7 +362,7 @@ aus_livestock |>
 
 ```{r}
 #| label: feasts-stl
-#| code-line-numbers: "1-3|4|5"
+#| code-line-numbers: "|1-3|4|5"
 
 aus_livestock |>
   group_by(Animal) |>
@@ -424,35 +424,418 @@ What is the 1st conclusion about no. of calves slaughtered in AUS? What is the 2
 
 ### Classical Decomposition
 
+- Let $Y_1, \dots, Y_n$ be our TS, then:
 $$
-y_t = S_t + T_t + R_t
-$$
-
-where $S_t$ is the seasonal component, $T_t$ is the trend, $R_t$ is the remainder, all at time $t$.
-
-Necessary but not sufficient condition: Make $R_t$ "white noise", i.e. $R_t \sim \mathcal{N}(0, \sigma^2)$
-
-Decomposition can also be multiplicative:
-
-$$
-y_t = S_t \times T_t \times R_t
+Y_t = S_t + T_t + \varepsilon_t
 $$
 
-But then we'd take $\log(y_t)$.
+where $S_t$ is the seasonal component, $T_t$ is the trend, $\varepsilon_t$ is the remainder, all at time $t$.
+
+- Necessary but not sufficient condition: Make $\varepsilon_t$ "white noise", i.e. $\varepsilon_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)$
+
+- Decomposition can also be multiplicative:
+
+$$
+Y_t = S_t \times T_t \times \varepsilon_t
+$$
+
+but then we'd take $\log(Y_t)$.
 
 ---
 
-Make a long story short:
+To make a long story short:
 
 ```{r}
 #| label: classic-decomp
+#| echo: false
 
 aus_calves |>
   model(classical_decomposition(log_count)) |>
   components() |>
   autoplot() +
+  labs(x = "", y = "log no. of calves slaughtered in Australia", title = "") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+
+---
+
+#### Moving Averages
+
+$m$-MA suitable for an odd seasonality period $m = 2k + 1$ (e.g. a week):
+
+$$
+\hat{T}_t = \frac{1}{m}\sum_{j = -k}^{j = k} Y_{t + j}
+$$
+
+```{r}
+aus_calves |>
+  mutate(
+    `7-MA` = slider::slide_dbl(log_count, mean,
+                .before = 3, .after = 3, .complete = TRUE)
+  )
+```
+
+---
+
+#### Moving Averages of Moving Averages
+
+$2 \times m$-MA suitable for an even seasonality period $m = 2k$ (e.g. quarter):
+
+\begin{split}
+Q_t = \frac{1}{m}\sum_{j = -(k-1)}^{j = k} Y_{t + j}  \\
+
+\hat{T}_t = \frac{1}{2} Q_{t-1} + \frac{1}{2} Q_{t}
+\end{split}
+
+E.g. for $m = 4$ (quarter):
+
+\begin{split}
+\hat{T}_t &= \frac{1}{2} \left[\frac{1}{4}(Y_{t-2} + Y_{t-1} + Y_{t} + Y_{t+1}) + \frac{1}{4}(Y_{t-1} + Y_{t} + Y_{t + 1} + Y_{t+2})\right] \\
+
+  &= \frac{1}{8}Y_{t_2} + \frac{1}{4}Y_{t_1} + \frac{1}{4}Y_{t} + \frac{1}{4}Y_{t+1} + \frac{1}{8}Y_{t+2}
+\end{split}
+
+::: {.callout-tip}
+Which makes this...
+:::
+
+---
+
+```{r}
+aus_calves_with_12ma <- aus_calves |>
+mutate(
+    `12-MA` = slider::slide_dbl(log_count, mean,
+                .before = 6, .after = 5, .complete = TRUE),
+    `2x12-MA` = slider::slide_dbl(`12-MA`, mean,
+                .before = 1, .after = 0, .complete = TRUE)
+  )
+
+aus_calves_with_12ma
+```
+
+```{r}
+
+(mean(aus_calves$log_count[1:12]) + mean(aus_calves$log_count[2:13])) / 2
+
+aus_calves_with_12ma$`2x12-MA`[8]
+```
+
+---
+
+```{r}
+#| label: Calves-MA
+
+aus_calves_with_12ma |>
+  autoplot(log_count, colour = "gray") +
+  geom_line(aes(y = `2x12-MA`), colour = "#D55E00") +
   labs(x = "", y = "log no. of calves slaughtered in Australia") +
   scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
   theme_light()
 ```
 
+---
+
+#### Back to Classical Decomposition
+
+From [Hyndman & Athanasopoulos, 2021](https://otexts.com/fpp3/):
+
+::: {.incremental}
+1. If $m$ is an even number, compute the trend component $\hat{T}_t$ using a $2 \times m$-MA. If $m$ is an odd number, compute the trend component $\hat{T}_t$ using a $m$-MA.
+
+2. Calculate the detrended series: $Y_t - \hat{T}_t$.
+
+3. To estimate the seasonal component for each season, simply average the detrended values for that season. These seasonal component values are then adjusted to ensure that they add to zero. The seasonal component is obtained by stringing together these monthly values, and then replicating the sequence for each year of data. This gives $\hat{S}_t$.
+
+4. The remainder component is calculated by subtracting the estimated seasonal and trend-cycle components: $\hat{\varepsilon}_t = Y_t - \hat{T}_t - \hat{S}_t$
+
+::: {.callout-tip}
+Criticize this process!
+:::
+
+:::
+
+
+---
+
+In `fable`:
+
+```{r}
+#| eval: false
+
+aus_calves |>
+  model(classical_decomposition(log_count)) |>
+  components() |>
+  autoplot()
+```
+
+![](`r knitr::fig_chunk('classic-decomp', 'png')`)
+
+---
+
+### STL Decomposition
+
+STL: Seasonal and Trend decomposition using LOESS, from [Clevelnad et al., 1990](http://bit.ly/stl1990).
+
+```{r}
+#| label: STL-decomp
+#| code-line-numbers: "|2-3"
+
+aus_calves |>
+  model(STL(log_count)) |>
+  components() |>
+  autoplot() +
+  labs(x = "", y = "log no. of calves slaughtered in Australia", title = "") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+
+---
+
+### ACF
+
+(Sample) auto-correlation function at lag $k$ is a huge deal in TSA!
+
+$$
+r_k = \frac{\sum_{t = k+1}^{n}(Y_t - \bar{Y})(Y_{t-k} - \bar{Y})}{\sum_{t = 1}^{n} (Y_t - \bar{Y})^2}
+$$
+```{r}
+aus_calves |>
+  ACF(log_count, lag_max = 10)
+```
+
+---
+
+```{r}
+#| label: Calves-ACF
+aus_calves |>
+  ACF(log_count, lag_max = 40) |>
+  autoplot() +
+  theme_light()
+```
+
+::: {.callout-tip}
+Where does the CI come from?
+:::
+
+---
+
+### Residuals
+
+What do we like to see in residuals?
+
+1. Uncorrelated
+2. Zero mean
+
+Good to have:
+
+3. Homoscedasticity
+
+4. Gaussian
+
+::: {.fragment .highlight-red}
+Actually we already wrote this: $\varepsilon_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)$
+:::
+
+::: {.fragment}
+::: {.callout-tip}
+All your knowledge from linear regression comes into play! E.g. what if the mean isn't zero?
+:::
+:::
+
+---
+
+#### Residuals Diagnostics Viz
+
+Feasts has `gg_tsresiduals()` for a quick look given a `mable`:
+```{r}
+#| label: Calves-resid1
+aus_calves |>
+  model(STL(log_count)) |>
+  gg_tsresiduals()
+```
+
+::: {.callout-tip}
+What do you expect to see in each of these?
+:::
+
+---
+
+#### "Stadardized" Residuals Diagnostics Viz
+
+Getting residuals from a `fable` model (a.k.a `mable`) with `augment()`:
+
+```{r}
+aus_calves_aug <- aus_calves |>
+  model(STL(log_count)) |>
+  augment()
+
+aus_calves_aug
+```
+
+White noise standardized residuals should behave like $\mathcal{N}(0, 1)$, so:
+
+```{r}
+resid <- aus_calves_aug$.innov
+n <- dim(aus_calves)[1]
+sig <- sqrt(sum((resid - mean(resid))**2)/n) # very rough!
+
+aus_calves_aug$st_resid <- resid / sig
+```
+
+---
+
+```{r}
+#| label: Calves-resid2
+aus_calves_aug |>
+  ggplot(aes(Month, st_resid)) +
+  geom_point() +
+  geom_line() +
+  labs(x = "", y = "Standardized Residuals") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_bw()
+```
+
+---
+
+```{r}
+#| label: Calves-resid3
+aus_calves_aug |>
+  ggplot(aes(x = st_resid)) +
+  geom_histogram() +
+  labs(x = "Standardized Residuals", y = "") +
+  theme_bw()
+```
+
+---
+
+```{r}
+#| label: Calves-resid4
+aus_calves_aug |>
+  ggplot(aes(sample = st_resid)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(x = "Theoretical Quantiles", y = "Residuals Quantiles") +
+  theme_bw()
+```
+
+---
+
+```{r}
+#| label: Calves-resid5
+aus_calves_aug |>
+  ggplot(aes(.fitted, st_resid)) +
+  geom_point() +
+  labs(x = "Fitted", y = "Standardized Residuals") +
+  theme_bw()
+```
+
+---
+
+```{r}
+#| label: Calves-resid6
+
+acf_obj <- acf(aus_calves_aug$st_resid, plot = FALSE)
+
+acf_df <- with(acf_obj, tibble(lag = lag[,,1], acf = acf[,,1])) %>%
+  filter(lag > 0)
+
+acf_df |>
+  ggplot(aes(lag, acf)) +
+  geom_hline(aes(yintercept = 0)) +
+  geom_hline(aes(yintercept = -1/sqrt(n)), color = "blue", linetype = 2) +
+  geom_hline(aes(yintercept = 1/sqrt(n)), color = "blue", linetype = 2) +
+  geom_segment(aes(xend = lag, yend = 0)) +
+  theme_bw()
+```
+
+---
+
+## Baseline Forecasts {.title-slide}
+
+---
+
+### Baseline Forecasts
+
+In general, $\hat{Y}_t(l) = E(Y_{t+l} | Y_1, \dots, Y_t)$ is the minimum MSE forecast, $l$ time units into the future from time $t$.
+
+What if $Y_t = \mu + \varepsilon_t$?
+
+What if $Y_t = \mu_t + \varepsilon_t = \beta_0 + \beta_1\cdot t + \varepsilon_t$?
+
+::: {.incremental}
+- Mean: $\hat{Y}_t(l) = \bar{Y}$
+- Naive: $\hat{Y}_t(l) = Y_t$
+- Seasonal Naive: $\hat{Y}_t(l) = Y_{t + l - m(k-1)}$, where $m$ is the seasonality and $k$ is the integer part of $(l-1)/m$ (i.e. the forecast for all future February values is equal to the last observed February value.)
+- Linear regression: $\hat{Y}_t(l) = \hat{\beta}_0 + \hat{\beta}_1(t + l)$
+:::
+
+---
+
+```{r}
+#| eval: false
+# Set training data until 2016
+train <- aus_calves |>
+  filter(year(Month) < 2016)
+
+# Fit the models
+models_fit <- train |>
+  model(
+    Mean = MEAN(log_count),
+    Naive = NAIVE(log_count),
+    Seasonal_naive = SNAIVE(log_count)
+  )
+
+# Generate forecasts for 3 years
+models_fit <- models_fit |> forecast(h = 36)
+
+# Plot forecasts against actual values
+models_fit |>
+  autoplot(train, level = NULL) +
+  autolayer(
+    filter_index(aus_calves, "2016-01" ~ .),
+    log_count,
+    colour = "black") +
+  guides(colour = guide_legend(title = "Forecast")) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_bw()
+```
+
+---
+
+```{r}
+#| label: Calves-Forecasts
+#| echo: false
+#| fig-width: 6
+#| out-width: 100%
+
+# Set training data until 2016
+train <- aus_calves |>
+  filter(year(Month) < 2016)
+
+# Fit the models
+models_fit <- train |>
+  model(
+    Mean = fable::MEAN(log_count),
+    Naive = fable::NAIVE(log_count),
+    Seasonal_naive = fable::SNAIVE(log_count)
+  )
+
+# Generate forecasts for 3 years
+models_fit <- models_fit |> forecast(h = 36)
+
+# Plot forecasts against actual values
+models_fit |>
+  autoplot(train, level = NULL) +
+  autolayer(
+    filter_index(aus_calves, "2016-01" ~ .),
+    log_count,
+    colour = "black"
+  ) +
+  guides(colour = guide_legend(title = "Forecast")) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme(axis.text = element_text(size = 30)) +
+  theme_bw()
+```
