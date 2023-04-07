@@ -520,7 +520,7 @@
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>now</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2023-04-07 08:46:29 IDT"</code></pre>
+<pre><code>[1] "2023-04-07 09:43:32 IDT"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -528,7 +528,7 @@
 </div>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1680846390</code></pre>
+<pre><code>[1] 1680849812</code></pre>
 </div>
 </div>
 <p>The <code>POSIXlt</code> class will store time in a list with useful elements:</p>
@@ -536,7 +536,7 @@
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>now <span class="ot">&lt;-</span> <span class="fu">as.POSIXlt</span>(now, <span class="at">tz =</span> <span class="st">"GMT"</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>now<span class="sc">$</span>hour</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 5</code></pre>
+<pre><code>[1] 6</code></pre>
 </div>
 </div>
 </section>
@@ -649,18 +649,18 @@
 <span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tsibble: 10 x 2 [1D]
-   date        value
-   &lt;date&gt;      &lt;dbl&gt;
- 1 2017-01-01 -0.689
- 2 2017-01-02  0.923
- 3 2017-01-03 -1.36 
- 4 2017-01-04 -0.218
- 5 2017-01-05  0.854
- 6 2017-01-06 -2.71 
- 7 2017-01-07 -1.20 
- 8 2017-01-08  0.176
- 9 2017-01-09  2.00 
-10 2017-01-10  2.08 </code></pre>
+   date         value
+   &lt;date&gt;       &lt;dbl&gt;
+ 1 2017-01-01  0.318 
+ 2 2017-01-02  0.474 
+ 3 2017-01-03  1.33  
+ 4 2017-01-04  0.982 
+ 5 2017-01-05  0.403 
+ 6 2017-01-06  1.03  
+ 7 2017-01-07  0.0952
+ 8 2017-01-08 -2.93  
+ 9 2017-01-09 -1.21  
+10 2017-01-10 -0.392 </code></pre>
 </div>
 </div>
 <p>Here, as <code>date</code> is the only <strong><code>Date</code></strong> column, <code>tsibble</code> gets this.</p>
@@ -681,16 +681,16 @@
 # Key:       group [3]
        qtr group  value
      &lt;qtr&gt; &lt;chr&gt;  &lt;dbl&gt;
- 1 2010 Q1 x     -1.70 
- 2 2010 Q2 x      2.75 
- 3 2010 Q3 x      0.124
- 4 2010 Q4 x     -2.35 
- 5 2011 Q1 x      0.331
- 6 2011 Q2 x      0.685
- 7 2011 Q3 x     -1.36 
- 8 2011 Q4 x      1.39 
- 9 2012 Q1 x     -0.742
-10 2012 Q2 x      1.17 
+ 1 2010 Q1 x      0.698
+ 2 2010 Q2 x      0.597
+ 3 2010 Q3 x      1.23 
+ 4 2010 Q4 x     -1.89 
+ 5 2011 Q1 x      0.805
+ 6 2011 Q2 x     -0.369
+ 7 2011 Q3 x     -0.901
+ 8 2011 Q4 x      0.155
+ 9 2012 Q1 x      1.56 
+10 2012 Q2 x     -0.933
 # … with 20 more rows</code></pre>
 </div>
 </div>
@@ -841,8 +841,8 @@
 </div>
 </div>
 </section>
-<section id="ts-eda-decomposition" class="slide level2 title-slide center">
-<h2>TS EDA &amp; Decomposition</h2>
+<section id="ts-decomposition" class="slide level2 title-slide center">
+<h2>TS Decomposition</h2>
 </section>
 <section class="slide level2">
 
@@ -898,16 +898,16 @@
 <h3 id="classical-decomposition">Classical Decomposition</h3>
 <ul>
 <li>Let <span class="math inline">\(Y_1, \dots, Y_n\)</span> be our TS, then: <span class="math display">\[
-Y_t = S_t + T_t + \varepsilon_t
+Y_t = S_t + T_t + e_t
 \]</span></li>
 </ul>
-<p>where <span class="math inline">\(S_t\)</span> is the seasonal component, <span class="math inline">\(T_t\)</span> is the trend, <span class="math inline">\(\varepsilon_t\)</span> is the remainder, all at time <span class="math inline">\(t\)</span>.</p>
+<p>where <span class="math inline">\(S_t\)</span> is the seasonal component, <span class="math inline">\(T_t\)</span> is the trend, <span class="math inline">\(e_t\)</span> is the remainder, all at time <span class="math inline">\(t\)</span>.</p>
 <ul>
-<li><p>Necessary but not sufficient condition: Make <span class="math inline">\(\varepsilon_t\)</span> “white noise”, i.e.&nbsp;<span class="math inline">\(\varepsilon_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)\)</span></p></li>
+<li><p>Necessary but not sufficient condition: Make <span class="math inline">\(e_t\)</span> “white noise”, i.e.&nbsp;<span class="math inline">\(e_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)\)</span></p></li>
 <li><p>Decomposition can also be multiplicative:</p></li>
 </ul>
 <p><span class="math display">\[
-Y_t = S_t \times T_t \times \varepsilon_t
+Y_t = S_t \times T_t \times e_t
 \]</span></p>
 <p>but then we’d take <span class="math inline">\(\log(Y_t)\)</span>.</p>
 </section>
@@ -1034,7 +1034,7 @@ Q_t = \frac{1}{m}\sum_{j = -(k-1)}^{j = k} Y_{t + j}  \\
 <li class="fragment"><p>If <span class="math inline">\(m\)</span> is an even number, compute the trend component <span class="math inline">\(\hat{T}_t\)</span> using a <span class="math inline">\(2 \times m\)</span>-MA. If <span class="math inline">\(m\)</span> is an odd number, compute the trend component <span class="math inline">\(\hat{T}_t\)</span> using a <span class="math inline">\(m\)</span>-MA.</p></li>
 <li class="fragment"><p>Calculate the detrended series: <span class="math inline">\(Y_t - \hat{T}_t\)</span>.</p></li>
 <li class="fragment"><p>To estimate the seasonal component for each season, simply average the detrended values for that season. These seasonal component values are then adjusted to ensure that they add to zero. The seasonal component is obtained by stringing together these monthly values, and then replicating the sequence for each year of data. This gives <span class="math inline">\(\hat{S}_t\)</span>.</p></li>
-<li class="fragment"><p>The remainder component is calculated by subtracting the estimated seasonal and trend-cycle components: <span class="math inline">\(\hat{\varepsilon}_t = Y_t - \hat{T}_t - \hat{S}_t\)</span></p></li>
+<li class="fragment"><p>The remainder component is calculated by subtracting the estimated seasonal and trend-cycle components: <span class="math inline">\(\hat{e}_t = Y_t - \hat{T}_t - \hat{S}_t\)</span></p></li>
 </ol>
 <div class="callout callout-tip callout-style-simple">
 <div class="callout-body">
@@ -1138,7 +1138,7 @@ r_k = \frac{\sum_{t = k+1}^{n}(Y_t - \bar{Y})(Y_{t-k} - \bar{Y})}{\sum_{t = 1}^{
 <li><p>Gaussian</p></li>
 </ol>
 <div class="fragment highlight-red">
-<p>Actually we already wrote this: <span class="math inline">\(\varepsilon_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)\)</span></p>
+<p>Actually we already wrote this: <span class="math inline">\(e_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)\)</span></p>
 </div>
 <div class="fragment">
 <div class="callout callout-tip callout-style-simple">
@@ -1348,8 +1348,8 @@ X-squared = 149.71, df = 10, p-value &lt; 2.2e-16</code></pre>
 
 <h3 id="baseline-forecasts-1">Baseline Forecasts</h3>
 <p>In general, <span class="math inline">\(\hat{Y}_t(l) = E(Y_{t+l} | Y_1, \dots, Y_t)\)</span> is the minimum MSE forecast, <span class="math inline">\(l\)</span> time units into the future from time <span class="math inline">\(t\)</span>.</p>
-<p>What if <span class="math inline">\(Y_t = \mu + \varepsilon_t\)</span>?</p>
-<p>What if <span class="math inline">\(Y_t = \mu_t + \varepsilon_t = \beta_0 + \beta_1\cdot t + \varepsilon_t\)</span>?</p>
+<p>What if <span class="math inline">\(Y_t = \mu + e_t\)</span>?</p>
+<p>What if <span class="math inline">\(Y_t = \mu_t + e_t = \beta_0 + \beta_1\cdot t + e_t\)</span>?</p>
 <div>
 <ul>
 <li class="fragment">Mean: <span class="math inline">\(\hat{Y}_t(l) = \bar{Y}\)</span></li>

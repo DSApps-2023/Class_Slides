@@ -373,7 +373,7 @@ aus_livestock |>
 
 ---
 
-## TS EDA & Decomposition {.title-slide}
+## TS Decomposition {.title-slide}
 
 ---
 
@@ -426,17 +426,17 @@ What is the 1st conclusion about no. of calves slaughtered in AUS? What is the 2
 
 - Let $Y_1, \dots, Y_n$ be our TS, then:
 $$
-Y_t = S_t + T_t + \varepsilon_t
+Y_t = S_t + T_t + e_t
 $$
 
-where $S_t$ is the seasonal component, $T_t$ is the trend, $\varepsilon_t$ is the remainder, all at time $t$.
+where $S_t$ is the seasonal component, $T_t$ is the trend, $e_t$ is the remainder, all at time $t$.
 
-- Necessary but not sufficient condition: Make $\varepsilon_t$ "white noise", i.e. $\varepsilon_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)$
+- Necessary but not sufficient condition: Make $e_t$ "white noise", i.e. $e_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)$
 
 - Decomposition can also be multiplicative:
 
 $$
-Y_t = S_t \times T_t \times \varepsilon_t
+Y_t = S_t \times T_t \times e_t
 $$
 
 but then we'd take $\log(Y_t)$.
@@ -547,7 +547,7 @@ From [Hyndman & Athanasopoulos, 2021](https://otexts.com/fpp3/):
 
 3. To estimate the seasonal component for each season, simply average the detrended values for that season. These seasonal component values are then adjusted to ensure that they add to zero. The seasonal component is obtained by stringing together these monthly values, and then replicating the sequence for each year of data. This gives $\hat{S}_t$.
 
-4. The remainder component is calculated by subtracting the estimated seasonal and trend-cycle components: $\hat{\varepsilon}_t = Y_t - \hat{T}_t - \hat{S}_t$
+4. The remainder component is calculated by subtracting the estimated seasonal and trend-cycle components: $\hat{e}_t = Y_t - \hat{T}_t - \hat{S}_t$
 
 ::: {.callout-tip}
 Criticize this process!
@@ -638,7 +638,7 @@ Good to have:
 4. Gaussian
 
 ::: {.fragment .highlight-red}
-Actually we already wrote this: $\varepsilon_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)$
+Actually we already wrote this: $e_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)$
 :::
 
 ::: {.fragment}
@@ -796,9 +796,9 @@ aus_calves_aug |> features(.innov, ljung_box, lag = 10)
 
 In general, $\hat{Y}_t(l) = E(Y_{t+l} | Y_1, \dots, Y_t)$ is the minimum MSE forecast, $l$ time units into the future from time $t$.
 
-What if $Y_t = \mu + \varepsilon_t$?
+What if $Y_t = \mu + e_t$?
 
-What if $Y_t = \mu_t + \varepsilon_t = \beta_0 + \beta_1\cdot t + \varepsilon_t$?
+What if $Y_t = \mu_t + e_t = \beta_0 + \beta_1\cdot t + e_t$?
 
 ::: {.incremental}
 - Mean: $\hat{Y}_t(l) = \bar{Y}$
