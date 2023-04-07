@@ -1,0 +1,391 @@
+---
+format:
+  revealjs:
+    slide-number: true
+    fig-width: 6
+    fig-asp: 0.618
+css: "../slides_quarto.css"
+standalone: false
+include-in-header: "../header_quarto.html"
+logo: "../DSApps_logo_white.jpg"
+pagetitle: "ARIMA"
+callout-appearance: simple
+smaller: true
+knitr:
+  opts_chunk:
+    fig-width: 6
+    fig-asp: 0.618
+execute:
+  echo: true
+code-line-numbers: false
+code-block-border-left: true
+highlight-style: github
+footer: "[Applications of Data Science](https://dsapps-2023.github.io/Class_Slides/){target='_blank'}"
+---
+
+## {.logo-slide}
+
+## ARIMA {.title-slide}
+
+### Applications of Data Science - Class 21
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com` and add `#dsapps` in subject
+
+### Stat. and OR Department, TAU
+### `r Sys.Date()`
+
+---
+
+### Motivation
+
+```{r}
+#| label: Calves
+#| echo: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(tsibble)
+library(tsibbledata)
+library(feasts)
+library(fable)
+
+aus_calves <- aus_livestock |>
+  filter(Animal == "Calves") |>
+  index_by() |>
+  summarise(count = sum(Count), log_count = log(count))
+
+calves_tr <- aus_calves |>
+  filter(year(Month) < 2016)
+calves_te <- aus_calves |>
+  filter(year(Month) >= 2016)
+```
+
+```{r}
+models_fit <- calves_tr |>
+  model(
+    Mean = MEAN(log_count),
+    Naive = NAIVE(log_count),
+    Seasonal_naive = SNAIVE(log_count),
+    LM = TSLM(log_count ~ trend()),
+    Arima = ARIMA(log_count)
+  )
+
+models_fc <- models_fit |> forecast(calves_te)
+
+models_fc |>
+  accuracy(
+    data = calves_te,
+    measures = list("RMSE" = RMSE, "MAE" = MAE)
+  )
+```
+
+---
+
+## Random Processes & Stationarity {.title-slide}
+
+---
+
+### White Noise
+
+$e_1, e_2, \dots$ are i.i.d RVs with mean 0 and variance $\sigma^2$, and
+
+\begin{aligned}
+Y_1 &= e_1 \\
+Y_2 &= e_2 \\
+& \vdots \\
+Y_t &= e_t
+\end{aligned}
+
+```{r}
+#| label: white_noise
+y <- runif(50, -1, 1)
+plot(y, type = "o", xlab = "t")
+```
+
+---
+
+### Random Walk
+
+\begin{aligned}
+Y_1 &= e_1 \\
+Y_2 &= e_1 + e_2 \\
+& \vdots \\
+Y_t &= e_1 + \dots + e_t
+\end{aligned}
+
+Or simply: $Y_t = Y_{t - 1} + e_t$
+
+```{r}
+#| label: random_walk
+y <- cumsum(runif(50, -1, 1))
+plot(y, type = "o", xlab = "t")
+```
+
+---
+
+### Simple Moving Average
+
+\begin{aligned}
+Y_2 &= \frac{e_{2} + e_{1}}{2} \\
+& \vdots \\
+Y_t &= \frac{e_{t} + e_{t-1}}{2}
+\end{aligned}
+
+
+```{r}
+#| label: moving_average
+#| fig-width: 5
+cy <- cumsum(runif(50, -1, 1))
+y <- (cy[2:length(cy)] + cy[1:(length(cy) - 1)]) / 2
+plot(y, type = "o", xlab = "t")
+```
+
+---
+
+### Stationarity
+
+- "probability laws that govern the behavior of the process do not change over time"
+
+- Strong: $Pr(Y_{t_1} < y_{t_1}, \dots, Y_{t_n} < y_{t_n}) = Pr(Y_{t_1-k} < y_{t_1-k}, \dots, Y_{t_n-k} < y_{t_n-k})$, for all choices of $t_1, \dots, t_n$ and lag $k$
+
+- Weak:
+  1. $E(Y_{t}) = E(Y_{t + k})$ (mean constant over time)
+  2. $Cov(Y_t, Y_{t-k}) = Cov(Y_k, Y_0)$ (covariance depends on lag $k$ only)
+
+- If $Y_t \sim \mathcal{N}$ strong and weak requirements coincide.
+
+::: {.fragment}
+::: {.callout-tip}
+So, which processes are (weakly) stationary?
+:::
+:::
+
+---
+
+#### How to "make" Random Walk stationary?
+
+::: {.fragment}
+
+Differencing: $Y_t - Y_{t - 1} = e_t$
+
+```{r}
+#| label: random_walk_diff
+#| fig-width: 8
+set.seed(1)
+y <- cumsum(runif(50, -1, 1))
+par(mfcol = c(1, 2))
+plot(y, type = "o", xlab = "")
+abline(h = 0, lty = 2, col = 2)
+plot(diff(y), type = "o", xlab = "")
+abline(h = 0, lty = 2, col = 2)
+```
+
+:::
+
+---
+
+## Autoregessive Processes {.title-slide}
+
+---
+
+### AR(p)
+
+An observation $Y_t$ is a linear combination of past $p$ most recent observations:
+
+$$
+Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + e_t
+$$
+where $c$ is a constant, $e_t$ is an "innovation" term as before, thus $Cov(e_t, Y_{t-k})=0$ for every $k > 0$.
+
+::: {.fragment}
+E.g. $Y_t = 1 + 0.5Y_{t-1} + 0.1Y_{t-2} - 0.1Y_{t-3} + e_t$
+```{r}
+#| label: AR3
+y <- 1 + arima.sim(list(order = c(3,0,0), ar = c(0.5, 0.1, -0.1)), n = 50)
+plot(y, type = "o", xlab = "t")
+```
+:::
+---
+
+### AR(1)
+
+Let the process mean $c$ be subtracted:
+
+$$
+Y_t = \phi Y_{t-1} + e_t
+$$
+
+::: {.callout-tip}
+What if $\phi = 0$? What if $\phi = 1$?
+:::
+
+:::: {.fragment}
+<hr/>
+
+$E(Y_t) = \phi E(Y_{t-1}) + E(e_t) = \dots = 0$
+
+$Var(Y_t) = \phi^2Var(Y_t) + \sigma^2 \rightarrow Var(Y_t) = \frac{\sigma^2}{1-\phi^2}$
+
+::: {.callout-important}
+So $|\phi| < 1$.
+:::
+::::
+
+---
+
+### AR(1)
+
+\begin{aligned}
+Cov(Y_t, Y_{t-k}) &= E(Y_t Y_{t-k}) - E(Y_t)E(Y_{t-k}) \\
+                  &= \phi E(Y_{t-1} Y_{t-k}) - E(e_t Y_{t-k}) \\
+                  & \vdots \\
+                  &= \phi^k Var(Y_t) = \phi^k \frac{\sigma^2}{1-\phi^2}
+
+\end{aligned}
+
+:::: {.fragment}
+
+<hr/>
+$$
+\rho_k = Corr(Y_t, Y_{t-k}) = \frac{Cov(Y_t, Y_{t-k})}{\sqrt{Var(Y_t)}\sqrt{Var(Y_{t-k})}} = \phi^k
+$$
+
+::: {.callout-tip}
+How would the ACF look like?
+:::
+::: {.callout-tip}
+Is AR(1) (weakly) stationary?
+:::
+
+::::
+---
+
+### AR(1) - ACF
+
+```{r}
+#| echo: false
+make_acf_df <- function(y, lag.max = 10) {
+  acf_obj <- acf(y, lag.max, plot = FALSE)
+
+  acf_df <- with(acf_obj, tibble(lag = lag[,,1], acf = acf[,,1])) |>
+    filter(lag > 0)
+  
+  return(acf_df)
+}
+```
+
+```{r}
+#| label: AR1-ACF
+#| echo: true
+#| code-fold: true
+set.seed(1)
+n <- 500
+y_pos <- arima.sim(list(order = c(1,0,0), ar = 0.7), n = n)
+y_neg <- arima.sim(list(order = c(1,0,0), ar = -0.7), n = n)
+acf_df_pos <- make_acf_df(y_pos)
+acf_df_neg <- make_acf_df(y_neg)
+acf_df_pos$phi <- "phi == 0.7"
+acf_df_neg$phi <- "phi == -0.7"
+acf_df <- bind_rows(acf_df_pos, acf_df_neg)
+
+acf_df |>
+  ggplot(aes(lag, acf)) +
+  geom_hline(aes(yintercept = 0)) +
+  geom_hline(aes(yintercept = -1/sqrt(n)), color = "blue", linetype = 2) +
+  geom_hline(aes(yintercept = 1/sqrt(n)), color = "blue", linetype = 2) +
+  geom_segment(aes(xend = lag, yend = 0)) +
+  facet_grid(. ~ phi, labeller = labeller(phi = label_parsed)) +
+  scale_x_continuous(breaks = 1:10) +
+  theme_bw()
+```
+
+---
+
+### AR(1) - Lag Scatterplots
+
+```{r}
+#| label: AR1-Lag
+#| warning: false
+#| message: false
+#| code-fold: true
+#| 
+library(patchwork)
+
+y_lag_df <- tibble(
+  y = y_pos,
+  y_lag1 = TSA::zlag(y_pos, 1),
+  y_lag2 = TSA::zlag(y_pos, 2),
+  y_lag3 = TSA::zlag(y_pos, 3)
+)
+p1 <- ggplot(y_lag_df, aes(y, y_lag1)) +
+  geom_point() +
+  labs(x = expression("Y"[t]), y = expression("Y"[t-1])) +
+  theme_bw()
+p2 <- ggplot(y_lag_df, aes(y, y_lag2)) +
+  geom_point() +
+  labs(x = expression("Y"[t]), y = expression("Y"[t-2])) +
+  theme_bw()
+p3 <- ggplot(y_lag_df, aes(y, y_lag3)) +
+  geom_point() +
+  labs(x = expression("Y"[t]), y = expression("Y"[t-3])) +
+  theme_bw()
+
+p1|p2|p3
+```
+
+---
+
+So will you recognize an AR(1) TS when you see it?
+
+```{r}
+#| label: AR1-See
+tibble(t = 1:50, y = y_pos[1:50]) |>
+  ggplot(aes(t, y)) +
+  geom_line() +
+  geom_point() +
+  theme_bw()
+```
+
+---
+
+### AR(2)
+
+$$
+Y_t = \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + e_t
+$$
+
+:::: {.fragment}
+<hr/>
+
+$E(Y_t) = \phi_1 E(Y_{t-1}) + \phi_2 E(Y_{t-2}) + E(e_t) = \dots = 0$
+
+$Var(Y_t) = \phi_1^2Var(Y_t) + \phi_2^2Var(Y_t) + \sigma^2 \rightarrow Var(Y_t) = \frac{\sigma^2}{1-\phi_1^2-\phi_2^2}$
+
+::::
+
+---
+
+## Moving Average Processes {.title-slide}
+
+---
+
+## ARIMA {.title-slide}
+
+---
+
+## Model Selection {.title-slide}
+
+---
+
+## Estimation {.title-slide}
+
+---
+
+## Forecasting {.title-slide}
+
+---
+
+## Seasonal ARIMA {.title-slide}
