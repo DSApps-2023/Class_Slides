@@ -103,11 +103,11 @@ ggplot(ukb |> sample_n(50000),
 
 ### TSA Goals
 
-- Forecasting [(prediction)]{style="font-size:16px"}
-- Describing the TS dynamics
-- Determination of input features contribution
+- Forecasting [(prediction)]{style="font-size:18px"}
+- Monitoring: outlier detection, alert systems
+- Describing: the TS dynamics, input features contribution
 - Planning: control schemes, intervention analyses, sensitivity analyses
-- Multivariate TS: interrelationships, clustering
+- Clustering: with multivariate TS
 
 ---
 
@@ -620,6 +620,10 @@ Where does the CI come from?
 
 ---
 
+## Residuals {.title-slide}
+
+---
+
 ### Residuals
 
 What do we like to see in residuals?
@@ -751,6 +755,39 @@ acf_df |>
 
 ---
 
+#### Residuals Statistical Tests
+
+Normality - Shapiro-Wilk Test:
+
+```{r}
+shapiro.test(aus_calves_aug$st_resid)
+```
+
+TS independence - Runs Test:
+
+```{r}
+TSA::runs(aus_calves_aug$st_resid)
+```
+
+---
+
+ACF - Ljung-Box Test:
+
+$$
+Q^* = n(n+2)\sum_{k = 1}^l (n - k)^{-1}r^2_k \sim \chi^2_l
+$$
+```{r}
+Box.test(aus_calves_aug$st_resid, lag = 10, type = "Ljung")
+```
+
+A bit more tidy with `fable`:
+
+```{r}
+aus_calves_aug |> features(.innov, ljung_box, lag = 10)
+```
+
+---
+
 ## Baseline Forecasts {.title-slide}
 
 ---
@@ -773,25 +810,36 @@ What if $Y_t = \mu_t + \varepsilon_t = \beta_0 + \beta_1\cdot t + \varepsilon_t$
 ---
 
 ```{r}
-#| eval: false
 # Set training data until 2016
-train <- aus_calves |>
+calves_tr <- aus_calves |>
   filter(year(Month) < 2016)
+calves_te <- aus_calves |>
+  filter(year(Month) >= 2016)
 
 # Fit the models
-models_fit <- train |>
+models_fit <- calves_tr |>
   model(
-    Mean = MEAN(log_count),
-    Naive = NAIVE(log_count),
-    Seasonal_naive = SNAIVE(log_count)
+    Mean = fable::MEAN(log_count),
+    Naive = fable::NAIVE(log_count),
+    Seasonal_naive = fable::SNAIVE(log_count),
+    LM = fable::TSLM(log_count ~ trend())
   )
 
 # Generate forecasts for 3 years
-models_fit <- models_fit |> forecast(h = 36)
+models_fit <- models_fit |> forecast(calves_te)
+
+# Can also do forecast(h = 36)
+
+```
+
+---
+
+```{r}
+#| label: Calves-Forecasts
 
 # Plot forecasts against actual values
 models_fit |>
-  autoplot(train, level = NULL) +
+  autoplot(calves_tr, level = NULL) +
   autolayer(
     filter_index(aus_calves, "2016-01" ~ .),
     log_count,
@@ -804,38 +852,15 @@ models_fit |>
 
 ---
 
+#### Evaluating forecast point accuracy
+
+E.g. RMSE, MAE:
+
 ```{r}
-#| label: Calves-Forecasts
-#| echo: false
-#| fig-width: 6
-#| out-width: 100%
-
-# Set training data until 2016
-train <- aus_calves |>
-  filter(year(Month) < 2016)
-
-# Fit the models
-models_fit <- train |>
-  model(
-    Mean = fable::MEAN(log_count),
-    Naive = fable::NAIVE(log_count),
-    Seasonal_naive = fable::SNAIVE(log_count)
+models_fit %>%
+  accuracy(
+    data = calves_te,
+    measures = list("RMSE" = RMSE, "MAE" = MAE)
   )
-
-# Generate forecasts for 3 years
-models_fit <- models_fit |> forecast(h = 36)
-
-# Plot forecasts against actual values
-models_fit |>
-  autoplot(train, level = NULL) +
-  autolayer(
-    filter_index(aus_calves, "2016-01" ~ .),
-    log_count,
-    colour = "black"
-  ) +
-  guides(colour = guide_legend(title = "Forecast")) +
-  labs(x = "", y = "log no. of calves slaughtered in Australia") +
-  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
-  theme(axis.text = element_text(size = 30)) +
-  theme_bw()
 ```
+

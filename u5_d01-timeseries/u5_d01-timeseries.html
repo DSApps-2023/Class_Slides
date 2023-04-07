@@ -402,7 +402,7 @@
 <h3 id="giora-simchoni">Giora Simchoni</h3>
 <h4 id="gsimchonigmail.com-and-add-dsapps-in-subject"><code>gsimchoni@gmail.com</code> and add <code>#dsapps</code> in subject</h4>
 <h3 id="stat.-and-or-department-tau">Stat. and OR Department, TAU</h3>
-<h3 id="section-1">2023-04-06</h3>
+<h3 id="section-1">2023-04-07</h3>
 </section>
 <section class="slide level2">
 
@@ -459,11 +459,11 @@
 
 <h3 id="tsa-goals">TSA Goals</h3>
 <ul>
-<li>Forecasting <span style="font-size:16px">(prediction)</span></li>
-<li>Describing the TS dynamics</li>
-<li>Determination of input features contribution</li>
+<li>Forecasting <span style="font-size:18px">(prediction)</span></li>
+<li>Monitoring: outlier detection, alert systems</li>
+<li>Describing: the TS dynamics, input features contribution</li>
 <li>Planning: control schemes, intervention analyses, sensitivity analyses</li>
-<li>Multivariate TS: interrelationships, clustering</li>
+<li>Clustering: with multivariate TS</li>
 </ul>
 </section>
 <section id="detour-dates-in-r" class="slide level2 title-slide center">
@@ -520,7 +520,7 @@
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>now</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2023-04-06 21:37:49 IDT"</code></pre>
+<pre><code>[1] "2023-04-07 08:15:44 IDT"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -528,7 +528,7 @@
 </div>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1680806270</code></pre>
+<pre><code>[1] 1680844544</code></pre>
 </div>
 </div>
 <p>The <code>POSIXlt</code> class will store time in a list with useful elements:</p>
@@ -536,7 +536,7 @@
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>now <span class="ot">&lt;-</span> <span class="fu">as.POSIXlt</span>(now, <span class="at">tz =</span> <span class="st">"GMT"</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>now<span class="sc">$</span>hour</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 18</code></pre>
+<pre><code>[1] 5</code></pre>
 </div>
 </div>
 </section>
@@ -547,7 +547,7 @@
 <div class="cell" data-fig.asp="0.618">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">today</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2023-04-06"</code></pre>
+<pre><code>[1] "2023-04-07"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="st">"2023-01-31"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -573,7 +573,7 @@
 <div class="cell" data-fig.asp="0.618">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as_datetime</span>(<span class="fu">today</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2023-04-06 UTC"</code></pre>
+<pre><code>[1] "2023-04-07 UTC"</code></pre>
 </div>
 </div>
 </section>
@@ -604,19 +604,19 @@
 <div class="cell" data-fig.asp="0.618">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">today</span>() <span class="sc">-</span> <span class="fu">ymd</span>(<span class="st">"2020-01-01"</span>) <span class="co">#base R difftime object</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Time difference of 1191 days</code></pre>
+<pre><code>Time difference of 1192 days</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.duration</span>(<span class="fu">today</span>() <span class="sc">-</span> <span class="fu">ymd</span>(<span class="st">"2020-01-01"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "102902400s (~3.26 years)"</code></pre>
+<pre><code>[1] "102988800s (~3.26 years)"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">today</span>() <span class="sc">-</span> <span class="fu">dyears</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2022-04-05 18:00:00 UTC"</code></pre>
+<pre><code>[1] "2022-04-06 18:00:00 UTC"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">today</span>() <span class="sc">+</span> <span class="fu">ddays</span>(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2023-04-16"</code></pre>
+<pre><code>[1] "2023-04-17"</code></pre>
 </div>
 </div>
 </section>
@@ -649,18 +649,18 @@
 <span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tsibble: 10 x 2 [1D]
-   date          value
-   &lt;date&gt;        &lt;dbl&gt;
- 1 2017-01-01 -0.695  
- 2 2017-01-02  1.58   
- 3 2017-01-03  2.05   
- 4 2017-01-04  0.126  
- 5 2017-01-05  1.72   
- 6 2017-01-06  2.66   
- 7 2017-01-07  1.11   
- 8 2017-01-08 -0.00320
- 9 2017-01-09 -0.671  
-10 2017-01-10  1.85   </code></pre>
+   date        value
+   &lt;date&gt;      &lt;dbl&gt;
+ 1 2017-01-01 -0.821
+ 2 2017-01-02  0.838
+ 3 2017-01-03  0.796
+ 4 2017-01-04 -0.319
+ 5 2017-01-05 -1.58 
+ 6 2017-01-06 -0.818
+ 7 2017-01-07  0.500
+ 8 2017-01-08  1.24 
+ 9 2017-01-09 -0.199
+10 2017-01-10  1.18 </code></pre>
 </div>
 </div>
 <p>Here, as <code>date</code> is the only <strong><code>Date</code></strong> column, <code>tsibble</code> gets this.</p>
@@ -679,18 +679,18 @@
 <div class="cell-output cell-output-stdout">
 <pre><code># A tsibble: 30 x 3 [1Q]
 # Key:       group [3]
-       qtr group   value
-     &lt;qtr&gt; &lt;chr&gt;   &lt;dbl&gt;
- 1 2010 Q1 x      0.148 
- 2 2010 Q2 x      0.920 
- 3 2010 Q3 x      0.941 
- 4 2010 Q4 x      1.17  
- 5 2011 Q1 x      0.983 
- 6 2011 Q2 x      0.824 
- 7 2011 Q3 x      0.0897
- 8 2011 Q4 x     -1.16  
- 9 2012 Q1 x      0.754 
-10 2012 Q2 x     -3.02  
+       qtr group  value
+     &lt;qtr&gt; &lt;chr&gt;  &lt;dbl&gt;
+ 1 2010 Q1 x      1.08 
+ 2 2010 Q2 x     -0.588
+ 3 2010 Q3 x     -0.409
+ 4 2010 Q4 x     -1.71 
+ 5 2011 Q1 x     -0.563
+ 6 2011 Q2 x      1.09 
+ 7 2011 Q3 x     -1.73 
+ 8 2011 Q4 x     -0.662
+ 9 2012 Q1 x     -0.182
+10 2012 Q2 x     -0.585
 # … with 20 more rows</code></pre>
 </div>
 </div>
@@ -1121,9 +1121,12 @@ r_k = \frac{\sum_{t = k+1}^{n}(Y_t - \bar{Y})(Y_{t-k} - \bar{Y})}{\sum_{t = 1}^{
 </div>
 </div>
 </section>
+<section id="residuals" class="slide level2 title-slide center">
+<h2>Residuals</h2>
+</section>
 <section class="slide level2">
 
-<h3 id="residuals">Residuals</h3>
+<h3 id="residuals-1">Residuals</h3>
 <p>What do we like to see in residuals?</p>
 <ol type="1">
 <li>Uncorrelated</li>
@@ -1273,6 +1276,71 @@ r_k = \frac{\sum_{t = k+1}^{n}(Y_t - \bar{Y})(Y_{t-k} - \bar{Y})}{\sum_{t = 1}^{
 
 </div>
 <img data-src="u5_d01-timeseries_files/figure-revealjs/Calves-resid6-1.png" width="576" class="r-stretch"></section>
+<section class="slide level2">
+
+<h4 id="residuals-statistical-tests">Residuals Statistical Tests</h4>
+<p>Normality - Shapiro-Wilk Test:</p>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="fu">shapiro.test</span>(aus_calves_aug<span class="sc">$</span>st_resid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  aus_calves_aug$st_resid
+W = 0.99429, p-value = 0.03469</code></pre>
+</div>
+</div>
+<p>TS independence - Runs Test:</p>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>TSA<span class="sc">::</span><span class="fu">runs</span>(aus_calves_aug<span class="sc">$</span>st_resid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$pvalue
+[1] 0.223
+
+$observed.runs
+[1] 265
+
+$expected.runs
+[1] 279.871
+
+$n1
+[1] 273
+
+$n2
+[1] 285
+
+$k
+[1] 0</code></pre>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<p>ACF - Ljung-Box Test:</p>
+<p><span class="math display">\[
+Q^* = n(n+2)\sum_{k = 1}^l (n - k)^{-1}r^2_k \sim \chi^2_l
+\]</span></p>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Box.test</span>(aus_calves_aug<span class="sc">$</span>st_resid, <span class="at">lag =</span> <span class="dv">10</span>, <span class="at">type =</span> <span class="st">"Ljung"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Box-Ljung test
+
+data:  aus_calves_aug$st_resid
+X-squared = 149.71, df = 10, p-value &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>A bit more tidy with <code>fable</code>:</p>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>aus_calves_aug <span class="sc">|&gt;</span> <span class="fu">features</span>(.innov, ljung_box, <span class="at">lag =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  .model         lb_stat lb_pvalue
+  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;
+1 STL(log_count)    150.         0</code></pre>
+</div>
+</div>
+</section>
 <section id="baseline-forecasts" class="slide level2 title-slide center">
 <h2>Baseline Forecasts</h2>
 </section>
@@ -1294,43 +1362,66 @@ r_k = \frac{\sum_{t = k+1}^{n}(Y_t - \bar{Y})(Y_{t-k} - \bar{Y})}{\sum_{t = 1}^{
 <section class="slide level2">
 
 <div class="cell" data-fig.asp="0.618">
-<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set training data until 2016</span></span>
-<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> aus_calves <span class="sc">|&gt;</span></span>
-<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">year</span>(Month) <span class="sc">&lt;</span> <span class="dv">2016</span>)</span>
-<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the models</span></span>
-<span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a>models_fit <span class="ot">&lt;-</span> train <span class="sc">|&gt;</span></span>
-<span id="cb89-7"><a href="#cb89-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">model</span>(</span>
-<span id="cb89-8"><a href="#cb89-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mean =</span> <span class="fu">MEAN</span>(log_count),</span>
-<span id="cb89-9"><a href="#cb89-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">Naive =</span> <span class="fu">NAIVE</span>(log_count),</span>
-<span id="cb89-10"><a href="#cb89-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Seasonal_naive =</span> <span class="fu">SNAIVE</span>(log_count)</span>
-<span id="cb89-11"><a href="#cb89-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb89-12"><a href="#cb89-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb89-13"><a href="#cb89-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate forecasts for 3 years</span></span>
-<span id="cb89-14"><a href="#cb89-14" aria-hidden="true" tabindex="-1"></a>models_fit <span class="ot">&lt;-</span> models_fit <span class="sc">|&gt;</span> <span class="fu">forecast</span>(<span class="at">h =</span> <span class="dv">36</span>)</span>
-<span id="cb89-15"><a href="#cb89-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb89-16"><a href="#cb89-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot forecasts against actual values</span></span>
-<span id="cb89-17"><a href="#cb89-17" aria-hidden="true" tabindex="-1"></a>models_fit <span class="sc">|&gt;</span></span>
-<span id="cb89-18"><a href="#cb89-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>(train, <span class="at">level =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
-<span id="cb89-19"><a href="#cb89-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autolayer</span>(</span>
-<span id="cb89-20"><a href="#cb89-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter_index</span>(aus_calves, <span class="st">"2016-01"</span> <span class="sc">~</span> .),</span>
-<span id="cb89-21"><a href="#cb89-21" aria-hidden="true" tabindex="-1"></a>    log_count,</span>
-<span id="cb89-22"><a href="#cb89-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb89-23"><a href="#cb89-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">"Forecast"</span>)) <span class="sc">+</span></span>
-<span id="cb89-24"><a href="#cb89-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">"log no. of calves slaughtered in Australia"</span>) <span class="sc">+</span></span>
-<span id="cb89-25"><a href="#cb89-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_yearmonth</span>(<span class="at">date_breaks =</span> <span class="st">"5 year"</span>, <span class="at">date_labels =</span> <span class="st">"%Y"</span>) <span class="sc">+</span></span>
-<span id="cb89-26"><a href="#cb89-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set training data until 2016</span></span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>calves_tr <span class="ot">&lt;-</span> aus_calves <span class="sc">|&gt;</span></span>
+<span id="cb97-3"><a href="#cb97-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">year</span>(Month) <span class="sc">&lt;</span> <span class="dv">2016</span>)</span>
+<span id="cb97-4"><a href="#cb97-4" aria-hidden="true" tabindex="-1"></a>calves_te <span class="ot">&lt;-</span> aus_calves <span class="sc">|&gt;</span></span>
+<span id="cb97-5"><a href="#cb97-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">year</span>(Month) <span class="sc">&gt;=</span> <span class="dv">2016</span>)</span>
+<span id="cb97-6"><a href="#cb97-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb97-7"><a href="#cb97-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the models</span></span>
+<span id="cb97-8"><a href="#cb97-8" aria-hidden="true" tabindex="-1"></a>models_fit <span class="ot">&lt;-</span> calves_tr <span class="sc">|&gt;</span></span>
+<span id="cb97-9"><a href="#cb97-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">model</span>(</span>
+<span id="cb97-10"><a href="#cb97-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Mean =</span> fable<span class="sc">::</span><span class="fu">MEAN</span>(log_count),</span>
+<span id="cb97-11"><a href="#cb97-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Naive =</span> fable<span class="sc">::</span><span class="fu">NAIVE</span>(log_count),</span>
+<span id="cb97-12"><a href="#cb97-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Seasonal_naive =</span> fable<span class="sc">::</span><span class="fu">SNAIVE</span>(log_count),</span>
+<span id="cb97-13"><a href="#cb97-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">LM =</span> fable<span class="sc">::</span><span class="fu">TSLM</span>(log_count <span class="sc">~</span> <span class="fu">trend</span>())</span>
+<span id="cb97-14"><a href="#cb97-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb97-15"><a href="#cb97-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb97-16"><a href="#cb97-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate forecasts for 3 years</span></span>
+<span id="cb97-17"><a href="#cb97-17" aria-hidden="true" tabindex="-1"></a>models_fit <span class="ot">&lt;-</span> models_fit <span class="sc">|&gt;</span> <span class="fu">forecast</span>(calves_te)</span>
+<span id="cb97-18"><a href="#cb97-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb97-19"><a href="#cb97-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Can also do forecast(h = 36)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section class="slide level2">
 
 <div class="cell" data-fig.asp="0.618">
-<div class="cell-output-display">
-<p><img data-src="u5_d01-timeseries_files/figure-revealjs/Calves-Forecasts-1.png" style="width:100.0%"></p>
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot forecasts against actual values</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>models_fit <span class="sc">|&gt;</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>(calves_tr, <span class="at">level =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autolayer</span>(</span>
+<span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter_index</span>(aus_calves, <span class="st">"2016-01"</span> <span class="sc">~</span> .),</span>
+<span id="cb98-6"><a href="#cb98-6" aria-hidden="true" tabindex="-1"></a>    log_count,</span>
+<span id="cb98-7"><a href="#cb98-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb98-8"><a href="#cb98-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">"Forecast"</span>)) <span class="sc">+</span></span>
+<span id="cb98-9"><a href="#cb98-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">""</span>, <span class="at">y =</span> <span class="st">"log no. of calves slaughtered in Australia"</span>) <span class="sc">+</span></span>
+<span id="cb98-10"><a href="#cb98-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_yearmonth</span>(<span class="at">date_breaks =</span> <span class="st">"5 year"</span>, <span class="at">date_labels =</span> <span class="st">"%Y"</span>) <span class="sc">+</span></span>
+<span id="cb98-11"><a href="#cb98-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="u5_d01-timeseries_files/figure-revealjs/Calves-Forecasts-1.png" width="576" class="r-stretch"></section>
+<section class="slide level2">
+
+<h4 id="evaluating-forecast-point-accuracy">Evaluating forecast point accuracy</h4>
+<p>E.g. RMSE, MAE:</p>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>models_fit <span class="sc">%&gt;%</span></span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">accuracy</span>(</span>
+<span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> calves_te,</span>
+<span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">measures =</span> <span class="fu">list</span>(<span class="st">"RMSE"</span> <span class="ot">=</span> RMSE, <span class="st">"MAE"</span> <span class="ot">=</span> MAE)</span>
+<span id="cb99-5"><a href="#cb99-5" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 4
+  .model         .type  RMSE   MAE
+  &lt;chr&gt;          &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 LM             Test  0.718 0.575
+2 Mean           Test  1.08  0.904
+3 Naive          Test  1.21  1.05 
+4 Seasonal_naive Test  0.465 0.393</code></pre>
 </div>
 </div>
-<p><img src="../DSApps_logo_white.jpg" class="slide-logo"></p>
-<div class="footer footer-default">
+
+<img src="../DSApps_logo_white.jpg" class="slide-logo r-stretch"><div class="footer footer-default">
 <p><a href="https://dsapps-2023.github.io/Class_Slides/" target="_blank">Applications of Data Science</a></p>
 </div>
 </section>
