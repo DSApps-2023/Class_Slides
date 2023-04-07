@@ -826,7 +826,7 @@ models_fit <- calves_tr |>
   )
 
 # Generate forecasts for 3 years
-models_fit <- models_fit |> forecast(calves_te)
+models_fc <- models_fit |> forecast(calves_te)
 
 # Can also do forecast(h = 36)
 
@@ -838,7 +838,7 @@ models_fit <- models_fit |> forecast(calves_te)
 #| label: Calves-Forecasts
 
 # Plot forecasts against actual values
-models_fit |>
+models_fc |>
   autoplot(calves_tr, level = NULL) +
   autolayer(
     filter_index(aus_calves, "2016-01" ~ .),
@@ -857,7 +857,7 @@ models_fit |>
 E.g. RMSE, MAE:
 
 ```{r}
-models_fit %>%
+models_fc %>%
   accuracy(
     data = calves_te,
     measures = list("RMSE" = RMSE, "MAE" = MAE)

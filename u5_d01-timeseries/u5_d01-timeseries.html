@@ -520,7 +520,7 @@
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>now</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2023-04-07 08:15:44 IDT"</code></pre>
+<pre><code>[1] "2023-04-07 08:46:29 IDT"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -528,7 +528,7 @@
 </div>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1680844544</code></pre>
+<pre><code>[1] 1680846390</code></pre>
 </div>
 </div>
 <p>The <code>POSIXlt</code> class will store time in a list with useful elements:</p>
@@ -651,16 +651,16 @@
 <pre><code># A tsibble: 10 x 2 [1D]
    date        value
    &lt;date&gt;      &lt;dbl&gt;
- 1 2017-01-01 -0.821
- 2 2017-01-02  0.838
- 3 2017-01-03  0.796
- 4 2017-01-04 -0.319
- 5 2017-01-05 -1.58 
- 6 2017-01-06 -0.818
- 7 2017-01-07  0.500
- 8 2017-01-08  1.24 
- 9 2017-01-09 -0.199
-10 2017-01-10  1.18 </code></pre>
+ 1 2017-01-01 -0.689
+ 2 2017-01-02  0.923
+ 3 2017-01-03 -1.36 
+ 4 2017-01-04 -0.218
+ 5 2017-01-05  0.854
+ 6 2017-01-06 -2.71 
+ 7 2017-01-07 -1.20 
+ 8 2017-01-08  0.176
+ 9 2017-01-09  2.00 
+10 2017-01-10  2.08 </code></pre>
 </div>
 </div>
 <p>Here, as <code>date</code> is the only <strong><code>Date</code></strong> column, <code>tsibble</code> gets this.</p>
@@ -681,16 +681,16 @@
 # Key:       group [3]
        qtr group  value
      &lt;qtr&gt; &lt;chr&gt;  &lt;dbl&gt;
- 1 2010 Q1 x      1.08 
- 2 2010 Q2 x     -0.588
- 3 2010 Q3 x     -0.409
- 4 2010 Q4 x     -1.71 
- 5 2011 Q1 x     -0.563
- 6 2011 Q2 x      1.09 
- 7 2011 Q3 x     -1.73 
- 8 2011 Q4 x     -0.662
- 9 2012 Q1 x     -0.182
-10 2012 Q2 x     -0.585
+ 1 2010 Q1 x     -1.70 
+ 2 2010 Q2 x      2.75 
+ 3 2010 Q3 x      0.124
+ 4 2010 Q4 x     -2.35 
+ 5 2011 Q1 x      0.331
+ 6 2011 Q2 x      0.685
+ 7 2011 Q3 x     -1.36 
+ 8 2011 Q4 x      1.39 
+ 9 2012 Q1 x     -0.742
+10 2012 Q2 x      1.17 
 # … with 20 more rows</code></pre>
 </div>
 </div>
@@ -1378,7 +1378,7 @@ X-squared = 149.71, df = 10, p-value &lt; 2.2e-16</code></pre>
 <span id="cb97-14"><a href="#cb97-14" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb97-15"><a href="#cb97-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb97-16"><a href="#cb97-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate forecasts for 3 years</span></span>
-<span id="cb97-17"><a href="#cb97-17" aria-hidden="true" tabindex="-1"></a>models_fit <span class="ot">&lt;-</span> models_fit <span class="sc">|&gt;</span> <span class="fu">forecast</span>(calves_te)</span>
+<span id="cb97-17"><a href="#cb97-17" aria-hidden="true" tabindex="-1"></a>models_fc <span class="ot">&lt;-</span> models_fit <span class="sc">|&gt;</span> <span class="fu">forecast</span>(calves_te)</span>
 <span id="cb97-18"><a href="#cb97-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb97-19"><a href="#cb97-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Can also do forecast(h = 36)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -1387,7 +1387,7 @@ X-squared = 149.71, df = 10, p-value &lt; 2.2e-16</code></pre>
 
 <div class="cell" data-fig.asp="0.618">
 <div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot forecasts against actual values</span></span>
-<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>models_fit <span class="sc">|&gt;</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>models_fc <span class="sc">|&gt;</span></span>
 <span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autoplot</span>(calves_tr, <span class="at">level =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
 <span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">autolayer</span>(</span>
 <span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter_index</span>(aus_calves, <span class="st">"2016-01"</span> <span class="sc">~</span> .),</span>
@@ -1405,7 +1405,7 @@ X-squared = 149.71, df = 10, p-value &lt; 2.2e-16</code></pre>
 <h4 id="evaluating-forecast-point-accuracy">Evaluating forecast point accuracy</h4>
 <p>E.g. RMSE, MAE:</p>
 <div class="cell" data-fig.asp="0.618">
-<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>models_fit <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>models_fc <span class="sc">%&gt;%</span></span>
 <span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">accuracy</span>(</span>
 <span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> calves_te,</span>
 <span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">measures =</span> <span class="fu">list</span>(<span class="st">"RMSE"</span> <span class="ot">=</span> RMSE, <span class="st">"MAE"</span> <span class="ot">=</span> MAE)</span>
