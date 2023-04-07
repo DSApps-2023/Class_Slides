@@ -520,7 +520,7 @@
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>now</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2023-04-07 09:43:32 IDT"</code></pre>
+<pre><code>[1] "2023-04-07 14:04:13 IDT"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -528,7 +528,7 @@
 </div>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(now)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 1680849812</code></pre>
+<pre><code>[1] 1680865453</code></pre>
 </div>
 </div>
 <p>The <code>POSIXlt</code> class will store time in a list with useful elements:</p>
@@ -536,7 +536,7 @@
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>now <span class="ot">&lt;-</span> <span class="fu">as.POSIXlt</span>(now, <span class="at">tz =</span> <span class="st">"GMT"</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>now<span class="sc">$</span>hour</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 6</code></pre>
+<pre><code>[1] 11</code></pre>
 </div>
 </div>
 </section>
@@ -649,18 +649,18 @@
 <span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tsibble: 10 x 2 [1D]
-   date         value
-   &lt;date&gt;       &lt;dbl&gt;
- 1 2017-01-01  0.318 
- 2 2017-01-02  0.474 
- 3 2017-01-03  1.33  
- 4 2017-01-04  0.982 
- 5 2017-01-05  0.403 
- 6 2017-01-06  1.03  
- 7 2017-01-07  0.0952
- 8 2017-01-08 -2.93  
- 9 2017-01-09 -1.21  
-10 2017-01-10 -0.392 </code></pre>
+   date        value
+   &lt;date&gt;      &lt;dbl&gt;
+ 1 2017-01-01  1.60 
+ 2 2017-01-02  1.07 
+ 3 2017-01-03 -0.329
+ 4 2017-01-04 -0.753
+ 5 2017-01-05 -1.28 
+ 6 2017-01-06 -0.285
+ 7 2017-01-07  0.289
+ 8 2017-01-08 -0.342
+ 9 2017-01-09 -0.720
+10 2017-01-10  0.696</code></pre>
 </div>
 </div>
 <p>Here, as <code>date</code> is the only <strong><code>Date</code></strong> column, <code>tsibble</code> gets this.</p>
@@ -679,18 +679,18 @@
 <div class="cell-output cell-output-stdout">
 <pre><code># A tsibble: 30 x 3 [1Q]
 # Key:       group [3]
-       qtr group  value
-     &lt;qtr&gt; &lt;chr&gt;  &lt;dbl&gt;
- 1 2010 Q1 x      0.698
- 2 2010 Q2 x      0.597
- 3 2010 Q3 x      1.23 
- 4 2010 Q4 x     -1.89 
- 5 2011 Q1 x      0.805
- 6 2011 Q2 x     -0.369
- 7 2011 Q3 x     -0.901
- 8 2011 Q4 x      0.155
- 9 2012 Q1 x      1.56 
-10 2012 Q2 x     -0.933
+       qtr group   value
+     &lt;qtr&gt; &lt;chr&gt;   &lt;dbl&gt;
+ 1 2010 Q1 x     -2.19  
+ 2 2010 Q2 x      0.266 
+ 3 2010 Q3 x      0.880 
+ 4 2010 Q4 x     -0.0491
+ 5 2011 Q1 x      1.55  
+ 6 2011 Q2 x      0.390 
+ 7 2011 Q3 x     -0.331 
+ 8 2011 Q4 x     -1.01  
+ 9 2012 Q1 x      0.345 
+10 2012 Q2 x      0.119 
 # … with 20 more rows</code></pre>
 </div>
 </div>
@@ -1263,7 +1263,7 @@ r_k = \frac{\sum_{t = k+1}^{n}(Y_t - \bar{Y})(Y_{t-k} - \bar{Y})}{\sum_{t = 1}^{
 <div class="cell" data-fig.asp="0.618">
 <div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>acf_obj <span class="ot">&lt;-</span> <span class="fu">acf</span>(aus_calves_aug<span class="sc">$</span>st_resid, <span class="at">plot =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>acf_df <span class="ot">&lt;-</span> <span class="fu">with</span>(acf_obj, <span class="fu">tibble</span>(<span class="at">lag =</span> lag[,,<span class="dv">1</span>], <span class="at">acf =</span> acf[,,<span class="dv">1</span>])) <span class="sc">%&gt;%</span></span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>acf_df <span class="ot">&lt;-</span> <span class="fu">with</span>(acf_obj, <span class="fu">tibble</span>(<span class="at">lag =</span> lag[,,<span class="dv">1</span>], <span class="at">acf =</span> acf[,,<span class="dv">1</span>])) <span class="sc">|&gt;</span></span>
 <span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(lag <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
 <span id="cb88-5"><a href="#cb88-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb88-6"><a href="#cb88-6" aria-hidden="true" tabindex="-1"></a>acf_df <span class="sc">|&gt;</span></span>
@@ -1405,7 +1405,7 @@ X-squared = 149.71, df = 10, p-value &lt; 2.2e-16</code></pre>
 <h4 id="evaluating-forecast-point-accuracy">Evaluating forecast point accuracy</h4>
 <p>E.g. RMSE, MAE:</p>
 <div class="cell" data-fig.asp="0.618">
-<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>models_fc <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>models_fc <span class="sc">|&gt;</span></span>
 <span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">accuracy</span>(</span>
 <span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> calves_te,</span>
 <span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">measures =</span> <span class="fu">list</span>(<span class="st">"RMSE"</span> <span class="ot">=</span> RMSE, <span class="st">"MAE"</span> <span class="ot">=</span> MAE)</span>

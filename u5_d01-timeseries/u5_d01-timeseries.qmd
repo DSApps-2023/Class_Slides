@@ -741,7 +741,7 @@ aus_calves_aug |>
 
 acf_obj <- acf(aus_calves_aug$st_resid, plot = FALSE)
 
-acf_df <- with(acf_obj, tibble(lag = lag[,,1], acf = acf[,,1])) %>%
+acf_df <- with(acf_obj, tibble(lag = lag[,,1], acf = acf[,,1])) |>
   filter(lag > 0)
 
 acf_df |>
@@ -857,7 +857,7 @@ models_fc |>
 E.g. RMSE, MAE:
 
 ```{r}
-models_fc %>%
+models_fc |>
   accuracy(
     data = calves_te,
     measures = list("RMSE" = RMSE, "MAE" = MAE)
