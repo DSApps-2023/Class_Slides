@@ -196,9 +196,9 @@ abline(h = 0, lty = 2, col = 2)
 An observation $Y_t$ is a linear combination of past $p$ most recent observations:
 
 $$
-Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + e_t
+Y_t = \mu + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + e_t
 $$
-where $c$ is a constant, $e_t$ is an "innovation" term as before, thus $Cov(e_t, Y_{t-k})=0$ for every $k > 0$.
+where $e_t$ is an "innovation" term as before, thus $Cov(e_t, Y_{t-k})=0$ for every $k > 0$.
 
 ::: {.fragment}
 E.g. $Y_t = 1 + 0.5Y_{t-1} + 0.1Y_{t-2} - 0.1Y_{t-3} + e_t$
@@ -212,7 +212,7 @@ plot(y, type = "o", xlab = "t")
 
 ### AR(1)
 
-Let the process mean $c$ be subtracted:
+Let the process mean $\mu$ be subtracted:
 
 $$
 Y_t = \phi Y_{t-1} + e_t
@@ -491,6 +491,141 @@ See also `unitroot_ndiffs()` in `fable` for determining how many diffs are neede
 ---
 
 ## Moving Average Processes {.title-slide}
+
+
+---
+
+### MA(q)
+
+An observation $Y_t$ is a linear combination of past $q$ most recent errors:
+
+$$
+Y_t = \mu + e_t + \theta_1 e_{t-1} + \theta_2 e_{t-2} + \dots + \theta_q e_{t-q}
+$$
+where $e_t$ is an "innovation" term as before.
+
+::: {.fragment}
+E.g. $Y_t = 1 + e_t + 0.5e_{t-1} + 0.1e_{t-2} - 0.1e_{t-3}$
+```{r}
+#| label: MA3
+y <- 1 + arima.sim(list(order = c(0,0,3), ma = c(0.5, 0.1, -0.1)), n = 50)
+plot(y, type = "o", xlab = "t")
+```
+:::
+
+---
+
+### MA(1)
+
+Let the process mean $\mu$ be subtracted:
+
+$$
+Y_t = e_t + \theta e_{t-1}
+$$
+
+:::: {.fragment}
+<hr/>
+
+$E(Y_t) = E(e_t) + \theta E(e_{t-1}) = 0$
+
+$\gamma_0 = Var(Y_t) = Var(e_t) + \theta^2Var(e_{t-1}) = (1+\theta^2)\sigma^2$
+
+$\gamma_1 = Cov(Y_t, Y_{t-1}) = Cov(e_t + \theta e_{t-1}, e_{t-1} + \theta e_{t-2}) = \theta\sigma^2$
+
+$\rho_1 = \frac{\gamma_1}{\gamma_0} = \frac{\theta}{1+\theta^2}$
+::::
+
+:::: {.fragment}
+::: {.callout-tip}
+What would be $\gamma_k, \rho_k$ for $k > 1$? How would the ACF look like?
+:::
+
+::: {.callout-tip}
+Is MA(1) (weakly) stationary?
+:::
+::::
+
+---
+
+### MA(1) - ACF
+
+```{r}
+#| label: MA1-ACF
+#| echo: true
+#| code-fold: true
+set.seed(1)
+n <- 500
+y_pos <- arima.sim(list(order = c(0,0,1), ma = 0.7), n = n)
+y_neg <- arima.sim(list(order = c(0,0,1), ma = -0.7), n = n)
+acf_df_pos <- make_acf_df(y_pos)
+acf_df_neg <- make_acf_df(y_neg)
+acf_df_pos$phi <- "theta == 0.7"
+acf_df_neg$phi <- "theta == -0.7"
+acf_df <- bind_rows(acf_df_pos, acf_df_neg)
+
+acf_df |>
+  ggplot(aes(lag, acf)) +
+  geom_hline(aes(yintercept = 0)) +
+  geom_hline(aes(yintercept = -1/sqrt(n)), color = "blue", linetype = 2) +
+  geom_hline(aes(yintercept = 1/sqrt(n)), color = "blue", linetype = 2) +
+  geom_segment(aes(xend = lag, yend = 0)) +
+  facet_grid(. ~ phi, labeller = labeller(phi = label_parsed)) +
+  scale_x_continuous(breaks = 1:10) +
+  theme_bw()
+```
+
+---
+
+### MA(1) - Lag Scatterplots
+
+```{r}
+#| label: MA1-Lag
+#| warning: false
+#| message: false
+#| code-fold: true
+#| 
+library(patchwork)
+
+y_lag_df <- tibble(
+  y = y_pos,
+  y_lag1 = TSA::zlag(y_pos, 1),
+  y_lag2 = TSA::zlag(y_pos, 2),
+  y_lag3 = TSA::zlag(y_pos, 3)
+)
+p1 <- ggplot(y_lag_df, aes(y, y_lag1)) +
+  geom_point() +
+  labs(x = expression("Y"[t]), y = expression("Y"[t-1])) +
+  theme_bw()
+p2 <- ggplot(y_lag_df, aes(y, y_lag2)) +
+  geom_point() +
+  labs(x = expression("Y"[t]), y = expression("Y"[t-2])) +
+  theme_bw()
+p3 <- ggplot(y_lag_df, aes(y, y_lag3)) +
+  geom_point() +
+  labs(x = expression("Y"[t]), y = expression("Y"[t-3])) +
+  theme_bw()
+
+p1|p2|p3
+```
+
+---
+
+### MA(1) - Inveritibility
+
+Can $\theta$ be any number? Can $\rho$ be any correlation?
+
+```{r}
+#| label: MA1-theta-rho
+theta <- seq(-10, 10, 0.1)
+rho <- theta / (1 + theta^2)
+plot(theta, rho, type = "l", xlab = expression(theta), ylab = expression(rho))
+```
+
+::: {.fragment}
+$\rho$ is in $(-\frac{1}{2}, \frac{1}{2})$
+
+$|\theta| < 1$, otherwise the model is not "invertible"!
+:::
 
 ---
 

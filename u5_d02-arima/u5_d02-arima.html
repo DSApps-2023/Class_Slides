@@ -402,7 +402,7 @@
 <h3 id="giora-simchoni">Giora Simchoni</h3>
 <h4 id="gsimchonigmail.com-and-add-dsapps-in-subject"><code>gsimchoni@gmail.com</code> and add <code>#dsapps</code> in subject</h4>
 <h3 id="stat.-and-or-department-tau">Stat. and OR Department, TAU</h3>
-<h3 id="section-1">2023-04-07</h3>
+<h3 id="section-1">2023-04-08</h3>
 </section>
 <section class="slide level2">
 
@@ -542,8 +542,8 @@ Y_t &amp;= \frac{e_{t} + e_{t-1}}{2}
 <h3 id="arp">AR(p)</h3>
 <p>An observation <span class="math inline">\(Y_t\)</span> is a linear combination of past <span class="math inline">\(p\)</span> most recent observations:</p>
 <p><span class="math display">\[
-Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + e_t
-\]</span> where <span class="math inline">\(c\)</span> is a constant, <span class="math inline">\(e_t\)</span> is an “innovation” term as before, thus <span class="math inline">\(Cov(e_t, Y_{t-k})=0\)</span> for every <span class="math inline">\(k &gt; 0\)</span>.</p>
+Y_t = \mu + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + e_t
+\]</span> where <span class="math inline">\(e_t\)</span> is an “innovation” term as before, thus <span class="math inline">\(Cov(e_t, Y_{t-k})=0\)</span> for every <span class="math inline">\(k &gt; 0\)</span>.</p>
 <div class="fragment">
 <p>E.g. <span class="math inline">\(Y_t = 1 + 0.5Y_{t-1} + 0.1Y_{t-2} - 0.1Y_{t-3} + e_t\)</span></p>
 <div class="cell" data-fig.asp="0.618">
@@ -558,7 +558,7 @@ Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + e_t
 <section class="slide level2">
 
 <h3 id="ar1">AR(1)</h3>
-<p>Let the process mean <span class="math inline">\(c\)</span> be subtracted:</p>
+<p>Let the process mean <span class="math inline">\(\mu\)</span> be subtracted:</p>
 <p><span class="math display">\[
 Y_t = \phi Y_{t-1} + e_t
 \]</span></p>
@@ -840,6 +840,137 @@ alternative hypothesis: stationary</code></pre>
 </section>
 <section id="moving-average-processes" class="slide level2 title-slide center">
 <h2>Moving Average Processes</h2>
+</section>
+<section class="slide level2">
+
+<h3 id="maq">MA(q)</h3>
+<p>An observation <span class="math inline">\(Y_t\)</span> is a linear combination of past <span class="math inline">\(q\)</span> most recent errors:</p>
+<p><span class="math display">\[
+Y_t = \mu + e_t + \theta_1 e_{t-1} + \theta_2 e_{t-2} + \dots + \theta_q e_{t-q}
+\]</span> where <span class="math inline">\(e_t\)</span> is an “innovation” term as before.</p>
+<div class="fragment">
+<p>E.g. <span class="math inline">\(Y_t = 1 + e_t + 0.5e_{t-1} + 0.1e_{t-2} - 0.1e_{t-3}\)</span></p>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">arima.sim</span>(<span class="fu">list</span>(<span class="at">order =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">3</span>), <span class="at">ma =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.1</span>, <span class="sc">-</span><span class="fl">0.1</span>)), <span class="at">n =</span> <span class="dv">50</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(y, <span class="at">type =</span> <span class="st">"o"</span>, <span class="at">xlab =</span> <span class="st">"t"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img data-src="u5_d02-arima_files/figure-revealjs/MA3-1.png" width="576"></p>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="ma1">MA(1)</h3>
+<p>Let the process mean <span class="math inline">\(\mu\)</span> be subtracted:</p>
+<p><span class="math display">\[
+Y_t = e_t + \theta e_{t-1}
+\]</span></p>
+<div class="fragment">
+<hr>
+<p><span class="math inline">\(E(Y_t) = E(e_t) + \theta E(e_{t-1}) = 0\)</span></p>
+<p><span class="math inline">\(\gamma_0 = Var(Y_t) = Var(e_t) + \theta^2Var(e_{t-1}) = (1+\theta^2)\sigma^2\)</span></p>
+<p><span class="math inline">\(\gamma_1 = Cov(Y_t, Y_{t-1}) = Cov(e_t + \theta e_{t-1}, e_{t-1} + \theta e_{t-2}) = \theta\sigma^2\)</span></p>
+<p><span class="math inline">\(\rho_1 = \frac{\gamma_1}{\gamma_0} = \frac{\theta}{1+\theta^2}\)</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>What would be <span class="math inline">\(\gamma_k, \rho_k\)</span> for <span class="math inline">\(k &gt; 1\)</span>? How would the ACF look like?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-tip callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Is MA(1) (weakly) stationary?</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="ma1---acf">MA(1) - ACF</h3>
+<div class="cell" data-fig.asp="0.618">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>y_pos <span class="ot">&lt;-</span> <span class="fu">arima.sim</span>(<span class="fu">list</span>(<span class="at">order =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ma =</span> <span class="fl">0.7</span>), <span class="at">n =</span> n)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>y_neg <span class="ot">&lt;-</span> <span class="fu">arima.sim</span>(<span class="fu">list</span>(<span class="at">order =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ma =</span> <span class="sc">-</span><span class="fl">0.7</span>), <span class="at">n =</span> n)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>acf_df_pos <span class="ot">&lt;-</span> <span class="fu">make_acf_df</span>(y_pos)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>acf_df_neg <span class="ot">&lt;-</span> <span class="fu">make_acf_df</span>(y_neg)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>acf_df_pos<span class="sc">$</span>phi <span class="ot">&lt;-</span> <span class="st">"theta == 0.7"</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>acf_df_neg<span class="sc">$</span>phi <span class="ot">&lt;-</span> <span class="st">"theta == -0.7"</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>acf_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(acf_df_pos, acf_df_neg)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>acf_df <span class="sc">|&gt;</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(lag, acf)) <span class="sc">+</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> <span class="sc">-</span><span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(n)), <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="fu">aes</span>(<span class="at">yintercept =</span> <span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(n)), <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">xend =</span> lag, <span class="at">yend =</span> <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(. <span class="sc">~</span> phi, <span class="at">labeller =</span> <span class="fu">labeller</span>(<span class="at">phi =</span> label_parsed)) <span class="sc">+</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="u5_d02-arima_files/figure-revealjs/MA1-ACF-1.png" width="576" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="ma1---lag-scatterplots">MA(1) - Lag Scatterplots</h3>
+<div class="cell" data-fig.asp="0.618">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>y_lag_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_pos,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_lag1 =</span> TSA<span class="sc">::</span><span class="fu">zlag</span>(y_pos, <span class="dv">1</span>),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_lag2 =</span> TSA<span class="sc">::</span><span class="fu">zlag</span>(y_pos, <span class="dv">2</span>),</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">y_lag3 =</span> TSA<span class="sc">::</span><span class="fu">zlag</span>(y_pos, <span class="dv">3</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(y_lag_df, <span class="fu">aes</span>(y, y_lag1)) <span class="sc">+</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Y"</span>[t]), <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Y"</span>[t<span class="dv">-1</span>])) <span class="sc">+</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(y_lag_df, <span class="fu">aes</span>(y, y_lag2)) <span class="sc">+</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Y"</span>[t]), <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Y"</span>[t<span class="dv">-2</span>])) <span class="sc">+</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(y_lag_df, <span class="fu">aes</span>(y, y_lag3)) <span class="sc">+</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="st">"Y"</span>[t]), <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Y"</span>[t<span class="dv">-3</span>])) <span class="sc">+</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>p1<span class="sc">|</span>p2<span class="sc">|</span>p3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+</div>
+<img data-src="u5_d02-arima_files/figure-revealjs/MA1-Lag-1.png" width="576" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="ma1---inveritibility">MA(1) - Inveritibility</h3>
+<p>Can <span class="math inline">\(\theta\)</span> be any number? Can <span class="math inline">\(\rho\)</span> be any correlation?</p>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>theta <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="fl">0.1</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>rho <span class="ot">&lt;-</span> theta <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> theta<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(theta, rho, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">xlab =</span> <span class="fu">expression</span>(theta), <span class="at">ylab =</span> <span class="fu">expression</span>(rho))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="u5_d02-arima_files/figure-revealjs/MA1-theta-rho-1.png" width="576" class="r-stretch"><div class="fragment">
+<p><span class="math inline">\(\rho\)</span> is in <span class="math inline">\((-\frac{1}{2}, \frac{1}{2})\)</span></p>
+<p><span class="math inline">\(|\theta| &lt; 1\)</span>, otherwise the model is not “invertible”!</p>
+</div>
 </section>
 <section id="arima-1" class="slide level2 title-slide center">
 <h2>ARIMA</h2>
