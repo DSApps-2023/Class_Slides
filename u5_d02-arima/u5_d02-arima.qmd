@@ -461,7 +461,7 @@ In AR(2), for example, from $\rho_1 = \frac{\phi_1}{1-\phi_2}$ it is clear that 
 
 :::{.fragment}
 <hr/>
-In general it can be shown that for AR(p) to be stationary the **characteristic polynomial** $1-\phi_1x-\phi_2x^2- \dots -\phi_px^p = 0$ needs $p$ roots above 1 in absolute value.
+In general it can be shown that for AR(p) to be stationary the **characteristic equation** $1-\phi_1x-\phi_2x^2- \dots -\phi_px^p = 0$ needs $p$ roots above 1 in absolute value.
 
 For AR(1): $1-\phi x = 0 \rightarrow |1/\phi| > 1 \rightarrow |\phi| < 1$
 
@@ -624,7 +624,31 @@ plot(theta, rho, type = "l", xlab = expression(theta), ylab = expression(rho))
 ::: {.fragment}
 $\rho$ is in $(-\frac{1}{2}, \frac{1}{2})$
 
-$|\theta| < 1$, otherwise the model is not "invertible"!
+$|\theta| < 1$, otherwise the model is not identifiable.
+:::
+
+---
+
+### MA(1) - Inveritibility
+
+Actually, every MA(q) process can be written as AR($\infty$)!
+
+\begin{aligned}
+Y_t = e_t + \theta e_{t-1} &= e_t + \theta (Y_{t-1} - \theta e_{t-2}) \\
+&= e_t + \theta Y_{t-1} - \theta^2 (Y_{t-2} - \theta e_{t-3}) \\
+&\vdots \\
+&= e_t + \theta Y_{t-1} - \theta^2 Y_{t-2} - \theta^3 Y_{t-3} - \dots
+\end{aligned}
+
+Thus, having $|\theta| < 1$ is called invertibility condition and is very similar to stationarity conditions.
+
+::: {.callout-tip}
+And, every AR(p) model can be written as MA($\infty$).
+:::
+
+:::{.fragment}
+<hr/>
+In general it can be shown that for MA(q) to be invertible the characteristic equation $1-\theta_1x-\theta_2x^2- \dots -\theta_qx^q = 0$ needs $q$ roots above 1 in absolute value.
 :::
 
 ---
@@ -633,11 +657,267 @@ $|\theta| < 1$, otherwise the model is not "invertible"!
 
 ---
 
-## Model Selection {.title-slide}
+### ARMA(p, q)
+
+A mixed autoregressive moving average process (ARMA):
+
+$$
+Y_t = \mu + \phi_1 Y_{t-1} + \dots + \phi_p Y_{t-p} + \theta_1 e_{t-1} + \theta_2 e_{t-2} + \dots + \theta_q e_{t-q} + e_t
+$$
+
+---
+
+### ARMA(1, 1)
+
+Let the process mean $\mu$ be subtracted:
+
+$$
+Y_t = \phi Y_{t-1} + e_t + \theta e_{t-1}
+$$
+
+:::: {.fragment}
+<hr/>
+
+$E(Y_t) = 0$
+
+$\gamma_0 = Var(Y_t) = \phi^2 \gamma_0 + (1+\theta^2)\sigma^2 + 2\phi\theta Cov(Y_{t-1}, e_{t-1}) \rightarrow \gamma_0 = \frac{(1+2\phi\theta + \theta^2)}{1-\phi^2}\sigma^2$
+
+$\gamma_1 = \phi\gamma_0+\theta\sigma^2$
+
+$\gamma_k = \phi\gamma_{k-1} \quad k \ge 2$
+
+$\rho_k = \frac{(1+\theta\phi)(\phi+\theta)}{1+2\theta\phi + \theta^2}\phi^{k-1}$
+
+::::
+
+---
+
+### ARIMA(p, d, q)
+
+$Y_t$ follows an integrated autoregressive moving average (non-seasonal) ARIMA(p, d, q) model if $W_t = \nabla^d Y_t$ is a stationary ARMA(p, q) process.
+
+$$
+W_t = \mu + \phi_1 W_{t-1} + \dots + \phi_p W_{t-p} + \theta_1 e_{t-1} + \theta_2 e_{t-2} + \dots + \theta_q e_{t-q} + e_t
+$$
+
+- $p$: order of the autoregressive part
+- $d$: degree of first differencing involved
+- $q$: order of the moving average part
+
+:::{.fragment}
+
+::: {.callout-important}
+Usually $d$ is in $\{0,1,2\}$.
+:::
+
+::: {.callout-tip}
+What are ARIMA(0,0,0), ARIMA(0,1,0), ARIMA(p,0,0), ARIMA(0,0,q)?
+:::
+
+:::
 
 ---
 
 ## Estimation {.title-slide}
+
+---
+
+### Least Squares: AR(1)
+
+Putting back the $\mu$ to estimate it:
+
+$$
+Y_t - \mu = \phi (Y_{t-1} - \mu) + e_t
+$$
+
+This is simple linear regression of $Y_t$ versus $Y_{t-1}$
+
+$$
+SS(\mu, \phi) = \sum_{t=2}^n[(Y_t - \mu) - \phi (Y_{t-1} - \mu)]^2
+$$
+Differentiating, setting this equal to zero, we get:
+
+$\hat{\mu}_{LS} \approx \bar{Y}$
+
+$\hat{\phi}_{LS} \approx r_1$
+
+---
+
+### Least Squares: MA(1)
+
+$$
+Y_t - \mu = e_t + \theta e_{t-1}
+$$
+
+This **isn't** simple linear regression, as $e_t$ aren't observed!
+
+Option 1: invert MA(1) to AR($\infty$) and use numerical analysis:
+$$
+SS(\mu, \theta) = \sum_{t=2}^n[(Y_t - \mu) - (\theta Y_{t-1} - \theta^2 Y_{t-2} - \theta^3 Y_{t-3} - \dots)]^2
+$$
+Option 2: simple grid search on $\theta \in (-1, 1)$ to get the minimum $SS(\theta) = \sum e_t^2$, where:
+
+\begin{aligned}
+e_1 &= Y_1 \\
+e_2 &= Y_2 - \theta e_1 \\
+&\vdots \\
+e_n &= Y_n - \theta e_{n-1}
+\end{aligned}
+
+---
+
+### MLE: AR(1)
+
+Assume $e_t \sim \mathcal{N}(0, \sigma^2)$ i.i.d.
+
+::: {.callout-tip}
+Is this true: $L(\mu, \phi, \sigma^2| y) = \prod_{t=1}^n f(y_t; \mu, \phi, \sigma^2) = \prod_{t=1}^n \mathcal{N}(\mu, \frac{\sigma^2}{1-\phi^2})$
+:::
+
+::: {.fragment}
+The $Y_t$s are dependent!
+
+E.g. $\rho_1 = \phi$.
+:::
+
+::: {.fragment}
+They are, however conditionally independent:
+
+\begin{aligned}
+Y_2 &= \mu + \phi(Y_1 - \mu) + e_2 \\
+Y_3 &= \mu + \phi(Y_2 - \mu) + e_3 \\
+&\vdots \\
+Y_n &= \mu + \phi(Y_{n-1} - \mu) + e_n
+\end{aligned}
+
+So: $f(y_1, y_2, \dots, y_n) = f(y_1)f(y_2|y_1)\cdot \dots \cdot f(y_n|y_{n-1})$
+:::
+
+---
+
+### MLE: AR(1)
+
+Now, $Y_1 \sim \mathcal{N}(\mu, \frac{\sigma^2}{1-\phi^2})$
+
+From basic Gaussian probability, if $X \sim \mathcal{N}(\mu_x, \sigma^2_x), Y \sim \mathcal{N}(\mu_y, \sigma^2_y)$, then
+
+$Y|X \sim \mathcal{N}(\mu_y + \rho\frac{\sigma_y}{\sigma_x}(x - \mu_x), \sigma^2_y(1-\rho^2))$
+
+So: $Y_t | Y_{t-1} \sim \mathcal{N}(\mu + \phi(y_{t-1} - \mu), \sigma^2)$
+
+
+::: {.fragment}
+<hr/>
+
+After some algebra: 
+
+$$
+l(\mu, \phi, \sigma^2| y) = -\frac{n}{2}\log(2\pi) -\frac{n}{2}\log(\sigma^2) +\frac{1}{2}(1-\phi^2) \\
+-\frac{1}{2\sigma^2}\sum_{t=2}^n [y_t - \mu - \phi(y_{t-1} - \mu)]^2 - (1-\phi^2)(y_1 - \mu)^2
+$$
+
+:::
+
+::: {.fragment}
+But that sum of squares is exactly $SS(\mu, \phi)$ for LS + a single term, thus:
+
+$\hat{\mu}_{MLE} \approx \hat{\mu}_{LS} \quad \hat{\phi}_{MLE} \approx \hat{\phi}_{LS} \quad \hat{\sigma}^2_{MLE} = \frac{SS(\hat{\mu}, \hat{\phi})}{n}$
+
+:::
+
+---
+
+```{r}
+y <- arima.sim(list(order = c(1,0,0), ar = 0.5), n = 50)
+
+tsibble(y, t = days(1:50), index = t) |>
+  model(ar1 = ARIMA(y ~ pdq(1,0,0))) |> report()
+```
+
+```{r}
+ar(y, order.max = 1, aic = FALSE, method = "mle")
+```
+
+```{r}
+ar(y, order.max = 1, aic = FALSE, method = "ols", intercept=FALSE)
+```
+
+---
+
+## Model Selection {.title-slide}
+
+---
+
+### The Old Art of Model Selection
+
+In all TS books there would appear a table similar to this:
+
+|      | AR(p)                | MA(q)                | ARMA(p, q)|
+|------|----------------------|----------------------|-----------|
+| ACF  | Tails off            | Cuts off after lag q | Tails off |
+| PACF | Cuts off after lag p | Tails off            | Tails off |
+
+The advantage is avoiding overfitting.
+
+The disadvantages: time consuming, not accurate, hard to generalize to seasonal ARIMA
+
+---
+
+### AIC, AICc
+
+$$
+AIC = -2l + 2(p + q + k + 1)
+$$
+where $l$ is the log-likelihood and $k = 1$ if the mean $\mu$ was estimated, otherwise $k = 0$.
+
+$$
+AIC_c = AIC + \frac{2(p+q+k+1)(p+q++k+2)}{n - p - q - k - 2}
+$$
+
+::: {.callout-important}
+Do not use AIC to decide on difference order $d$.
+:::
+
+---
+
+### ARIMA in `fable`
+
+![](images/hyndman_arima_algo.png){width=70%}
+
+See [Hyndman & Athanasopoulos](https://otexts.com/fpp3/).
+
+---
+
+### ARIMA in `fable`
+
+![](images/hyndman_arima_algo_viz.png)
+
+---
+
+### ARIMA in `fable`
+
+```{r}
+aus_calves |>
+  model(
+    Arima = ARIMA(log_count)
+  ) |>
+  report()
+```
+
+
+::: {.callout-important}
+You always need to perform Residuals Diagnostics.
+:::
+
+---
+
+### Practical Modeling
+
+![](images/ARIMA_modeling_procedure.png)
+
+::: {.callout-important}
+The Hyndman-Khandakar algorithm only takes care of steps 3–5.
+:::
 
 ---
 

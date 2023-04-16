@@ -402,7 +402,7 @@
 <h3 id="giora-simchoni">Giora Simchoni</h3>
 <h4 id="gsimchonigmail.com-and-add-dsapps-in-subject"><code>gsimchoni@gmail.com</code> and add <code>#dsapps</code> in subject</h4>
 <h3 id="stat.-and-or-department-tau">Stat. and OR Department, TAU</h3>
-<h3 id="section-1">2023-04-08</h3>
+<h3 id="section-1">2023-04-10</h3>
 </section>
 <section class="slide level2">
 
@@ -799,7 +799,7 @@ Y_t = \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + e_t
 <p>In AR(2), for example, from <span class="math inline">\(\rho_1 = \frac{\phi_1}{1-\phi_2}\)</span> it is clear that if <span class="math inline">\(\phi_2 &lt; 1\)</span>: <span class="math inline">\(\phi_1 + \phi_2 &lt; 1\)</span> and <span class="math inline">\(\phi_2 - \phi_1 &lt; 1\)</span></p>
 <div class="fragment">
 <hr>
-<p>In general it can be shown that for AR(p) to be stationary the <strong>characteristic polynomial</strong> <span class="math inline">\(1-\phi_1x-\phi_2x^2- \dots -\phi_px^p = 0\)</span> needs <span class="math inline">\(p\)</span> roots above 1 in absolute value.</p>
+<p>In general it can be shown that for AR(p) to be stationary the <strong>characteristic equation</strong> <span class="math inline">\(1-\phi_1x-\phi_2x^2- \dots -\phi_px^p = 0\)</span> needs <span class="math inline">\(p\)</span> roots above 1 in absolute value.</p>
 <p>For AR(1): <span class="math inline">\(1-\phi x = 0 \rightarrow |1/\phi| &gt; 1 \rightarrow |\phi| &lt; 1\)</span></p>
 <p>For AR(2): <span class="math inline">\(1-\phi_1x-\phi_2x^2 = 0 \rightarrow \left|\frac{\phi_1 \pm \sqrt{\phi_1^2 + 4\phi_2}}{-2\phi_2}\right| &gt; 1 \rightarrow \phi_1 + \phi_2 &lt; 1, \phi_2 - \phi_1 &lt; 1, |\phi_2| &lt; 1\)</span></p>
 </div>
@@ -969,17 +969,341 @@ Y_t = e_t + \theta e_{t-1}
 </div>
 <img data-src="u5_d02-arima_files/figure-revealjs/MA1-theta-rho-1.png" width="576" class="r-stretch"><div class="fragment">
 <p><span class="math inline">\(\rho\)</span> is in <span class="math inline">\((-\frac{1}{2}, \frac{1}{2})\)</span></p>
-<p><span class="math inline">\(|\theta| &lt; 1\)</span>, otherwise the model is not “invertible”!</p>
+<p><span class="math inline">\(|\theta| &lt; 1\)</span>, otherwise the model is not identifiable.</p>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="ma1---inveritibility-1">MA(1) - Inveritibility</h3>
+<p>Actually, every MA(q) process can be written as AR(<span class="math inline">\(\infty\)</span>)!</p>
+<span class="math display">\[\begin{aligned}
+Y_t = e_t + \theta e_{t-1} &amp;= e_t + \theta (Y_{t-1} - \theta e_{t-2}) \\
+&amp;= e_t + \theta Y_{t-1} - \theta^2 (Y_{t-2} - \theta e_{t-3}) \\
+&amp;\vdots \\
+&amp;= e_t + \theta Y_{t-1} - \theta^2 Y_{t-2} - \theta^3 Y_{t-3} - \dots
+\end{aligned}\]</span>
+<p>Thus, having <span class="math inline">\(|\theta| &lt; 1\)</span> is called invertibility condition and is very similar to stationarity conditions.</p>
+<div class="callout callout-tip callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>And, every AR(p) model can be written as MA(<span class="math inline">\(\infty\)</span>).</p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<hr>
+<p>In general it can be shown that for MA(q) to be invertible the characteristic equation <span class="math inline">\(1-\theta_1x-\theta_2x^2- \dots -\theta_qx^q = 0\)</span> needs <span class="math inline">\(q\)</span> roots above 1 in absolute value.</p>
 </div>
 </section>
 <section id="arima-1" class="slide level2 title-slide center">
 <h2>ARIMA</h2>
 </section>
-<section id="model-selection" class="slide level2 title-slide center">
-<h2>Model Selection</h2>
+<section class="slide level2">
+
+<h3 id="armap-q">ARMA(p, q)</h3>
+<p>A mixed autoregressive moving average process (ARMA):</p>
+<p><span class="math display">\[
+Y_t = \mu + \phi_1 Y_{t-1} + \dots + \phi_p Y_{t-p} + \theta_1 e_{t-1} + \theta_2 e_{t-2} + \dots + \theta_q e_{t-q} + e_t
+\]</span></p>
+</section>
+<section class="slide level2">
+
+<h3 id="arma1-1">ARMA(1, 1)</h3>
+<p>Let the process mean <span class="math inline">\(\mu\)</span> be subtracted:</p>
+<p><span class="math display">\[
+Y_t = \phi Y_{t-1} + e_t + \theta e_{t-1}
+\]</span></p>
+<div class="fragment">
+<hr>
+<p><span class="math inline">\(E(Y_t) = 0\)</span></p>
+<p><span class="math inline">\(\gamma_0 = Var(Y_t) = \phi^2 \gamma_0 + (1+\theta^2)\sigma^2 + 2\phi\theta Cov(Y_{t-1}, e_{t-1}) \rightarrow \gamma_0 = \frac{(1+2\phi\theta + \theta^2)}{1-\phi^2}\sigma^2\)</span></p>
+<p><span class="math inline">\(\gamma_1 = \phi\gamma_0+\theta\sigma^2\)</span></p>
+<p><span class="math inline">\(\gamma_k = \phi\gamma_{k-1} \quad k \ge 2\)</span></p>
+<p><span class="math inline">\(\rho_k = \frac{(1+\theta\phi)(\phi+\theta)}{1+2\theta\phi + \theta^2}\phi^{k-1}\)</span></p>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="arimap-d-q">ARIMA(p, d, q)</h3>
+<p><span class="math inline">\(Y_t\)</span> follows an integrated autoregressive moving average (non-seasonal) ARIMA(p, d, q) model if <span class="math inline">\(W_t = \nabla^d Y_t\)</span> is a stationary ARMA(p, q) process.</p>
+<p><span class="math display">\[
+W_t = \mu + \phi_1 W_{t-1} + \dots + \phi_p W_{t-p} + \theta_1 e_{t-1} + \theta_2 e_{t-2} + \dots + \theta_q e_{t-q} + e_t
+\]</span></p>
+<ul>
+<li><span class="math inline">\(p\)</span>: order of the autoregressive part</li>
+<li><span class="math inline">\(d\)</span>: degree of first differencing involved</li>
+<li><span class="math inline">\(q\)</span>: order of the moving average part</li>
+</ul>
+<div class="fragment">
+<div class="callout callout-important callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Usually <span class="math inline">\(d\)</span> is in <span class="math inline">\(\{0,1,2\}\)</span>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-tip callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>What are ARIMA(0,0,0), ARIMA(0,1,0), ARIMA(p,0,0), ARIMA(0,0,q)?</p>
+</div>
+</div>
+</div>
+</div>
 </section>
 <section id="estimation" class="slide level2 title-slide center">
 <h2>Estimation</h2>
+</section>
+<section class="slide level2">
+
+<h3 id="least-squares-ar1">Least Squares: AR(1)</h3>
+<p>Putting back the <span class="math inline">\(\mu\)</span> to estimate it:</p>
+<p><span class="math display">\[
+Y_t - \mu = \phi (Y_{t-1} - \mu) + e_t
+\]</span></p>
+<p>This is simple linear regression of <span class="math inline">\(Y_t\)</span> versus <span class="math inline">\(Y_{t-1}\)</span></p>
+<p><span class="math display">\[
+SS(\mu, \phi) = \sum_{t=2}^n[(Y_t - \mu) - \phi (Y_{t-1} - \mu)]^2
+\]</span> Differentiating, setting this equal to zero, we get:</p>
+<p><span class="math inline">\(\hat{\mu}_{LS} \approx \bar{Y}\)</span></p>
+<p><span class="math inline">\(\hat{\phi}_{LS} \approx r_1\)</span></p>
+</section>
+<section class="slide level2">
+
+<h3 id="least-squares-ma1">Least Squares: MA(1)</h3>
+<p><span class="math display">\[
+Y_t - \mu = e_t + \theta e_{t-1}
+\]</span></p>
+<p>This <strong>isn’t</strong> simple linear regression, as <span class="math inline">\(e_t\)</span> aren’t observed!</p>
+<p>Option 1: invert MA(1) to AR(<span class="math inline">\(\infty\)</span>) and use numerical analysis: <span class="math display">\[
+SS(\mu, \theta) = \sum_{t=2}^n[(Y_t - \mu) - (\theta Y_{t-1} - \theta^2 Y_{t-2} - \theta^3 Y_{t-3} - \dots)]^2
+\]</span> Option 2: simple grid search on <span class="math inline">\(\theta \in (-1, 1)\)</span> to get the minimum <span class="math inline">\(SS(\theta) = \sum e_t^2\)</span>, where:</p>
+<span class="math display">\[\begin{aligned}
+e_1 &amp;= Y_1 \\
+e_2 &amp;= Y_2 - \theta e_1 \\
+&amp;\vdots \\
+e_n &amp;= Y_n - \theta e_{n-1}
+\end{aligned}\]</span>
+</section>
+<section class="slide level2">
+
+<h3 id="mle-ar1">MLE: AR(1)</h3>
+<p>Assume <span class="math inline">\(e_t \sim \mathcal{N}(0, \sigma^2)\)</span> i.i.d.</p>
+<div class="callout callout-tip callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Is this true: <span class="math inline">\(L(\mu, \phi, \sigma^2| y) = \prod_{t=1}^n f(y_t; \mu, \phi, \sigma^2) = \prod_{t=1}^n \mathcal{N}(\mu, \frac{\sigma^2}{1-\phi^2})\)</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>The <span class="math inline">\(Y_t\)</span>s are dependent!</p>
+<p>E.g. <span class="math inline">\(\rho_1 = \phi\)</span>.</p>
+</div>
+<div class="fragment">
+<p>They are, however conditionally independent:</p>
+<span class="math display">\[\begin{aligned}
+Y_2 &amp;= \mu + \phi(Y_1 - \mu) + e_2 \\
+Y_3 &amp;= \mu + \phi(Y_2 - \mu) + e_3 \\
+&amp;\vdots \\
+Y_n &amp;= \mu + \phi(Y_{n-1} - \mu) + e_n
+\end{aligned}\]</span>
+<p>So: <span class="math inline">\(f(y_1, y_2, \dots, y_n) = f(y_1)f(y_2|y_1)\cdot \dots \cdot f(y_n|y_{n-1})\)</span></p>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="mle-ar1-1">MLE: AR(1)</h3>
+<p>Now, <span class="math inline">\(Y_1 \sim \mathcal{N}(\mu, \frac{\sigma^2}{1-\phi^2})\)</span></p>
+<p>From basic Gaussian probability, if <span class="math inline">\(X \sim \mathcal{N}(\mu_x, \sigma^2_x), Y \sim \mathcal{N}(\mu_y, \sigma^2_y)\)</span>, then</p>
+<p><span class="math inline">\(Y|X \sim \mathcal{N}(\mu_y + \rho\frac{\sigma_y}{\sigma_x}(x - \mu_x), \sigma^2_y(1-\rho^2))\)</span></p>
+<p>So: <span class="math inline">\(Y_t | Y_{t-1} \sim \mathcal{N}(\mu + \phi(y_{t-1} - \mu), \sigma^2)\)</span></p>
+<div class="fragment">
+<hr>
+<p>After some algebra:</p>
+<p><span class="math display">\[
+l(\mu, \phi, \sigma^2| y) = -\frac{n}{2}\log(2\pi) -\frac{n}{2}\log(\sigma^2) +\frac{1}{2}(1-\phi^2) \\
+-\frac{1}{2\sigma^2}\sum_{t=2}^n [y_t - \mu - \phi(y_{t-1} - \mu)]^2 - (1-\phi^2)(y_1 - \mu)^2
+\]</span></p>
+</div>
+<div class="fragment">
+<p>But that sum of squares is exactly <span class="math inline">\(SS(\mu, \phi)\)</span> for LS + a single term, thus:</p>
+<p><span class="math inline">\(\hat{\mu}_{MLE} \approx \hat{\mu}_{LS} \quad \hat{\phi}_{MLE} \approx \hat{\phi}_{LS} \quad \hat{\sigma}^2_{MLE} = \frac{SS(\hat{\mu}, \hat{\phi})}{n}\)</span></p>
+</div>
+</section>
+<section class="slide level2">
+
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">arima.sim</span>(<span class="fu">list</span>(<span class="at">order =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>), <span class="at">ar =</span> <span class="fl">0.5</span>), <span class="at">n =</span> <span class="dv">50</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tsibble</span>(y, <span class="at">t =</span> <span class="fu">days</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">50</span>), <span class="at">index =</span> t) <span class="sc">|&gt;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">model</span>(<span class="at">ar1 =</span> <span class="fu">ARIMA</span>(y <span class="sc">~</span> <span class="fu">pdq</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>))) <span class="sc">|&gt;</span> <span class="fu">report</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Series: y 
+Model: ARIMA(1,0,0) 
+
+Coefficients:
+         ar1
+      0.4971
+s.e.  0.1241
+
+sigma^2 estimated as 1.068:  log likelihood=-72.22
+AIC=148.45   AICc=148.7   BIC=152.27</code></pre>
+</div>
+</div>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ar</span>(y, <span class="at">order.max =</span> <span class="dv">1</span>, <span class="at">aic =</span> <span class="cn">FALSE</span>, <span class="at">method =</span> <span class="st">"mle"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+ar(x = y, aic = FALSE, order.max = 1, method = "mle")
+
+Coefficients:
+     1  
+0.4893  
+
+Order selected 1  sigma^2 estimated as  1.043</code></pre>
+</div>
+</div>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ar</span>(y, <span class="at">order.max =</span> <span class="dv">1</span>, <span class="at">aic =</span> <span class="cn">FALSE</span>, <span class="at">method =</span> <span class="st">"ols"</span>, <span class="at">intercept=</span><span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+ar(x = y, aic = FALSE, order.max = 1, method = "ols", intercept = FALSE)
+
+Coefficients:
+     1  
+0.4692  
+
+Order selected 1  sigma^2 estimated as  1.001</code></pre>
+</div>
+</div>
+</section>
+<section id="model-selection" class="slide level2 title-slide center">
+<h2>Model Selection</h2>
+</section>
+<section class="slide level2">
+
+<h3 id="the-old-art-of-model-selection">The Old Art of Model Selection</h3>
+<p>In all TS books there would appear a table similar to this:</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>AR(p)</th>
+<th>MA(q)</th>
+<th>ARMA(p, q)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ACF</td>
+<td>Tails off</td>
+<td>Cuts off after lag q</td>
+<td>Tails off</td>
+</tr>
+<tr class="even">
+<td>PACF</td>
+<td>Cuts off after lag p</td>
+<td>Tails off</td>
+<td>Tails off</td>
+</tr>
+</tbody>
+</table>
+<p>The advantage is avoiding overfitting.</p>
+<p>The disadvantages: time consuming, not accurate, hard to generalize to seasonal ARIMA</p>
+</section>
+<section class="slide level2">
+
+<h3 id="aic-aicc">AIC, AICc</h3>
+<p><span class="math display">\[
+AIC = -2l + 2(p + q + k + 1)
+\]</span> where <span class="math inline">\(l\)</span> is the log-likelihood and <span class="math inline">\(k = 1\)</span> if the mean <span class="math inline">\(\mu\)</span> was estimated, otherwise <span class="math inline">\(k = 0\)</span>.</p>
+<p><span class="math display">\[
+AIC_c = AIC + \frac{2(p+q+k+1)(p+q++k+2)}{n - p - q - k - 2}
+\]</span></p>
+<div class="callout callout-important callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Do not use AIC to decide on difference order <span class="math inline">\(d\)</span>.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="arima-in-fable">ARIMA in <code>fable</code></h3>
+
+<img data-src="images/hyndman_arima_algo.png" style="width:70.0%" class="r-stretch"><p>See <a href="https://otexts.com/fpp3/">Hyndman &amp; Athanasopoulos</a>.</p>
+</section>
+<section class="slide level2">
+
+<h3 id="arima-in-fable-1">ARIMA in <code>fable</code></h3>
+
+<img data-src="images/hyndman_arima_algo_viz.png" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="arima-in-fable-2">ARIMA in <code>fable</code></h3>
+<div class="cell" data-fig.asp="0.618">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>aus_calves <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">model</span>(</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Arima =</span> <span class="fu">ARIMA</span>(log_count)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">report</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Series: log_count 
+Model: ARIMA(1,0,1)(2,1,2)[12] w/ drift 
+
+Coefficients:
+         ar1      ma1    sar1     sar2     sma1   sma2  constant
+      0.8784  -0.2558  0.7841  -0.4800  -1.2514  0.531   -0.0022
+s.e.  0.0269   0.0560  0.0955   0.0675   0.1007  0.076    0.0012
+
+sigma^2 estimated as 0.01716:  log likelihood=333.47
+AIC=-650.95   AICc=-650.68   BIC=-616.53</code></pre>
+</div>
+</div>
+<div class="callout callout-important callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>You always need to perform Residuals Diagnostics.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+<h3 id="practical-modeling">Practical Modeling</h3>
+
+<img data-src="images/ARIMA_modeling_procedure.png" class="r-stretch"><div class="callout callout-important callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>The Hyndman-Khandakar algorithm only takes care of steps 3–5.</p>
+</div>
+</div>
+</div>
 </section>
 <section id="forecasting" class="slide level2 title-slide center">
 <h2>Forecasting</h2>
