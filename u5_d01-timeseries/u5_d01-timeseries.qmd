@@ -1,0 +1,866 @@
+---
+format:
+  revealjs:
+    slide-number: true
+    fig-width: 6
+    fig-asp: 0.618
+css: "../slides_quarto.css"
+standalone: false
+include-in-header: "../header_quarto.html"
+logo: "../DSApps_logo_white.jpg"
+pagetitle: "Time Series Intro"
+callout-appearance: simple
+smaller: true
+knitr:
+  opts_chunk:
+    fig-width: 6
+    fig-asp: 0.618
+execute:
+  echo: true
+code-line-numbers: false
+code-block-border-left: true
+highlight-style: github
+footer: "[Applications of Data Science](https://dsapps-2023.github.io/Class_Slides/){target='_blank'}"
+---
+
+## {.logo-slide}
+
+## Time Series Intro {.title-slide}
+
+### Applications of Data Science - Class 20
+
+### Giora Simchoni
+
+#### `gsimchoni@gmail.com` and add `#dsapps` in subject
+
+### Stat. and OR Department, TAU
+### `r Sys.Date()`
+
+---
+
+### What is a Time Series?
+
+A time series is a sequence of observations taken sequentially in time.
+
+```{r}
+#| label: Calves
+#| echo: true
+#| code-fold: true
+#| warning: false
+
+library(tidyverse)
+library(tsibble)
+library(tsibbledata)
+library(feasts)
+
+aus_livestock |>
+  filter(Animal == "Calves") |>
+  index_by() |>
+  summarise(Count = sum(Count)) |>
+  autoplot(log(Count)) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+
+---
+
+### TSA Focuses on:
+
+::::: {.columns}
+:::: {.column width="40%"}
+::: {.incremental}
+- Discrete measurements
+- Equally-spaced
+- Usually no missing values
+- Not that short (say > 20? 50?)
+- Time is intrinsic, it is not just another feature
+- Could involve time-varying/non-time-varying explaining features
+:::
+:::
+:::: {.column width="60%"}
+::: {.fragment}
+E.g. this is more of a longitudinal/growth-curve/cohort dataset:
+
+```{r}
+#| label: UKB-SBP
+#| echo: false
+#| warning: false
+#| message: false
+
+ukb <- read_csv("~/ukb_sbp_longitudinal.csv")
+ggplot(ukb |> sample_n(50000),
+       aes(age, sbp, group = factor(id))) +
+  geom_line() +
+  labs(x = "Age", y = "UK Biobank participants systolic blood pressure") +
+  theme_light()
+```
+:::
+::::
+:::::
+
+---
+
+### TSA Goals
+
+- Forecasting [(prediction)]{style="font-size:18px"}
+- Monitoring: outlier detection, alert systems
+- Describing: the TS dynamics, input features contribution
+- Planning: control schemes, intervention analyses, sensitivity analyses
+- Clustering: with multivariate TS
+
+---
+
+## Detour: Dates in R {.title-slide}
+
+---
+
+#### The `Date` class
+
+```{r}
+date_obj <- as.Date("1915-6-16")
+
+class(date_obj)
+```
+
+Internally, `Date` objects are stored as the number of days since January 1, 1970, using negative numbers for earlier dates.
+
+```{r}
+typeof(date_obj)
+as.numeric(date_obj)
+```
+
+So this naturally works:
+
+```{r}
+date_obj + 10
+range(date_obj + 0:10)
+```
+
+Can also accept different formats and has a few built-in functions:
+
+```{r}
+date_obj <- as.Date("1/15/2001",format="%m/%d/%Y")
+months(date_obj)
+```
+
+---
+
+#### The `POSIX` classes
+
+`POSIX` is a slightly more evolved class from UNIX, holding number of seconds since January 1, 1970, and a time zone may be specified:
+
+```{r}
+now <- Sys.time()
+
+now
+
+class(now)
+
+as.numeric(now)
+```
+
+The `POSIXlt` class will store time in a list with useful elements:
+
+```{r}
+now <- as.POSIXlt(now, tz = "GMT")
+now$hour
+```
+
+---
+
+#### The `lubridate` package
+
+Parsing dates:
+
+```{r}
+today()
+
+ymd("2023-01-31")
+
+dmy("31-Jan-2023")
+
+ymd(20170131)
+```
+
+Making dates:
+
+```{r}
+make_date(year = 2013, month = 2, day = 12)
+```
+
+Converting between formats:
+
+```{r}
+as_datetime(today())
+```
+
+---
+
+Getting components:
+
+```{r}
+datetime <- ymd_hms("2016-07-08 12:34:56")
+
+year(datetime)
+mday(datetime)
+yday(datetime)
+wday(datetime)
+```
+
+Duration, time maths:
+
+```{r}
+today() - ymd("2020-01-01") #base R difftime object
+as.duration(today() - ymd("2020-01-01"))
+today() - dyears(1)
+today() + ddays(10)
+```
+
+---
+
+## The Tidyverts {.title-slide}
+
+---
+
+### The Tidyverts
+
+A suite of packages for TSA, the **tidy** way, led by [Rob J. Hyndman](https://robjhyndman.com/):
+
+- `tsibble`: The ~~`data.frame`~~ `tibble` re-imagined for temporal data
+- `tsibbledata`: TS datasets
+- `feasts`: Feature extraction for TS + Some useful `gg` plots
+- `fable` and `fabletools`: **The** modeling and forecasting package
+- more and more to come.
+
+See [tidyverts.org](https://tidyverts.org/).
+
+---
+
+### `tsibble`
+
+Need a time `index`:
+
+```{r}
+library(tsibble)
+
+tsibble(
+  date = as.Date("2017-01-01") + 0:9,
+  value = rnorm(10)
+)
+```
+
+Here, as `date` is the only **`Date`** column, `tsibble` gets this.
+
+`[1D]` is the tsibble's `interval`.
+
+---
+
+Grouping variable(s) are specified with `key`:
+
+```{r}
+tsibble(
+  qtr = rep(yearquarter("2010 Q1") + 0:9, 3),
+  group = rep(c("x", "y", "z"), each = 10),
+  value = rnorm(30),
+  key = group
+)
+```
+
+---
+
+Here there are 54 TS combinations:
+
+```{r}
+aus_livestock
+```
+
+---
+
+Wrangling similar to the Tidyverse, only `group_by() + summarise()` on a time index would be `index_by()` + `summarise()`:
+
+```{r}
+aus_calves <- aus_livestock |>
+  filter(Animal == "Calves") |>
+  index_by() |>
+  summarise(count = sum(Count), log_count = log(count))
+
+aus_calves
+```
+
+---
+
+### `feasts`
+
+Seamless integration with `ggplot2` and friends, use `autoplot()` from `feasts`:
+
+```{r}
+#| label: Calves-autoplot
+#| code-line-numbers: "|2"
+
+aus_calves |>
+  autoplot(log_count) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+
+---
+
+Some more useful plots:
+
+```{r}
+#| label: Calves-season
+#| code-line-numbers: "|4"
+
+library(feasts)
+
+aus_calves |>
+  gg_season(log_count) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  theme_light()
+```
+
+---
+
+```{r}
+#| label: Calves-subseries
+#| code-line-numbers: "2"
+
+aus_calves |>
+  gg_subseries(log_count) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(labels = NULL) +
+  theme_light()
+```
+
+---
+
+```{r}
+#| label: Calves-lag
+#| code-line-numbers: "2"
+
+aus_calves |>
+  gg_lag(log_count, geom = "point") +
+  labs(x = "lag(log(count))", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(labels = NULL) +
+  theme_light()
+```
+
+---
+
+Some useful features for multiple series:
+
+```{r}
+#| label: feasts-features
+
+aus_livestock |>
+  features(log(Count), quantile)
+```
+
+---
+
+```{r}
+#| label: feasts-stl
+#| code-line-numbers: "|1-3|4|5"
+
+aus_livestock |>
+  group_by(Animal) |>
+  summarise(total_count = sum(Count)) |>
+  features(log(total_count), feat_stl) |>
+  select(Animal, trend_strength, spikiness, linearity)
+```
+
+---
+
+## TS Decomposition {.title-slide}
+
+---
+
+### Transformations
+
+:::: {.columns}
+::: {.column}
+```{r}
+#| label: Calves-log
+#| echo: false
+
+aus_calves |>
+  autoplot(log_count) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+:::
+
+::: {.column}
+```{r}
+#| label: Calves-nolog
+#| echo: false
+
+aus_calves |>
+  autoplot(count) +
+  labs(x = "", y = "no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+:::
+
+::::
+
+::: {.callout-tip}
+Why did we need log? What would occur without it?
+:::
+
+::: {.callout-tip}
+What other transformations are worth considering? Hint: "total monthly sales"
+:::
+
+::: {.callout-tip}
+What is the 1st conclusion about no. of calves slaughtered in AUS? What is the 2nd?
+:::
+
+---
+
+### Classical Decomposition
+
+- Let $Y_1, \dots, Y_n$ be our TS, then:
+$$
+Y_t = S_t + T_t + e_t
+$$
+
+where $S_t$ is the seasonal component, $T_t$ is the trend, $e_t$ is the remainder, all at time $t$.
+
+- Necessary but not sufficient condition: Make $e_t$ "white noise", i.e. $e_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)$
+
+- Decomposition can also be multiplicative:
+
+$$
+Y_t = S_t \times T_t \times e_t
+$$
+
+but then we'd take $\log(Y_t)$.
+
+---
+
+To make a long story short:
+
+```{r}
+#| label: classic-decomp
+#| echo: false
+
+aus_calves |>
+  model(classical_decomposition(log_count)) |>
+  components() |>
+  autoplot() +
+  labs(x = "", y = "log no. of calves slaughtered in Australia", title = "") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+
+---
+
+#### Moving Averages
+
+$m$-MA suitable for an odd seasonality period $m = 2k + 1$ (e.g. a week):
+
+$$
+\hat{T}_t = \frac{1}{m}\sum_{j = -k}^{j = k} Y_{t + j}
+$$
+
+```{r}
+aus_calves |>
+  mutate(
+    `7-MA` = slider::slide_dbl(log_count, mean,
+                .before = 3, .after = 3, .complete = TRUE)
+  )
+```
+
+---
+
+#### Moving Averages of Moving Averages
+
+$2 \times m$-MA suitable for an even seasonality period $m = 2k$ (e.g. quarter):
+
+\begin{split}
+Q_t = \frac{1}{m}\sum_{j = -(k-1)}^{j = k} Y_{t + j}  \\
+
+\hat{T}_t = \frac{1}{2} Q_{t-1} + \frac{1}{2} Q_{t}
+\end{split}
+
+E.g. for $m = 4$ (quarter):
+
+\begin{split}
+\hat{T}_t &= \frac{1}{2} \left[\frac{1}{4}(Y_{t-2} + Y_{t-1} + Y_{t} + Y_{t+1}) + \frac{1}{4}(Y_{t-1} + Y_{t} + Y_{t + 1} + Y_{t+2})\right] \\
+
+  &= \frac{1}{8}Y_{t_2} + \frac{1}{4}Y_{t_1} + \frac{1}{4}Y_{t} + \frac{1}{4}Y_{t+1} + \frac{1}{8}Y_{t+2}
+\end{split}
+
+::: {.callout-tip}
+Which makes this...
+:::
+
+---
+
+```{r}
+aus_calves_with_12ma <- aus_calves |>
+mutate(
+    `12-MA` = slider::slide_dbl(log_count, mean,
+                .before = 6, .after = 5, .complete = TRUE),
+    `2x12-MA` = slider::slide_dbl(`12-MA`, mean,
+                .before = 1, .after = 0, .complete = TRUE)
+  )
+
+aus_calves_with_12ma
+```
+
+```{r}
+
+(mean(aus_calves$log_count[1:12]) + mean(aus_calves$log_count[2:13])) / 2
+
+aus_calves_with_12ma$`2x12-MA`[8]
+```
+
+---
+
+```{r}
+#| label: Calves-MA
+
+aus_calves_with_12ma |>
+  autoplot(log_count, colour = "gray") +
+  geom_line(aes(y = `2x12-MA`), colour = "#D55E00") +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+
+---
+
+#### Back to Classical Decomposition
+
+From [Hyndman & Athanasopoulos, 2021](https://otexts.com/fpp3/):
+
+::: {.incremental}
+1. If $m$ is an even number, compute the trend component $\hat{T}_t$ using a $2 \times m$-MA. If $m$ is an odd number, compute the trend component $\hat{T}_t$ using a $m$-MA.
+
+2. Calculate the detrended series: $Y_t - \hat{T}_t$.
+
+3. To estimate the seasonal component for each season, simply average the detrended values for that season. These seasonal component values are then adjusted to ensure that they add to zero. The seasonal component is obtained by stringing together these monthly values, and then replicating the sequence for each year of data. This gives $\hat{S}_t$.
+
+4. The remainder component is calculated by subtracting the estimated seasonal and trend-cycle components: $\hat{e}_t = Y_t - \hat{T}_t - \hat{S}_t$
+
+::: {.callout-tip}
+Criticize this process!
+:::
+
+:::
+
+
+---
+
+In `fable`:
+
+```{r}
+#| eval: false
+
+aus_calves |>
+  model(classical_decomposition(log_count)) |>
+  components() |>
+  autoplot()
+```
+
+![](`r knitr::fig_chunk('classic-decomp', 'png')`)
+
+---
+
+### STL Decomposition
+
+STL: Seasonal and Trend decomposition using LOESS, from [Clevelnad et al., 1990](http://bit.ly/stl1990).
+
+```{r}
+#| label: STL-decomp
+#| code-line-numbers: "|2-3"
+
+aus_calves |>
+  model(STL(log_count)) |>
+  components() |>
+  autoplot() +
+  labs(x = "", y = "log no. of calves slaughtered in Australia", title = "") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_light()
+```
+
+---
+
+### ACF
+
+(Sample) auto-correlation function at lag $k$ is a huge deal in TSA!
+
+$$
+r_k = \frac{\sum_{t = k+1}^{n}(Y_t - \bar{Y})(Y_{t-k} - \bar{Y})}{\sum_{t = 1}^{n} (Y_t - \bar{Y})^2}
+$$
+```{r}
+aus_calves |>
+  ACF(log_count, lag_max = 10)
+```
+
+---
+
+```{r}
+#| label: Calves-ACF
+aus_calves |>
+  ACF(log_count, lag_max = 40) |>
+  autoplot() +
+  theme_light()
+```
+
+::: {.callout-tip}
+Where does the CI come from?
+:::
+
+---
+
+## Residuals {.title-slide}
+
+---
+
+### Residuals
+
+What do we like to see in residuals?
+
+1. Uncorrelated
+2. Zero mean
+
+Good to have:
+
+3. Homoscedasticity
+
+4. Gaussian
+
+::: {.fragment .highlight-red}
+Actually we already wrote this: $e_t \stackrel{iid}\sim \mathcal{N}(0, \sigma^2)$
+:::
+
+::: {.fragment}
+::: {.callout-tip}
+All your knowledge from linear regression comes into play! E.g. what if the mean isn't zero?
+:::
+:::
+
+---
+
+#### Residuals Diagnostics Viz
+
+Feasts has `gg_tsresiduals()` for a quick look given a `mable`:
+```{r}
+#| label: Calves-resid1
+aus_calves |>
+  model(STL(log_count)) |>
+  gg_tsresiduals()
+```
+
+::: {.callout-tip}
+What do you expect to see in each of these?
+:::
+
+---
+
+#### "Stadardized" Residuals Diagnostics Viz
+
+Getting residuals from a `fable` model (a.k.a `mable`) with `augment()`:
+
+```{r}
+aus_calves_aug <- aus_calves |>
+  model(STL(log_count)) |>
+  augment()
+
+aus_calves_aug
+```
+
+White noise standardized residuals should behave like $\mathcal{N}(0, 1)$, so:
+
+```{r}
+resid <- aus_calves_aug$.innov
+n <- dim(aus_calves)[1]
+sig <- sqrt(sum((resid - mean(resid))**2)/n) # very rough!
+
+aus_calves_aug$st_resid <- resid / sig
+```
+
+---
+
+```{r}
+#| label: Calves-resid2
+aus_calves_aug |>
+  ggplot(aes(Month, st_resid)) +
+  geom_point() +
+  geom_line() +
+  labs(x = "", y = "Standardized Residuals") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_bw()
+```
+
+---
+
+```{r}
+#| label: Calves-resid3
+aus_calves_aug |>
+  ggplot(aes(x = st_resid)) +
+  geom_histogram() +
+  labs(x = "Standardized Residuals", y = "") +
+  theme_bw()
+```
+
+---
+
+```{r}
+#| label: Calves-resid4
+aus_calves_aug |>
+  ggplot(aes(sample = st_resid)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(x = "Theoretical Quantiles", y = "Residuals Quantiles") +
+  theme_bw()
+```
+
+---
+
+```{r}
+#| label: Calves-resid5
+aus_calves_aug |>
+  ggplot(aes(.fitted, st_resid)) +
+  geom_point() +
+  labs(x = "Fitted", y = "Standardized Residuals") +
+  theme_bw()
+```
+
+---
+
+```{r}
+#| label: Calves-resid6
+
+acf_obj <- acf(aus_calves_aug$st_resid, plot = FALSE)
+
+acf_df <- with(acf_obj, tibble(lag = lag[,,1], acf = acf[,,1])) |>
+  filter(lag > 0)
+
+acf_df |>
+  ggplot(aes(lag, acf)) +
+  geom_hline(aes(yintercept = 0)) +
+  geom_hline(aes(yintercept = -1/sqrt(n)), color = "blue", linetype = 2) +
+  geom_hline(aes(yintercept = 1/sqrt(n)), color = "blue", linetype = 2) +
+  geom_segment(aes(xend = lag, yend = 0)) +
+  theme_bw()
+```
+
+---
+
+#### Residuals Statistical Tests
+
+Normality - Shapiro-Wilk Test:
+
+```{r}
+shapiro.test(aus_calves_aug$st_resid)
+```
+
+TS independence - Runs Test:
+
+```{r}
+TSA::runs(aus_calves_aug$st_resid)
+```
+
+---
+
+ACF - Ljung-Box Test:
+
+$$
+Q^* = n(n+2)\sum_{k = 1}^l (n - k)^{-1}r^2_k \sim \chi^2_l
+$$
+```{r}
+Box.test(aus_calves_aug$st_resid, lag = 10, type = "Ljung")
+```
+
+A bit more tidy with `fable`:
+
+```{r}
+aus_calves_aug |> features(.innov, ljung_box, lag = 10)
+```
+
+---
+
+## Baseline Forecasts {.title-slide}
+
+---
+
+### Baseline Forecasts
+
+In general, $\hat{Y}_t(l) = E(Y_{t+l} | Y_1, \dots, Y_t)$ is the minimum MSE forecast, $l$ time units into the future from time $t$.
+
+What if $Y_t = \mu + e_t$?
+
+What if $Y_t = \mu_t + e_t = \beta_0 + \beta_1\cdot t + e_t$?
+
+::: {.incremental}
+- Mean: $\hat{Y}_t(l) = \bar{Y}$
+- Naive: $\hat{Y}_t(l) = Y_t$
+- Seasonal Naive: $\hat{Y}_t(l) = Y_{t + l - m(k-1)}$, where $m$ is the seasonality and $k$ is the integer part of $(l-1)/m$ (i.e. the forecast for all future February values is equal to the last observed February value.)
+- Linear regression: $\hat{Y}_t(l) = \hat{\beta}_0 + \hat{\beta}_1(t + l)$
+:::
+
+---
+
+```{r}
+# Set training data until 2016
+calves_tr <- aus_calves |>
+  filter(year(Month) < 2016)
+calves_te <- aus_calves |>
+  filter(year(Month) >= 2016)
+
+# Fit the models
+models_fit <- calves_tr |>
+  model(
+    Mean = fable::MEAN(log_count),
+    Naive = fable::NAIVE(log_count),
+    Seasonal_naive = fable::SNAIVE(log_count),
+    LM = fable::TSLM(log_count ~ trend())
+  )
+
+# Generate forecasts for 3 years
+models_fc <- models_fit |> forecast(calves_te)
+
+# Can also do forecast(h = 36)
+
+```
+
+---
+
+```{r}
+#| label: Calves-Forecasts
+
+# Plot forecasts against actual values
+models_fc |>
+  autoplot(calves_tr, level = NULL) +
+  autolayer(
+    filter_index(aus_calves, "2016-01" ~ .),
+    log_count,
+    colour = "black") +
+  guides(colour = guide_legend(title = "Forecast")) +
+  labs(x = "", y = "log no. of calves slaughtered in Australia") +
+  scale_x_yearmonth(date_breaks = "5 year", date_labels = "%Y") +
+  theme_bw()
+```
+
+---
+
+#### Evaluating forecast point accuracy
+
+E.g. RMSE, MAE:
+
+```{r}
+models_fc |>
+  accuracy(
+    data = calves_te,
+    measures = list("RMSE" = RMSE, "MAE" = MAE)
+  )
+```
+
