@@ -4,7 +4,7 @@
     <title>Community Detection</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2023-02-23" />
+    <meta name="date" content="2023-04-28" />
     <script src="u2_d04-community_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2023-02-23
+### 2023-04-28
 
 ---
 
@@ -190,7 +190,7 @@ communities[:10]
 ```
 
 ```
-## array([0, 0, 0, 0, 0, 1, 1, 0, 0, 1], dtype=int64)
+## array([1, 1, 1, 1, 1, 0, 0, 1, 1, 0], dtype=int64)
 ```
 
 ---
@@ -584,30 +584,23 @@ plt.show()
 
 ---
 
-The Louvain method is extremely fast, "empirical" complexity appears to be linear. It is not implemented in NetworkX but there is a library called [python-louvain](https://github.com/taynaud/python-louvain) .font80percent[(import name is `community`, not confusing at all)] which works with a NetworkX `Graph()` object:
+The Louvain method is extremely fast, "empirical" complexity appears to be linear. It is also available in NetworkX since v2.7:
 
 
 ```python
-import community as louvain
-
-communities = louvain.best_partition(G) # returns a dict: node to community
-print(louvain.modularity(communities, G))
+communities = nx.community.louvain_communities(G)
+print(nx.community.modularity(G, communities))
 ```
 
 ```
 ## 0.47616301422529794
 ```
 
-.insight[
-💡 Oops, times they are a changing: In v2.7 see [`louvain_communities()`](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.louvain.louvain_communities.html#networkx.algorithms.community.louvain.louvain_communities)
-]
-
 ---
 
 ```python
-color_dict = {0: 'blue', 1: 'red', 2: 'green'}
-node_colors = [color_dict[communities[book]] for book in G.nodes]
-nx.draw_networkx(G, nodelist = G.nodes, node_color = node_colors)
+nx.draw_networkx(G, nodelist = G.nodes,
+  node_color = get_node_colors_by_communities(communities, G.nodes))
 plt.show()
 ```
 
@@ -816,42 +809,42 @@ node2vec = Node2Vec(G, dimensions=64, walk_length=30, num_walks=200, workers=1, 
 ```
 ## 
 Computing transition probabilities:   0%|          | 0/23 [00:00&lt;?, ?it/s]
-Computing transition probabilities: 100%|##########| 23/23 [00:00&lt;00:00, 21188.01it/s]
+Computing transition probabilities: 100%|##########| 23/23 [00:00&lt;00:00, 22870.79it/s]
 ## 
 Generating walks (CPU: 1):   0%|          | 0/200 [00:00&lt;?, ?it/s]
-Generating walks (CPU: 1):   4%|3         | 7/200 [00:00&lt;00:03, 64.09it/s]
-Generating walks (CPU: 1):   7%|7         | 14/200 [00:00&lt;00:03, 59.36it/s]
-Generating walks (CPU: 1):  10%|#         | 20/200 [00:00&lt;00:03, 59.51it/s]
-Generating walks (CPU: 1):  13%|#3        | 26/200 [00:00&lt;00:03, 56.15it/s]
-Generating walks (CPU: 1):  16%|#6        | 32/200 [00:00&lt;00:03, 55.06it/s]
-Generating walks (CPU: 1):  19%|#9        | 38/200 [00:00&lt;00:02, 54.87it/s]
-Generating walks (CPU: 1):  22%|##2       | 44/200 [00:00&lt;00:02, 54.80it/s]
-Generating walks (CPU: 1):  25%|##5       | 50/200 [00:00&lt;00:02, 54.65it/s]
-Generating walks (CPU: 1):  28%|##8       | 56/200 [00:00&lt;00:02, 55.41it/s]
-Generating walks (CPU: 1):  31%|###1      | 62/200 [00:01&lt;00:02, 54.67it/s]
-Generating walks (CPU: 1):  34%|###4      | 68/200 [00:01&lt;00:02, 54.93it/s]
-Generating walks (CPU: 1):  37%|###7      | 74/200 [00:01&lt;00:02, 55.10it/s]
-Generating walks (CPU: 1):  40%|####      | 80/200 [00:01&lt;00:02, 55.79it/s]
-Generating walks (CPU: 1):  44%|####3     | 87/200 [00:01&lt;00:02, 55.03it/s]
-Generating walks (CPU: 1):  46%|####6     | 93/200 [00:01&lt;00:01, 56.14it/s]
-Generating walks (CPU: 1):  50%|#####     | 100/200 [00:01&lt;00:01, 55.12it/s]
-Generating walks (CPU: 1):  53%|#####3    | 106/200 [00:01&lt;00:01, 54.87it/s]
-Generating walks (CPU: 1):  56%|#####6    | 112/200 [00:02&lt;00:01, 54.84it/s]
-Generating walks (CPU: 1):  59%|#####8    | 118/200 [00:02&lt;00:01, 55.72it/s]
-Generating walks (CPU: 1):  62%|######2   | 124/200 [00:02&lt;00:01, 54.73it/s]
-Generating walks (CPU: 1):  65%|######5   | 130/200 [00:02&lt;00:01, 54.74it/s]
-Generating walks (CPU: 1):  68%|######8   | 136/200 [00:02&lt;00:01, 55.81it/s]
-Generating walks (CPU: 1):  71%|#######1  | 142/200 [00:02&lt;00:01, 56.64it/s]
-Generating walks (CPU: 1):  74%|#######4  | 148/200 [00:02&lt;00:00, 55.41it/s]
-Generating walks (CPU: 1):  77%|#######7  | 154/200 [00:02&lt;00:00, 53.73it/s]
-Generating walks (CPU: 1):  80%|########  | 161/200 [00:02&lt;00:00, 56.06it/s]
-Generating walks (CPU: 1):  84%|########3 | 167/200 [00:03&lt;00:00, 54.49it/s]
-Generating walks (CPU: 1):  86%|########6 | 173/200 [00:03&lt;00:00, 53.73it/s]
-Generating walks (CPU: 1):  90%|######### | 180/200 [00:03&lt;00:00, 54.29it/s]
-Generating walks (CPU: 1):  93%|#########3| 186/200 [00:03&lt;00:00, 54.55it/s]
-Generating walks (CPU: 1):  96%|#########6| 192/200 [00:03&lt;00:00, 55.98it/s]
-Generating walks (CPU: 1):  99%|#########9| 198/200 [00:03&lt;00:00, 54.01it/s]
-Generating walks (CPU: 1): 100%|##########| 200/200 [00:03&lt;00:00, 55.08it/s]
+Generating walks (CPU: 1):   4%|3         | 7/200 [00:00&lt;00:03, 60.97it/s]
+Generating walks (CPU: 1):   7%|7         | 14/200 [00:00&lt;00:03, 55.26it/s]
+Generating walks (CPU: 1):  10%|#         | 20/200 [00:00&lt;00:03, 56.32it/s]
+Generating walks (CPU: 1):  13%|#3        | 26/200 [00:00&lt;00:03, 52.73it/s]
+Generating walks (CPU: 1):  16%|#6        | 32/200 [00:00&lt;00:03, 52.46it/s]
+Generating walks (CPU: 1):  19%|#9        | 38/200 [00:00&lt;00:03, 52.54it/s]
+Generating walks (CPU: 1):  22%|##2       | 44/200 [00:00&lt;00:02, 52.47it/s]
+Generating walks (CPU: 1):  25%|##5       | 50/200 [00:00&lt;00:02, 52.67it/s]
+Generating walks (CPU: 1):  28%|##8       | 56/200 [00:01&lt;00:02, 52.78it/s]
+Generating walks (CPU: 1):  31%|###1      | 62/200 [00:01&lt;00:02, 52.52it/s]
+Generating walks (CPU: 1):  34%|###4      | 68/200 [00:01&lt;00:02, 52.44it/s]
+Generating walks (CPU: 1):  37%|###7      | 74/200 [00:01&lt;00:02, 53.52it/s]
+Generating walks (CPU: 1):  40%|####      | 80/200 [00:01&lt;00:02, 51.74it/s]
+Generating walks (CPU: 1):  43%|####3     | 86/200 [00:01&lt;00:02, 52.95it/s]
+Generating walks (CPU: 1):  46%|####6     | 92/200 [00:01&lt;00:02, 51.90it/s]
+Generating walks (CPU: 1):  49%|####9     | 98/200 [00:01&lt;00:01, 52.20it/s]
+Generating walks (CPU: 1):  52%|#####2    | 104/200 [00:01&lt;00:01, 51.89it/s]
+Generating walks (CPU: 1):  55%|#####5    | 110/200 [00:02&lt;00:01, 51.89it/s]
+Generating walks (CPU: 1):  58%|#####8    | 117/200 [00:02&lt;00:01, 52.18it/s]
+Generating walks (CPU: 1):  62%|######1   | 123/200 [00:02&lt;00:01, 54.19it/s]
+Generating walks (CPU: 1):  64%|######4   | 129/200 [00:02&lt;00:01, 51.61it/s]
+Generating walks (CPU: 1):  68%|######7   | 135/200 [00:02&lt;00:01, 51.70it/s]
+Generating walks (CPU: 1):  70%|#######   | 141/200 [00:02&lt;00:01, 53.15it/s]
+Generating walks (CPU: 1):  74%|#######3  | 147/200 [00:02&lt;00:01, 51.76it/s]
+Generating walks (CPU: 1):  76%|#######6  | 153/200 [00:02&lt;00:00, 52.44it/s]
+Generating walks (CPU: 1):  80%|#######9  | 159/200 [00:03&lt;00:00, 51.99it/s]
+Generating walks (CPU: 1):  82%|########2 | 165/200 [00:03&lt;00:00, 52.18it/s]
+Generating walks (CPU: 1):  86%|########5 | 171/200 [00:03&lt;00:00, 52.16it/s]
+Generating walks (CPU: 1):  88%|########8 | 177/200 [00:03&lt;00:00, 54.00it/s]
+Generating walks (CPU: 1):  92%|#########1| 183/200 [00:03&lt;00:00, 51.40it/s]
+Generating walks (CPU: 1):  94%|#########4| 189/200 [00:03&lt;00:00, 53.19it/s]
+Generating walks (CPU: 1):  98%|#########7| 195/200 [00:03&lt;00:00, 51.48it/s]
+Generating walks (CPU: 1): 100%|##########| 200/200 [00:03&lt;00:00, 52.37it/s]
 ```
 
 ---

@@ -636,24 +636,17 @@ plt.show()
 
 ---
 
-The Louvain method is extremely fast, "empirical" complexity appears to be linear. It is not implemented in NetworkX but there is a library called [python-louvain](https://github.com/taynaud/python-louvain) .font80percent[(import name is `community`, not confusing at all)] which works with a NetworkX `Graph()` object:
+The Louvain method is extremely fast, "empirical" complexity appears to be linear. It is also available in NetworkX since v2.7:
 
 ```{python}
-import community as louvain
-
-communities = louvain.best_partition(G) # returns a dict: node to community
-print(louvain.modularity(communities, G))
+communities = nx.community.louvain_communities(G)
+print(nx.community.modularity(G, communities))
 ```
-
-.insight[
-`r emoji("bulb")` Oops, times they are a changing: In v2.7 see [`louvain_communities()`](https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.community.louvain.louvain_communities.html#networkx.algorithms.community.louvain.louvain_communities)
-]
 
 ---
 ```{python Louvain, out.width="50%"}
-color_dict = {0: 'blue', 1: 'red', 2: 'green'}
-node_colors = [color_dict[communities[book]] for book in G.nodes]
-nx.draw_networkx(G, nodelist = G.nodes, node_color = node_colors)
+nx.draw_networkx(G, nodelist = G.nodes,
+  node_color = get_node_colors_by_communities(communities, G.nodes))
 plt.show()
 ```
 
