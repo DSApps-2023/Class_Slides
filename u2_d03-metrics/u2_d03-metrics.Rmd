@@ -619,7 +619,7 @@ The weighted mean of attribute (variable) $x$: $\hat{E}(x;a)=\frac{\sum_ix_ia_{x
 
 $Assortativity_2(attribute)=r(x,y;M)=\frac{\hat{cov}(x,y;M)}{\hat{\sigma}(x)\hat{\sigma}(y)}=$
 
-$=\frac{\hat{E}(xy;E)-\hat{E}(x;a)\hat{E}(y;b)}{\hat{\sigma}(x)\hat{\sigma}(y)}=\frac{\sum_{ij}M_{ij}x_iy_j - \sum_ix_ia_{x_i}\cdot \sum_jy_jb_{y_j}}{\sqrt{\hat{cov}(x,x;M)\hat{cov}(y,y;M)}}$
+$=\frac{\hat{E}(xy;M)-\hat{E}(x;a)\hat{E}(y;b)}{\hat{\sigma}(x)\hat{\sigma}(y)}=\frac{\sum_{ij}M_{ij}x_iy_j - \sum_ix_ia_{x_i}\cdot \sum_jy_jb_{y_j}}{\sqrt{\hat{cov}(x,x;M)\hat{cov}(y,y;M)}}$
 
 $= \frac{\sum_{ij}M_{ij}x_iy_j - \sum_{ij}a_{x_i}b_{y_j}x_iy_j}{\sqrt{\hat{cov}(x,x;M)\hat{cov}(y,y;M)}} = \frac{\sum_{ij}x_iy_j(M_{ij} - a_{x_i}b_{y_j})}{\sqrt{\hat{cov}(x,x;M)\hat{cov}(y,y;M)}}$
 

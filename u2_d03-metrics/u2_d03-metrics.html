@@ -4,7 +4,7 @@
     <title>Network Metrics</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2023-02-23" />
+    <meta name="date" content="2023-04-30" />
     <script src="u2_d03-metrics_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2023-02-23
+### 2023-04-30
 
 ---
 
@@ -629,11 +629,11 @@ pretty_print(sim_jaccard_top5)
 ```
 
 ```
-## ('I, Robot', "Ender's Game"): 0.50
 ## ('The Princess Bride', 'The Lion, the Witch and the Wardrobe'): 0.50
-## ('Brave New World', 'Solaris'): 0.43
-## ('Journey to the Center of the Earth', 'The Lord of the Rings'): 0.43
+## ('I, Robot', "Ender's Game"): 0.50
 ## ('The Hunger Games', 'Harry Potter Series'): 0.43
+## ('The Lord of the Rings', 'Journey to the Center of the Earth'): 0.43
+## ('2001: A Space Odyssey', 'Babel 17'): 0.43
 ```
 
 ---
@@ -745,7 +745,7 @@ The weighted mean of attribute (variable) `\(x\)`: `\(\hat{E}(x;a)=\frac{\sum_ix
 
 `\(Assortativity_2(attribute)=r(x,y;M)=\frac{\hat{cov}(x,y;M)}{\hat{\sigma}(x)\hat{\sigma}(y)}=\)`
 
-`\(=\frac{\hat{E}(xy;E)-\hat{E}(x;a)\hat{E}(y;b)}{\hat{\sigma}(x)\hat{\sigma}(y)}=\frac{\sum_{ij}M_{ij}x_iy_j - \sum_ix_ia_{x_i}\cdot \sum_jy_jb_{y_j}}{\sqrt{\hat{cov}(x,x;M)\hat{cov}(y,y;M)}}\)`
+`\(=\frac{\hat{E}(xy;M)-\hat{E}(x;a)\hat{E}(y;b)}{\hat{\sigma}(x)\hat{\sigma}(y)}=\frac{\sum_{ij}M_{ij}x_iy_j - \sum_ix_ia_{x_i}\cdot \sum_jy_jb_{y_j}}{\sqrt{\hat{cov}(x,x;M)\hat{cov}(y,y;M)}}\)`
 
 `\(= \frac{\sum_{ij}M_{ij}x_iy_j - \sum_{ij}a_{x_i}b_{y_j}x_iy_j}{\sqrt{\hat{cov}(x,x;M)\hat{cov}(y,y;M)}} = \frac{\sum_{ij}x_iy_j(M_{ij} - a_{x_i}b_{y_j})}{\sqrt{\hat{cov}(x,x;M)\hat{cov}(y,y;M)}}\)`
 
