@@ -70,9 +70,9 @@ class: section-slide
 
 - Understand hidden structure
 - Identify separate functionalities
+- Optimize (e.g. with software)
 - Categorize (e.g. for automating Search & Browse)
 - Divide & Conquer (e.g. for visualization)
-- Optimize (e.g. with software)
 - Reduce size of large networks
 - Sheer Coolness
 
@@ -370,7 +370,7 @@ class: section-slide
 Completely different, beautiful, democratic idea:
 
 1. Initialize a unique label (community) for each node
-2. For each node (in parallel): choose the the most common label in neighbors
+2. For each node (in parallel): choose the most common label in neighbors
 3. If there is a tie: choose label at random
 4. Go back to 2 until some stopping criteria (e.g. no change)
 
@@ -672,7 +672,7 @@ class: section-slide
 
 - A different name for "Embeddings" could be "Dimensionality Reduction".
 
-- In modern Machine Learning, we often get a high-demensional dataset (say $X_{n\text{x}p}$ and $p$ is very large) some methods cannot handle. One go-to strategy is to reduce the dimension of this dataset matrix by PCA or NMF.
+- In modern Machine Learning, we often get a high-dimensional dataset (say $X_{n\text{x}p}$ and $p$ is very large) some methods cannot handle. One go-to strategy is to reduce the dimension of this dataset matrix by PCA or NMF.
 
 - In Network Analysis too, imagine a huge adjacency matrix $A$. Especially for the purpose of Community Detection (a.k.a clustering) what if you could reduce the dimensionality of $A$ first, then perform your clustering method of choice (e.g. K-Means)?
 
@@ -708,7 +708,7 @@ Don't do it .font80percent[(why?)].
 "Regular" dimensionality reduction methods do not work well on text data. 
 
 1. They tend to be slow.
-2. They ignore (and therefore lose) semantic meaning and grammatical function of a word, as can be seen by unsatisfactory performance in NLP tasks such as transaltion, finding synonyms and analogies.
+2. They ignore (and therefore lose) semantic meaning and grammatical function of a word, as can be seen by unsatisfactory performance in NLP tasks such as translation, finding synonyms and analogies.
 
 
 Q: What model *would* preserve semantic/syntactic meaning?
@@ -759,7 +759,7 @@ The model was only trained to find the weight matrix $W$ of dimension $|V|\text{
 - $|V|$ is the vocabulary size, the length of the dummy vectors input to the network
 - $D$ the size of the hidden layer
 
-In the above example this would be a 10K x 300 matrix where for each word there would be a 300-long *word vector* or *embedding* hopefully representing its semantic/syntactic better than traditional dimensionality reduction methods.
+In the above example this would be a 10K x 300 matrix where for each word there would be a 300-long *word vector* or *embedding* hopefully representing its semantic/syntactic meaning better than traditional dimensionality reduction methods.
 
 This form of learning is also called *Representation Learning*.
 

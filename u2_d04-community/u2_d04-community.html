@@ -4,7 +4,7 @@
     <title>Community Detection</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2023-04-28" />
+    <meta name="date" content="2023-04-30" />
     <script src="u2_d04-community_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2023-04-28
+### 2023-04-30
 
 ---
 
@@ -62,9 +62,9 @@ class: section-slide
 
 - Understand hidden structure
 - Identify separate functionalities
+- Optimize (e.g. with software)
 - Categorize (e.g. for automating Search &amp; Browse)
 - Divide &amp; Conquer (e.g. for visualization)
-- Optimize (e.g. with software)
 - Reduce size of large networks
 - Sheer Coolness
 
@@ -190,7 +190,7 @@ communities[:10]
 ```
 
 ```
-## array([1, 1, 1, 1, 1, 0, 0, 1, 1, 0], dtype=int64)
+## array([0, 0, 0, 0, 0, 1, 1, 0, 0, 1], dtype=int64)
 ```
 
 ---
@@ -276,7 +276,7 @@ class: section-slide
 Completely different, beautiful, democratic idea:
 
 1. Initialize a unique label (community) for each node
-2. For each node (in parallel): choose the the most common label in neighbors
+2. For each node (in parallel): choose the most common label in neighbors
 3. If there is a tie: choose label at random
 4. Go back to 2 until some stopping criteria (e.g. no change)
 
@@ -628,7 +628,7 @@ class: section-slide
 
 - A different name for "Embeddings" could be "Dimensionality Reduction".
 
-- In modern Machine Learning, we often get a high-demensional dataset (say `\(X_{n\text{x}p}\)` and `\(p\)` is very large) some methods cannot handle. One go-to strategy is to reduce the dimension of this dataset matrix by PCA or NMF.
+- In modern Machine Learning, we often get a high-dimensional dataset (say `\(X_{n\text{x}p}\)` and `\(p\)` is very large) some methods cannot handle. One go-to strategy is to reduce the dimension of this dataset matrix by PCA or NMF.
 
 - In Network Analysis too, imagine a huge adjacency matrix `\(A\)`. Especially for the purpose of Community Detection (a.k.a clustering) what if you could reduce the dimensionality of `\(A\)` first, then perform your clustering method of choice (e.g. K-Means)?
 
@@ -664,7 +664,7 @@ Don't do it .font80percent[(why?)].
 "Regular" dimensionality reduction methods do not work well on text data. 
 
 1. They tend to be slow.
-2. They ignore (and therefore lose) semantic meaning and grammatical function of a word, as can be seen by unsatisfactory performance in NLP tasks such as transaltion, finding synonyms and analogies.
+2. They ignore (and therefore lose) semantic meaning and grammatical function of a word, as can be seen by unsatisfactory performance in NLP tasks such as translation, finding synonyms and analogies.
 
 
 Q: What model *would* preserve semantic/syntactic meaning?
@@ -715,7 +715,7 @@ The model was only trained to find the weight matrix `\(W\)` of dimension `\(|V|
 - `\(|V|\)` is the vocabulary size, the length of the dummy vectors input to the network
 - `\(D\)` the size of the hidden layer
 
-In the above example this would be a 10K x 300 matrix where for each word there would be a 300-long *word vector* or *embedding* hopefully representing its semantic/syntactic better than traditional dimensionality reduction methods.
+In the above example this would be a 10K x 300 matrix where for each word there would be a 300-long *word vector* or *embedding* hopefully representing its semantic/syntactic meaning better than traditional dimensionality reduction methods.
 
 This form of learning is also called *Representation Learning*.
 
@@ -809,42 +809,43 @@ node2vec = Node2Vec(G, dimensions=64, walk_length=30, num_walks=200, workers=1, 
 ```
 ## 
 Computing transition probabilities:   0%|          | 0/23 [00:00&lt;?, ?it/s]
-Computing transition probabilities: 100%|##########| 23/23 [00:00&lt;00:00, 22870.79it/s]
+Computing transition probabilities: 100%|##########| 23/23 [00:00&lt;?, ?it/s]
 ## 
 Generating walks (CPU: 1):   0%|          | 0/200 [00:00&lt;?, ?it/s]
-Generating walks (CPU: 1):   4%|3         | 7/200 [00:00&lt;00:03, 60.97it/s]
-Generating walks (CPU: 1):   7%|7         | 14/200 [00:00&lt;00:03, 55.26it/s]
-Generating walks (CPU: 1):  10%|#         | 20/200 [00:00&lt;00:03, 56.32it/s]
-Generating walks (CPU: 1):  13%|#3        | 26/200 [00:00&lt;00:03, 52.73it/s]
-Generating walks (CPU: 1):  16%|#6        | 32/200 [00:00&lt;00:03, 52.46it/s]
-Generating walks (CPU: 1):  19%|#9        | 38/200 [00:00&lt;00:03, 52.54it/s]
-Generating walks (CPU: 1):  22%|##2       | 44/200 [00:00&lt;00:02, 52.47it/s]
-Generating walks (CPU: 1):  25%|##5       | 50/200 [00:00&lt;00:02, 52.67it/s]
-Generating walks (CPU: 1):  28%|##8       | 56/200 [00:01&lt;00:02, 52.78it/s]
-Generating walks (CPU: 1):  31%|###1      | 62/200 [00:01&lt;00:02, 52.52it/s]
-Generating walks (CPU: 1):  34%|###4      | 68/200 [00:01&lt;00:02, 52.44it/s]
-Generating walks (CPU: 1):  37%|###7      | 74/200 [00:01&lt;00:02, 53.52it/s]
-Generating walks (CPU: 1):  40%|####      | 80/200 [00:01&lt;00:02, 51.74it/s]
-Generating walks (CPU: 1):  43%|####3     | 86/200 [00:01&lt;00:02, 52.95it/s]
-Generating walks (CPU: 1):  46%|####6     | 92/200 [00:01&lt;00:02, 51.90it/s]
-Generating walks (CPU: 1):  49%|####9     | 98/200 [00:01&lt;00:01, 52.20it/s]
-Generating walks (CPU: 1):  52%|#####2    | 104/200 [00:01&lt;00:01, 51.89it/s]
-Generating walks (CPU: 1):  55%|#####5    | 110/200 [00:02&lt;00:01, 51.89it/s]
-Generating walks (CPU: 1):  58%|#####8    | 117/200 [00:02&lt;00:01, 52.18it/s]
-Generating walks (CPU: 1):  62%|######1   | 123/200 [00:02&lt;00:01, 54.19it/s]
-Generating walks (CPU: 1):  64%|######4   | 129/200 [00:02&lt;00:01, 51.61it/s]
-Generating walks (CPU: 1):  68%|######7   | 135/200 [00:02&lt;00:01, 51.70it/s]
-Generating walks (CPU: 1):  70%|#######   | 141/200 [00:02&lt;00:01, 53.15it/s]
-Generating walks (CPU: 1):  74%|#######3  | 147/200 [00:02&lt;00:01, 51.76it/s]
-Generating walks (CPU: 1):  76%|#######6  | 153/200 [00:02&lt;00:00, 52.44it/s]
-Generating walks (CPU: 1):  80%|#######9  | 159/200 [00:03&lt;00:00, 51.99it/s]
-Generating walks (CPU: 1):  82%|########2 | 165/200 [00:03&lt;00:00, 52.18it/s]
-Generating walks (CPU: 1):  86%|########5 | 171/200 [00:03&lt;00:00, 52.16it/s]
-Generating walks (CPU: 1):  88%|########8 | 177/200 [00:03&lt;00:00, 54.00it/s]
-Generating walks (CPU: 1):  92%|#########1| 183/200 [00:03&lt;00:00, 51.40it/s]
-Generating walks (CPU: 1):  94%|#########4| 189/200 [00:03&lt;00:00, 53.19it/s]
-Generating walks (CPU: 1):  98%|#########7| 195/200 [00:03&lt;00:00, 51.48it/s]
-Generating walks (CPU: 1): 100%|##########| 200/200 [00:03&lt;00:00, 52.37it/s]
+Generating walks (CPU: 1):   4%|3         | 7/200 [00:00&lt;00:03, 63.79it/s]
+Generating walks (CPU: 1):   7%|7         | 14/200 [00:00&lt;00:03, 54.63it/s]
+Generating walks (CPU: 1):  10%|#         | 20/200 [00:00&lt;00:03, 54.63it/s]
+Generating walks (CPU: 1):  13%|#3        | 26/200 [00:00&lt;00:03, 54.27it/s]
+Generating walks (CPU: 1):  16%|#6        | 32/200 [00:00&lt;00:03, 52.10it/s]
+Generating walks (CPU: 1):  19%|#9        | 38/200 [00:00&lt;00:03, 52.92it/s]
+Generating walks (CPU: 1):  22%|##2       | 44/200 [00:00&lt;00:02, 53.47it/s]
+Generating walks (CPU: 1):  25%|##5       | 50/200 [00:00&lt;00:02, 53.84it/s]
+Generating walks (CPU: 1):  28%|##8       | 56/200 [00:01&lt;00:02, 51.80it/s]
+Generating walks (CPU: 1):  31%|###1      | 62/200 [00:01&lt;00:02, 52.63it/s]
+Generating walks (CPU: 1):  34%|###4      | 68/200 [00:01&lt;00:02, 52.58it/s]
+Generating walks (CPU: 1):  37%|###7      | 74/200 [00:01&lt;00:02, 53.16it/s]
+Generating walks (CPU: 1):  40%|####      | 80/200 [00:01&lt;00:02, 53.59it/s]
+Generating walks (CPU: 1):  43%|####3     | 86/200 [00:01&lt;00:02, 53.89it/s]
+Generating walks (CPU: 1):  46%|####6     | 92/200 [00:01&lt;00:01, 54.11it/s]
+Generating walks (CPU: 1):  49%|####9     | 98/200 [00:01&lt;00:01, 54.26it/s]
+Generating walks (CPU: 1):  52%|#####2    | 104/200 [00:01&lt;00:01, 54.37it/s]
+Generating walks (CPU: 1):  55%|#####5    | 110/200 [00:02&lt;00:01, 52.22it/s]
+Generating walks (CPU: 1):  58%|#####8    | 116/200 [00:02&lt;00:01, 52.91it/s]
+Generating walks (CPU: 1):  61%|######1   | 122/200 [00:02&lt;00:01, 53.34it/s]
+Generating walks (CPU: 1):  64%|######4   | 128/200 [00:02&lt;00:01, 51.55it/s]
+Generating walks (CPU: 1):  67%|######7   | 134/200 [00:02&lt;00:01, 51.82it/s]
+Generating walks (CPU: 1):  70%|#######   | 140/200 [00:02&lt;00:01, 51.57it/s]
+Generating walks (CPU: 1):  73%|#######3  | 146/200 [00:02&lt;00:01, 50.58it/s]
+Generating walks (CPU: 1):  76%|#######6  | 152/200 [00:02&lt;00:00, 50.63it/s]
+Generating walks (CPU: 1):  79%|#######9  | 158/200 [00:02&lt;00:00, 51.13it/s]
+Generating walks (CPU: 1):  82%|########2 | 164/200 [00:03&lt;00:00, 51.31it/s]
+Generating walks (CPU: 1):  85%|########5 | 170/200 [00:03&lt;00:00, 51.44it/s]
+Generating walks (CPU: 1):  88%|########8 | 176/200 [00:03&lt;00:00, 51.27it/s]
+Generating walks (CPU: 1):  91%|#########1| 182/200 [00:03&lt;00:00, 51.28it/s]
+Generating walks (CPU: 1):  94%|#########3| 188/200 [00:03&lt;00:00, 51.32it/s]
+Generating walks (CPU: 1):  97%|#########7| 194/200 [00:03&lt;00:00, 51.16it/s]
+Generating walks (CPU: 1): 100%|##########| 200/200 [00:03&lt;00:00, 50.81it/s]
+Generating walks (CPU: 1): 100%|##########| 200/200 [00:03&lt;00:00, 52.13it/s]
 ```
 
 ---
