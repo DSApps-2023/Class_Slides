@@ -249,6 +249,6 @@ But you can certainly use data apps for:
 * Inside dashboards (everyone can access via company server or with Docker: Vivian)
 * Personal tools (RateImagesApp, Formulan)
 * Quick prototypes
-* Showing people in company how data/analysis looks like and letting them playing with it
+* Showing people in company how data/analysis looks like and letting them play with it
 * Simulations
 * Model testing
