@@ -4,7 +4,7 @@
     <title>Feature Engineering</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2023-02-25" />
+    <meta name="date" content="2023-05-28" />
     <script src="u3_d04-featureeng_files/header-attrs-2.20/header-attrs.js"></script>
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
@@ -31,7 +31,7 @@ class: title-slide
 #### `gsimchoni@gmail.com and add #dsapps in subject`
 
 ### Stat. and OR Department, TAU
-### 2023-02-25
+### 2023-05-28
 
 ---
 
@@ -56,25 +56,24 @@ class: section-slide
 
 ---
 
-Our two previous modeling attempts, with [Modeling in the Tidyverse](https://dsapps-2023.github.io/Class_Slides/u1_d05-modeling/u1_d05-modeling.html) and in [The Trees](https://dsapps-2023.github.io/Class_Slides/u3_d01-trees/u3_d01-trees.html) where problematic.
+Our two previous modeling attempts, with [Modeling in the Tidyverse](https://dsapps-2023.github.io/Class_Slides/u1_d05-modeling/u1_d05-modeling.html) and in [The Trees](https://dsapps-2023.github.io/Class_Slides/u3_d01-trees/u3_d01-trees.html) were problematic.
 
-- Using a "sinked" split, not using `set.seed()` - reproducible but wasteful
+- Using a "sinked" split, not using `set.seed()` - bit wasteful
 - "Lazy" feature engineering, not using the entire data, not creative
-- No interactions
+- No interactions in linear models
+- Not thinking about Multicollinearity in linear models
 - Test once, on the same validation set, for everything
-- Data "leakage" from training set to validation set (when imputing missing values)
+- Data leakage from training set to validation set
 - Sometimes tuning params, sometimes not
 - No pre-processing of features, if at all by a hunch
-- Not thinking about Multicollinearity where it hurts (regression)
 - Almost no treatment of class imbalance in classification
 - Chaotic feature selection
 
 ---
 
-Reminder: We have two tasks, Regression and Classification:
+We had one job:
 
-1. Predict the income of an OKCupid user (from those who reported income)
-2. Predict if an OKCupid user is a Cats or Dogs person, where:
+Predict if an OKCupid user is a Cats or Dogs person, where:
 
 
 ```r
@@ -85,27 +84,6 @@ dogs_categories &lt;- c("has dogs", "likes dogs", "has dogs and dislikes cats",
 ```
 
 And 80% of users are Dogs people, so we have class imbalance.
-
----
-
-On our validation set we got...
-
-- Regression Task
-
-Model       | RMSE | R
-------------|------|--
-LM          | 0.35 | 0.5
-LM-L2       | 0.35 | 0.5
-LM-L1       | 0.35 | 0.5
-CART        | 0.36 | 0.45
-Bagging     | 0.37 | 0.44
-RF          | 0.35 | 0.49
-GBT-gbm     | 0.35 | 0.5
-GBT-XGBOOST | 0.35 | 0.5
-
----
-
-- Classification Task
 
 Model     | AUC | Accuracy | Recall Dogs | Precision Dogs | Recall Cats | Precision Cats
 ----------|-----|----------|-------------|----------------|-------------|----------
@@ -145,7 +123,7 @@ The main goal of resampling: No Surprises.
   - Have more than one train/valid/test samples!*
   - Be stratified (usually by dependent variable distribution)
   - Use a (paired/repeated/within) statistical test on resamples to reach a decision, or at least a proper plot
-  - Avoid data "leakage" and not include the test set!
+  - Avoid data leakage and not include the test set!
   - Encompass all steps in model building
   - Ideally (when data is Big) perform each step on a different part *of the training data*
 
@@ -378,7 +356,7 @@ A: Probably gonna use `glmnet` so: NO.
 
 Q: Are missing values a serious issue here?
 
-A: Oh yes. `income` 80+% missing, `offspring` 50+% missing. Gonna have to take care of it.
+A: Oh yes. `income` 80+% missing, `offspring` 50+% missing.
 
 ---
 
@@ -417,7 +395,9 @@ Strategy: Divide training data into 6 samples for 6 main decision/steps/tunings:
 5. Cutoff choice
 
 .insight[
-💡 We assume these decisions are additive or independent of each other. Does it have to be and what can we do if we suspect not? (Remember we are Statisticians!)
+💡 We assume these decisions are additive or independent of each other.
+
+Does it have to be and what can we do if we suspect not? (Remember we are Statisticians!)
 ]
 
 ---
@@ -512,7 +492,7 @@ class: section-slide
 - What is the missing data mechanism?
   - See [Little &amp; Rubin (2019)](https://www.amazon.com/Statistical-Analysis-Missing-Probability-Statistics-ebook/dp/B07Q25CNSD/ref=sr_1_1?crid=2P6ERH22YRKUL&amp;dchild=1&amp;keywords=statistical+analysis+with+missing+data&amp;qid=1587103544&amp;s=books&amp;sprefix=statistical+ana%2Cstripbooks-intl-ship%2C286&amp;sr=1-1) seminal work
   - MCAR: "on some days the weighing scale batteries drained and we couldn't take the mice weight"
-  - MAR: "on the 2024 elections poll a massive Facebook campaign called all women to refuse to cooperate with the Seker-Sheker company due to allegations of sexual harassment by the company's head Dani Marom"
+  - MAR: "on the 2024 elections poll a massive Facebook campaign called women to refuse to cooperate with the Seker-Sheker company due to allegations of sexual harassment by the company's head Dani Marom"
   - MNAR: "some of the drug addicts under study missed the final few meetings in the treatment group and their data were discarded"
   
 .insight[
@@ -881,7 +861,8 @@ Use `workflow_set()` to fit the two recipes on all folds:
 rec_list &lt;- list(unk = rec_miss_unk_none_none,
                  mode = rec_miss_mode_none_none)
 mod_list &lt;- list(lr = mod_lr)
-wset &lt;- workflow_set(rec_list, mod_list) # checkout the cross arg
+*wset &lt;- workflow_set(rec_list, mod_list)
+# also check out the cross arg
 
 wset
 ```
@@ -901,7 +882,7 @@ wset
 
 ```r
 wset &lt;- wset %&gt;%
-  workflow_map("fit_resamples",
+* workflow_map("fit_resamples",
                resamples = cv_splits_missing,
                metrics = metric_set(roc_auc))
 
@@ -939,7 +920,7 @@ A type of parallel coordinates plot showing all folds is better IMO:
 
 ```r
 res_df &lt;- wset %&gt;%
-  unnest(result) %&gt;%
+* unnest(result) %&gt;%
   mutate(recipe = wflow_id, auc = map_dbl(.metrics, ~.x$.estimate))
 
 res_df %&gt;%
@@ -1287,14 +1268,14 @@ rec_imb_base &lt;- recipe(pets ~ ., data = ok_tr_imbalance2) %&gt;%
   step_dummy(all_nominal_predictors(), one_hot = FALSE)
 
 rec_imb_upsample &lt;- rec_imb_base %&gt;%
-  step_upsample(pets, over_ratio = 1, seed = 42)
+* step_upsample(pets, over_ratio = 1, seed = 42)
 
 rec_imb_downsample &lt;- rec_imb_base %&gt;%
-  step_downsample(pets, under_ratio = 1, seed = 42)
+* step_downsample(pets, under_ratio = 1, seed = 42)
 
 rec_imb_smote &lt;- rec_imb_base %&gt;%
-  step_downsample(pets, under_ratio = 1.5) %&gt;%
-  step_smote(pets, over_ratio = 1, seed = 42)
+* step_downsample(pets, under_ratio = 1.5) %&gt;%
+* step_smote(pets, over_ratio = 1, seed = 42)
 ```
 
 ---
@@ -1432,12 +1413,12 @@ df &lt;- tibble(
 )
 
 one_hot &lt;- recipe(y ~ x1, data = df) %&gt;%
-  step_dummy(all_nominal(), one_hot = TRUE) %&gt;%
+* step_dummy(all_nominal(), one_hot = TRUE) %&gt;%
   prep(df) %&gt;%
   bake(new_data = NULL)
 
 non_one_hot &lt;- recipe(y ~ x1, data = df) %&gt;%
-  step_dummy(all_nominal(), one_hot = FALSE) %&gt;%
+* step_dummy(all_nominal(), one_hot = FALSE) %&gt;%
   prep(df) %&gt;%
   bake(new_data = NULL)
 ```
@@ -2024,7 +2005,7 @@ ok_tr_eng %&gt;% count(location)
 - Supervised Numerical Encoding
 - Dimensionality Reduction (Embeddings)
 - Text Features
-- .font80percent[Won't talk but God knows this is on my mind, e.g. [Simchoni and Rosset (2021)](https://papers.nips.cc/paper/2021/hash/d35b05a832e2bb91f110d54e34e2da79-Abstract.html)]
+- E.g. Simchoni and Rosset ([2021](https://papers.nips.cc/paper/2021/hash/d35b05a832e2bb91f110d54e34e2da79-Abstract.html), [2023](https://jmlr.org/papers/v24/22-0501.html))
 
 ---
 
@@ -2042,8 +2023,8 @@ What % threshold should you use for "Other"?
 
 ```r
 recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
-  step_other(all_nominal_predictors(), threshold = 0.05) %&gt;%
-  step_novel(all_nominal_predictors()) %&gt;%
+* step_other(all_nominal_predictors(), threshold = 0.05) %&gt;%
+* step_novel(all_nominal_predictors()) %&gt;%
   prep(ok_tr_eng) %&gt;%
   bake(new_data = NULL) %&gt;%
   count(location)
@@ -2123,8 +2104,8 @@ signs &lt;- c("leo", "libra", "cancer", "virgo", "scorpio", "gemini",
            "taurus", "aries", "pisces", "aquarius", "sagittarius", "capricorn")
 
 recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, sign)) %&gt;%
-  step_mutate(sign = str_extract(sign, str_c(signs, collapse = "|"))) %&gt;%
-  step_unknown(sign) %&gt;%
+* step_mutate(sign = str_extract(sign, str_c(signs, collapse = "|"))) %&gt;%
+* step_unknown(sign) %&gt;%
   prep(ok_tr_eng) %&gt;%
   bake(new_data = NULL) %&gt;%
   count(sign)
@@ -2158,7 +2139,7 @@ Suppose I told you "God, just group the locations by the number of times the let
 
 ```r
 recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
-  step_mutate(location = factor(str_count(location, "l"))) %&gt;%
+* step_mutate(location = factor(str_count(location, "l"))) %&gt;%
   prep(ok_tr_eng) %&gt;%
   bake(new_data = NULL) %&gt;%
   count(location)
@@ -2180,8 +2161,8 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
 
 ```r
 recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
-  step_mutate(locationL = factor(str_count(location, "l"))) %&gt;%
-  step_dummy(locationL) %&gt;%
+* step_mutate(locationL = factor(str_count(location, "l"))) %&gt;%
+* step_dummy(locationL) %&gt;%
   prep(ok_tr_eng) %&gt;%
   bake(new_data = NULL) %&gt;%
   select(starts_with("location"))
@@ -2226,8 +2207,8 @@ But there are advantages too!
 library(textrecipes)
 
 recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
-  step_tokenize(location) %&gt;%
-  step_texthash(location, signed = FALSE, num_terms = 2^4) %&gt;%
+* step_tokenize(location) %&gt;%
+* step_texthash(location, signed = FALSE, num_terms = 2^4) %&gt;%
   prep(ok_tr_eng) %&gt;%
   bake(new_data = NULL)
 ```
@@ -2294,7 +2275,7 @@ library(embed)
 
 recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
   step_mutate(location2 = location) %&gt;%
-  step_lencode_glm(location, outcome = vars(pets)) %&gt;%
+* step_lencode_glm(location, outcome = vars(pets)) %&gt;%
   prep(ok_tr_eng) %&gt;%
   bake(new_data = NULL)
 ```
@@ -2343,7 +2324,7 @@ The first issue can be somewhat alleviated using a Bayesian approach, *shrinking
 ```r
 recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
   step_mutate(location2 = location) %&gt;%
-  step_lencode_bayes(location, outcome = vars(pets)) %&gt;%
+* step_lencode_bayes(location, outcome = vars(pets)) %&gt;%
   prep(ok_tr_eng %&gt;% head(100)) %&gt;%
   bake(new_data = NULL)
 ```
@@ -2377,8 +2358,8 @@ If you have `tensorflow` and `keras` installed, you could train your own embeddi
 ```r
 recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
   step_mutate(location2 = location) %&gt;%
-  step_embed(location, outcome = vars(pets), num_terms = 10,
-             options = embed_control(epochs = 10)) %&gt;%
+* step_embed(location, outcome = vars(pets), num_terms = 10,
+*            options = embed_control(epochs = 10)) %&gt;%
   prep(ok_tr_eng) %&gt;%
   bake(new_data = NULL)
 ```
@@ -2391,7 +2372,7 @@ Alternatively you could use pre-trained embeddings for text variables such as `e
 ```r
 recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
   step_tokenize(location) %&gt;%
-  step_word_embeddings(location, embeddings = my_embeddings) %&gt;%
+* step_word_embeddings(location, embeddings = my_embeddings) %&gt;%
   prep(ok_tr_eng) %&gt;%
   bake(new_data = NULL)
 ```
@@ -2406,7 +2387,7 @@ recipe(pets ~ ., data = ok_tr_eng %&gt;% select(pets, location)) %&gt;%
   step_mutate(old_location = location) %&gt;%
   step_dummy(location) %&gt;%
   step_normalize(all_numeric()) %&gt;%
-  step_pca(starts_with("location"), num_comp = 10) %&gt;%
+* step_pca(starts_with("location"), num_comp = 10) %&gt;%
   prep(ok_tr_eng) %&gt;%
   bake(new_data = NULL)
 ```
@@ -2452,7 +2433,7 @@ str_count_na &lt;- function(string, pattern = "") {
 
 ```r
 rec_eng_notext &lt;- recipe(pets ~ ., data = ok_tr_eng2) %&gt;%
-  step_rm(starts_with("essay")) %&gt;%
+* step_rm(starts_with("essay")) %&gt;%
   step_log(income, starts_with("len"), offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
   step_normalize(all_numeric_predictors()) %&gt;%
@@ -2468,11 +2449,11 @@ rec_eng_notext &lt;- recipe(pets ~ ., data = ok_tr_eng2) %&gt;%
 
 ```r
 rec_eng_catdog &lt;- recipe(pets ~ ., data = ok_tr_eng2) %&gt;%
-  step_mutate(essays = pmap_chr(
-    list(essay0, essay1, essay2, essay3, essay4, essay5,
-         essay6, essay7, essay8, essay9), str_c),
-              n_cat = str_count_na(essays, "cat"),
-              n_dog = str_count_na(essays, "dog")) %&gt;%
+* step_mutate(essays = pmap_chr(
+*   list(essay0, essay1, essay2, essay3, essay4, essay5,
+*        essay6, essay7, essay8, essay9), str_c),
+*             n_cat = str_count_na(essays, "cat"),
+*             n_dog = str_count_na(essays, "dog")) %&gt;%
   step_rm(starts_with("essay")) %&gt;%
   step_log(income, starts_with("len"), offset = 1) %&gt;%
   step_impute_mean(income) %&gt;%
@@ -2546,8 +2527,8 @@ print(textfeatures::word_dims(
 ```
 
 ```
-## INFO  [16:17:28.209] early stopping at 20 iteration
-## INFO  [16:17:28.253] early stopping at 20 iteration
+## INFO  [09:33:49.248] early stopping at 20 iteration
+## INFO  [09:33:49.290] early stopping at 20 iteration
 ##     w1   w2   w3  w4 w5   w6 w7 w8 w9 w10
 ## 1 0.05 0.05 0.05 0.4  0 0.35  0  0  0 0.1
 ```
@@ -2571,9 +2552,9 @@ my_text_funs &lt;- c(textfeatures::count_functions,
 ```r
 recipe(pets ~ ., data = ok_tr_eng2 %&gt;% select(pets, essays)) %&gt;%
   update_role(essays, new_role = "discarded") %&gt;%
-  step_textfeature(essays, prefix = "t",
-                   extract_functions = my_text_funs) %&gt;%
-  step_mutate_at(starts_with("t_"), fn = ~ifelse(is.na(.x), 0, .x)) %&gt;%
+* step_textfeature(essays, prefix = "t",
+*                  extract_functions = my_text_funs) %&gt;%
+* step_mutate_at(starts_with("t_"), fn = ~ifelse(is.na(.x), 0, .x)) %&gt;%
   prep(ok_tr_eng2 %&gt;% head(10)) %&gt;%
   bake(new_data = NULL) %&gt;%
   select(t_essays_n_uq_words, t_essays_n_hashtags, t_essays_sent_bing)
@@ -2683,7 +2664,7 @@ or_res &lt;- or_res %&gt;%
   bind_cols(
     bind_rows(or_res$fisher_obj)
   ) %&gt;%
-  mutate(fdr = p.adjust(p_val, method = "fdr"))
+* mutate(fdr = p.adjust(p_val, method = "fdr"))
 
 or_res
 ```
@@ -2747,13 +2728,13 @@ So these will be our four options for handling text:
 ```r
 count_words &lt;- function(essays) {
   counts &lt;- map(cd_words$word, ~str_count_na(essays, .x))
-  names(counts) = janitor::make_clean_names(str_c("w_", cd_words$word))
+* names(counts) = janitor::make_clean_names(str_c("w_", cd_words$word))
   counts
 }
 
 ok_tr_eng3 &lt;- ok_tr_eng2 %&gt;%
   bind_cols(
-    map_dfr(ok_tr_eng2$essays, count_words)
+*   map_dfr(ok_tr_eng2$essays, count_words)
   ) %&gt;%
   select(-starts_with("essay"), -starts_with("len_essay")) %&gt;%
   bind_cols(ok_tr_eng2 %&gt;% select(essays)) %&gt;%
@@ -2875,7 +2856,7 @@ cd_words &lt;- cd_words %&gt;%
 
 
 ```r
-ok_tr_eng4 &lt;- full_features(ok_tr_eng)
+*ok_tr_eng4 &lt;- full_features(ok_tr_eng)
 
 colnames(ok_tr_eng4)
 ```
@@ -3047,13 +3028,13 @@ Both transformations have `step`s in `recipes`:
 
 ```r
 recipe(pets ~ ., data = ok_tr_eng) %&gt;%
-  step_BoxCox(income)
+* step_BoxCox(income)
 ```
 
 
 ```r
 recipe(pets ~ ., data = ok_tr_eng) %&gt;%
-  step_YeoJohnson(income)
+* step_YeoJohnson(income)
 ```
 
 ---
@@ -3211,8 +3192,8 @@ Manually with `step_relu()`
 ```r
 recipe(income ~ age, ok_tr_eng) %&gt;%
   step_naomit(income) %&gt;%
-  step_relu(age, shift = 45, reverse = TRUE) %&gt;%
-  step_relu(age, shift = 45) %&gt;%
+* step_relu(age, shift = 45, reverse = TRUE) %&gt;%
+* step_relu(age, shift = 45) %&gt;%
   prep() %&gt;%
   bake(new_data = NULL) %&gt;%
   head()
@@ -3238,7 +3219,7 @@ For splines and polynomial regression use `step_bs()`, `step_ns()` and `step_pol
 ```r
 recipe(income ~ age, ok_tr_eng) %&gt;%
   step_naomit(income) %&gt;%
-  step_bs(age, degree = 3) %&gt;%
+* step_bs(age, degree = 3) %&gt;%
   prep() %&gt;%
   bake(new_data = NULL) %&gt;%
   head()
@@ -3742,8 +3723,8 @@ rec_int_sex &lt;- recipe(pets ~ ., data = ok_tr_interaction2) %&gt;%
   step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
   step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
   step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
-  step_interact(~starts_with("sex"):all_numeric_predictors()) %&gt;%
-  step_nzv(all_numeric_predictors(), freq_cut = 99/1) %&gt;%
+* step_interact(~starts_with("sex"):all_numeric_predictors()) %&gt;%
+* step_nzv(all_numeric_predictors(), freq_cut = 99/1) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
 
@@ -3808,7 +3789,7 @@ rec_int_topmain &lt;- recipe(pets ~ ., data = ok_tr_interaction2) %&gt;%
   step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
   step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
   step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
-  step_interact(topmain_ints) %&gt;%
+* step_interact(topmain_ints) %&gt;%
   step_nzv(all_numeric_predictors(), freq_cut = 99/1) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
@@ -3832,7 +3813,7 @@ rec_int_topints &lt;- recipe(pets ~ ., data = ok_tr_interaction2) %&gt;%
   step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
   step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
   step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
-  step_interact(topint_ints) %&gt;%
+* step_interact(topint_ints) %&gt;%
   step_nzv(all_numeric_predictors(), freq_cut = 99/1) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
@@ -3853,7 +3834,7 @@ rec_int_all &lt;- recipe(pets ~ ., data = ok_tr_interaction2) %&gt;%
   step_novel(all_nominal_predictors(), -has_role("discarded")) %&gt;%
   step_impute_mode(all_nominal_predictors(), -has_role("discarded")) %&gt;%
   step_dummy(all_nominal_predictors(), -has_role("discarded"), one_hot = FALSE) %&gt;%
-  step_interact(~all_numeric_predictors():all_numeric_predictors()) %&gt;%
+* step_interact(~all_numeric_predictors():all_numeric_predictors()) %&gt;%
   step_nzv(all_numeric_predictors(), freq_cut = 95/5) %&gt;%
   step_upsample(pets, over_ratio = 1, seed = 42)
 ```
@@ -4122,7 +4103,7 @@ okcupid_test2 &lt;- okcupid_test %&gt;%
   mutate(id = 1:n()) %&gt;%
   filter(!id %in% random_cats_to_get_rid_of) %&gt;%
   select(-id)
-okcupid_test2 &lt;- full_features(okcupid_test2)
+*okcupid_test2 &lt;- full_features(okcupid_test2)
 
 okcupid_test2 %&gt;% count(pets) %&gt;% mutate(pct = n / sum(n))
 ```
@@ -4209,7 +4190,7 @@ coords(roc_obj, x = cutoffs,
 
 
 ```r
-tidy(mod_lr_test) %&gt;%
+*tidy(mod_lr_test) %&gt;%
   filter(near(penalty, 0.01, tol = 0.0005)) %&gt;%
   arrange(-abs(estimate)) %&gt;%
   select(term, estimate, penalty) %&gt;%
