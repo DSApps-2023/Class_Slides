@@ -15,6 +15,7 @@ pred_df <- read_csv("C:/Users/gsimchoni/Downloads/model01.csv") %>%
 inner_join(true_df, pred_df) %>%
   ggplot(aes(true, pred)) +
   geom_point(alpha = 0.5, color = "red") +
+  geom_smooth(method = "lm") +
   theme_bw()
 
 rmse_vec(true_df$true, pred_df$pred)
@@ -22,7 +23,7 @@ rmse_vec(true_df$true, pred_df$pred)
 # update local copy of leaderboard
 leaderboard <- read_csv("leaderboard.csv")
 
-leaderboard <- bind_rows(leaderboard, list(Student="etayn", Model="model01",
+leaderboard <- bind_rows(leaderboard, list(Student="gilaltman8", Model="model01",
                                            RMSE=rmse_vec(true_df$true, pred_df$pred)))
 leaderboard <- leaderboard %>% arrange(RMSE)
 leaderboard

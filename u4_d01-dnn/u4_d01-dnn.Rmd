@@ -194,7 +194,7 @@ plot_sim(False)
 ```{python}
 from sklearn.linear_model import LogisticRegression
 
-lr = LogisticRegression(penalty='none', fit_intercept=False, max_iter=100)
+lr = LogisticRegression(penalty='none', fit_intercept=False, max_iter=1000)
 lr = lr.fit(X, y)
 lr.coef_
 ```
@@ -946,7 +946,7 @@ print(X_test.shape)
 ```{python}
 from sklearn.linear_model import LogisticRegression
 
-lr = LogisticRegression(penalty='none', max_iter=100, random_state=42)
+lr = LogisticRegression(penalty='none', max_iter=1000, random_state=42)
 lr = lr.fit(X_train, y_train)
 
 lr.score(X_test, y_test)
@@ -1082,8 +1082,9 @@ Tuning params:
 ```{python}
 from tensorflow.keras.layers import InputLayer
 from tensorflow.keras.optimizers import SGD
+from scikeras.wrappers import KerasClassifier
 
-def malaria_model(n_hidden=1, n_neurons=30, lrt=3e-3):
+def malaria_model(n_hidden, n_neurons, lrt):
   model = Sequential()
   model.add(InputLayer(input_shape=(30000, )))
   for layer in range(n_hidden):
@@ -1094,7 +1095,7 @@ def malaria_model(n_hidden=1, n_neurons=30, lrt=3e-3):
     metrics=["accuracy"])
   return model
 
-keras_clf = keras.wrappers.scikit_learn.KerasClassifier(malaria_model)
+keras_clf = KerasClassifier(model=malaria_model, n_hidden=1, n_neurons=30, lrt=3e-3)
 ```
 
 ---
@@ -1114,14 +1115,14 @@ rnd_search_cv = RandomizedSearchCV(keras_clf, params, cv=5,
 rnd_search_cv.fit(X_train, y_train, epochs=50,
   validation_split=0.1, callbacks=callbacks)
 
-print(rnd_search_cv2.best_score_)
-print(rnd_search_cv2.best_params_)
+print(rnd_search_cv.best_score_)
+print(rnd_search_cv.best_params_)
 ```
 
 ```{python, echo=FALSE}
 # as this takes a while...
-print(0.6630000114440918)
-print({'lrt': 0.01678485252717544, 'n_hidden': 0, 'n_neurons': 15})
+print(0.70)
+print({'lrt': 0.0004918307063493132, 'n_hidden': 3, 'n_neurons': 17})
 ```
 
 See also sklearn's [`GridSearchCV()`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV) and [KerasTuner](https://keras.io/keras_tuner/) for a more robust solution.
@@ -1347,7 +1348,7 @@ model = MyWeirdModel()
 
 .pull-left[
 
-<img src = "images/geron_cover.jpg" style="width: 95%">
+<img src = "images/geron_cover.png" style="width: 96%">
 
 ]
 
