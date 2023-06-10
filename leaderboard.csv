@@ -1,8 +1,9 @@
 Student,Model,RMSE
-yuvalnokrian,model02,0.5534800142106243
-yuvalnokrian,model01,0.5542520978868912
-gilaltman8,model01,0.5558890803140937
-Sophiep1103,model03,0.5794457666419457
+yuvalnokrian,model02,0.553480014
+yuvalnokrian,model01,0.554252098
+gilaltman8,model01,0.55588908
+Sophiep1103,model03,0.579445767
+gilaltman8,model03,0.581227338
 gsimchoni,model01,0.6316467
-Sophiep1103,model02,0.7186069428800061
-Sophiep1103,model01,0.7478759012265053
+Sophiep1103,model02,0.718606943
+Sophiep1103,model01,0.747875901
