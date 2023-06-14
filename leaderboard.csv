@@ -1,5 +1,6 @@
 Student,Model,RMSE
 tamchen,model01,0.5281258304295421
+YoniSlutzky98,model2,0.5292668870887774
 aladdeans-sage,GBR_1,0.5443939260215732
 aviv_elad,model01,0.5453598493976737
 yuvalnokrian,model02,0.553480014
@@ -17,6 +18,7 @@ Sophiep1103,model03,0.579445767
 Sophiep1103,model04,0.5811916053554925
 gilaltman8,model03,0.581227338
 gilaltman8,modelg,0.5816439352446787
+amittai_and_omri,model01,0.5886905050993132
 gsimchoni,model01,0.6316467
 gali1998,model02,0.6320969070712988
 Sophiep1103,model02,0.718606943
