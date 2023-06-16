@@ -1,4 +1,5 @@
 Student,Model,RMSE
+YoniSlutzky98,model4,0.5198871290419029
 tamchen,model01,0.5281258304295421
 YoniSlutzky98,model2,0.5292668870887774
 ayeletandyari,model02,0.5368393604292959
@@ -27,6 +28,7 @@ Sophiep1103,model04,0.5811916053554925
 gilaltman8,model03,0.581227338
 gilaltman8,modelg,0.5816439352446787
 amittai_and_omri,model01,0.5886905050993132
+guardians,pred_log_price_xgb1,0.6119902326406985
 teamrocket,shoes01,0.6258844742335823
 gsimchoni,model01,0.6316467
 gali1998,model02,0.6320969070712988
