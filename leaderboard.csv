@@ -13,6 +13,7 @@ oriyuval,model01,0.531613793
 gilaltman8,modelg4,0.5329400338126109
 gilaltman8,modelg3,0.535407538
 ayeletandyari,model02,0.53683936
+ayeletandyari,model05,0.53699687940238
 guardians,model04,0.537074573
 guardians,model05,0.538160589
 guardians,model03,0.540624105
@@ -71,6 +72,7 @@ guardians,pred_log_price_xgb1,0.611990233
 teamrocket,shoes01,0.625884474
 gsimchoni,model01,0.6316467
 gali1998,model02,0.632096907
+avivandnoa,xgboost-1st-try,0.6361584783487282
 adi_naama,model04,0.644162971
 Sophiep1103,model02,0.718606943
 Sophiep1103,model01,0.747875901
