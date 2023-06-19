@@ -1,6 +1,6 @@
 Student,Model,RMSE
 YoniSlutzky98,model5,0.483635735
-Shaked06,model002,0.48664211321780676
+Shaked06,model002,0.4866421132178067
 Shaked06,model00,0.4904780854500189
 yoavwolf97,model04,0.491815831
 aviv_elad,model05,0.493488963
@@ -78,6 +78,7 @@ MikaBell,model02,0.590690969
 MikaBell,model01,0.595626537
 EyalGrinberg,model_06,0.5984373312233016
 MikaBell,model03,0.599916245
+Oransl,model02,0.6014772315772572
 ayeletandyari,model03,0.605592917
 Oransl,model01,0.610455492
 guardians,pred_log_price_xgb1,0.611990233
