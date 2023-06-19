@@ -1,5 +1,6 @@
 Student,Model,RMSE
 YoniSlutzky98,model5,0.483635735
+Shaked06,model002,0.48664211321780676
 Shaked06,model00,0.4904780854500189
 yoavwolf97,model04,0.491815831
 aviv_elad,model05,0.493488963
@@ -62,6 +63,7 @@ amittai_and_omri,model04,0.578023293
 ayeletandyari,model04,0.5782955148880398
 gali1998,model1,0.578601821
 Sophiep1103,model03,0.579445767
+avivandnoa,xgboost-3rd-try,0.5799181894758341
 amittai_and_omri,model03,0.581128426
 Sophiep1103,model04,0.581191605
 gilaltman8,model03,0.581227338
