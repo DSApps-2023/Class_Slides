@@ -1,6 +1,7 @@
 Student,Model,RMSE
 YoniSlutzky98,model5,0.483635735
 Shaked06,model002,0.4866421132178067
+tamchen,model04,0.4902002078165044
 Shaked06,model00,0.4904780854500189
 yoavwolf97,model05,0.4912398489068191
 yoavwolf97,model04,0.491815831
@@ -54,6 +55,7 @@ yuvalnokrian,model02,0.553480014
 yuvalnokrian,model01,0.554252098
 aviv_elad,model03,0.555035429
 yuvalnokrian,model03,0.555583719
+Oransl,model03,0.5558269921901742
 gilaltman8,model01,0.55588908
 aviv_elad,model02,0.55649411
 gali1998,model07,0.556844075
@@ -64,6 +66,7 @@ gilaltman8,model04,0.559493394
 gali1998,model06,0.560770062
 gali1998,model05,0.565812726
 adi_naama,model05,0.572862009
+avivandnoa,xgboost_4th_try,0.5738472507875537
 adi_naama,model03,0.574085013
 aviv_elad,model04,0.57694052
 yoavwolf97,model01,0.576949245
@@ -88,6 +91,7 @@ EyalGrinberg,model_06,0.5984373312233016
 MikaBell,model03,0.599916245
 Oransl,model02,0.6014772315772572
 ayeletandyari,model03,0.605592917
+LihiKreiner,model04,0.6062644935934799
 Oransl,model01,0.610455492
 guardians,pred_log_price_xgb1,0.611990233
 teamrocket,shoes01,0.625884474
@@ -97,6 +101,7 @@ miki_omer,model02,0.6355628183603412
 miki_omer,model03,0.6355628183603412
 miki_omer,model01,0.635816968235024
 avivandnoa,xgboost-1st-try,0.6361584783487282
+tziona_jeries,Boost_Tree2,0.6404141823295861
 adi_naama,model04,0.644162971
 tziona_jeries,Boost_Tree,0.7066010581609273
 Sophiep1103,model02,0.718606943
