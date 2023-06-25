@@ -330,7 +330,7 @@ plt.show()
 
 ### Strides
 
-In many CNN architechtures layers tend to get smaller and smaller using *strides*:
+In many CNN architectures layers tend to get smaller and smaller using *strides*:
 
 <img src="images/conv05.png" style="width: 60%" />
 
