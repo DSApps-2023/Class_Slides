@@ -1,0 +1,119 @@
+/*@import url('https://fonts.googleapis.com/css?family=Lato');*/
+
+/* lato-regular - latin */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/lato-v23-latin-regular.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('../fonts/lato-v23-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/lato-v23-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('../fonts/lato-v23-latin-regular.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/lato-v23-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('../fonts/lato-v23-latin-regular.svg#Lato') format('svg'); /* Legacy iOS */
+}
+
+.reveal .body {
+  font-family: 'Lato', sans-serif;
+  color: #000000;
+}
+
+.slide h1, .slide h2, .slide h3, .slide h4, .slide h5{
+  font-family: 'Lato', sans-serif;
+  color: #520f23;
+}
+
+.reveal .title-slide {
+  font-family: 'Lato', sans-serif;
+  background-color: #520f23;
+}
+
+.reveal .section-slide {
+  background-color: #520f23;
+}
+
+.title-slide footer{
+  background-color: #520f23;
+  display: none;
+}
+
+.title-slide .slide-number {
+  display: none;
+}
+
+.title-slide,
+.title-slide h2,
+.title-slide h3,
+.title-slide h4 {
+  color: #f8c12a!important;
+  font-family: 'Lato', sans-serif!important;
+  text-align: center;
+}
+
+.reveal .logo-slide {
+  background-image: url("Intro2DS_logo.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-color: #520f23;
+}
+
+.title-slide:after {
+    content: "";
+    position: absolute;
+    bottom: -250px;
+    right: 40%;
+    height: 200px;
+    width: 200px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url("Intro2DS_logo.jpg");
+}
+
+
+.section-slide h1, .section-slide h2 {
+  margin-top: 30%;
+}
+
+.reveal .slide-logo {
+  height: 100px !important;
+  width: 100px!important;
+  max-width: unset !important;
+  max-height: unset !important;
+  margin-bottom: 0%;
+}
+
+.reveal .slides .footer {
+    background-color: #ffffff;
+    border-top: 1px solid #163f59;
+    position: absolute;
+    top: 10%;
+    bottom: 0%;
+    right: 8%;
+    height: 10%;
+    width: 50%;
+    margin-bottom: -10% !important;
+}
+
+/*.reveal .footer span {
+    font-size: 12pt;
+    position: absolute;
+    color: #520f23;
+    left: 20px;
+    bottom: 10px;
+}*/
+.reveal .footer a {
+    font-size: 14pt;
+    color: #520f23!important;
+}
+
+.reveal .slide-number a{
+  font-family: 'Lato', sans-serif;
+  color: #520f23;
+  opacity: 1;
+  font-size: 14pt;
+  right: 15px;
+	bottom: 2px;
+}
