@@ -98,7 +98,7 @@ $\frac{\partial l(\beta|X, y)}{\partial \beta}=X'(y - g^{-1}(X\beta))$,
 where $X$ is the $n \times q$ data matrix.
 
 ::: {.incremental}
-- We would like to equate this with $\vec0$ and get $\hat\beta$ but there's no closed solution...
+- We would like to equate this with $\vec0$ and get $\hat\beta$ but there's no closed solution.
 
 - At which point usually the Newton-Raphson method comes to the rescue.
 
@@ -163,6 +163,10 @@ beta = [1.0, 2.0]
 p = 1 / (1 + np.exp(-np.dot(X, beta)))
 y = np.random.binomial(1, p, size = n)
 ```
+
+::: {.callout-note}
+See it in python!
+:::
 
 ```{python}
 plot_sim(False)
@@ -257,7 +261,7 @@ plt.show()
 2. Call $g^{-1}(X\beta)$ the "Sigmoid Function"
 3. Call computing $\hat p_i$ and $-l(\hat\beta)$ a "Forward Propagation" or "Feed Forward" step
 4. Call the differentiation of $-l(\hat\beta)$ a "Backward Propagation" step
-5. Call our $\beta$ vector $W_{(q+1)\text{x}1}$, a weight matrix
+5. Call our $\beta$ vector $W_{(q+1)\text{x}1}$, a weight matrix (add intercept, call it "bias")
 6. Add *stochastic* gradient descent (SGD)
 7. Draw a diagram with circles and arrows, call these "Neurons"
 :::
@@ -293,9 +297,9 @@ Which is exactly the contribution of the $i\text{th}$ observation to the NLL $-l
 
 If $g(p)$ is the logit function, its inverse would be the sigmoid function:
 
-$g(p) = logit(p) = \log(\frac{p}{1-p}); \space\space g^{-1}(z) = sigmoid(z) =\frac{1}{1+e^{-z}}$
+$g(p) = logit(p) = \log(\frac{p}{1-p}); \space\space g^{-1}(z) = \sigma(z) =\frac{1}{1+e^{-z}}$
 
-So: $g^{-1}(g(p)) = sigmoid(logit(p)) = p$
+So: $g^{-1}(g(p)) = \sigma(logit(p)) = p$
 
 ```{python Sigmoid}
 #| eval: true
@@ -394,10 +398,9 @@ Which is excatly what we got analytically but now we can write our gradient desc
 
 ---
 
-Let's see this in action.
-
 ```{python}
 #| echo: true
+#| code-line-numbers: "|1-6|8-12|14-15|17-21|22-28|"
 
 def forward(X, y, beta_hat):
   z = np.dot(X, beta_hat)
@@ -457,6 +460,10 @@ def lr_nn(X, y, epochs):
 l, beta_hat = lr_nn(X, y, 10)
 ```
 
+::: {.callout-note}
+See it in python!
+:::
+
 ---
 
 ### Put it in a Neural Network Diagram
@@ -485,7 +492,9 @@ model.compile(loss='binary_crossentropy', optimizer=sgd)
 model.fit(X, y, batch_size=100, epochs=50)
 ```
 
-See this in action.
+::: {.callout-note}
+See it in python!
+:::
 
 ```{python}
 # See that it makes sense:
@@ -562,7 +571,9 @@ model.compile(loss='categorical_crossentropy', optimizer=sgd)
 model.fit(X, y_categorical, batch_size=100, epochs=50)
 ```
 
-See this in action.
+::: {.callout-note}
+See it in python!
+:::
 
 ```{python}
 # See that it makes sense:
@@ -621,13 +632,23 @@ model.add(Dense(2, activation='softmax'))
 sgd = SGD(learning_rate=0.1)
 model.compile(loss='categorical_crossentropy', optimizer=sgd)
 ```
-
+```{python}
+model.fit(X, y_categorical, batch_size=100, epochs=50)
+```
+:::: {.fragment .fade-in}
 ::: {.fragment .callout-tip}
 This is the MLP (Multi-Layer Perceptron).
 
 Guess how long it's been around.
 :::
+::::
+:::: {.fragment .fade-in}
+::: {.fragment .callout-tip}
+Even now, the forward step is a simple formula:
 
+$$\hat{p}_{n \times C} = softmax\{[\mathbb{1} \vdots \sigma([\mathbb{1} \vdots X]W^{(1)})]W^{(2)}\}$$
+:::
+::::
 ---
 
 Call `model.summary()` and see that you can calculate the number of params yourself:
@@ -715,6 +736,10 @@ plt.show()
 ### What about linear activations?
 
 See HW12.
+
+::: {.callout-note}
+See it in python!
+:::
 
 ---
 
