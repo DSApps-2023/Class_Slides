@@ -143,7 +143,7 @@ But let's look at simple gradient descent:
 - Instead of maximizing log-likelihood, let's minimize minus log-likelihood $-l(\beta)$
 - We'll start with an initial guess $\hat\beta_{t=0}$
 - The partial derivatives vector of $-l(\beta)$ at point $\hat\beta_t$ (a.k.a the *gradient* $-\nabla l(\hat\beta_t)$) points to the direction of where $-l(\beta)$ has its steepest descent
-- We'll go a small $alpha$ step down that direction: $\hat\beta_{t+1}=\hat\beta_t -\alpha \cdot[-\nabla l(\hat\beta_t)]$
+- We'll go a small $\alpha$ step down that direction: $\hat\beta_{t+1}=\hat\beta_t -\alpha \cdot[-\nabla l(\hat\beta_t)]$
 - We do this for $I$ iterations or until some stopping rule indicating $\hat\beta$ has converged
 
 ---
