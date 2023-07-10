@@ -5,9 +5,9 @@ format:
     chalkboard: true
     fig-width: 6
     fig-asp: 0.618
-css: "../slides_quarto1.css"
+css: "../slides_quarto.css"
 standalone: false
-include-in-header: "../header_quarto1.html"
+include-in-header: "../header_quarto.html"
 logo: "../Intro2DS_logo_white.jpg"
 pagetitle: "Demystifying Neural Networks"
 callout-appearance: simple
@@ -33,6 +33,14 @@ footer: "[Intro to Data Science](https://dsapps-2023.github.io/Class_Slides/){ta
 
 ### Stat. and OR Department, TAU
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+מי לא שמע על רשתות נוירונים? רשתות נוירונים עומדות בבסיס מה שרבים מכנים מהפכת האינטליגנציה המלאכותית, הAI. הן עומדות מאחורי כמה ממערכות החיזוי המתקדמות ביותר כגון מכוניות אוטונומיות וצ'טבוטים כגון צ'ט ג'יפיטי של חברת OpenAI.
+
+עם זאת, לרבים המודל של רשתות נוירונים נשמע מרתיע בהתחלה ונטול מוטיבציה.
+ביחידה זו ננסה להראות שהשד לא כזה נורא. נחזור לרגרסיה לוגיסטית, ונראה כיצד ניתן לממש אותה כרשת נוירונים. מכאן נוסיף שכבה ועוד שכבה עד שלבסוף נגיע לרשת נוירונים מודרנית.
+:::
+:::
 ---
 
 ## Logistic Regression with Gradient Descent {.title-slide}
@@ -51,58 +59,128 @@ footer: "[Intro to Data Science](https://dsapps-2023.github.io/Class_Slides/){ta
 - $\beta$ a vector of $q$ params
 :::
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+ניזכר במודל הרגרסיה הלוגיסטית.
+
+אנו צופים בN זוגות של X ו-Y. Y הוא בינארי, לדוגמא 0 או 1. וX הוא וקטור של q משתנים מסבירים.
+
+כעת נמדל את Y בהינתן X כמשתנה ברנולי עם הסתברות p. ומאחר שהתוחלת של משתנה ברנולי עם הסתברות p היא p עצמו זה מה שאנחנו בסופו של דבר ממדלים. הבעיה היא שהסתברות היא כמות בין 0 ל1.
+
+נבחר איזו פונקצית לינק ג'י לתוחלת, לאותה הסתברות, במקרה שלנו הלוג'יט, שהיא לוג יחס הסיכויים, ואת הפונקציה הזאת נמדל באמצעות ליניארי רגיל.
+
+בטא הוא וקטור של q מקדמים, ואותו אנחנו רוצים למצוא.
+:::
+:::
 ---
 
 ### Reminder: Logistic Regression (II)
 
-::: {.incremental}
 - And so we can write:
 $E(Y_i|X_i = x_i)= P(Y_i=1|X_i = x_i;\beta) = p_i = g^{-1}(x_i\beta) = \frac{1}{1+e^{-x_i\beta}}$
 
+::: {.incremental}
 - Once we get our estimate $\hat\beta$:
 1. We could "explain" $Y_i$, the size and direction of each component of $\hat\beta$ indicating the contribution of that predictor to the *log-odds* of $Y_i$ being $1$
 2. We could "predict" probability of new observation $x_i$ having $Y_i=1$ by fitting a probability $\hat p_i=\frac{1}{1+e^{-x_i\hat\beta}}$, where typically if $\hat p_i > 0.5$, or $x_i\hat\beta > 0$, we predict $\hat{Y}_i=1$
 :::
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+איך מוקטור המקדמים נחזור לקבל הסתברות? באמצעות הפונקציה ההופכית g inverse.
+
+כאשר נשיג אומדן לוקטור המקדמים שלנו בטא האט,
+
+1. נוכל להסביר את Y, או יותר נכון להסביר את הסיכוי שY יהיה 1. הכיוון והגודל של כל רכיב בוקטור המקדמים יגידו לנו מהי התרומה של המשתנה המתאים ללוגריתם של יחס הסיכויים של Y.
+
+2. נוכל לחזות עבור תצפית חדשה את ההסתברות שמשתנה הY שלה הוא 1. יש לנו נוסחה לזה, נכפול את הנתונים X בוקטור המקדמים הנאמד בטא האט, ונחשב על זה את הפונקציה ההופכית של g, g inverse. אם נרצה חיזוי סופי נצטרך להשוות את ההסתברות הנחזית p_hat לאיזשהו סף קאטאוף, לדוגמא חצי. אם p_hat גדול מחצי נחזה שY יהיה 1, אחרת נחזה 0.
+
+עד כאן ראינו ברגרסיה לוגיסטית.
+:::
+:::
 ---
 
-### Maximum Likelihood (I)
+### Maximum Likelihood
 
 ::: {.incremental}
-- Under the standard Maximum Likelihood approach we assume $Y_i$ are also *independent* and so their joint "likelihood" is:
-$L(\beta|X, y) = \prod_{i = 1}^n{P(Y_i|X;\beta)} = \prod_{i = 1}^n[g^{-1}(x_i\beta)]^{y_i}[1- g^{-1}(x_i\beta)]^{1-y_i}$
+
+- Under the standard Maximum Likelihood approach we assume $Y_i$ are also *independent* and so their joint "likelihood" is:  
+$L(\beta|X, y) = \prod_{i = 1}^n{P(Y_i|X;\beta)} = \prod_{i = 1}^n{P(Y_i = 1|X;\beta)^{y_i}P(Y_i = 0|X;\beta)^{1-y_i}}$
+
+- But what is $P(Y_i = 1|X;\beta)$?  
+$L(\beta|X, y) = \prod_{i = 1}^n[g^{-1}(x_i\beta)]^{y_i}[1- g^{-1}(x_i\beta)]^{1-y_i}$
 
 - The $\hat\beta$ we choose is the vector maximizing $L(\beta|X, y)$
 
-- Take the log-likelihood which is easier to differentiate:
-$l(\beta|X, y)=\sum_{i=1}^n\ln{P(Y_i|X;\beta)} =$
-$\sum_{i=1}^n y_i\ln[g^{-1}(x_i\beta)] + (1-y_i)\ln[1- g^{-1}(x_i\beta)] =$
+:::
 
-- This looks Ok but let us improve a bit just for easier differentiation:
-$\sum_{i=1}^n \ln[1- g^{-1}(x_i\beta)] + y_i\ln[\frac{g^{-1}(x_i\beta)}{1- g^{-1}(x_i\beta)}]=$
-$\sum_{i=1}^n -\ln[1+ e^{x_i\beta}] + y_ix_i\beta$
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+בואו נראה איך אנחנו מוצאים אומד לוקטור המקדמים בטא.
+
+הגישה הסטנדרטית היא למקסם פונקציה בשם הנראות. פונקציה זו מסומנת בדרך כלל ב-L גדולה, היא פונקציה של בטא בהינתן הנתונים X ו-Y. בהנחת אי-תלות בין התצפיות מדובר במכפלת ההסתברויות לקבל כל תצפית ותצפית, שבמקרה שלנו מקבלת צורה יפה שכזאת: אם Y שווה לאחת נכתוב את ההסתברות בחזקת Y, אם Y שווה אפס נכתוב את ההסתברות בחזקת Y פחות 1.
+
+ומהי אותה הסתברות לפי המודל? הפונקציה ההופכית של G או אחת פחות.
+
+הוקטור בטא האט הוא הוקטור שימקסם את הנראות ולכן נקרא אומד נראות מקסימלית, או MLE.
+:::
 :::
 
 ---
 
 ### Maximum Likelihood (II)
 
-Differentiate:
+::: {.incremental}
+- Take the log-likelihood which is easier to differentiate:  
+$l(\beta|X, y)=\sum_{i=1}^n\ln{P(Y_i|X;\beta)} =$
+$\sum_{i=1}^n y_i\ln[g^{-1}(x_i\beta)] + (1-y_i)\ln[1- g^{-1}(x_i\beta)] =$
 
-$\frac{\partial l(\beta|X, y)}{\partial \beta_j} = \sum_{i=1}^n-\frac{1}{1+e^{x_i\beta}}e^{x_i\beta}x_{ij} + y_ix_{ij}=\sum_{i=1}^n x_{ij}(y_i-g^{-1}(x_i\beta))$
+- This looks Ok but let us improve a bit just for easier differentiation:  
+$\sum_{i=1}^n \ln[1- g^{-1}(x_i\beta)] + y_i\ln[\frac{g^{-1}(x_i\beta)}{1- g^{-1}(x_i\beta)}]=$
+$\sum_{i=1}^n -\ln[1+ e^{x_i\beta}] + y_ix_i\beta$
+:::
 
-Or in matrix notation:
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+פונקצית הנראות כפי שהוא מנוסחת כרגע היא קשה למיקסום. נהוג לעבוד עם לוג הנראות, כלומר עם סכום הלוגריתמים של ההסתברויות שרשמנו.
 
-$\frac{\partial l(\beta|X, y)}{\partial \beta}=X'(y - g^{-1}(X\beta))$,
+נפשט את הפונקציה הזאת אפילו יותר כדי לקבל פונקציה שקל לגזור יותר לפי בטא.
+:::
+:::
 
-where $X$ is the $n \times q$ data matrix.
+
+---
+
+### Maximum Likelihood (III)
 
 ::: {.incremental}
+- Differentiate:  
+$\frac{\partial l(\beta|X, y)}{\partial \beta_j} = \sum_{i=1}^n-\frac{1}{1+e^{x_i\beta}}e^{x_i\beta}x_{ij} + y_ix_{ij}=\sum_{i=1}^n x_{ij}(y_i-g^{-1}(x_i\beta))$
+
+- Or in vector notation:  
+$\frac{\partial l(\beta|X, y)}{\partial \beta}=X'(y - g^{-1}(X\beta))$,
+where $X$ is the $n \times q$ data matrix.
+
+
 - We would like to equate this with $\vec0$ and get $\hat\beta$ but there's no closed solution.
 
 - At which point usually the Newton-Raphson method comes to the rescue.
 
 - But let's look at simple gradient descent:
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+נגזור את הפונקציה לפי אלמנט אחד בוקטור בטא, בטא ג'יי.
+
+נכתוב את הנגזרת לפי כל וקטור בטא בכתיב וקטורי, מה שיקל עלינו במימוש.
+
+את הביטוי הזה היינו רוצים להשוות לוקטור האפס ולקבל את האומד לבטא, אבל לא נקבל פתרון סגור.
+
+בשלב זה נעבור לשיטות של אנליזה כמו ניוטון רפסון, פונקצית לוג הנראות היא קמורה ואיננה נחשבת לפונקציה קשה.
+
+אבל אני רוצה שנסתכל על פתרון של מורד הגרדיאנט, gradient descent.
+:::
 :::
 
 ---
@@ -115,6 +193,21 @@ where $X$ is the $n \times q$ data matrix.
 - The partial derivatives vector of $-l(\beta)$ at point $\hat\beta_t$ (a.k.a the *gradient* $-\nabla l(\hat\beta_t)$) points to the direction of where $-l(\beta)$ has its steepest descent
 - We'll go a small $\alpha$ step down that direction: $\hat\beta_{t+1}=\hat\beta_t -\alpha \cdot[-\nabla l(\hat\beta_t)]$
 - We do this for $I$ iterations or until some stopping rule indicating $\hat\beta$ has converged
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+במקום למקסם את לוג הנראות, נעשה מינימיזציה ללוג הנראות השלילית, ה-NLL.
+
+נתחיל בניחוש ראשוני עבור בטא האט בזמן t = 0.
+
+הגרדיאנט, או וקטור הנגזרות החלקיות של הNLL המחושב בנקודה בטא האט, מצביע לכיוון שיפוע הירידה התלולה ביותר בנקודה זו.
+
+נלך צעד קטן בגודל אלפא בכיוון זה. וקטור בטא האט החדש שלנו יהיה בטא האט הקודם פחות צעד אלפא בכיוון וקטור הגרדיאנט של פונקצית הלוג-נראות השלילית.
+
+נעשה את זה במשך מספר איטרציות עד להתכנסות למינימום מקומי, במקרים מסוימים כגון המקרה שלפנינו אנחנו יכולים לדעת שמדובר בנקודת מינימום גלובלית.
+
+:::
 :::
 
 ---
@@ -166,6 +259,20 @@ y = np.random.binomial(1, p, size = n)
 
 ::: {.callout-note}
 See it in python!
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+בואו נראה כיצד גרדיאנט דיסנט יעבוד בפייתון. 
+בקוד שלפניכם אנחנו מדמים מצב אידיאלי לרגרסיה לוגיסטית עם שני משתנים, וללא חותך. N יהיה שווה 1000 תצפיות, לכן ב-X יהיו 1000 שורות על שתי 
+
+עמודות. וקטור המקדמים האמיתי בטא באורך 2 יהיה פשוט 1, 2.
+
+וקטור ההסתברויות האמיתיות p מחושב לפי פונקצית ה-G ההופכית שלנו.
+
+לבסוף Y נדגם מהתפלגות ברנולי להיות 0 או 1, עם ההסתברויות שחישבנו.
+:::
+
 :::
 
 ```{python}
@@ -249,9 +356,15 @@ ax.plot([beta[0]], [beta[1]], marker='x', color='red', markersize=20, markeredge
 plt.show()
 ```
 
+---
 
 ## You've already been Neural Network-ing! {.title-slide}
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+אבל מה הקשר בין רגרסיה לוגיסטית לרשתות נוירונים? כעת נראה שרגרסיה לוגיסטית היא רשת נוירונים פשוטה למדי.
+:::
+:::
 ---
 
 ### Call it a Neural Network
@@ -263,7 +376,7 @@ plt.show()
 4. Call the differentiation of $-l(\hat\beta)$ a "Backward Propagation" step
 5. Call our $\beta$ vector $W_{(q+1)\text{x}1}$, a weight matrix (add intercept, call it "bias")
 6. Add *stochastic* gradient descent (SGD)
-7. Draw a diagram with circles and arrows, call these "Neurons"
+7. Draw a diagram with circles and arrows, call these "neurons"
 :::
 ::: {.fragment}
 And you have a Neural Network*.
@@ -272,24 +385,57 @@ And you have a Neural Network*.
 *Ok, We'll add some stuff later
 :::
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+נקרא לפונקצית הנראות השלילית cross entropy.
+
+נקרא לפונקציה ההופכית ל-g שמחשבת לנו את ההסתברות החזויה, פונקצית זיגמויד.
+
+לחישוב ההסתברות החזויה ולוג הנראות נקרא פעפוע לפנים, או forward propagation.
+
+לחישוב הגרדיאנט נקרא פעפוע לאחור, או backward propagation.
+
+נסמן את וקטור המקדמים שלנו כמטריצה W שיש לה עמודה אחת, נוסיף גם חותך שנקרא לו bias.
+
+במקום להשתמש בגרדיאנט דיסנט על כל הדאטה נשתמש בגרדיאנט דיסנט סטוכסטי או SGD - תיכף נסביר מה זה.
+
+לבסוף נתאר את המודל שלנו בתור דיאגרמה עם חצים ועיגולים, נקרא להם נוירונים.
+
+ויש לנו רשת נוירונים!
+
+טוב, בהמשך נוסיף עוד כמה אלמנטים.
+:::
+:::
+
 ---
 
 ### Cross Entropy
 
-For discrete probability distributions $P(X)$ and $Q(X)$ with the same support $x \in \mathcal X$ Cross Entropy could be seen as a metric of the "distance" between distributions:
-
+::: {.incremental}
+- For discrete probability distributions $P(X)$ and $Q(X)$ with the same support $x \in \mathcal X$ Cross Entropy could be seen as a metric of the "distance" between distributions:  
 $H(P, Q) = -E_P[\log(Q)] = -\sum _{x\in {\mathcal{X}}}P(X=x)\log[Q(X=x)]$
 
-In case $X$ has two categories, and $p_1=P(X=x_1)$, $p_2=1-p_1$ and same for $q_1,q_2$:
-
+- In case $X$ has two categories, and $p_1=P(X=x_1)$, $p_2=1-p_1$ and same for $q_1,q_2$:  
 $H(P, Q) = -[p_1\log(q_1) + (1-p_1)\log(1-q_1)]$
 
-If we let $p_1=y_i$ and $q_1=\hat p_i=g^{-1}(x_i\hat\beta)$ we get:
-
+- If we let $p_1=y_i$ and $q_1=\hat p_i=g^{-1}(x_i\hat\beta)$ we get:  
 $H(y_i, \hat p_i) = -[y_i\log(\hat p_i) + (1-y_i)\log(1-\hat p_i)] =$
 $-[y_i\ln[g^{-1}(x_i\hat\beta)] + (1-y_i)\ln[1- g^{-1}(x_i\hat\beta)]]$
 
-Which is exactly the contribution of the $i\text{th}$ observation to the NLL $-l(\hat\beta)$.
+- Which is exactly the contribution of the $i\text{th}$ observation to the NLL $-l(\hat\beta)$.
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+אפשר לראות באנטרופיה כמדד למרחק בין שתי התפלגויות. 
+
+עבור שתי התפלגויות P ו-Q, אנטרופיה המסומנת בדרך כלל ב-H, היא מינוס התוחלת של לוג ההתפלגות Q לפי התפלגות P.
+
+במקרה שלפנינו למשתנה אקראי X יש שני ערכים אפשריים, והאנטרופיה מקבלת צורה של סכום פשוט של הסתברות לפי התפלגות אחת כפול לוג ההסתברות לפי ההתפלגות האחרת.
+
+אם נחשוב על שתי ההתפלגויות שלנו כפונקצית ההסתברות של Y הבינארי שלנו, ו-Y עצמו, נוכל להוכיח שאנטרופיה היא בדיוק פונקצית לוג-הנראות השלילית שלנו.
+:::
+:::
 
 ---
 
@@ -313,16 +459,25 @@ plt.plot(X1, 1 / (1 + np.exp(-X1)))
 plt.show()
 ```
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+שינוי נוסף שנעשה הוא פשוט לשנות את שם הפונקציה ההופכית של G לפונקצית זיגמויד. פונקצית זיגמויד המסומנת כאן עם האות סיגמא, מקבלת כל קלט בין מינוס לפלוס אינסוף, וממפה אותו בצורה מונוטונית להיות בין 0 ל-1.
+:::
+:::
+
 ---
 
 ### Forward/Backward Propagation
 
 Recall that each iteration of gradient descent included:
 
+::: {.incremental}
 1. Forward step: Calculating the NLL loss $-l(\hat\beta)$
 2. Backward step: Calculate the gradient $-\nabla l(\hat\beta_t)$
 3. Gradient descent: $\hat\beta_{t+1}=\hat\beta_t -\alpha \cdot[-\nabla l(\hat\beta_t)]$
+:::
 
+::: {.fragment}
 ```{python}
 #| echo: true
 #| code-line-numbers: "|1-3|4-5|6-7"
@@ -335,8 +490,28 @@ grad = -np.dot(X.T, (y - p_hat))
 # descent
 beta_hat = beta_hat - alpha * grad
 ```
-
+:::
+::: {.fragment}
 Why "Forward", why "Backward"?...
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+מהם הפורוורד והבקוורד פרופוגיישן?
+
+אפשר לומר שכל איטרציה בגרדיאנט דיסנט כללה:
+
+שלב פורוורד - חישוב פונקצית הלוג-נראות והחיזוי p_hat
+
+שלב בקוורד - חישוב הגרדיאנט
+
+גרדיאנט דיסנט - הליכה של צעד בגודל אלפא בכיוון הגרדיאנט
+
+בפייתון מימשנו כל שלב באמצעות שורה אחת או שתיים. פורוורד. בקוורד. גרדיאנט דיסנט.
+
+אבל למה אנחנו קוראים לזה פורוורד או לפנים? למה בקוורד או לאחור?
+:::
+:::
 
 ---
 
@@ -352,6 +527,19 @@ $y'(x)=f'(g(h(x)) \cdot g'(h(x)) \cdot h'(x)$
 
 - Or if you prefer, if $z = z(x); \space u = u(z); \space y = y(u)$ then:
 $\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dz} \cdot \frac{dz}{dx}$
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+במקרה שלנו הגזירה של פונקצית הלוג-נראות השלילית לפי וקטור המקדמים בטא היתה יחסית פשוטה. הגענו לביטוי פשוט גם אם לא לפתרון סגור.
+
+ככל שהארכיטקטורה של רשת הנוירונים תלך ותיעשה מורכבת יותר, נצטרך להכליל את הגזירה הזאת, לצעדים קטנים.
+
+לפי כלל השרשרת, אם Y הוא פונקציה F של פונקציה G של פונקציה H של X - 
+אפשר לרשום את הנגזרת של Y לפי X לפי כלל השרשרת. הנגזרת של Y לפי X היא הנגזרת שלF לפי G, כפול הנגזרת של G לפי H, כפול הנגזרת של H לפי X.
+
+אפשר לרשום זאת בכתיב דיפרנציאלי, ובכל מקרה נבחין שיש לפנינו מכפלה לאחור של נגזרות.
+:::
 :::
 
 ---
@@ -380,6 +568,23 @@ $-\frac{\partial l(\beta)}{\partial \beta_j} = -\sum_i\frac{\partial l_i}{\parti
 Hence, Backward.
 :::
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+כדי שנוכל להשתמש בכלל השרשרת, נרשום את פונקצית הלוג-נראות השלילית שלנו כפונקציה מורכבת של בטא:
+
+ההכפלה של האינפוטים X בבטא תהיה פונקציה Z של בטא.
+
+המעבר של Z בפונקצית זיגמויד או ההופכית של G תיקרא פונקציה P של Z.
+
+החישוב הסופי של האלמנט ה-I בתוך הלוג-נראות השלילית מתוך ההסתברויות החזויות P ייקרא פונקציה L של P.
+
+כלומר אלמנט אחד של פונקצית ההפסד שלנו הוא L של P של Z של בטא. ולכן - קדימה, או פורוורד.
+
+וכעת אפשר להפעיל את כלל השרשרת: הנגזרת של פונקצית ההפסד לפי בטא J כלשהו, היא נגזרת של L לפי P, כפול נגזרת של P לפי Z, כפול נגזרת לפי בטא J.
+ולכן - אחורה, או בקוורד.
+:::
+:::
+
 ---
 
 Each of these is simpler to calculate:
@@ -396,11 +601,21 @@ $-\frac{\partial l(\beta)}{\partial \beta_j} = - \sum_i \frac{y_i - p_i}{p_i(1-p
 
 Which is excatly what we got analytically but now we can write our gradient descent iteration as a list of forward/backward steps.
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+כל אחת מהנגזרות האלה קלה לחישוב: הנגזרת של L לפי P, הנגזרת של P לפי Z והנגזרת של Z לפי בטא J.
+
+ואם נכפול את הנגזרות האלה זו בזו לפי כלל השרשרת, נקבל בדיוק את הביטוי האנליטי הפשוט לגרדיאנט שקיבלנו לפני כן.
+:::
+:::
+
 ---
+
+### Implementing NN in python
 
 ```{python}
 #| echo: true
-#| code-line-numbers: "|1-6|8-12|14-15|17-21|22-28|"
+#| code-line-numbers: "|1-6|8-12|14-15|17-21|"
 
 def forward(X, y, beta_hat):
   z = np.dot(X, beta_hat)
@@ -424,6 +639,28 @@ def optimize(X, y, alpha, beta_hat):
   beta_hat = gradient_descent(alpha, beta_hat, grad)
   return l, beta_hat
 
+```
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+כעת נממש את הרגרסיה הלוגיסטית לפי הצעדים שחישבנו באמצעות כמה פונקציות פשוטות:
+
+פונקצית הפורוורד מקבלת את X, Y ואת האומדן הנוכחי לוקטור המקדמים בטא. היא מחשבת שלב אחרי שלב את ההסתברויות החזויות ואת לוג הנראות השלילית:
+הכפלה של X בבטא האט לתת את Z, זיגמויד על Z לתת את P האט, ולבסוף חישוב הנראות הסופית.
+
+פונקצית הבקוורד תקבל את X ואת ההסתברויות החזויות P האט, ותחשב בשני צעדים לאחור את הנגזרות ותכפיל ביניהן לפי כלל השרשרת להחזיר את הגרדיאנט לפי בטא.
+
+פונקצית הגרדיאנט דיסנט פשוט תקבל את גודל הצעד אלפא, את האומדן הנוכחי לבטא ואת הגרדיאנט, ותחשב אומדן מעודכן לבטא על ידי הליכה בצעד אלפא בכיוון הגרדיאנט.
+
+הפונקציה אופטימייז מהווה איטרציה אחת שכוללת צעד פורוורד, צעד בקוורד וצעד גרדיאנט דיסנט.
+:::
+:::
+
+---
+
+```{python}
+#| echo: true
+
 def lr_nn(X, y, epochs):
   beta_hat = np.array([-2.5, -2.5])
   alpha = 0.001
@@ -432,6 +669,15 @@ def lr_nn(X, y, epochs):
   return l, beta_hat
 ```
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+לבסוף הפונקציה lr_nn מקבלת את הדאטא X ו-Y ומספר איטרציות לריצה שנקראות איפוקס.
+
+היא מאתחלת את האומדן בטא-האט לאיזשהם ערכים, כאו מינוס 2.5 לשני הרכיבים של הוקטור.
+
+ואז היא מבצעת את מספר האיפוקס המתבקש, כל אחד מאלה הוא בעצם קריאה לפונקציה אופטימייז, שעושה צעד פורווד, צעד בקוורד וגרדיאנט דיסנט.
+:::
+:::
 ---
 
 Adding *stochastic* gradient descent (SGD) on mini-batches:
@@ -457,11 +703,27 @@ def lr_nn(X, y, epochs):
       print('Trained on %d/%d, loss = %d' % (start + batch_size, n, l))
   return l, beta_hat
 
-l, beta_hat = lr_nn(X, y, 10)
+l, beta_hat = lr_nn(X, y, 50)
 ```
 
 ::: {.callout-note}
 See it in python!
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+רגע לפני שנריץ את הפונקציה, אני בכל זאת רוצה שנשנה דבר קטן אחד. נזכיר שרשתות נוירונים יודעות לרוץ על קבצי נתונים גדולים מאוד.
+
+אחד מהאופנים שבהן הן עושות את זה, הוא שהגרדיאנט לא מחושב בכל איטרציה על כל מסד הנתונים. במקרה שלפנינו לא היתה בעיה לעשות את זה גם אם N היה גדול מאוד. אבל ברגע שהרשת תיעשה מורכבת יותר, חישוב הגרדיאנט בכל איטרציה יגזול מאיתנו זמן וכוח חישוב, אם בכלל יהיה אפשרי.
+
+לכן מקובל ברשתות נוירונים לאמן על באצ'ים אקראיים של דאטא. בכל איפוק נחלק את הדאטא למספר תת-מדגמים אקראיים בגודל batch_size, ונזין אותם אחד אחרי השני לרשת, נחשב את הגרדיאנט ונלך צעד בכיוונו, עד שהרשת תראה בסוף האיפוק את כל הדאטה. באיפוק הבא היא תראה באצ'ים אחרים.
+
+האקראיות הזאת שהכנסנו נקראת stochatstic gradient descent, והיא כאמור עקרון מפתח בהפעלת הרשת על נתונים גדולים באמת.
+
+שימו לב שלא כל פונקצית הפסד ניתן בהכרח לפירק לחישוב על מספר באצ'ים. במקרה שלנו ראינו שהלוג-נראות השלילית היא סכום של אלמנטים על כל התצפיות, ולכן היא מתפרקת בפשטות יחסית למספר סכומים, וניתן להראות שזה מספיק כדי לתקף את השינוי הזה.
+
+בואו נראה את המימוש שלנו בפעולה!
+:::
 :::
 
 ---
@@ -471,6 +733,22 @@ See it in python!
 Binary Logistic Regression, is in fact a single neuron firing a sigmoid probability-like number between 0 and 1, for each sample:
 
 <img src="images/lr_nn.png" style="width: 80%" />
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+מה בין מודל הרגרסיה הלוגיסטית לרשת נוירונים? איפה ה"רשת"? נסמן את האינפוט של הרשת, Q פיצ'רים של X ועוד חותך באמצעות צמתים של רשת.
+
+נמתח קשת בין כל אינפוט אל תוך צומת אחד שנקרא לו נוירון. כל אחת מהקשתות מסמלת פרמטר בוקטור המקדמים שלנו בטא, והנוירון כופל את האינפוטים במקדמים וסוכם אותם. למעשה הנוירון מבצע מכפלה פנימית בין שני הוקטורים.
+
+לאחר מכן הכמות הזאת עוברת אקטיבציה, כאן אקטיבצית זיגמויד, כדי לתת חיזוי סופי לתצפית p_hat ואת פונקצית ההפסד בשלב זה.
+
+וכל זה נקרא צעד פורוורד.
+
+לאחר מכן נלך אחור ברשת ונחשב בכל שלב את הנגזרת כדי לתת הגרדיאנט לכל אחד מהמקדמים בוקטור המשקלות בטא. וזה ייקרא צעד בקוורד. לבסוף נלך צעד אלפא בכיוון הגרדיאנט וחוזר חלילה.
+
+אנחנו רואים שניתן לייצג רגרסיה לוגיסטית כנוירון בודד, ברשת שהיא אינה אלא ייצוג למודל המוכר לנו. את הייצוג הזה יהיה קל להכליל למודלים מורכבים יותר ויותר.
+:::
+:::
 
 ---
 
@@ -494,6 +772,22 @@ model.fit(X, y, batch_size=100, epochs=50)
 
 ::: {.callout-note}
 See it in python!
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+מובן שלא נממש בעצמנו רשת נוירונים כל פעם שנצטרך. בקורס זה נשתמש בספריית קראס, שהיא מצוינת למתחילים.
+
+כאן אני מייבא קלאס בשם sequential, קלאס לשכבה dense פשוטה כפי שאנחנו צריכים, וקלאס לגרדיאנט דיסנט סטוכסטי, SGD.
+
+אני מאתחל מודל עם sequential. מוסיף שכבת dense עם נוירון בודד באמצעות הפעולה model.add(), ואקטיבציה sigmoid. נשים לב שאני מבקש מהשכבה לא להשתמש בביאס, הוא החותך.
+
+אני מאתחל קלאס SGD עם איזשהו קצב למידה, זהו האלפא שלנו. מקמפל את המודל באמצעות קריאה לmodel.compile(), שם אני מפרט גם את פונקצית ההפסד שהוא האנטרופיה ואת האופטימייזר שלי, הוא הSGD.
+
+לבסוף אני מריץ את המודל על הנתונים באמצעות הקריאה לmodel.fit(), לתוכו אני מזין את X ואז Y, ומפרט גם מה גודל הבאץ' ומספר האיפוקס. 
+
+בואו נראה את זה בפעולה.
+:::
 :::
 
 ```{python}
@@ -524,26 +818,53 @@ pred_manual[:3]
 ::: {style="font-size: 50%;"}
 (*Computer Age Statistical Inference* by Bradley Efron & Trevor Hastie, p. 352)
 :::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+אז האם זה כל מה שיש בה, ברשת הנוירונים? הכללה של רגרסיה לינארית או לוגיסטית לקשר לא-ליניארי בין X ל-Y?
+
+התשובה הקצרה היא: לא. את התשובה הארוכה יותר אני מביא כאן כציטוט מספר מצוין של שני סטטיסטיקאים גדולים, בראדלי אפרון וטרוור הייסטי:
+
+רשתות נוירונים הזריקו אנרגיה חדשה לתחום. אפשר להכליל אותן במגוון דרכים כפי שנראה ולאמן אותם על מסדי נתונים עצומים.
+:::
+:::
+
 ---
 
 ## Add Classes {.title-slide}
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+לאמן רשת על שתי מחלקות או קלאסים בלבד זה מעט משעמם. בואו נכליל את הרשת ל-C קלאסים.
+:::
+:::
 
 ---
 
 ### $C$ Neurons for $C$ Classes
 
-Alternatively, we could:
-
+::: {.incremental}
 - fit a $\beta$ vector for each class (or let's start talking about $W$)
 - have $C$ neurons for $C$ classes
-- where the output layer is the *Softmax Function*, to make sure the fitted $\hat p$ sum up to 1:
-
-$\hat p_{i;c} = \text{softmax}(c,W_{(q+1)\text{x}C}, x_i)=\frac{e^{x_iw_c}}{\sum_{c=1}^{C} e^{x_iw_c}}$
-
+- where the output layer is the *Softmax Function*, to make sure the fitted $\hat p$ sum up to 1:  
+$\hat p_{i;c} = \text{softmax}(c,W_{(q+1)\text{x}C}, x_i)=\frac{e^{x_iw_c}}{\sum_{c=1}^{C} e^{x_iw_c}}$  
 Where $x_i$ is the $i$th row of $X$ as before and $w_c$ is the $c$th row of $W^T$ (or $c$th column of $W$)
-
+:::
+::: {.fragment}
 ::: {.callout-tip}
 This would be equivalent to *multinomial logistic regression*!
+:::
+:::
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+נתאים וקטור מקדמים בטא לכל אחד מהקלאסים שלנו. נקרא לוקטור כזה כבר W ונדבר על מטריצה של משקלות, עם Q פלוס 1 שורות, ו-C עמודות ל-C קלאסים.
+
+נוסיף בשכבת האאוטפוט C נוירוינים ל-C קלאסים.
+
+כאשר המכפלה הפנימית בכל נוירון כזה תעבור אקטיבציית סופטמקס. סופטמקס היא נוסחה שמטרתה לייצר מ-C נוירונים C הסתברויות שיסתכמו ב-1. הפונקציה לוקחת את האאוטפוט של כל נוירון, מעלה אותו באקספוננט ומחלקת בסך האקספוננטים מכל ה-C נוירונים.
+
+מודל זה, אגב, ניתן לראות כמודל שקול לרגרסיה מולטינומית שהזכרנו, מודל שמכליל רגרסיה לוגיסטית ל-C קלאסים.
+:::
 :::
 
 ---
@@ -551,6 +872,12 @@ This would be equivalent to *multinomial logistic regression*!
 So the architecture for 2 classes would be:
 
 <img src="images/lr_nn_2neurons.png" style="width: 80%" />
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+כעת נוספים לדיאגרמה שלנו שני נוירונים עבור שני קלאסים שמייצרים שתי הסתברויות שמסתכמות ב1, אחרי אקטיבצית סופטמקס.
+:::
+:::
 
 ---
 
@@ -573,6 +900,19 @@ model.fit(X, y_categorical, batch_size=100, epochs=50)
 
 ::: {.callout-note}
 See it in python!
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+בקראס נעשה מספר שינויים קטן:
+ה-Y שלנו בשביל C קלאסים כבר לא יכול להיות וקטור עם 0 או 1. הוא צריך להיות מטריצה, עם N שורות ו-C עמודות, בכל עמודה יש 0 בכל השורה חוץ מהעמודה המתאימה לקלאס שם יש 1. את כל זה ניתן לבצע עם הפונקציה to_categorical.
+
+בשכבת האאוטפוט שלנו יהיו 2 נוירונים, ולא 1, והאקטיבציה תהיה סופטמקס ולא זיגמויד.
+
+לבסוף בזמן קומפילציה של המודל נפרט פונקצית הפסד בשם categorical_crossentropy ולא binary_crossentropy.
+
+בואו נראה את זה בפעולה.
+:::
 :::
 
 ```{python}
@@ -600,15 +940,34 @@ pred_manual[:3]
 
 ## Add Hidden Layers {.title-slide}
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+ראינו שקל להכליל את הרשת להוציא C אאוטפוטים ל-C קלאסים. כעת נראה כמה קל להוסיף עוד שכבות ביניים. אנחנו קוראים לשכבות כאלה נסתרות, או hidden.
+:::
+:::
+
 ---
 
-### Don't Panic.
+### Adding Hidden Layers
 
 <img src="images/lr_nn_morelayers.png" style="width: 80%" />
 
 Where $g()$ is some non-linear *activation function*, e.g. sigmoid (but not often used).
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+הדיאגרמה שלנו כבר נראית כמו רשת נוירונים מורכבת:
+
+Q אינפוטים נכנסים לרשת בתוספת לביאס, ומגיעים לשכבת הביניים שבה יש H נוירונים. הנוירונים מבצעים מכפלה פנימית בין האינפוטים לבין כל אחת מהעמודות של מטריצת משקלות W, ומתבצעת איזושהי אקטיבציה לא-ליניארית G. נשים לב שכל קשת ברשת היא פרמטר, היא אלמנט במטריצת משקולות.
+
+H האינפוטים משכבת הביניים בתוספת לביאס, מגיעים אל שכבת האאוטפוט הסופית. שכבה זה מבצעת את המכפלה הפנימית בין האינפוטים לכל אחת מעמודות מטריצת משקלות W השניה, ומתבצעת אקטיבצית סופטמקס להוצאה של הסתברויות בין 0 ל-1.
+
+כל זה צעד פורוורד של הרשת, וכעת מחשבים את הגרדיאנט באמצעות פעפוע לאחור על כל אחד מהפרמטרים במטריצות המשקלות W1 ו-W2, ומתבצע גרדיאנט דיסנט, בדיוק איך שמימשנו עבור הרשת הפשוטה מקודם שם היה לנו נוירון אחד בלבד.
+:::
+:::
+
 ---
+
 - Notice we are not in Logistic Regression land anymore
 - The bias term (intercept) is re-instated
 
@@ -632,6 +991,7 @@ model.add(Dense(2, activation='softmax'))
 sgd = SGD(learning_rate=0.1)
 model.compile(loss='categorical_crossentropy', optimizer=sgd)
 ```
+
 ```{python}
 model.fit(X, y_categorical, batch_size=100, epochs=50)
 ```
@@ -649,6 +1009,19 @@ Even now, the forward step is a simple formula:
 $$\hat{p}_{n \times C} = softmax\{[\mathbb{1} \vdots \sigma([\mathbb{1} \vdots X]W^{(1)})]W^{(2)}\}$$
 :::
 ::::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+נשים לב שכבר התרחקנו מרגרסיה לוגיסטית מרחק די רב. הרשת שלפנינו, עם מספיק נוירונים בשכבת הביניים, יכולה כבר למדל יחסים לא-ליניאריים מורכבים ביותר בין X ל-Y.
+
+מבחינת קוד בקראס, כל מה שנוסף כאן הוא עוד קריאה לmodel.add שם אנחנו מוסיפים עוד שכבת dense פשוטה עם 4 נוירונים ואיזושהי אקטיבצית זיגמויד.
+
+המודל הזה נקרא multi layer perceptron או MLP, והוא קיים שנים רבות. המימוש הראשון שלו נצפה כבר ב1958 על-ידי מדען בשם פרנק רוזנבלט. אולם לקח שנים והיווצרות נתונים מספיק גדולים ומחשוב יעיל מספיק כדי להביא מודל זה לשימוש הנרחב שאנו רואים כיום.
+
+ואפילו כעת, נשים לב שיש כאן נוסחה לא מאוד מורכבת. ניקח את מטריצת הנתונים X, נוסיף לה עמודה של אחדים, נכפיל במטריצה W1, נעשה על זה איזושהי אקטיבציה למשל זיגמויד, נוסיף שוב עמודת אחדים לחותך, נכפול במטריצת W2 ונבצע שוב אקטיבצית סופטמקס לקבלת הסתברויות.
+:::
+:::
+
 ---
 
 Call `model.summary()` and see that you can calculate the number of params yourself:
@@ -659,6 +1032,16 @@ Call `model.summary()` and see that you can calculate the number of params yours
 
 model.summary()
 ```
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+המודל שלנו נהפך למורכב יותר ויותר, ואנחנו צריכים לראות כמה פרמטרים הוא כבר כולל.
+
+מומלץ לקרוא לmodel.summary ולנסות לחשב לבד איך הגענו למספר הזה של פרמטרים.
+
+(חישוב ידני על השקף)
+:::
+:::
 
 ```{python}
 # See that it makes sense:
@@ -731,19 +1114,45 @@ plt.show()
 ::::
 :::::
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+בשלב הזה כדאי לומר שכיום אנחנו פחות משתמשים בפונקצית האקטיבציה זיגמויד לשכבות הביניים. שתי פונקציות אקטיבציה לא-ליניאריות נפוצות יותר נמצאות לפנינו: tanh ו-relu.
+
+tanh נמצאת בשימוש נרחב ברשתות לעיבוד שפה, היא לוקחת קלט ממשי כלשהו ודוחסת אותו להיות בין מינוס לפלוס 1.
+
+relu היא למעשה פונקצית ציר, או hinge. היא מאפסת אינפוט שלילי, ומשאירה אינפוט חיובי כפי שהוא.
+
+שתי הפונקציות לא-לינאריות אבל אין להן פרמטרים והגזירה שלהן קלה.
+:::
+:::
+
 ---
 
 ### What about linear activations?
 
-See HW12.
+See HW.
 
 ::: {.callout-note}
 See it in python!
 :::
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+האם אנחנו יכולים להשתמש בפונקצית אקטיבציה ליניארית? אם נשתמש בפונקצית אקטיבציה ליניארית, אנחנו נשארים במודל ליניארי! על כך תראו עוד בשיעורי הבית.
+
+בואו נראה כיצד הרשת שלנו עובדת בפייתון.
+:::
+:::
+
 ---
 
 ## Add Regularization {.title-slide}
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
 
 ---
 
@@ -760,6 +1169,12 @@ See it in python!
   - $P_{L_2}(W)=\lambda \sum_{ijk}(W^{(k)}_{ij})^2$
   - $P_{L_1}(W)=\lambda \sum_{ijk}|W^{(k)}_{ij}|$
   - or both (a.k.a Elastic Net, but not quite): $P_{L1L2}(W) = \lambda_1 \sum_{ijk}(W^{(k)}_{ij})^2 + \lambda_2 \sum_{ijk}|W^{(k)}_{ij}|$
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
 :::
 
 ---
@@ -783,6 +1198,12 @@ model.compile(loss='categorical_crossentropy', optimizer=sgd)
 model.fit(X, y_categorical, batch_size=100, epochs=50, verbose=0)
 ```
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
+
 ---
 
 ### Dropout
@@ -795,6 +1216,12 @@ During each epoch, individual neurons are either "dropped out" of the net with p
 
 ::: {.callout-important}
 During prediction no Dropout is performed, but neurons output is scaled by $p$ to make it identical to their expected outputs at training time.
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
 :::
 
 ---
@@ -817,6 +1244,12 @@ sgd = SGD(learning_rate=0.1)
 model.compile(loss='categorical_crossentropy', optimizer=sgd)
 model.fit(X, y_categorical, batch_size=100, epochs=50, verbose=0)
 ```
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
 
 ---
 
@@ -842,9 +1275,21 @@ model.fit(X, y_categorical, batch_size=100, epochs=50,
   validation_split=0.2, callbacks=callbacks)
 ```
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
+
 ---
 
 ## Keras {.title-slide}
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
 
 ---
 
@@ -865,6 +1310,12 @@ from tensorflow import keras
 * Seamless integration with the Pandasverse
 * You should know the competition by Facebook: [PyTorch](https://pytorch.org/)
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
+
 ---
 
 ### Malaria!
@@ -874,6 +1325,12 @@ The [Malaria](https://lhncbc.nlm.nih.gov/LHC-research/LHC-projects/image-process
 This dataset is part of the [`tensorflow_dataset`](https://www.tensorflow.org/datasets) library which gives you easy access to dozens of varied datasets.
 
 Here we take only ~10% of the images as a Numpy array and resize them all to 100x100 pixels, for the sake of speed.
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
 
 ---
 
@@ -917,6 +1374,12 @@ print(X_train.shape)
 print(X_test.shape)
 ```
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
+
 ---
 
 ```{python}
@@ -931,6 +1394,12 @@ lr = lr.fit(X_train, y_train)
 test_acc = lr.score(X_test, y_test)
 print(f'Test accuracy for LR: {test_acc:.3f}')
 ```
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
 
 ---
 
@@ -969,6 +1438,12 @@ model = Sequential([
 ])
 ```
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
+
 ---
 
 Make sure you get these numbers:
@@ -982,6 +1457,12 @@ model.summary()
 
 ::: {.callout-tip}
 Are you at all worried?
+:::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
 :::
 
 ---
@@ -1034,6 +1515,12 @@ For more initialization schemes, losses, metrics and optimizers:
 * [https://keras.io/api/metrics/](https://keras.io/api/metrics/)
 :::
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
+
 ---
 
 Fitting the model:
@@ -1052,6 +1539,12 @@ history = model.fit(X_train, y_train,
   validation_split=0.1, callbacks=callbacks, verbose=0)
 ```
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
+
 ---
 
 See later the `history` object's many fields.
@@ -1066,6 +1559,12 @@ pd.DataFrame(history.history).plot(figsize=(10, 6))
 plt.grid(True)
 plt.show()
 ```
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
 
 ---
 
@@ -1096,6 +1595,13 @@ pd.DataFrame(
 ::: {.callout-note}
 It's OK to be underwhelmed.
 :::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
+
 ---
 
 Tuning params:
@@ -1120,6 +1626,12 @@ def malaria_model(n_hidden, n_neurons, lrt):
 
 keras_clf = KerasClassifier(model=malaria_model, n_hidden=1, n_neurons=30, lrt=3e-3)
 ```
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
 
 ---
 
@@ -1155,6 +1667,12 @@ print(f'Best params: {d}')
 
 See also sklearn's [`GridSearchCV()`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV) and [KerasTuner](https://keras.io/keras_tuner/) for a more robust solution.
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
+
 ---
 
 Saving and restoring a model:
@@ -1187,6 +1705,12 @@ import os
 os.remove('malaria.h5')
 ```
 
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
+
 ---
 
 ### Few Excellent Books
@@ -1199,3 +1723,9 @@ os.remove('malaria.h5')
 <img src = "images/chollet_cover.png" style="width: 70%">
 :::
 ::::
+
+::: {.notes}
+::: {style="direction:rtl; font-size:16px"}
+
+:::
+:::
